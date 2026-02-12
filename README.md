@@ -1,98 +1,98 @@
 ## **Proyecto Monarca - Frontend**
 
-Este repositorio forma parte de **Proyecto Monarca**, una iniciativa estratégica diseñada para revolucionar la gestión de viajes empresariales mediante una plataforma integral, segura y altamente adaptable.  
+This repository forms part of the “Proyecto Monarca”, a strategic initiative designed to revolutionize the management of corporate flights thought a comprehensive platform, which is secure and highly adaptable 
 
-## Visión general
+## General Vision
 
-Frontend construido con React + Vite (TypeScript). Consume la API que corre en NestJS.
+This projects FrontEnd was built using React + Vite (Typescript), and uses an API which runs through NestJS
 
-Objetivos principales:
+Main Objectives:
 
-- Interfaz para diferentes roles (Solicitante, Aprobador, Control de costos, Agente de viajes).
+- Interface with different roles (applicant, approver, cost controller, travel agent)
+  
+- Authentication and authorization based in JWT
+  
+- Status management for remote data and forms
+  
+- Protected routes depending on the role
+  
+- Reusability and modularity of components
+  
+- Integration and unitary tests (components, hooks and services)
 
-- Flujo de autenticación y autorización basado en JWT.
 
-- Gestión de estado para formularios y datos remotos.
-
-- Rutas protegidas según rol.
-
-- Modularidad y reusabilidad de componentes.
-
-- Tests unitarios y de integración (componentes, hooks, servicios).
-
-## Estructura
+## Structure
 
 ```md
 src/
-├─ __tests__/         # Tests unitarios / de integración (Jest, React Testing Library)
-├─ assets/            # Imágenes, fuentes, íconos, archivos estáticos importados en componentes
-├─ components/        # Componentes reutilizables (UI atoms/molecules/organisms)
-├─ config/            # Configuración global (endpoints API, constantes, contextos de configuración)
-├─ hooks/             # Custom hooks (e.g., useAuth, useFetch, useForm, usePagination)
-├─ pages/             # Páginas o vistas (cada ruta principal). Ej: LoginPage, DashboardPage, RequestPage, ApprovalPage
-├─ public/            # Archivos estáticos expuestos directamente por Vite (favicon, index.html referencia)
-├─ types/             # Tipos TypeScript compartidos (interfaces de datos, enums, tipos de respuesta API)
-├─ utils/             # Funciones auxiliares (formatters, helpers de fechas, validaciones genéricas)
-├─ App.css            # Estilos globales básicos (reseteos o utilidades mínimas)
-├─ index.css          # Estilos raíz, importados en main.tsx
-├─ main.tsx           # Punto de entrada: renderiza <App /> y configura Providers (Router, Contexts, etc.)
-├─ vite-env.d.ts      # Declaraciones de tipos para Vite
-└─ (posible) serviceWorker.ts  # Si se usa PWA
+tests → Integration and unitary tests (Jest, React Testing Library)
+assets → Images, sources, icons, and static files imported to the components
+components → Reusable components (UI atoms, molecules/organisms)
+config → Global configuration (API endpoints, constants and contexts for config
+hooks → Custom hooks (useAuth, use Fetch, use Form, etc)
+pages → Pages or views (every main route) (LoginPage, DashboardPage, etc)
+public → Static files exposed directly through Vite (favicon, index.html)
+types → Types of TypeScript shared (data interface, enums, types of API responses)
+utils → Auxiliary functions (formats, date helpers, generic validations)
+app.css → Basic global styles (minimal usage o resets)
+index.css → root styles, imported in main.tsx
+main.tsx → Entry point, <App /> is rendered and providers are configured (Router, Contexts, etc)
+vite-env.d.ts → Types of declarations for Vite
+
 ```
 
 
-## Requisitos
+## Requirements
 
-- Node.js (usamos `nvm` para manejar versiones)
-- `npm` (Node Package Manager)
-- `direnv`
+- Node.js (we use NVM to manage versions)
+- npm (Node Package Manager)
+- direnv
+- When you enter the repository, run “direnv allow” if it’s the first time
 
-> Al entrar al repo, corre `direnv allow` si es la primera vez.
 
-## ⚙️ Instalación de herramientas
-Instalar **direnv**
+## How to Install
+In MacOS: brew install direnv
 
-- macOS: `brew install direnv`
 
-Agrega el siguiente hook a tu shell:
-```bash
+Add the following hook to your shell/terminal
+If in Bash:
 # Bash
 echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
 
+If in Zsh:
 # Zsh
 echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
-```
 
-Habilitar **direnv** para este repositorio
-```bash
+
+Enable direnv in this repository by using:
+```
 direnv allow
 ```
 
-Instalar **nvm** y **Node.js**
-```bash
+## Installing nvm and node.js
+For NVM:
+```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
-source ~/.bashrc # o ~/.zshrc según tu shell
+source ~/.bashrc # or ~/.zshrc (depending on your shell)
 
 nvm install
 ```
 
-## Instalación del Proyecto
-
-```bash
+## Installing the Project
+In your shell, run:
+```
 npm install
 ```
 
-### Levantar en local
-
-```bash
+After that we want to activate a local host by doing the following:
+```
 npm run dev
 ```
 
-### Variables de entorno
-Crear un archivo `.env` con el contenido especificado en el `.env.example`:
-
-```bash
+## Environment Variables
+Create an “.env” file with the content specified in the “.env.example” file
+```
 VITE_API_URL=
 ```
 
