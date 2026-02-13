@@ -8,9 +8,12 @@ import path from 'path';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    https: {
-      key: fs.readFileSync(path.resolve(__dirname, 'certs/frontend-key.pem')),
-      cert: fs.readFileSync(path.resolve(__dirname, 'certs/frontend.pem')),
-    },
+    // HTTPS solo si existen los certificados
+    https: fs.existsSync(path.resolve(__dirname, 'certs/frontend-key.pem')) 
+      ? {
+          key: fs.readFileSync(path.resolve(__dirname, 'certs/frontend-key.pem')),
+          cert: fs.readFileSync(path.resolve(__dirname, 'certs/frontend.pem')),
+        }
+      : undefined,
   }
 });
