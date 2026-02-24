@@ -1,3 +1,11 @@
+/**
+ * CreateTravelRequestForm.tsx
+ * Description: Travel request creation form component with destination management and Zod validation.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
@@ -56,6 +64,11 @@ const formSchema = z.object({
 
 type RawFormValues = z.infer<typeof formSchema>;
 
+/**
+ * CreateTravelRequestForm, renders the travel request creation form with destination fields, validation schemas, and submission logic.
+ * Inputs: None, uses hooks for destinations, navigation, and request creation.
+ * Returns: JSX.Element - Form UI for creating travel requests with dynamic destination fields.
+ */
 function CreateTravelRequestForm() {
   const navigate = useNavigate();
   const { destinationOptions, isLoading: isLoadingDestinations } =
@@ -97,6 +110,11 @@ function CreateTravelRequestForm() {
     name: "destinations",
   });
 
+  /**
+   * onSubmit, validates and submits travel request data, transforming destinations to API format.
+   * Inputs: data (RawFormValues) - Form data containing origin, motive, destinations, and other request details.
+   * Returns: Promise<void> - Executes mutation, displays toast notifications, and navigates on success.
+   */
   const onSubmit = async (data: RawFormValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");

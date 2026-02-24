@@ -1,3 +1,11 @@
+/**
+ * TravelRequestForm.tsx
+ * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
+ * Authors: Original Monarca team
+ * Last Modification made:
+ * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
@@ -70,7 +78,7 @@ interface TravelRequestFormProps {
 interface DestinationFieldsProps {
   idx: number;
   control: Control<RawFormValues>;
-  register: UseFormRegister<RawFormValues>;
+  register: UseFormRegister<RawFormValu, Res>;
   destinationOptions: { id: string | number; name: string }[];
   errors: FieldErrors<RawFormValues>["requests_destinations"];
   remove: (index: number) => void;
@@ -78,6 +86,11 @@ interface DestinationFieldsProps {
   isLoadingDestinations: boolean;
 }
 
+/**
+ * DestinationFields, renders one destination block with dates, details, and travel requirements inside the form.
+ * Inputs: props: DestinationFieldsProps - Destination index, form controls, options, and handlers.
+ * Returns: JSX.Element - Destination section UI.
+ */
 function DestinationFields({
   idx,
   control,
@@ -266,6 +279,13 @@ function DestinationFields({
   );
 }
 
+/**
+ * TravelRequestForm, renders and manages the full travel request form in create or edit mode.
+ * Inputs:
+ * - initialData?: CreateRequest - Optional preloaded values for edit mode.
+ * - requestId?: string - Optional request identifier used for updates.
+ * Returns: JSX.Element - Form UI with submit actions.
+ */
 function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
   const { destinationOptions, isLoading: isLoadingDestinations } =
@@ -313,6 +333,11 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     name: "requests_destinations",
   });
 
+  /**
+   * onSubmit, Validates destination stay rules, builds payload data, and creates or updates a request.
+   * Inputs:data: RawFormValues - Validated form values provided by react-hook-form.
+   * Returns: Promise<void> - Executes mutation requests and navigation side effects.
+   */
   const onSubmit = async (data: RawFormValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");
