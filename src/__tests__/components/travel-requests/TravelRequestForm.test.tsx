@@ -1,4 +1,13 @@
-// src/components/travel-requests/__tests__/TravelRequestForm.test.tsx
+/**
+ * TravelRequestForm.test.tsx
+ * Description: Comprehensive test suite for the TravelRequestForm component, validating form rendering,
+ * field validation, dynamic destination management, automatic stay-days calculation,
+ * and successful/failed submission flows. External hooks (navigation, destinations,
+ * create/update mutations) are mocked to isolate component behavior and verify payload structure.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -8,9 +17,7 @@ import { useDestinations } from "../../../hooks/destinations/useDestinations";
 import { useCreateTravelRequest } from "../../../hooks/requests/useCreateRequest";
 import { useUpdateTravelRequest } from "../../../hooks/requests/useUpdateRequest";
 
-/* ---------------------------------------------------------------- */
-/*  Test setup / mocks                                              */
-/* ---------------------------------------------------------------- */
+// Test setup / mocks
 
 // Polyfill ResizeObserver for jsdom
 class ResizeObserverMock {
@@ -32,10 +39,8 @@ vi.mock("../../../hooks/requests/useUpdateRequest", () => ({
   useUpdateTravelRequest: vi.fn(),
 }));
 
-/* ---------------------------------------------------------------- */
-/*  Shared test data                                                */
-/* ---------------------------------------------------------------- */
 
+// Shared test data
 const mockNavigate = vi.fn();
 const mockDestinationOptions = [
   { id: "1", name: "Destination 1" },
@@ -60,10 +65,8 @@ beforeEach(() => {
   });
 });
 
-/* ---------------------------------------------------------------- */
-/*  Tests                                                           */
-/* ---------------------------------------------------------------- */
-
+// Tests
+ 
 describe("TravelRequestForm", () => {
   it("renders the form with initial values", () => {
     render(<TravelRequestForm />);
@@ -124,33 +127,33 @@ describe("TravelRequestForm", () => {
     render(<TravelRequestForm />);
     const user = userEvent.setup();
 
-    /* --- basic fields --- */
+    // basic fields
     await user.type(screen.getByLabelText(/título/i), "Test Trip");
     await user.type(screen.getByLabelText(/motivo/i), "Business Meeting");
     await user.type(screen.getByLabelText(/dinero adelantado/i), "1000");
 
-    /* --- origin city dropdown --- */
+    // origin city dropdown
     await user.click(screen.getByLabelText(/ciudad origen/i));
     await user.click(
       await screen.findByRole("option", { name: "Destination 1" })
     );
 
-    /* --- priority dropdown --- */
+    // priority dropdown
     await user.click(screen.getByLabelText(/prioridad/i));
     await user.click(await screen.findByRole("option", { name: "Alta" }));
 
-    /* --- destination dropdown inside Destino #1 --- */
+    // destination dropdown inside Destino #1
     await user.click(screen.getByLabelText(/destino/i));
     await user.click(
       await screen.findByRole("option", { name: "Destination 1" })
     );
 
-    /* --- remaining fields inside Destino #1 --- */
+    // remaining fields inside Destino #1
     await user.type(screen.getByLabelText(/detalles/i), "Hotel details");
     await user.type(screen.getByLabelText(/fecha salida/i), "2024-03-01");
     await user.type(screen.getByLabelText(/fecha llegada/i), "2024-03-05");
 
-    /* --- submit --- */
+    // submit 
     await user.click(screen.getByRole("button", { name: /crear viaje/i }));
 
     await waitFor(() => {

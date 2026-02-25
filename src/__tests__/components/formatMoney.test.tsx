@@ -1,3 +1,12 @@
+/**
+ * formatMoney.test.tsx
+ * Description: Test suite for the formatMoney utility function, validating correct currency 
+ * formatting, handling of invalid inputs, and edge cases such as negative numbers and Infinity.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect } from "vitest";
 import formatMoney from "./../../utils/formatMoney";
 

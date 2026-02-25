@@ -1,3 +1,13 @@
+/**
+ * TextArea.test.tsx
+ * Description: Test suite for the TextAreaField component, validating rendering, label and required indicators,
+ * value changes, error handling, custom validation logic, disabled state, styling variations,
+ * and focus/blur event behavior to ensure proper form interaction and validation states.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import TextAreaField from "../../../components/Refunds/TextArea";

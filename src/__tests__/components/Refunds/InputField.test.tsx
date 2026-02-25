@@ -1,3 +1,14 @@
+/**
+ * InputField.test.tsx
+ * Description: Test suite for the InputField component, validating rendering, label and required indicators,
+ * value updates, error handling, custom validation logic, disabled state, dynamic styling,
+ * focus/blur behavior, and support for multiple input types (text, number, checkbox, radio, date).
+ * Ensures correct state management and accessibility roles across different input configurations.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import InputField from "../../../components/Refunds/InputField";

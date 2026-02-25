@@ -1,8 +1,10 @@
 /**
- * @file Footer.test.tsx
- * @description This file contains the test suite for the Footer component. It tests that the current year and the copyright and policy text render correctly.
- * @lastEdited 2025-05-27
- * @author Leon Blanga
+ * Footer.test.tsx
+ * Description: This file contains the test suite for the Footer component. 
+ * It tests that the current year and the copyright and policy text render correctly.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { render, screen } from "@testing-library/react";

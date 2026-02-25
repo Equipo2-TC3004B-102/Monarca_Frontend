@@ -1,3 +1,12 @@
+/**
+ * pdfViewer.test.tsx
+ * Description: Test suite for the MyDocument PDF component, verifying correct rendering of document structure,
+ * page configuration, and text content using mocked @react-pdf/renderer components.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { render } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import MyDocument from "./../../utils/pdfViewer.tsx";

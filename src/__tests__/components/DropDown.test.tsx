@@ -1,3 +1,13 @@
+/**
+ * Dropdown.test.tsx
+ * Description: Unit tests for the Dropdown component (Approvals module). Validates rendering,
+ * placeholders, option listing, selection behavior, and empty value handling using Vitest + 
+ * React Testing Library.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'

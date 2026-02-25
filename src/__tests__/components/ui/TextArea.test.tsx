@@ -1,3 +1,14 @@
+/**
+ * TextArea.test.tsx
+ * Description: Test suite for the TextArea component, validating correct rendering,
+ * custom className application, value change handling, default styling,
+ * prop forwarding (such as disabled, placeholder, and rows), and ref forwarding
+ * to ensure proper behavior and integration within form components.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";

@@ -1,8 +1,11 @@
 /**
- * File: SidebarOption.test.tsx
- * Description: Test suite for the SidebarOption component
- * Last edited: 16/05/2025
- * Author: Gabriel Edid Harari
+ * SidebarOption.test.tsx
+ * Description: Test suite for the SidebarOption component, validating correct rendering of icon, label, and link,
+ * as well as proper application of CSS classes and structural wrapping. Uses a mocked Link component
+ * to isolate routing behavior during testing.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { describe, it, expect, vi } from "vitest";
