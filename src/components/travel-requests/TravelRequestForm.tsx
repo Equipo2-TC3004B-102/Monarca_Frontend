@@ -78,7 +78,7 @@ interface TravelRequestFormProps {
 interface DestinationFieldsProps {
   idx: number;
   control: Control<RawFormValues>;
-  register: UseFormRegister<RawFormValu, Res>;
+  register: UseFormRegister<RawFormValues>;
   destinationOptions: { id: string | number; name: string }[];
   errors: FieldErrors<RawFormValues>["requests_destinations"];
   remove: (index: number) => void;
