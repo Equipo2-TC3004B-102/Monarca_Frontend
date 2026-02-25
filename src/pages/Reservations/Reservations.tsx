@@ -1,3 +1,9 @@
+/**
+ * FileName: Reservations.tsx
+ * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
+ * Authors: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Input from "../../components/Refunds/InputField";
@@ -9,6 +15,14 @@ import { postRequest } from "../../utils/apiService";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 
+/**
+ * FunctionName: Reservations
+ * Purpose of the function: to display the reservations page.
+ * Input: none
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 export const Reservations = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -62,6 +76,14 @@ export const Reservations = () => {
       handleVisitPage();
     }, []);
 
+  /**
+ * FunctionName: handleFileChange
+ * Purpose of the function: to handle the file change event.
+ * Input: e: React.ChangeEvent<HTMLInputElement>, id: string
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
     const { name, files } = e.target;
     const file = files ? files[0] : null;
@@ -79,6 +101,14 @@ export const Reservations = () => {
     setFormData(updatedFormData);
   };
 
+  /**
+ * FunctionName: handleChange
+ * Purpose of the function: to handle the change event.
+ * Input: e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string) => {
     const { name, value } = e.target;
     const updatedFormData = {
@@ -91,6 +121,14 @@ export const Reservations = () => {
     setFormData(updatedFormData);
   };
 
+  /**
+ * FunctionName: handleSubmit
+ * Purpose of the function: to handle the submit event.
+ * Input: e: React.FormEvent
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
       if (formData === null || Object.keys(formData).length === 0) {
