@@ -1,3 +1,11 @@
+/**
+ * Vouchers.test.tsx
+ * Description: Test suite for the Vouchers page component. Covers initial rendering, trip data display, dynamic table columns, file upload handling, submission, and error cases.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { vi, describe, it, expect, beforeEach } from "vitest";
@@ -100,6 +108,11 @@ const mockTrip = {
   },
 };
 
+/**
+ * Renders a React element wrapped in BrowserRouter for isolated routing.
+ * @param component - The React element to render
+ * @returns The render result
+ */
 const renderWithRouter = (component: React.ReactElement) => {
   return render(<BrowserRouter>{component}</BrowserRouter>);
 };
@@ -164,7 +177,6 @@ describe("Vouchers Component", () => {
     fireEvent.click(addRowButton);
 
     // The mock DynamicTable simulates adding a row with test data
-    // In a real test, you'd verify the actual form state changes
   });
 
   it("submits refund successfully", async () => {
@@ -274,19 +286,15 @@ describe("Vouchers Component", () => {
     expect(screen.getByTestId("dynamic-table")).toBeInTheDocument();
   });
 
-  // Add these tests to your existing describe block
-
   it("handles file upload for XML files", async () => {
     vi.mocked(getRequest).mockResolvedValue(mockTrip);
     renderWithRouter(<Vouchers />);
 
-    // First add a row to trigger the table to render input fields
     const addRowButton = screen.getByTestId("add-row");
     fireEvent.click(addRowButton);
 
-    // Wait for the dynamic table to update with form inputs
     await waitFor(() => {
-      // The mock DynamicTable doesn't render actual file inputs,
+      // The mock DynamicTable does not render actual file inputs,
       // so we test the column configuration instead
       expect(screen.getByTestId("column-XMLFile")).toBeInTheDocument();
     });
@@ -345,7 +353,6 @@ describe("Vouchers Component", () => {
     vi.mocked(postRequest).mockResolvedValue({});
     vi.mocked(patchRequest).mockResolvedValue({});
 
-    // Mock the component's internal state change
     renderWithRouter(<Vouchers />);
 
     // Simulate adding multiple rows

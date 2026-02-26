@@ -1,17 +1,28 @@
-/* __tests__/pages/RequestInfo.full.test.tsx */
+/**
+ * RequestInfo.test.tsx
+ * Description: Test suite for the RequestInfo page component. Covers approval, change request, denial, cancellation, accounting registration flows, and tag rendering.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import RequestInfo from '../../pages/RequestInfo';
 
-/* ──────────── VARIABLES DE CONTROL (se cambian en cada test) ──────────── */
+/* ══════════════════════════════════════════════════════════════
+   Control variables (changed per test)
+   ══════════════════════════════════════════════════════════════ */
 let mockPermissions: string[] = ['approve_request'];
-let mockRequestPayload: any = {};                    // se asigna en cada test
+let mockRequestPayload: any = {}; // assigned in each test
 
-/* ──────────── 1. Mocks globales ──────────── */
+/* ══════════════════════════════════════════════════════════════
+   1. Global mocks
+   ══════════════════════════════════════════════════════════════ */
 
-// useParams → siempre id=123
+// useParams → always id=123
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>(
     'react-router-dom'
@@ -19,14 +30,14 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useParams: () => ({ id: '123' }) };
 });
 
-// authContext: permisos variables
+// authContext: variable permissions
 vi.mock('../../hooks/auth/authContext', () => ({
   useAuth: () => ({
     authState: { userId: '999', userPermissions: mockPermissions },
   }),
 }));
 
-// toastify
+// react-toastify
 vi.mock('react-toastify', () => ({
   toast: { success: vi.fn(), info: vi.fn(), error: vi.fn() },
 }));
@@ -56,7 +67,13 @@ vi.mock('../../utils/apiService', () => {
 });
 import * as apiService from '../../utils/apiService';
 
-/* ──────────── 2. Helper render ──────────── */
+/* ══════════════════════════════════════════════════════════════
+   2. Helper render function
+   ══════════════════════════════════════════════════════════════ */
+/**
+ * Renders the RequestInfo page with the route /requests/123 for isolated testing.
+ * @returns The rendered component result
+ */
 const renderPage = () =>
   render(
     <MemoryRouter initialEntries={['/requests/123']}>
@@ -66,7 +83,9 @@ const renderPage = () =>
     </MemoryRouter>
   );
 
-/* ──────────── 3. Datos base reutilizables ──────────── */
+/* ══════════════════════════════════════════════════════════════
+   3. Reusable base request data
+   ══════════════════════════════════════════════════════════════ */
 const baseRequest = {
   id: 123,
   createdAt: '2025-05-28T12:00:00Z',
@@ -91,16 +110,18 @@ const baseRequest = {
   id_travel_agency: null,
 };
 
-/* ──────────── 4. Tests ──────────── */
+/* ══════════════════════════════════════════════════════════════
+   4. Tests
+   ══════════════════════════════════════════════════════════════ */
 describe('RequestInfo – full coverage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockPermissions = ['approve_request']; // default
-    mockRequestPayload = { ...baseRequest }; // copia limpia
+    mockPermissions = ['approve_request']; // default permission
+    mockRequestPayload = { ...baseRequest }; // clean copy
   });
 
-  /* A. Aprobar */
-  it('flujo de Aprobación', async () => {
+  /* A. Approve */
+  it('approval flow', async () => {
     renderPage();
 
     await userEvent.selectOptions(
@@ -117,8 +138,8 @@ describe('RequestInfo – full coverage', () => {
     );
   });
 
-  /* B. Solicitar cambios */
-  it('flujo de Solicitar cambios', async () => {
+  /* B. Request changes */
+  it('request changes flow', async () => {
     renderPage();
 
     await userEvent.type(
@@ -137,8 +158,8 @@ describe('RequestInfo – full coverage', () => {
     );
   });
 
-  /* C. Denegar */
-  it('flujo de Denegar', async () => {
+  /* C. Deny */
+  it('denial flow', async () => {
     renderPage();
 
     await userEvent.click(screen.getByRole('button', { name: /denegar/i }));
@@ -151,8 +172,8 @@ describe('RequestInfo – full coverage', () => {
     );
   });
 
-  /* D. Cancelar (permiso create_request) */
-  it('flujo de Cancelar con permiso create_request', async () => {
+  /* D. Cancel (requires create_request permission) */
+  it('cancellation flow with create_request permission', async () => {
     mockPermissions = ['create_request'];
     renderPage();
 
@@ -166,8 +187,8 @@ describe('RequestInfo – full coverage', () => {
     );
   });
 
-  /* E. Registrar (permiso check_budgets, status Pending Accounting Approval) */
-  it('flujo de Marcar registrado', async () => {
+  /* E. Register (check_budgets permission, Pending Accounting Approval status) */
+  it('mark as registered flow', async () => {
     mockPermissions = ['check_budgets'];
     mockRequestPayload = { ...baseRequest, status: 'Pending Accounting Approval' };
 
@@ -185,8 +206,8 @@ describe('RequestInfo – full coverage', () => {
     );
   });
 
-  /* F. Verifica render de tags y cálculo de saldo */
-  it('muestra tags de hotel/avión y saldo a favor', async () => {
+  /* F. Verify tag rendering and balance calculation */
+  it('shows hotel/plane tags and positive balance', async () => {
     mockRequestPayload = {
       ...baseRequest,
       advance_money: 500,
@@ -196,18 +217,18 @@ describe('RequestInfo – full coverage', () => {
 
     expect(await screen.findByText('Hotel')).toBeInTheDocument();
     expect(screen.getByText('Avión')).toBeInTheDocument();
-    expect(screen.getByDisplayValue(/\$?300\.00/)).toHaveClass('text-green-600'); // saldo a favor
+    expect(screen.getByDisplayValue(/\$?300\.00/)).toHaveClass('text-green-600');
   });
 
- /* G. Botón Aprobar permanece deshabilitado sin agencia seleccionada */
-it('mantiene deshabilitado “Aprobar” si no se elige agencia', async () => {
-  renderPage();
+  /* G. Approve button remains disabled when no agency is selected */
+  it('keeps "Aprobar" button disabled when no agency is selected', async () => {
+    renderPage();
 
-  const approveBtn = await screen.findByRole('button', { name: /aprobar/i });
-  expect(approveBtn).toBeDisabled();
+    const approveButton = await screen.findByRole('button', { name: /aprobar/i });
+    expect(approveButton).toBeDisabled();
 
-  // Intento de click: no debe disparar la llamada al servicio
-  await userEvent.click(approveBtn);
-  expect(apiService.patchRequest).not.toHaveBeenCalled();
-});
+    // Click attempt must not trigger the service call
+    await userEvent.click(approveButton);
+    expect(apiService.patchRequest).not.toHaveBeenCalled();
+  });
 });

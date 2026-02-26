@@ -1,10 +1,19 @@
-/* __tests__/pages/RefundsReview.test.tsx */
+/**
+ * RefundsReview.test.tsx
+ * Description: Test suite for the RefundsReview page component. Covers loading indicator, data rendering in Table, status filtering, and navigation on button click.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import RefundsReview from '../../pages/Refunds/RefundsReview';
 
-/* ═════════════ mocks de react-router ═════════════ */
+/* ══════════════════════════════════════════════════════════════
+   react-router mocks
+   ══════════════════════════════════════════════════════════════ */
 const navigateSpy = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>(
@@ -13,7 +22,9 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => navigateSpy };
 });
 
-/* ═════════════ mocks de componentes UI ═════════════ */
+/* ══════════════════════════════════════════════════════════════
+   UI component mocks
+   ══════════════════════════════════════════════════════════════ */
 vi.mock('../../components/GoBack', () => ({ default: () => <div /> }));
 vi.mock('../../components/RefreshButton', () => ({
   default: () => <button data-testid="refresh" />,
@@ -24,14 +35,22 @@ vi.mock('../../components/Refunds/Table', () => ({
   default: (props: any) => (tableSpy(props), <div data-testid="table" />),
 }));
 
-/* ═════════════ mock de apiService (sin TDZ) ═════════════ */
+/* ══════════════════════════════════════════════════════════════
+   apiService mock (avoids TDZ)
+   ══════════════════════════════════════════════════════════════ */
 var getRequestMock: Mock;
 vi.mock('../../utils/apiService', () => {
   getRequestMock = vi.fn();
   return { getRequest: getRequestMock };
 });
 
-/* ═════════════ helper render ═════════════ */
+/* ══════════════════════════════════════════════════════════════
+   Helper render function
+   ══════════════════════════════════════════════════════════════ */
+/**
+ * Renders the RefundsReview page wrapped in a MemoryRouter.
+ * @returns The rendered component result
+ */
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -39,7 +58,9 @@ const renderPage = () =>
     </MemoryRouter>
   );
 
-/* ═════════════ pruebas ═════════════ */
+/* ══════════════════════════════════════════════════════════════
+   Tests
+   ══════════════════════════════════════════════════════════════ */
 describe('RefundsReview page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -47,8 +68,8 @@ describe('RefundsReview page', () => {
     navigateSpy.mockClear();
   });
 
-  it('muestra loading y luego la tabla con datos', async () => {
-    /* dataset mínimo para carga */
+  it('shows loading indicator and then renders table with data', async () => {
+    // Minimal dataset for loading
     getRequestMock.mockResolvedValueOnce([
       {
         id: '001',
@@ -65,15 +86,15 @@ describe('RefundsReview page', () => {
 
     renderPage();
 
-    // Loading visible
+    // Loading indicator is visible
     expect(
       screen.getByText(/Cargando datos de viajes/i)
     ).toBeInTheDocument();
 
-    // Espera a que <Table> se renderice
+    // Wait for Table to render
     await waitFor(() => expect(tableSpy).toHaveBeenCalled());
 
-    // Verifica datos pasados a la tabla
+    // Verify data passed to table
     const { data } = tableSpy.mock.calls.at(-1)![0];
     expect(data[0]).toMatchObject({
       id: '001',
@@ -82,13 +103,13 @@ describe('RefundsReview page', () => {
     expect(data[0].action.props.label).toBe('Ver comprobantes');
   });
 
-  it('filtra por status y navega al hacer clic en "Ver comprobantes"', async () => {
-    /* dataset con 3 estatus diferentes */
+  it('filters by status and navigates on "Ver comprobantes" click', async () => {
+    // Dataset with 3 different statuses
     getRequestMock.mockResolvedValueOnce([
       {
         id: 'A1',
         title: 'Viaje válido',
-        status: 'Pending Vouchers Approval', // ← debe quedar
+        status: 'Pending Vouchers Approval', // should remain
         advance_money: 0,
         createdAt: '2025-04-01',
         destination: { city: 'MEX' },
@@ -99,7 +120,7 @@ describe('RefundsReview page', () => {
       {
         id: 'B2',
         title: 'Viaje aprobado',
-        status: 'Approved', // ← se descarta
+        status: 'Approved', // should be filtered out
         advance_money: 0,
         createdAt: '2025-04-02',
         destination: { city: 'GDL' },
@@ -110,7 +131,7 @@ describe('RefundsReview page', () => {
       {
         id: 'C3',
         title: 'Viaje pendiente',
-        status: 'Pending Review', // ← se descarta
+        status: 'Pending Review', // should be filtered out
         advance_money: 0,
         createdAt: '2025-04-03',
         destination: { city: 'CUN' },
@@ -125,12 +146,11 @@ describe('RefundsReview page', () => {
 
     const { data } = tableSpy.mock.calls.at(-1)![0];
 
-    // Solo queda el viaje 'A1'
+    // Only trip 'A1' remains after filtering
     expect(data).toHaveLength(1);
     expect(data[0].id).toBe('A1');
 
-    // Click simulado → navega
-    // Busca el Link y simula click
+    // Simulate click and verify navigation
     data[0].action.props.onClickFunction();
     expect(navigateSpy).toHaveBeenCalledWith('/refunds-review/A1');
   });

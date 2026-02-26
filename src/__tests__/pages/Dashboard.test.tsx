@@ -1,6 +1,14 @@
+/**
+ * Dashboard.test.tsx
+ * Description: Test suite for the Dashboard page component. Covers page title updates and permission-based card rendering.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom"; // Add this
+import { MemoryRouter } from "react-router-dom";
 import { Dashboard } from "../../pages/Dashboard";
 
 // Mock both context hooks
@@ -45,6 +53,11 @@ describe("Dashboard", () => {
     vi.clearAllMocks();
   });
 
+  /**
+   * Renders a React element wrapped in MemoryRouter for isolated routing.
+   * @param component - The React element to render
+   * @returns The render result
+   */
   const renderWithRouter = (component: React.ReactElement) => {
     return render(<MemoryRouter>{component}</MemoryRouter>);
   };

@@ -1,8 +1,9 @@
 /**
- * File: Refunds.test.tsx
- * Description: Test suite for the Refunds page component
- * Last edited: 16/05/2025
- * Author: Gabriel Edid Harari
+ * Refunds.test.tsx
+ * Description: Test suite for the Refunds page component. Covers rendering, data loading, navigation on button click, loading state, and API error handling.
+ * Authors: Gabriel Edid Harari
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -96,6 +97,11 @@ describe("Refunds", () => {
     vi.clearAllMocks();
   });
 
+  /**
+   * Renders a React element wrapped in MemoryRouter for isolated routing.
+   * @param component - The React element to render
+   * @returns The render result
+   */
   const renderWithRouter = (component: React.ReactElement) => {
     return render(<MemoryRouter>{component}</MemoryRouter>);
   };
@@ -154,12 +160,12 @@ describe("Refunds", () => {
   });
 
   it("shows loading state initially", async () => {
-    // Create a new mock that never resolves
-    const mockGetRequest = vi.fn(() => new Promise(() => {}));
+    // Create a mock that never resolves to keep loading state visible
+    const neverResolvingRequest = vi.fn(() => new Promise(() => {}));
 
     // Re-mock the module for this test only
     vi.doMock("../../utils/apiService", () => ({
-      getRequest: mockGetRequest,
+      getRequest: neverResolvingRequest,
     }));
 
     renderWithRouter(<Refunds />);
@@ -171,12 +177,12 @@ describe("Refunds", () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Create a fresh mock that rejects
-    const mockGetRequest = vi.fn().mockRejectedValue(new Error("API Error"));
+    const failingRequest = vi.fn().mockRejectedValue(new Error("API Error"));
 
     // Reset and override the module mock
     vi.resetModules();
     vi.doMock("../../utils/apiService", () => ({
-      getRequest: mockGetRequest,
+      getRequest: failingRequest,
     }));
 
     // Import component after mock override

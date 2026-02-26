@@ -1,13 +1,22 @@
-/* __tests__/pages/Login.test.tsx */
+/**
+ * Login.test.tsx
+ * Description: Test suite for the Login page component. Covers form rendering, user input, successful login navigation, and error handling via toast notifications.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import LoginPage from '../../pages/Login';
 
-/* ──────────── 1. Mocks globales ──────────── */
+/* ══════════════════════════════════════════════════════════════
+   1. Global mocks
+   ══════════════════════════════════════════════════════════════ */
 
-// 👉 navigate
+// navigate mock
 const mockedNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>(
@@ -16,21 +25,29 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockedNavigate };
 });
 
-// 👉 apiService
+// apiService mock
 vi.mock('../../utils/apiService', () => ({ postRequest: vi.fn() }));
 
-// 👉 react-toastify
+// react-toastify mock
 vi.mock('react-toastify', () => ({
   toast: { error: vi.fn() },
   ToastContainer: () => null,
 }));
 
-/* 2️⃣  Acceso tipado a los mocks */
+/* ══════════════════════════════════════════════════════════════
+   2. Typed access to mocks
+   ══════════════════════════════════════════════════════════════ */
 import * as apiServiceOrig from '../../utils/apiService';
 import { toast } from 'react-toastify';
 const apiService = vi.mocked(apiServiceOrig);
 
-/* ──────────── 3. Helper render ──────────── */
+/* ══════════════════════════════════════════════════════════════
+   3. Helper render function
+   ══════════════════════════════════════════════════════════════ */
+/**
+ * Renders the LoginPage wrapped in a BrowserRouter for isolated testing.
+ * @returns The rendered component result
+ */
 const renderLogin = () =>
   render(
     <BrowserRouter>
@@ -38,12 +55,14 @@ const renderLogin = () =>
     </BrowserRouter>
   );
 
-/* ──────────── 4. Tests ──────────── */
+/* ══════════════════════════════════════════════════════════════
+   4. Tests
+   ══════════════════════════════════════════════════════════════ */
 describe('LoginPage', () => {
   beforeEach(() => vi.clearAllMocks());
 
   /* ---------- BASIC RENDER ---------- */
-  it('muestra elementos básicos del formulario', () => {
+  it('renders basic form elements', () => {
     renderLogin();
 
     expect(screen.getByText('INICIO DE SESIÓN')).toBeInTheDocument();
@@ -52,26 +71,26 @@ describe('LoginPage', () => {
     expect(screen.getByText('Continuar')).toBeInTheDocument();
     expect(screen.getByText('M')).toBeInTheDocument();
     expect(screen.getByText('ONARCA')).toBeInTheDocument();
-    const forgot = screen.getByText('¿Olvidaste tu contraseña?');
-    expect(forgot).toHaveAttribute('href', '/register');
+    const forgotLink = screen.getByText('¿Olvidaste tu contraseña?');
+    expect(forgotLink).toHaveAttribute('href', '/register');
   });
 
-  /* ---------- INTERACCIÓN INPUT ---------- */
-  it('actualiza inputs al escribir', async () => {
+  /* ---------- INPUT INTERACTION ---------- */
+  it('updates inputs on user typing', async () => {
     renderLogin();
 
-    const email = screen.getByPlaceholderText('Correo');
-    const pass = screen.getByPlaceholderText('Contraseña');
+    const emailInput = screen.getByPlaceholderText('Correo');
+    const passwordInput = screen.getByPlaceholderText('Contraseña');
 
-    await userEvent.type(email, 'user@test.com');
-    await userEvent.type(pass, '123456');
+    await userEvent.type(emailInput, 'user@test.com');
+    await userEvent.type(passwordInput, '123456');
 
-    expect(email).toHaveValue('user@test.com');
-    expect(pass).toHaveValue('123456');
+    expect(emailInput).toHaveValue('user@test.com');
+    expect(passwordInput).toHaveValue('123456');
   });
 
-  /* ---------- ENVÍO CORRECTO ---------- */
-  it('navega al dashboard en login exitoso', async () => {
+  /* ---------- SUCCESSFUL LOGIN ---------- */
+  it('navigates to dashboard on successful login', async () => {
     apiService.postRequest.mockResolvedValueOnce({ status: true });
 
     renderLogin();
@@ -88,11 +107,11 @@ describe('LoginPage', () => {
     expect(mockedNavigate).toHaveBeenCalledWith('/dashboard');
   });
 
-  /* ---------- CAMPOS VACÍOS ---------- */
-  it('muestra toast si se envía sin llenar campos', async () => {
+  /* ---------- EMPTY FIELDS ---------- */
+  it('shows toast if form is submitted with empty fields', async () => {
     renderLogin();
 
-    // Desactiva la validación nativa HTML5
+    // Disable native HTML5 validation
     const form = document.querySelector('form') as HTMLFormElement;
     form.noValidate = true;
 
@@ -107,8 +126,8 @@ describe('LoginPage', () => {
     expect(apiService.postRequest).not.toHaveBeenCalled();
   });
 
-  /* ---------- CREDENCIALES INCORRECTAS ---------- */
-  it('muestra toast si API devuelve status false', async () => {
+  /* ---------- WRONG CREDENTIALS ---------- */
+  it('shows toast if API returns status false', async () => {
     apiService.postRequest.mockResolvedValueOnce({ status: false });
 
     renderLogin();
@@ -126,8 +145,8 @@ describe('LoginPage', () => {
     );
   });
 
-  /* ---------- ERROR DE SERVIDOR ---------- */
-  it('muestra toast genérico si la petición falla', async () => {
+  /* ---------- SERVER ERROR ---------- */
+  it('shows generic toast if the request fails', async () => {
     apiService.postRequest.mockRejectedValueOnce(new Error('network'));
 
     renderLogin();
@@ -145,15 +164,15 @@ describe('LoginPage', () => {
     );
   });
 
-  /* ---------- PERSISTENCIA AL RERENDER ---------- */
-  it('mantiene los valores después de un rerender', async () => {
+  /* ---------- PERSISTENCE AFTER RERENDER ---------- */
+  it('retains input values after rerender', async () => {
     const { rerender } = renderLogin();
 
-    const email = screen.getByPlaceholderText('Correo');
-    const pass = screen.getByPlaceholderText('Contraseña');
+    const emailInput = screen.getByPlaceholderText('Correo');
+    const passwordInput = screen.getByPlaceholderText('Contraseña');
 
-    await userEvent.type(email, 'persist@example.com');
-    await userEvent.type(pass, 'persistpw');
+    await userEvent.type(emailInput, 'persist@example.com');
+    await userEvent.type(passwordInput, 'persistpw');
 
     rerender(
       <BrowserRouter>

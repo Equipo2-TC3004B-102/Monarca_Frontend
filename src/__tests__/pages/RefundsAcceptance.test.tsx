@@ -1,8 +1,9 @@
 /**
- * File: RefundsAcceptance.test.tsx
- * Description: Test suite for the RefundsAcceptance page component
- * Last edited: 16/05/2025
- * Author: Gabriel Edid Harari
+ * RefundsAcceptance.test.tsx
+ * Description: Test suite for the RefundsAcceptance page component. Covers form rendering, voucher display in Swiper, approve/deny button visibility, and completion button state.
+ * Authors: Gabriel Edid Harari
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -120,6 +121,11 @@ describe("RefundsAcceptance", () => {
     vi.clearAllMocks();
   });
 
+  /**
+   * Renders a React element wrapped in MemoryRouter for isolated routing.
+   * @param component - The React element to render
+   * @returns The render result
+   */
   const renderWithRouter = (component: React.ReactElement) => {
     return render(<MemoryRouter>{component}</MemoryRouter>);
   };
@@ -131,7 +137,6 @@ describe("RefundsAcceptance", () => {
 
     await waitFor(
       () => {
-        // Use getByText instead of regex to match exact rendered text
         expect(
           screen.getByText("Información de Solicitud:"),
         ).toBeInTheDocument();
@@ -230,7 +235,7 @@ describe("RefundsAcceptance", () => {
     );
   });
 
-  it("handles form input display", async () => {
+  it("handles form input display correctly", async () => {
     renderWithRouter(<RefundsAcceptance />);
 
     await waitFor(

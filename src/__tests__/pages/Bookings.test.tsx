@@ -1,8 +1,9 @@
 /**
- * File: Bookings.test.tsx
- * Description: Test suite for the Bookings page component
- * Last edited: 16/05/2025
- * Author: Gabriel Edid Harari
+ * Bookings.test.tsx
+ * Description: Test suite for the Bookings page component. Covers initial render, column count, and refresh button behavior.
+ * Authors: Gabriel Edid Harari
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -34,8 +35,8 @@ vi.mock("../../utils/apiService", () => ({
 // Mock components
 vi.mock("../../components/RefreshButton", () => ({
   default: () => (
-    <button 
-      title="Refrescar" 
+    <button
+      title="Refrescar"
       onClick={() => window.location.reload()}
     >
       Refresh
@@ -72,6 +73,11 @@ describe("Bookings", () => {
     vi.clearAllMocks();
   });
 
+  /**
+   * Renders a React element wrapped in MemoryRouter for isolated routing.
+   * @param component - The React element to render
+   * @returns The render result
+   */
   const renderWithRouter = (component: React.ReactElement) => {
     return render(<MemoryRouter>{component}</MemoryRouter>);
   };
@@ -86,7 +92,7 @@ describe("Bookings", () => {
 
   it("renders with correct column count", async () => {
     renderWithRouter(<Bookings />);
-    
+
     // Wait for API data to load
     await screen.findByTestId("columns-count");
     expect(screen.getByTestId("columns-count").textContent).toBe("6");

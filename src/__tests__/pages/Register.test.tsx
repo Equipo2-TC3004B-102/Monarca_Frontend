@@ -1,11 +1,18 @@
-// src/pages/Register.test.tsx
+/**
+ * Register.test.tsx
+ * Description: Test suite for the Register (Forgot Password) page component. Covers form element rendering and navigation on form submission.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import Register from "../../pages/Register"; // Nombre del archivo/component real
+import Register from "../../pages/Register";
 
-// Mock de useNavigate
+// Mock useNavigate to track navigation calls
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
@@ -16,6 +23,9 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("Register (Forgot Password)", () => {
+  /**
+   * Tests if the forgot password form renders with all expected elements.
+   */
   it("renders the forgot password form elements", () => {
     render(
       <BrowserRouter>
@@ -35,6 +45,9 @@ describe("Register (Forgot Password)", () => {
     expect(screen.getByText("Inicia sesión")).toBeInTheDocument();
   });
 
+  /**
+   * Tests if the component navigates to /dashboard on form submission.
+   */
   it("navigates to /dashboard on form submit", async () => {
     render(
       <BrowserRouter>

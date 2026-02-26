@@ -1,12 +1,21 @@
-/* __tests__/pages/Approvals.test.tsx */
+/**
+ * Approvals.test.tsx
+ * Description: Test suite for the Approvals page component. Verifies rendering, data fetching, and column/row mapping passed to the Table component.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ApprovalsPage from '../../pages/Approvals/Approvals';
 
-/* ───────── 1. Mocks ───────── */
+/* ══════════════════════════════════════════════════════════════
+   1. Mocks
+   ══════════════════════════════════════════════════════════════ */
 
-// API – datos dentro del factory
+// API – data defined inside the factory to avoid hoisting issues
 vi.mock('../../utils/apiService', () => {
   const mockTrips = [
     {
@@ -24,12 +33,12 @@ vi.mock('../../utils/apiService', () => {
   return { getRequest: vi.fn().mockResolvedValue(mockTrips) };
 });
 
-// formatDate
+// formatDate mock
 vi.mock('../../utils/formatDate', () => ({
   default: (d: string) => `f-${d}`,
 }));
 
-// spy del Table
+// Table spy mock
 let tableSpy = vi.fn();
 vi.mock('../../components/Approvals/Table', () => ({
   default: (props: any) => {
@@ -38,7 +47,7 @@ vi.mock('../../components/Approvals/Table', () => ({
   },
 }));
 
-// Placeholders
+// UI placeholder mocks
 vi.mock('../../components/RefreshButton', () => ({
   default: () => <button data-testid="refresh" />,
 }));
@@ -46,7 +55,13 @@ vi.mock('../../components/GoBack', () => ({
   default: () => <div data-testid="goback" />,
 }));
 
-/* ───────── 2. Helper ───────── */
+/* ══════════════════════════════════════════════════════════════
+   2. Helper render function
+   ══════════════════════════════════════════════════════════════ */
+/**
+ * Renders the ApprovalsPage wrapped in a MemoryRouter for isolated testing.
+ * @returns The rendered component result
+ */
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -54,14 +69,16 @@ const renderPage = () =>
     </MemoryRouter>
   );
 
-/* ───────── 3. Tests ───────── */
+/* ══════════════════════════════════════════════════════════════
+   3. Tests
+   ══════════════════════════════════════════════════════════════ */
 describe('Approvals page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tableSpy.mockClear();
   });
 
-  it('renderiza título, botón refresh y pasa datos mapeados a Table', async () => {
+  it('renders title, refresh button and passes mapped data to Table', async () => {
     renderPage();
 
     expect(
@@ -69,14 +86,14 @@ describe('Approvals page', () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId('refresh')).toBeInTheDocument();
 
-    // Espera a que Table reciba un dataset con al menos una fila
+    // Wait for Table to receive a dataset with at least one row
     await waitFor(() =>
       expect(
         tableSpy.mock.calls.find((c) => c[0].data.length > 0)
       ).toBeTruthy()
     );
 
-    // Tomamos la ÚLTIMA llamada (ya con datos)
+    // Use the LAST call (already populated with data)
     const lastCall = tableSpy.mock.calls.at(-1)![0];
     const { data, columns, link } = lastCall;
 

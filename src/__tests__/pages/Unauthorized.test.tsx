@@ -1,10 +1,9 @@
 /**
- * @file Unauthorized.test.tsx
- * @description This file contains the test suite for the Unauthorized component.
- * It tests the rendering of the component and its elements, including the title,
- * messages, and links.
- * @lastEdited 2025-05-13
- * @author Leon Blanga
+ * Unauthorized.test.tsx
+ * Description: Test suite for the Unauthorized component. Tests rendering of the component and its elements, including the title, permission messages, and navigation links.
+ * Authors: Leon Blanga
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { render, screen } from "@testing-library/react";
@@ -21,18 +20,27 @@ describe("Unauthorized component", () => {
     );
   });
 
-  it("muestra el título principal", () => {
+  /**
+   * Tests if the main heading renders correctly.
+   */
+  it("renders the main heading", () => {
     const heading = screen.getByRole("heading", { level: 1 });
     expect(heading).toHaveTextContent("Acceso no autorizado");
   });
 
-  it("muestra el mensaje de permiso denegado", () => {
+  /**
+   * Tests if the permission denied message is displayed.
+   */
+  it("renders the permission denied message", () => {
     expect(
       screen.getByText("No tienes permiso para acceder a esta página."),
     ).toBeInTheDocument();
   });
 
-  it("muestra el mensaje de contacto al administrador", () => {
+  /**
+   * Tests if the contact administrator message is displayed.
+   */
+  it("renders the contact administrator message", () => {
     expect(
       screen.getByText(
         "Contacta a un administrador si crees que esto es un error.",
@@ -40,12 +48,18 @@ describe("Unauthorized component", () => {
     ).toBeInTheDocument();
   });
 
-  it("tiene un enlace al dashboard con la ruta correcta", () => {
-    const dashLink = screen.getByRole("link", { name: /Ir al Panel/i });
-    expect(dashLink).toHaveAttribute("href", "/dashboard");
+  /**
+   * Tests if the dashboard link renders with the correct route.
+   */
+  it("has a link to the dashboard with the correct route", () => {
+    const dashboardLink = screen.getByRole("link", { name: /Ir al Panel/i });
+    expect(dashboardLink).toHaveAttribute("href", "/dashboard");
   });
 
-  it("tiene un enlace al login con la ruta correcta", () => {
+  /**
+   * Tests if the login link renders with the correct route.
+   */
+  it("has a link to the login page with the correct route", () => {
     const loginLink = screen.getByRole("link", {
       name: /Ir a la Página de Iniciar Sesión/i,
     });

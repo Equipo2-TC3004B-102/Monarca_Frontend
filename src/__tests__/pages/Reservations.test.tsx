@@ -1,3 +1,11 @@
+/**
+ * Reservations.test.tsx
+ * Description: Test suite for the Reservations page component. Covers data fetching, form input changes, empty form validation, and API error handling.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
@@ -49,6 +57,11 @@ const mockData = {
   ],
 };
 
+/**
+ * Wrapper component that provides BrowserRouter context for child components.
+ * @param children - React node children to wrap
+ * @returns The wrapped children inside a BrowserRouter
+ */
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>{children}</BrowserRouter>
 );
@@ -87,9 +100,9 @@ describe("Reservations Component", () => {
     // Get the hotel section first, then find the input within it
     const hotelSection = screen.getByText("Información del hotel").closest('div');
     const hotelTitleInput = within(hotelSection!).getByRole('textbox', { name: /título/i }) as HTMLInputElement;
-    
+
     fireEvent.change(hotelTitleInput, { target: { value: "Test Hotel", name: "hotel_title" } });
-    
+
     expect(hotelTitleInput).toHaveValue("Test Hotel");
   });
 

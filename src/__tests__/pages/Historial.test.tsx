@@ -1,16 +1,27 @@
-/* __tests__/pages/Historial.test.tsx */
+/**
+ * Historial.test.tsx
+ * Description: Test suite for the Historial (History) page component. Covers navigation and data filtering based on user permissions.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 26/02/2026 [Fausto Izquierdo] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import HistorialPage from '../../pages/Historial/Historial';
 
-/* ═════════════ 1. authContext manejado por variable ═════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   1. authContext managed via mutable variable
+   ═══════════════════════════════════════════════════════════════ */
 let mockAuth = { userId: '0', userPermissions: [] as string[] };
 vi.mock('../../hooks/auth/authContext', () => ({
   useAuth: () => ({ authState: mockAuth }),
 }));
 
-/* ═════════════ 2. navigate espía ═════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   2. navigate spy
+   ═══════════════════════════════════════════════════════════════ */
 const mockedNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>(
@@ -19,7 +30,9 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockedNavigate };
 });
 
-/* ═════════════ 3. apiService – sin TDZ y tipado ═════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   3. apiService – avoids TDZ and is typed
+   ═══════════════════════════════════════════════════════════════ */
 var getRequestMock: Mock; // hoisted, typed
 
 vi.mock('../../utils/apiService', () => {
@@ -27,7 +40,7 @@ vi.mock('../../utils/apiService', () => {
   return { getRequest: getRequestMock };
 });
 
-/* ── dataset base y reset ───────────────────────────── */
+/* ── base dataset and reset ─────────────────────────────────── */
 const baseTrips = [
   {
     id: 1,
@@ -59,7 +72,9 @@ const baseTrips = [
   },
 ];
 
-/* ═════════════ 4. Otros mocks utilidades & UI ═════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   4. Other utility and UI mocks
+   ═══════════════════════════════════════════════════════════════ */
 vi.mock('../../utils/formatDate', () => ({ default: (d: string) => `f-${d}` }));
 
 const tableSpy = vi.fn();
@@ -78,7 +93,13 @@ vi.mock('../../components/RefreshButton', () => ({
   default: () => <button data-testid="refresh" />,
 }));
 
-/* ═════════════ helper render ═════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   Helper render function
+   ═══════════════════════════════════════════════════════════════ */
+/**
+ * Renders the HistorialPage wrapped in a MemoryRouter for isolated testing.
+ * @returns The rendered component result
+ */
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -86,7 +107,9 @@ const renderPage = () =>
     </MemoryRouter>
   );
 
-/* ═════════════ TESTS ═════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   TESTS
+   ═══════════════════════════════════════════════════════════════ */
 describe('Historial page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -96,7 +119,7 @@ describe('Historial page', () => {
     getRequestMock.mockReset().mockResolvedValue(baseTrips);
   });
 
-  it('create_request navega a detalles', async () => {
+  it('create_request navigates to request details', async () => {
     mockAuth = { userId: '42', userPermissions: ['create_request'] };
 
     renderPage();
@@ -107,7 +130,7 @@ describe('Historial page', () => {
     expect(mockedNavigate).toHaveBeenCalledWith('/requests/1');
   });
 
-  it('approve_request filtra Pending Review', async () => {
+  it('approve_request filters out Pending Review trips', async () => {
     mockAuth = { userId: '999', userPermissions: ['approve_request'] };
 
     renderPage();
@@ -117,7 +140,7 @@ describe('Historial page', () => {
     expect(data.map((r: any) => r.id)).toEqual([1]);
   });
 
-  it('check_budgets usa /to-approve-SOI y filtra', async () => {
+  it('check_budgets uses /to-approve-SOI endpoint and filters results', async () => {
     mockAuth = { userId: '888', userPermissions: ['check_budgets'] };
 
     renderPage();
@@ -128,7 +151,7 @@ describe('Historial page', () => {
     expect(data).toHaveLength(0);
   });
 
-  it('submit_reservations mantiene solo Approved', async () => {
+  it('submit_reservations keeps only Approved trips', async () => {
     getRequestMock.mockResolvedValueOnce([
       {
         id: 3,
