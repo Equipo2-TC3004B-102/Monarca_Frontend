@@ -48,7 +48,7 @@ describe("Layout", () => {
     mockedUseAuth.mockReturnValue({ loadingProfile: false, authState: { isAuthenticated: true } });
     render(<Layout><span>child</span></Layout>);
 
-    // Components y content
+    // Components and content
     ["Header", "Sidebar", "child", "Footer"].forEach(text =>
       expect(screen.getByText(text)).toBeInTheDocument()
     );
