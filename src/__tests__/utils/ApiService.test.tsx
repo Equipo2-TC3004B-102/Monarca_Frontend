@@ -1,6 +1,8 @@
 /**
  * apiService.test.tsx
- * Description: Unit tests for apiService HTTP helpers (GET, POST, PUT, PATCH, DELETE) using Vitest. Mocks Axios instance methods and validates returned data, multipart headers handling, error propagation, and global response interceptor behavior.
+ * Description: Unit tests for apiService HTTP helpers (GET, POST, PUT, PATCH, DELETE) using Vitest.
+ * Mocks Axios instance methods and validates returned data, multipart headers handling, error propagation,
+ * and global response interceptor behavior.
  * Authors: Original Moncarca team
  * Last Modification made:
  * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
@@ -75,7 +77,7 @@ vi.mock('axios', () => {
 const dummyData = { ok: true };
 
 /* ═════════════ Tests ═════════════ */
-describe('apiService - full coverage', () => {
+describe('apiService - cobertura completa', () => {
   /**
    * beforeEach resets mock call history so each test is isolated.
    * Input: None.
@@ -84,7 +86,7 @@ describe('apiService - full coverage', () => {
   beforeEach(() => vi.clearAllMocks());
 
   /* ---------- GET ---------- */
-  it('getRequest returns data', async () => {
+  it('getRequest devuelve datos', async () => {
     axiosGet.mockResolvedValueOnce({ data: dummyData });
     const data = await getRequest('/foo', { q: 1 });
     expect(axiosGet).toHaveBeenCalledWith('/foo', { params: { q: 1 } });
@@ -106,13 +108,13 @@ describe('apiService - full coverage', () => {
     expect(cfgForm.headers?.['Content-Type']).toBe('multipart/form-data');
   });
 
-  it('postRequest propagates errors', async () => {
+  it('postRequest propaga errores', async () => {
     axiosPost.mockRejectedValueOnce(new Error('boom'));
     await expect(postRequest('/fail', {})).rejects.toThrow("boom");
   });
 
   /* ---------- PUT ---------- */
-  it('putRequest sets headers correctly for JSON vs FormData', async () => {
+  it('putRequest JSON vs FormData', async () => {
     axiosPut.mockResolvedValue({ data: dummyData });
 
     await putRequest('/json', { a: 1 });
@@ -127,7 +129,7 @@ describe('apiService - full coverage', () => {
   });
 
   /* ---------- PATCH ---------- */
-  it('patchRequest sets headers correctly for JSON vs FormData', async () => {
+  it('patchRequest JSON vs FormData', async () => {
     axiosPatch.mockResolvedValue({ data: dummyData });
 
     await patchRequest('/json', { a: 1 });
@@ -141,13 +143,13 @@ describe('apiService - full coverage', () => {
     expect(cfgForm.headers?.['Content-Type']).toBe('multipart/form-data');
   });
 
-  it('patchRequest propagates errors', async () => {
+  it('patchRequest propaga errores', async () => {
     axiosPatch.mockRejectedValueOnce(new Error('bad'));
     await expect(patchRequest('/bad', {})).rejects.toThrow('bad');
   });
 
   /* ---------- DELETE ---------- */
-  it('deleteRequest handles success and error cases', async () => {
+  it('deleteRequest éxito y error', async () => {
     axiosDelete.mockResolvedValueOnce({ data: dummyData });
     const data = await deleteRequest('/del/1');
     expect(data).toEqual(dummyData);
@@ -157,7 +159,7 @@ describe('apiService - full coverage', () => {
   });
 
   /* ---------- Interceptor ---------- */
-  it('response interceptor always rejects and propagates errors', async () => {
+  it('interceptor propaga cualquier error', async () => {
     await expect(respInterceptorError({ response: { status: 401 } })).rejects.toBeDefined();
     await expect(respInterceptorError({ request: {} })).rejects.toBeDefined();
     await expect(respInterceptorError({ message: 'boom' })).rejects.toBeDefined();

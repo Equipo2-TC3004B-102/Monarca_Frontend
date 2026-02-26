@@ -34,14 +34,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      console.error("API response error:", error.response);
+      console.error("Error en la respuesta de la API:", error.response);
       if (error.response.status === 401) {
         // Token refresh logic or redirect to login could be implemented here
       }
     } else if (error.request) {
-      console.error("No response received from API:", error.request);
+      console.error("se recibió respuesta de la API:", error.request);
     } else {
-      console.error("Request configuration error:", error.message);
+      console.error("Error al configurar la petición:", error.message);
     }
     return Promise.reject(error);
   }
@@ -85,7 +85,7 @@ export const postRequest = async (
       ...config.headers,
       ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
     };
-
+    console.log("DATA", data);
     const response = await api.post(url, data, { ...config, headers });
     return response.data;
   } catch (error) {
