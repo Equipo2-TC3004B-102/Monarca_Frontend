@@ -1,3 +1,12 @@
+/**
+ * FileName: TextArea.tsx
+ * Description: This file contains the TextArea component used in the Refunds section of the application.
+ * It provides a customizable textArea field with proper validation and styling.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
+ */
 import React, { ChangeEvent, useState } from "react";
 
 /*
@@ -43,6 +52,11 @@ interface TextAreaFieldProps {
  * TextAreaField component that renders a customizable textArea field with proper validation.
  * Now includes client-side validation for required fields and custom validation rules.
  */
+/**
+ * TextAreaField, renders a customizable textarea field with client-side validation, supporting multiple input types and error handling.
+ * Input: id, name, type, value, placeholder, className, disabled, required, label, error, onChange, onBlur, onFocus, validateField
+ * Output: JSX element - a validated textarea field component with error messages
+ */
 const TextAreaField: React.FC<TextAreaFieldProps> = ({
   id,
   name,
@@ -68,7 +82,11 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   const [isTouched, setIsTouched] = useState(false);
   const [wasChanged, setWasChanged] = useState(false);
 
-  // Helper function to check if value is empty based on textArea type
+  /**
+   * isEmptyValue, determines if a textarea value is empty based on its input type.
+   * Input: val (string), textAreaType (string)
+   * Output: boolean - true if value is empty, false otherwise
+   */
   const isEmptyValue = (val: string, textAreaType: string = type): boolean => {
     // For checkboxes and radios, we don't use trim()
     if (textAreaType === "checkbox" || textAreaType === "radio") {
@@ -134,7 +152,11 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   // Text color
   const textClass = "text-[#0a2c6d]";
 
-  // Validate the field
+  /**
+   * validateTextArea, validates a textarea field based on required status and custom validation rules.
+   * Input: textAreaValue (string)
+   * Output: boolean - true if validation passes, false otherwise
+   */
   const validateTextArea = (textAreaValue: string) => {
     // Check if field is required and empty
     if (required && isEmptyValue(textAreaValue)) {
@@ -156,7 +178,11 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
 
   // We don't need the useEffect anymore, validation will be handled by the touch state and event handlers
 
-  // Handle validation on blur
+  /**
+   * handleBlur, handles blur event, marks field as touched, validates textarea and calls original onBlur callback.
+   * Input: none
+   * Output: void
+   */
   const handleBlur = () => {
     setIsTouched(true);
     validateTextArea(value);
@@ -165,7 +191,11 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
     if (onBlur) onBlur();
   };
 
-  // Handle change event
+  /**
+   * handleChange, handles textarea change event, marks field as changed, validates textarea and calls original onChange callback.
+   * Input: e (ChangeEvent<HTMLTextAreaElement>)
+   * Output: void
+   */
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     // Call original onChange handler
     onChange(e);
@@ -177,13 +207,21 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
     validateTextArea(e.target.value);
   };
 
-  // Handle focus event
+  /**
+   * handleFocus, handles focus event, marks field as touched and calls original onFocus callback.
+   * Input: none
+   * Output: void
+   */
   const handleFocus = () => {
     setIsTouched(true);
     if (onFocus) onFocus();
   };
 
-  // Handle special display requirements for different textArea types
+  /**
+   * renderTextArea, renders the appropriate textarea element based on input type (checkbox, radio, or standard textarea).
+   * Input: none
+   * Output: JSX element - textarea element with appropriate wrapper and label
+   */
   const renderTextArea = () => {
     // Special case for checkbox and radio textAreas
     if (type === "checkbox" || type === "radio") {
