@@ -1,4 +1,11 @@
-// src/hooks/auth/authContext.tsx
+/**
+ * authContext.tsx
+ * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 
@@ -6,7 +13,11 @@ import Layout from "../../components/Layout";
 import { getRequest, postRequest } from "../../utils/apiService";
 import { AppProvider } from "../app/appContext";
 
-// Define permissions
+/**
+ * Permission, enumerates all supported permission keys used for role-based access control (RBAC).
+ * Input: N/A
+ * Output: Permission union type - Used to type-check required permissions for protected routes.
+ */
 export type Permission =
   | "view_dashboard"
   | "create_trip"
@@ -17,13 +28,26 @@ export type Permission =
   | "view_approval_history"
   | "view_booking_history";
 
+/**
+ * ContextType, defines what the AuthContext provides to consumers.
+ * Input: N/A
+ * Output: ContextType interface - Describes auth state, state setter, loading flag, and logout handler.
+ *
+ * Note:
+ * - loadingProfile indicates whether the initial session/profile check is still in progress.
+ */
 export interface ContextType {
   authState: AuthState;
   setAuthState: React.Dispatch<React.SetStateAction<AuthState>>;
   loadingProfile: Boolean;
   handleLogout: () => Promise<void>;
 }
-// Auth state interface
+
+/**
+ * AuthState, represents the authenticated user's session information in the client.
+ * Input: N/A
+ * Output: AuthState interface - Used in context and components to determine authentication/authorization status.
+ */
 export interface AuthState {
   isAuthenticated: boolean;
   userId: string;
@@ -34,10 +58,20 @@ export interface AuthState {
   userRole: string;
 }
 
-// Create the auth context with proper typing
+/**
+ * AuthContext, stores authentication state and helpers across the app.
+ * Input: Default value is undefined to force usage inside AuthProvider.
+ * Output: React context instance providing ContextType.
+ */
 export const AuthContext = createContext<ContextType | undefined>(undefined);
 
-// Custom hook to use the auth context
+/**
+ * useAuth, custom hook that exposes the AuthContext with runtime safety.
+ * Input: None.
+ * Output: ContextType - Current auth context value.
+ * Throws:
+ * - Error if used outside of <AuthProvider />.
+ */
 export const useAuth = (): ContextType => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -46,7 +80,17 @@ export const useAuth = (): ContextType => {
   return context;
 };
 
-// Auth provider component
+/**
+ * AuthProvider, initializes and provides auth state to the application.
+ * Input:
+ * - children (ReactNode): Components that need access to AuthContext.
+ * Output: JSX.Element - Context provider wrapper.
+ *
+ * Business logic:
+ * - On mount, it calls /login/profile to detect whether the user already has a valid session (cookie-based auth).
+ * - If authenticated, it maps role permissions from the API response to a Permission[] for route guards.
+ * - Exposes handleLogout() which calls /login/logout and clears client auth state.
+ */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -62,6 +106,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   });
 
   useEffect(() => {
+    /**
+     * getAuthState, fetches current session profile data from the backend.
+     * Input: None (uses cookie session through Axios instance withCredentials=true).
+     * Output: Promise<void> - Updates authState and loadingProfile.
+     *
+     * Notes:
+     * - If the response indicates a valid session, user fields and permissions are populated.
+     * - If not valid or the request fails, isAuthenticated is set to false.
+     */
     const getAuthState = async () => {
       getRequest("/login/profile")
         .then((response) => {
@@ -99,6 +152,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     getAuthState();
   }, []);
 
+  /**
+   * handleLogout, logs out the current user on the backend and clears local auth state.
+   * Input: None.
+   * Output: Promise<void> - Clears auth state when logout succeeds.
+   */
   const handleLogout = async () => {
     const response = await postRequest("/login/logout", {});
     if (response.status) {
@@ -128,7 +186,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   );
 };
 
-// Basic protected route wrapper component with Layout
+/**
+ * ProtectedRoute, wraps protected routes that only require authentication.
+ * Input: None (reads authentication state through AuthProvider).
+ * Output: JSX.Element - Renders nested routes via <Outlet /> inside Layout and AppProvider.
+ *
+ * Notes:
+ * - This component sets up the AuthProvider and AppProvider context scopes for all protected pages.
+ * - Layout is applied to provide consistent UI shell (navbar/sidebar/etc.).
+ */
 export const ProtectedRoute: React.FC = () => {
   return (
     <AuthProvider>
@@ -141,12 +207,32 @@ export const ProtectedRoute: React.FC = () => {
   );
 };
 
-// Permission-based protected route component
+/**
+ * PermissionProtectedRouteProps, defines route guard requirements based on permissions.
+ * Input:
+ * - requiredPermissions (Permission[]): Permission keys required to access the route.
+ * - requireAll (boolean | undefined): If true, user must have ALL permissions; if false, ANY permission is sufficient.
+ * Output: PermissionProtectedRouteProps interface - Used to type-check PermissionProtectedRoute props.
+ */
 interface PermissionProtectedRouteProps {
   requiredPermissions: Permission[];
-  requireAll?: boolean; // If true, user must have ALL permissions; if false, ANY permission is sufficient
+  requireAll?: boolean;
 }
 
+/**
+ * PermissionProtectedRoute, protects routes that require authentication plus specific permissions.
+ * Input:
+ * - requiredPermissions (Permission[]): Permissions required to access the nested routes.
+ * - requireAll (boolean): All vs any permission logic (default true).
+ * Output: JSX.Element - Either redirects via <Navigate /> or renders <Outlet /> when authorized.
+ *
+ * Authorization logic:
+ * 1) If user is not authenticated => redirect.
+ * 2) If authenticated, evaluate permissions:
+ *    - requireAll=true: every permission must be present
+ *    - requireAll=false: at least one permission must be present
+ * 3) If authorized => render nested routes.
+ */
 export const PermissionProtectedRoute: React.FC<
   PermissionProtectedRouteProps
 > = ({ requiredPermissions, requireAll = true }) => {
@@ -170,7 +256,11 @@ export const PermissionProtectedRoute: React.FC<
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // If authenticated and authorized, render the route
+  /**
+   * If authenticated and authorized, render nested routes.
+   * Note: This currently wraps the Outlet with AuthProvider again. In most cases,
+   * AuthProvider should be provided once at a higher level (e.g., ProtectedRoute).
+   */
   return (
     <AuthProvider>
       <Outlet />

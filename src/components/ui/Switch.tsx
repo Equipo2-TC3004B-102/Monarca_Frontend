@@ -1,6 +1,26 @@
+/**
+ * Switch.tsx
+ * Description: Reusable toggle switch component built with Headless UI Switch for accessible boolean input,
+ * with disabled and custom label support.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { Switch as HSwitch } from "@headlessui/react";
 import clsx from "clsx";
 
+/**
+ * SwitchProps, defines the props required to control the Switch component.
+ * Input:
+ * - checked (boolean): Current switch state.
+ * - onChange ((value: boolean) => void): Callback triggered when the switch value changes.
+ * - disabled (boolean | undefined): Disables interaction when true.
+ * - className (string | undefined): Optional extra classes to extend/override base styles.
+ * - srLabel (string | undefined): Screen-reader label for accessibility.
+ * - id (string | undefined): Optional DOM id for accessibility/testing.
+ * Output: SwitchProps interface - Used for type-checking Switch component props.
+ */
 export interface SwitchProps {
   checked: boolean;
   onChange: (value: boolean) => void;
@@ -10,6 +30,11 @@ export interface SwitchProps {
   id?: string;
 }
 
+/**
+ * Switch, renders a styled toggle using Headless UI with proper accessibility defaults.
+ * Input: SwitchProps - Controlled checked value and onChange handler plus optional states.
+ * Output: JSX.Element - A toggle switch component.
+ */
 export default function Switch({
   checked,
   onChange,

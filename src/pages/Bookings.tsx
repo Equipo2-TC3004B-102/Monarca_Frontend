@@ -1,3 +1,11 @@
+/**
+ * Bookings.tsx
+ * Description: Bookings page that lists travel requests pending reservation. Fetches data from the API, formats and enriches each row (status badge, destination, departure date), and provides navigation to the reservation flow.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { useEffect, useState } from "react";
 import RefreshButton from "../components/RefreshButton";
 import Table from "../components/Refunds/Table";
@@ -8,6 +16,11 @@ import GoBack from "../components/GoBack";
 import { Tutorial } from "../components/Tutorial";
 import { useApp } from "../hooks/app/appContext";
 
+/**
+ * columns, defines the table columns used by the Table component on the Bookings page.
+ * Input: N/A
+ * Output: Array<{ key: string; header: string }> - Configuration for table rendering.
+ */
 const columns = [
   { key: "status", header: "Estado" },
   { key: "motive", header: "Motivo" },
@@ -17,6 +30,12 @@ const columns = [
   { key: "action", header: "" },
 ];
 
+/**
+ * renderStatus, maps backend status strings to a Spanish label and corresponding UI styles.
+ * Input:
+ * - status (string): Status value returned by the backend for a travel request.
+ * Output: JSX.Element - A styled <span> badge showing the translated status.
+ */
 const renderStatus = (status: string) => {
   let statusText = "";
   let styles = "";
@@ -70,11 +89,29 @@ const renderStatus = (status: string) => {
   );
 };
 
+/**
+ * Bookings, renders the "Viajes por Reservar" page.
+ * Input: None.
+ * Output: JSX.Element - Page layout including table of trips pending reservation, refresh button, and tutorial wrapper.
+ *
+ * Business logic:
+ * - On mount, fetches trips from "/requests/to-reserve".
+ * - Enriches each trip with UI-specific fields:
+ *   - status badge (renderStatus)
+ *   - country (destination city)
+ *   - departureDate (computed from the first destination ordered by destination_order)
+ *   - action link to booking details
+ * - Triggers tutorial logic based on visited pages stored in localStorage.
+ */
 const Bookings = () => {
   const [dataWithActions, setDataWithActions] = useState([]);
   const { handleVisitPage, tutorial, setTutorial } = useApp();
 
-  // Fetch travel records data from API
+  /**
+   * Fetch travel records that are pending reservation and transform them to a table-friendly format.
+   * Input: None.
+   * Output: Promise<void> - Updates local state with enriched data.
+   */
   useEffect(() => {
     const fetchTravelRecords = async () => {
       try {
@@ -107,6 +144,14 @@ const Bookings = () => {
     fetchTravelRecords();
   }, []);
 
+  /**
+   * Tutorial onboarding logic:
+   * - Reads visited pages from localStorage.
+   * - If current path was not visited, enables tutorial.
+   * - Stores the current page as visited through handleVisitPage().
+   * Input: None.
+   * Output: void - Updates tutorial state and localStorage tracking.
+   */
   useEffect(() => {
       // Get the visited pages from localStorage
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");

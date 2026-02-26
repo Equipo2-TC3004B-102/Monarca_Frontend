@@ -1,28 +1,23 @@
-/*
- * DynamicTableExpand component that renders a table with dynamic rows and columns.
- *
- * Last edit: April 24, 2025
- * Authors: José Manuel García Zumaya
- * Le agregue para que se pueda desplegar la tabla (josefina)
+/**
+ * DynamicTableExpand.tsx
+ * Description: Dynamic table component that renders configurable columns and rows, supports custom cell rendering, row editing, adding new rows, and optional expandable row content.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Jin Sik Yoon] Added expandable row support (expandedRows + renderExpandedRow) and updated documentation for clarity and maintainability.
  */
 import React, { useState } from "react";
 
-/*
- * Column interface SCHEMA to define the structure of each column in the table.
- * key: The key in the data object that corresponds to this column, this is very
- * important due allows to access the data dynamically in our object data.
- * header: The header text to display for this column.
- * defaultValue: The default value to display in the cell or inside the component
- * that you want to use to render the cell, if not provided, it will be empty.
- * renderCell: (VERY IMPORTANT) A function that helps to render custom components
- * inside the cell, this function receives a value to show in the component and a
- * function to handle the change of that component, this function is used to update
- * the component from child to parent, this function is optional, if not provided,
- * the default value will be used, for example if you want to show a static value
- * or a simple text, you can see that returns an object of type ReactNode, so it
- * should be used to render components like InputField, Dropdown, etc.
+/**
+ * Column, schema that defines the structure and rendering behavior of each table column.
+ * Input:
+ * - key (string): Row object key used to access the cell value dynamically.
+ * - header (string): Column header label.
+ * - defaultValue (string | number | boolean | null | undefined | ReactNode): Default value used when creating a new row.
+ * - renderCell (function | undefined): Optional custom cell renderer that receives the current value, an update callback, and the row index.
+ * Output: Column interface - Used to build table headers, default row values, and cell rendering.
  *
- * You can reach an example of how to use this in the src/pages/Refunds/Refunds.tsx file.
+ * Notes:
+ * - Example usage can be found in: src/pages/Refunds/Refunds.tsx
  */
 interface Column {
   key: string;
@@ -35,14 +30,15 @@ interface Column {
   ) => React.ReactNode;
 }
 
-/*
- * DynamicTableExpandProps interface to define the structure of the props for the DynamicTableExpand component.
- * columns: An array of Column objects defining the table's columns.
- * initialData: An optional initial data array to populate the table.
- * onDataChange: A callback function that is called when the data changes,
- * it helps to notify the parent component of the change and need to render the table again.
- * expandedRows: (NUEVO) Índices de filas expandidas.
- * renderExpandedRow: (NUEVO) Función que renderiza el contenido expandido debajo de la fila.
+/**
+ * DynamicTableExpandProps, defines the props for the DynamicTableExpand component.
+ * Input:
+ * - columns (Column[]): Column definitions for rendering headers and cells.
+ * - initialData (Record<string, any>[] | undefined): Optional initial rows for populating the table.
+ * - onDataChange ((data: Record<string, any>[]) => void | undefined): Optional callback invoked after table data changes.
+ * - expandedRows (number[] | undefined): Optional list of row indexes that should display expandable content.
+ * - renderExpandedRow ((index: number) => ReactNode | undefined): Optional renderer for expanded content shown under a row.
+ * Output: DynamicTableExpandProps interface - Used to type-check component props.
  */
 interface DynamicTableExpandProps {
   columns: Column[];
@@ -52,9 +48,10 @@ interface DynamicTableExpandProps {
   renderExpandedRow?: (index: number) => React.ReactNode;
 }
 
-/*
- * DynamicTableExpand component that renders a table with dynamic rows and columns.
- * It allows adding new rows and updating existing ones.
+/**
+ * DynamicTableExpand, renders a table with dynamic columns and rows, supports editing cells, adding rows, and optionally expanding rows to show additional content.
+ * Input: DynamicTableExpandProps - Columns, initial rows, change callback, and optional expandable-row configuration.
+ * Output: JSX.Element - Table UI with optional expanded row sections and an action button to add new rows.
  */
 const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
   columns,
@@ -65,6 +62,14 @@ const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
 }) => {
   const [tableData, setTableData] = useState<Record<string, any>[]>(initialData as Record<string, any>[]);
 
+  /**
+   * handleFieldChange, updates a single cell value in the table state and notifies the parent through onDataChange when provided.
+   * Input:
+   * - rowIndex (number): Index of the row being updated.
+   * - columnKey (string): Column key that identifies which field to update.
+   * - newValue (string | number | boolean | null | undefined | ReactNode): New value to set for the field.
+   * Output: void - Updates internal state and triggers onDataChange(updatedData) when available.
+   */
   const handleFieldChange = (
     rowIndex: number,
     columnKey: string,
@@ -84,6 +89,11 @@ const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
     }
   };
 
+  /**
+   * addItem, appends a new row to the table using column defaultValue values (or an empty string when defaultValue is not provided).
+   * Input: None.
+   * Output: void - Updates internal state and triggers onDataChange(updatedData) when available.
+   */
   const addItem = () => {
     const defaultRow = columns.reduce((obj: Record<string, any>, column) => {
       obj[column.key] = column.defaultValue || "";
