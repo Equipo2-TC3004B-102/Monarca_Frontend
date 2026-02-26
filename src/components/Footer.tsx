@@ -1,3 +1,16 @@
+/**
+ * FileName: Footer.tsx
+ * Description: Renders the application footer with copyright, terms, and privacy policy information.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
+/**
+ * FunctionName: Footer, renders the bottom bar of the application.
+ * Input: none
+ * Output: JSX footer element with copyright and legal links.
+ */
 function Footer() {
     return (
         <footer className="w-full bg-[var(--dark-blue)] text-[var(--white)]">

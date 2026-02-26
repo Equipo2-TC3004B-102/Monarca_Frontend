@@ -1,5 +1,18 @@
+/**
+ * FileName: Unauthorized.tsx
+ * Description: Renders a user-friendly unauthorized access page with clear messaging and navigation options for users who attempt to access restricted areas without proper permissions.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { Link } from "react-router-dom";
 
+/**
+ * FunctionName: Unauthorized, renders a styled page informing the user that they do not have access to the requested resource, with options to navigate back to the dashboard or login page.
+ * Input: none
+ * Output: JSX component containing the unauthorized access message and navigation links.
+ */
 export const Unauthorized = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-6">

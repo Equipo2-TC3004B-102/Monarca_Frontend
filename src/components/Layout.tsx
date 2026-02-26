@@ -1,3 +1,12 @@
+/**
+ * FileName: Layout.tsx
+ * Description: Wrapping layout component that enforces authentication, renders the Header, Sidebar,
+ *              Footer, toast notifications, and a floating Tutorial trigger button around page content.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/auth/authContext";
 import { ToastContainer} from 'react-toastify';
@@ -16,13 +25,19 @@ interface LayoutProps {
   title?: string;
 }
 
+/**
+ * FunctionName: Layout, wraps authenticated page content with the app shell (Header, Sidebar, Footer).
+ * Redirects unauthenticated users to the root route.
+ * Input: children - React nodes to render as main content; title - optional page title string.
+ * Output: Full-page layout JSX or a Navigate redirect for unauthenticated users.
+ */
 function Layout({ children }: LayoutProps) {
   const { authState, loadingProfile } = useAuth();
   const { setTutorial } = useApp();
 
 
   // Check if the profile is loading
-  // TODO: Replace with a loading spinner or skeleton
+  // Replace with a loading spinner or skeleton
   if (loadingProfile) return <div>Loading...</div>;
 
   // Check if the user is authenticated

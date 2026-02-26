@@ -1,7 +1,21 @@
+/**
+ * FileName: Header.tsx
+ * Description: Renders the top navigation bar including the application brand, user initials button,
+ *              and a dropdown with user info and logout option.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { useState } from "react";
 import { useAuth } from "../hooks/auth/authContext";
 // import { useApp } from "../hooks/app/appContext";
 
+/**
+ * FunctionName: Header, renders a fixed top navbar with the Monarca brand and a user dropdown menu.
+ * Input: none (reads auth state via useAuth hook)
+ * Output: JSX nav element containing the brand name and user profile dropdown.
+ */
 function Header() {
   const { handleLogout ,authState } = useAuth();
   // const { pageTitle } = useApp();

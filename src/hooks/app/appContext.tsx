@@ -1,3 +1,10 @@
+/**
+ * FileName: appContext.tsx
+ * Description: Defines the AppContext for managing global state related to page titles, visited pages, and tutorial visibility across the application, along with a custom hook for easy access to this context.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
 import React, { createContext, useContext, ReactNode } from "react";
 
 export interface ContextType {
@@ -22,7 +29,11 @@ export const useApp = (): ContextType => {
   return context;
 };
 
-// App provider component
+/**
+ * FunctionName: AppProvider, provides the AppContext to its child components, managing global state for page titles, visited pages, and tutorial visibility.
+ * Input: children (ReactNode) - the components that will have access to the AppContext values.
+ * Output: JSX component that wraps its children with the AppContext provider, supplying the necessary state and functions for managing global application state.
+ */
 export const AppProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {

@@ -1,5 +1,19 @@
+/**
+ * FileName: TravelHistory.cy.ts
+ * Description: End-to-end tests for the travel history functionality in the Monarca application, covering the flow of logging in as a requester, navigating to the travel history page, viewing travel details, and verifying that all relevant information is displayed correctly.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
+/**
+ * FunctionName: Travel History as Requester, purpose of the function is to test the travel history functionality for a requester user in the Monarca application.
+ * Input: None (the tests will perform actions on the application)
+ * Output: Verification that the travel history page is displayed correctly and all relevant information is visible.
+ */
 // This test assumes that you have at least one travel request in the history for the requester user.
 describe("Travel History as Requester", () => {
+    // Before all tests, log in as a requester to ensure we have the necessary permissions to access the travel history functionality
     before("Login as a requester", () => {
         cy.visit("/");
         cy.get('input[name="email"]').type("requester1@monarca.com");
@@ -7,7 +21,7 @@ describe("Travel History as Requester", () => {
         cy.contains("Continuar").click();
         cy.url().should("include", "/dashboard");
     });
-
+    // Test case to navigate to the travel history page, view travel details, and verify that all relevant information is displayed correctly
     it("View travel history", () => {
         cy.get('a[data-cy="mosaic-historial-de-viajes"]').should("be.visible");
         cy.get('a[data-cy="mosaic-historial-de-viajes"]').click();

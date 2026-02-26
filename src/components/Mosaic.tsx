@@ -1,3 +1,11 @@
+/**
+ * FileName: Mosaic.tsx
+ * Description: Renders a dashboard tile (mosaic card) with an icon and title that links to a given route.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { Link } from "react-router-dom"
 
 interface MosaicProps {
@@ -7,6 +15,11 @@ interface MosaicProps {
   id?: string;
 }
 
+/**
+ * FunctionName: Mosaic, renders a clickable card with an elevated icon and a title that navigates to a given route.
+ * Input: title - display label; iconPath - path to the icon image; link - navigation route; id - optional HTML id.
+ * Output: JSX Link wrapping a styled card element.
+ */
 const Mosaic = ({ title, iconPath, link, id}: MosaicProps) => {
 
     return (
