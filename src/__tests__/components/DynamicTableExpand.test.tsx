@@ -1,8 +1,9 @@
 /**
- * File: DynamicTableExpand.test.tsx
+ * DynamicTableExpand.test.tsx
  * Description: Test suite for the DynamicTableExpand component
- * Last edited: 16/05/2025
- * Author: Gabriel Edid Harari
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { describe, it, expect, vi } from "vitest";
@@ -17,6 +18,22 @@ describe("DynamicTableExpand", () => {
     {
       key: "action",
       header: "Action",
+
+      /**
+       * renderCell, renders a custom cell button that triggers an onChange callback when clicked.
+       *
+       * Input arguments:
+       *  - value (any): The current cell value (e.g., "View", "Edit").
+       *  - onChange (Function): Callback provided by the table to update the cell value.
+       *  - rowIndex (number | undefined): The index of the row being rendered.
+       * 
+       * Output: a button component
+       *
+       * Business/testing logic:
+       *  - Clicking the button simulates a user action that should update the row data.
+       *  - We pass a fixed string ("clicked") to ensure a deterministic update trigger.
+       */
+
       renderCell: (value: any, onChange: any, rowIndex?: number) => (
         <button
           data-testid={`custom-cell-${rowIndex}`}

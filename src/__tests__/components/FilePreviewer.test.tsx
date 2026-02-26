@@ -1,3 +1,12 @@
+/**
+ * FilePreviewer.test.tsx
+ * Description: Test suite for the FilePreviewer component.
+ * Verifies correct rendering of file details, formatted values, iframe preview, and download links using mocked utility functions.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import FilePreviewer from "./../../components/Refunds/FilePreviewer.tsx";

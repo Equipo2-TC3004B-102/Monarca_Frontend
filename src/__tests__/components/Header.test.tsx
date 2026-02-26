@@ -1,8 +1,11 @@
 /**
- * @file Header.test.tsx
- * @description This file contains the test suite for the Header component. It tests that the page title and user initials render, and that clicking the avatar toggles the dropdown with user info and calls logout.
- * @lastEdited 2025-05-27
- * @author Leon Blanga
+ * Header.test.tsx
+ * Description: This file contains the test suite for the Header component. 
+ * It tests that the page title and user initials render, and that clicking the avatar 
+ * toggles the dropdown with user info and calls logout.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { render, screen } from "@testing-library/react";
@@ -41,7 +44,7 @@ describe("Header", () => {
   it("muestra el título de la página y las iniciales del usuario", () => {
     render(<Header />);
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
-    // L y B
+    // L and B
     expect(screen.getByRole("button", { name: "LB" })).toBeInTheDocument();
   });
 
@@ -50,7 +53,7 @@ describe("Header", () => {
     const btn = screen.getByRole("button", { name: "LB" });
     await userEvent.click(btn);
 
-    // Nombre completo, email y rol
+    // full name, email and rol
     expect(screen.getByText("Leon Blanga")).toBeInTheDocument();
     expect(screen.getByText("leon@example.com")).toBeInTheDocument();
     expect(screen.getByText("Admin")).toBeInTheDocument();

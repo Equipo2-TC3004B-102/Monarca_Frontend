@@ -1,3 +1,14 @@
+/**
+ * Input.test.tsx
+ * Description: Test suite to verify the functionality of the Input component. 
+ * It ensures that the input renders correctly, applies custom and default styles, 
+ * handles value changes, forwards additional props, and properly supports ref forwarding 
+ * to the underlying HTML input element.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";

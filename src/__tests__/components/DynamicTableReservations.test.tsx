@@ -1,3 +1,12 @@
+/**
+ * DynamicTableReservations.test.tsx
+ * Description: Test suite for the DynamicTable component in Reservations.
+ * Validates rendering of columns, initial data, custom cells, and onDataChange interactions.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import DynamicTable from "../../components/Reservations/DynamicTable";
@@ -10,6 +19,18 @@ describe("DynamicTable (Reservations)", () => {
     {
       key: "action",
       header: "Action",
+
+      /**
+     * renderCell: Custom cell renderer that displays a button inside the table cell.
+     * When clicked, it triggers the provided onChange callback with the value "clicked".
+     * 
+     * Inputs:
+     * - value: any : Current value of the cell.
+     * - onChange: (newValue: any) => void : Callback function used to update the cell value.
+     * 
+     * Output:
+     * - JSX.Element : A button element displaying the current value (or "Click" if empty).
+     */
       renderCell: (value: any, onChange: any) => (
         <button data-testid="custom-cell" onClick={() => onChange("clicked")}>
           {value || "Click"}
@@ -55,6 +76,7 @@ describe("DynamicTable (Reservations)", () => {
         onDataChange={handleDataChange}
       />
     );
+
     // Click the first custom cell button
     const customCells = screen.getAllByTestId("custom-cell");
     expect(customCells[0]).toBeDefined();

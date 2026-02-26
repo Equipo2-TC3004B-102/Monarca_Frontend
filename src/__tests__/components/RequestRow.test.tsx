@@ -1,3 +1,14 @@
+/**
+ * RequestRow.test.tsx
+ * Description: Test suite for the RequestRow component, verifying initial rendering of headers, default row data,
+ * and the employee information section. It also validates user interactions such as editing text inputs,
+ * changing dropdown values (status and currency), updating date fields, and ensuring edits persist per row
+ * without affecting other rows (independent editing and data integrity).
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import RequestRow from "../../components/RequestRow.tsx";

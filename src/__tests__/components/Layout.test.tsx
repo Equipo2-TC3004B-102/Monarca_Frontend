@@ -1,8 +1,10 @@
 /**
- * @file Layout.test.tsx
- * @description This file contains the test suite for the Layout component. It tests the loading state, redirection to login, and proper rendering of Header, Sidebar, Footer and children when authenticated.
- * @lastEdited 2025-05-27
- * @author Leon Blanga
+ * Layout.test.tsx
+ * Description: This file contains the test suite for the Layout component. It tests the loading state, 
+ * redirection to login, and proper rendering of Header, Sidebar, Footer and children when authenticated.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { render, screen } from "@testing-library/react";
@@ -10,12 +12,12 @@ import Layout from "../../components/Layout";
 import { useAuth } from "../../hooks/auth/authContext";
 import { vi, Mock } from "vitest";
 
-// Mock de useAuth como función
+// useAuth Mock
 vi.mock("../../hooks/auth/authContext", () => ({
   useAuth: vi.fn(),
 }));
 
-// Mocks de componentes internos
+// Intern components Mocks
 vi.mock("react-toastify", () => ({ ToastContainer: () => <div data-testid="toast" /> }));
 vi.mock("../../components/Header",  () => ({ __esModule: true, default: () => <div>Header</div> }));
 vi.mock("../../components/Sidebar", () => ({ __esModule: true, default: () => <div>Sidebar</div> }));
@@ -36,9 +38,9 @@ describe("Layout", () => {
   it("redirige a /login si no está autenticado", () => {
     mockedUseAuth.mockReturnValue({ loadingProfile: false, authState: { isAuthenticated: false } });
     render(<Layout><span>child</span></Layout>);
-    // comprueba que hay un mensaje de redirección
+    // checks if there's a redirection message
     expect(screen.getByText(/^Redirected to/)).toBeInTheDocument();
-    // y que NO aparece el child
+    // and that the "child" isn't shown
     expect(screen.queryByText("child")).toBeNull();
   });
 
@@ -46,12 +48,12 @@ describe("Layout", () => {
     mockedUseAuth.mockReturnValue({ loadingProfile: false, authState: { isAuthenticated: true } });
     render(<Layout><span>child</span></Layout>);
 
-    // Componentes y contenido
+    // Components and content
     ["Header", "Sidebar", "child", "Footer"].forEach(text =>
       expect(screen.getByText(text)).toBeInTheDocument()
     );
 
-    // ToastContainer aparece al menos una vez
+    // ToastContainer must be shown at least once
     expect(screen.getAllByTestId("toast").length).toBeGreaterThanOrEqual(1);
   });
 });
