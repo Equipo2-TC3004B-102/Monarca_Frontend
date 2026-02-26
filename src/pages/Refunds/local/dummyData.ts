@@ -1,3 +1,17 @@
+/**
+ * dummyData.ts
+ * Description: Mock data and constant options for the refund and voucher modules.
+ * Includes trip examples, expense classes, and tax indicators.
+ * Authors: Original Monarca team
+ * Last Modification made:
+ * 25/02/2026 [Diego Ortega] Added Specified Format.
+ */
+
+
+/**
+ * tripData
+ * Description: An array of mock trip objects for testing and initial UI development.
+ */
 export const tripData = [
   {
     id: 1,
@@ -81,6 +95,10 @@ export const tripData = [
   },
 ];
 
+/**
+ * spendOptions
+ * Description: List of available expense categories for the vouchers form.
+ */
 export const spendOptions = [
   { value: "ALIF", label: "Alimentación" },
   { value: "CAPA", label: "Capacitación" },
@@ -98,6 +116,10 @@ export const spendOptions = [
   { value: "AIRP", label: "Vuelo pagado" },
 ];
 
+/**
+ * taxIndicatorOptions
+ * Description: Standard tax options for fiscal regulations.
+ */
 export const taxIndicatorOptions = [
   { value: "V0", label: "IVA ACREDITABLE PAGADO 0%" },
   { value: "V7", label: "IVA ACREDITABLE PAGADO 16%" },

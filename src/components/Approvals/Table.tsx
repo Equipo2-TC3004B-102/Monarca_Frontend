@@ -1,11 +1,31 @@
+/**
+ * Table.tsx
+ * Description: Reusable table component with pagination, row expansion for details, and custom action links.
+ * Authors: Original Monarca team
+ * Last Modification made:
+ * 25/02/2026 [Diego Ortega] Added Specified Format.
+ */
+
 import { Link } from "react-router-dom";
 import React, { ReactNode, useState, useEffect } from "react";
 
+/**
+ * Column
+ * Interface representing a table column definition.
+ */
 interface Column {
   key: string;
   header: string;
 }
 
+/**
+ * TableProps
+ * Interface for component properties.
+ * - columns: Configuration for main visible columns.
+ * - data: Array of objects containing row information.
+ * - itemsPerPage: Number of rows per page (defaults to 5).
+ * - link: Base URL for the "Ver detalles" action.
+ */
 interface TableProps {
   columns: Array<Column>;
   data: Array<{
@@ -16,6 +36,17 @@ interface TableProps {
   link: string;
 }
 
+/**
+ * Table Component
+ * Displays a paginated table where rows can be expanded to show extra information (requester, email, motive, etc.).
+ * * Input:
+ * - columns (Column[]): The headers and keys to display.
+ * - data (any[]): The source data to populate the rows.
+ * - itemsPerPage (number, optional): Paging size.
+ * - link (string): Navigation path for the row details.
+ * * Output:
+ * - JSX.Element: A structured HTML table with pagination and interactive rows.
+ */
 const Table: React.FC<TableProps> = ({
   columns,
   data,
@@ -26,6 +57,9 @@ const Table: React.FC<TableProps> = ({
   const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
   const [localData, setLocalData] = useState(data);
 
+  /**
+   * Effect to sync internal state when external data changes.
+   */
   useEffect(() => {
     setLocalData(data);
   }, [data]);
@@ -35,12 +69,20 @@ const Table: React.FC<TableProps> = ({
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = localData.slice(indexOfFirstItem, indexOfLastItem);
 
+  /**
+   * Handles page changes ensuring the index stays within bounds.
+   * Input: page (number)
+   */
   const changePage = (page: number) => {
     if (page < 1) page = 1;
     if (page > totalPages) page = totalPages;
     setCurrentPage(page);
   };
 
+  /**
+   * Toggles the visibility of the detailed information row.
+   * Input: rowId (number | string)
+   */
   const toggleExpand = (rowId: number) => {
     setExpandedRowId((curr) => (curr === rowId ? null : rowId));
   };
@@ -57,7 +99,6 @@ const Table: React.FC<TableProps> = ({
                   className={`px-4 py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
                   } ${
-                    // quitamos rounded-r-lg para columnas antes de las dos últimas
                     index === columns.length - 1 ? "" : ""
                   }`}
                 >
@@ -65,13 +106,11 @@ const Table: React.FC<TableProps> = ({
                 </th>
               ))}
 
-              {/* Header Acción: sin borde redondeado, con borde derecho sólido */}
               <th className="px-4 py-2 text-center border-r border-[#0a2c6d]">
-                Detalles
+                Details
               </th>
 
-              {/* Header Detalles: borde izquierdo sólido y borde derecho redondeado */}
-              <th className="px-4 py-2 text-center rounded-r-lg">Datos</th>
+              <th className="px-4 py-2 text-center rounded-r-lg">Data</th>
             </tr>
           </thead>
 
@@ -79,7 +118,7 @@ const Table: React.FC<TableProps> = ({
             {currentItems.length <= 0 ? (
               <tr>
                 <td colSpan={columns.length + 2} className="text-center pt-10">
-                  No hay datos disponibles
+                  No data available.
                 </td>
               </tr>
             ) : currentItems.map((row: any) => (
@@ -91,7 +130,6 @@ const Table: React.FC<TableProps> = ({
                       className={`py-3 ${
                         cidx === 0 ? "rounded-l-lg" : ""
                       } ${
-                        // quitar rounded-r-lg en penúltima columna
                         cidx === columns.length - 1 ? "" : ""
                       } ${
                         column.key === "status" ? "px-0" : "px-4"
@@ -108,11 +146,10 @@ const Table: React.FC<TableProps> = ({
                       to={`${link}/${row.id}`}
                       className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
                     >
-                      Ver detalles
+                      See Details
                     </Link>
                   </td>
 
-                  {/* Celda Detalles: borde izquierdo sólido, borde derecho redondeado */}
                   <td className="px-4 py-3 rounded-r-lg">
                     <button
                       onClick={() => toggleExpand(row.id)}
@@ -132,31 +169,31 @@ const Table: React.FC<TableProps> = ({
                     >
                       <div className="grid grid-cols-3 gap-6">
                         <div>
-                          <strong>Solicitante:</strong>{" "}
+                          <strong>Applicant:</strong>{" "}
                           {`${row?.user?.name} ${row?.user?.last_name}`}
                         </div>
                         <div>
-                          <strong>Correo Electrónico:</strong>{" "}
+                          <strong>E-Mail:</strong>{" "}
                           {row?.user?.email}
                         </div>
                         <div>
-                          <strong>Aprobador:</strong>{" "}
+                          <strong>Approver:</strong>{" "}
                           {`${row?.admin?.name} ${row?.admin?.last_name}`}
                         </div>
                         <div>
-                          <strong>Estatus:</strong> {row?.status}
+                          <strong>Status:</strong> {row?.status}
                         </div>
                         <div>
-                          <strong>Motivo:</strong> {row?.motive}
+                          <strong>Motive:</strong> {row?.motive}
                         </div>
                         <div>
-                          <strong>Fecha de Salida:</strong> {row?.departureDate}
+                          <strong>Departure date:</strong> {row?.departureDate}
                         </div>
                         <div>
-                          <strong>Departamento:</strong> {row?.user?.department?.name ?? "N/A"}
+                          <strong>Department:</strong> {row?.user?.department?.name ?? "N/A"}
                         </div>
                         <div>
-                          <strong>Centro de Costos:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
+                          <strong>Cost Center:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
                         </div>
                       </div>
                     </td>
