@@ -1,8 +1,17 @@
-// apiService.js
+/**
+ * apiService.ts
+ * Description: Centralized Axios configuration and HTTP utility functions for handling API requests (GET, POST, PUT, PATCH, DELETE) with global error interception.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ */
 
 import axios, { AxiosRequestConfig } from "axios";
 
-// Configuración de la instancia de Axios
+/**
+ * api, Axios instance configured with base URL, timeout, default headers,
+ * and credentials enabled for cookie-based authentication.
+ */
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 5000,
@@ -12,25 +21,41 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Interceptor de respuesta para manejar errores globalmente
+/**
+ * Global response interceptor to handle API errors consistently.
+ * Input:
+ * - response: Successful Axios response.
+ * - error: Axios error object.
+ * Output:
+ * - Returns response when successful.
+ * - Rejects promise with error after logging details.
+ */
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      console.error("Error en la respuesta de la API:", error.response);
+      console.error("API response error:", error.response);
       if (error.response.status === 401) {
-        // Lógica de refresco de token o redirección al login
+        // Token refresh logic or redirect to login could be implemented here
       }
     } else if (error.request) {
-      console.error("No se recibió respuesta de la API:", error.request);
+      console.error("No response received from API:", error.request);
     } else {
-      console.error("Error al configurar la petición:", error.message);
+      console.error("Request configuration error:", error.message);
     }
     return Promise.reject(error);
   }
 );
 
-// Función para peticiones GET
+/**
+ * getRequest, performs a GET request to the specified endpoint.
+ * Input:
+ * - url (string): API endpoint.
+ * - params (object): Query parameters.
+ * - config (AxiosRequestConfig): Optional Axios configuration.
+ * Output:
+ * - Returns response.data from the API.
+ */
 export const getRequest = async (
   url: string,
   params = {},
@@ -40,7 +65,15 @@ export const getRequest = async (
   return response.data;
 };
 
-// Función para peticiones POST (JSON o FormData)
+/**
+ * postRequest, performs a POST request supporting JSON or FormData.
+ * Input:
+ * - url (string): API endpoint.
+ * - data (Record<string, unknown> | FormData): Payload to send.
+ * - config (AxiosRequestConfig): Optional Axios configuration.
+ * Output:
+ * - Returns response.data from the API.
+ */
 export const postRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
@@ -52,29 +85,23 @@ export const postRequest = async (
       ...config.headers,
       ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
     };
-    console.log("DATA", data);
+
     const response = await api.post(url, data, { ...config, headers });
     return response.data;
   } catch (error) {
     throw error;
   }
 };
-// // Función para peticiones POST (JSON o FormData)
-// export const postRequest = async (
-//   url: string,
-//   data: Record<string, unknown> | FormData,
-//   config: AxiosRequestConfig = {}
-// ) => {
-//   const isForm = data instanceof FormData;
-//   const headers = {
-//     ...config.headers,
-//     ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
-//   };
-//   const response = await api.post(url, data, { ...config, headers });
-//   return response.data;
-// };
 
-// Función para peticiones PUT (JSON o FormData)
+/**
+ * putRequest, performs a PUT request supporting JSON or FormData.
+ * Input:
+ * - url (string): API endpoint.
+ * - data (Record<string, unknown> | FormData): Payload to update.
+ * - config (AxiosRequestConfig): Optional Axios configuration.
+ * Output:
+ * - Returns response.data from the API.
+ */
 export const putRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
@@ -93,7 +120,15 @@ export const putRequest = async (
   }
 };
 
-// Función para peticiones PATCH (JSON o FormData)
+/**
+ * patchRequest, performs a PATCH request supporting JSON or FormData.
+ * Input:
+ * - url (string): API endpoint.
+ * - data (Record<string, unknown> | FormData): Partial payload update.
+ * - config (AxiosRequestConfig): Optional Axios configuration.
+ * Output:
+ * - Returns response.data from the API.
+ */
 export const patchRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
@@ -112,7 +147,13 @@ export const patchRequest = async (
   }
 };
 
-// Función para peticiones DELETE
+/**
+ * deleteRequest, performs a DELETE request to the specified endpoint.
+ * Input:
+ * - url (string): API endpoint.
+ * Output:
+ * - Returns response.data from the API.
+ */
 export const deleteRequest = async (url: string) => {
   try {
     const response = await api.delete(url);

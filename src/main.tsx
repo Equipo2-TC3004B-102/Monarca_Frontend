@@ -1,3 +1,12 @@
+/**
+ * main.tsx
+ * Description: Frontend application entry point. Initializes the React root,
+ * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -34,6 +43,18 @@ import { Approvals } from "./pages/Approvals/Approvals.tsx";
 import { RefundsReview } from "./pages/Refunds/RefundsReview.tsx";
 import { CheckRefunds } from "./pages/Refunds/CheckRefunds.tsx";
 
+/**
+ * router, defines the application's route tree.
+ * Input:
+ * - Route definitions using React Router v6 createBrowserRouter.
+ * Output:
+ * - Browser router instance used by <RouterProvider />.
+ *
+ * Notes:
+ * - Public routes: accessible without authentication (Login, Register, Unauthorized, Error).
+ * - Protected routes: wrapped by <ProtectedRoute /> (requires authenticated session).
+ * - Permission-based routes: wrapped by <PermissionProtectedRoute /> (requires specific permissions).
+ */
 export const router = createBrowserRouter([
   // Public routes (no authentication required)
   {
@@ -110,6 +131,12 @@ export const router = createBrowserRouter([
         path: "/refunds-review/:id",
         element: <RefundsAcceptance />,
       },
+
+      /**
+       * Permission-protected routes (approvals module).
+       * Requires "approve_trip" permission to access "/approval".
+       * Nested permission example: "view_approval_history".
+       */
       {
         path: "/approval",
         element: (
@@ -136,7 +163,12 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      // Routes protected for booking permission
+      
+      /**
+       * Permission-protected routes (booking module).
+       * Requires "book_trip" permission to access "/booking".
+       * Nested permission example: "view_booking_history".
+       */
       {
         path: "/booking",
         element: (
@@ -153,7 +185,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: "",
-                element: <div>Booking History</div>, // Replace with your actual component
+                element: <div>Booking History</div>,
               },
             ],
           },
@@ -163,8 +195,21 @@ export const router = createBrowserRouter([
   },
 ]);
 
+/**
+ * queryClient, provides the TanStack Query client instance used for caching,
+ * request deduplication, and server-state synchronization.
+ */
 const queryClient = new QueryClient();
 
+/**
+ * Application render guard:
+ * - Prevents mounting during certain testing environments.
+ * - Mounts the app only when root element exists.
+ *
+ * Notes:
+ * - Uses React.StrictMode for development warnings and effect checks.
+ * - Wraps the app with QueryClientProvider and RouterProvider.
+ */
 if (import.meta.env.PROD || !import.meta.env.TEST) {
   const rootElement = document.getElementById("root");
   if (rootElement) {

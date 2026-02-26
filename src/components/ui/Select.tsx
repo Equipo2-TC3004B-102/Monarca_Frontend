@@ -1,3 +1,11 @@
+/**
+ * Select.tsx
+ * Description: Reusable Select component built with Headless UI Listbox for accessible dropdown selection with
+ * loading/disabled states.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ */
 import {
   Listbox,
   ListboxButton,
@@ -6,11 +14,29 @@ import {
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
+/**
+ * Option, represents a selectable item in the Select component.
+ * Input: id (number | string), name (string)
+ * Output: Option type - Used for options list and current value.
+ */
 type Option = {
   id: number | string;
   name: string;
 };
 
+/**
+ * SelectProps, defines props required to render and control the Select component.
+ * Input:
+ * - options (Option[]): List of selectable options.
+ * - value (Option | null | undefined): Current selected option.
+ * - onChange ((option: Option) => void): Callback triggered when the selection changes.
+ * - direction ("up" | "down"): Dropdown opening direction.
+ * - isLoading (boolean): Whether the component is in loading state.
+ * - isDisabled (boolean): Whether the select is disabled.
+ * - placeholder (string): Placeholder shown when there is no selection.
+ * - id (string | undefined): Optional DOM id for accessibility/testing.
+ * Output: SelectProps type - Used for type-checking Select component props.
+ */
 type SelectProps = {
   options: Option[];
   value: Option | null | undefined;
@@ -22,6 +48,11 @@ type SelectProps = {
   id?: string;
 };
 
+/**
+ * Select, renders an accessible dropdown using Headless UI Listbox.
+ * Input: SelectProps - Options, selected value, change handler, and UI states (loading/disabled).
+ * Output: JSX.Element - A dropdown component with selectable options and visual selection indicators.
+ */
 export default function Select({
   options,
   value,
