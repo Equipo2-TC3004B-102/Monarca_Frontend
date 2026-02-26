@@ -53,7 +53,7 @@ describe("Header", () => {
     const btn = screen.getByRole("button", { name: "LB" });
     await userEvent.click(btn);
 
-    // full, email and rol
+    // full name, email and rol
     expect(screen.getByText("Leon Blanga")).toBeInTheDocument();
     expect(screen.getByText("leon@example.com")).toBeInTheDocument();
     expect(screen.getByText("Admin")).toBeInTheDocument();
