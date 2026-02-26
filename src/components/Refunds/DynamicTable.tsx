@@ -1,8 +1,11 @@
-/*
- * DynamicTable component that renders a table with dynamic rows and columns.
-
- * Last edit: April 29, 2025
- * Authors: José Manuel García Zumaya
+/**
+ * FileName: DynamicTable.tsx
+ * Description: This file contains the DynamicTable component used in the Refunds section of the application.
+ * It provides a customizable table with dynamic rows and columns.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
  */
 import React, { useState, ReactNode } from "react";
 
@@ -50,6 +53,11 @@ export interface DynamicTableProps {
   renderExpandedRow?: (index: number) => React.ReactNode;
 }
 
+/**
+ * DynamicTable, renders a customizable table with dynamic rows, columns, editable cells, and optional row expansion.
+ * Input: columns (Column[]), initialData (any[]), onDataChange (callback), expandedRows (number[]), renderExpandedRow (callback)
+ * Output: JSX element - a complete table component with add button
+ */
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   initialData = [],
@@ -64,10 +72,10 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
    */
   const [tableData, setTableData] = useState<TableRow[]>(initialData);
 
-  /*
-   * Function to handle changes in the table data.
-   * It receives the row index, column key, and new value.
-   * Using TableRow interface defined above
+  /**
+   * handleFieldChange, updates a specific cell's value in the table and notifies parent component of changes.
+   * Input: rowIndex (number), columnKey (string), newValue (CellValueType)
+   * Output: void
    */
   const handleFieldChange = (
     rowIndex: number,
@@ -88,6 +96,11 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }
   };
 
+  /**
+   * addItem, adds a new empty row to the table with default values from column definitions.
+   * Input: none
+   * Output: void
+   */
   const addItem = () => {
     const defaultRow = columns.reduce((obj, column) => {
       obj[column.key] = column.defaultValue || "";
@@ -103,7 +116,11 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }
   };
 
-  // Function to render cell content safely
+  /**
+   * renderCellContent, safely renders cell content handling various data types including Files, objects, and primitives.
+   * Input: value (CellValueType)
+   * Output: React.ReactNode
+   */
   const renderCellContent = (value: CellValueType): React.ReactNode => {
     if (value instanceof File) {
       return value.name; // Show the filename instead of the File object

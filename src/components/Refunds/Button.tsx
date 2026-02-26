@@ -1,14 +1,18 @@
 /**
- * Reusable button component with customizable styling and behavior.
- *
- * Last edit: April 20, 2025
- * Authors: José Manuel García Zumaya
+ * FileName: Button.tsx
+ * Description: This file contains the Button component used in the Refunds section of the application.
+ * It provides a customizable button with properties for id, label, className, disabled state, and click handler.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
  */
 import React from "react";
 
 /**
  * ButtonProps interface to define the structure of the props for the Button component.
  */
+
 interface ButtonProps {
   id?: string;
   label: string;
@@ -18,9 +22,15 @@ interface ButtonProps {
 }
 
 /**
- * Button component that renders a customizable button with optional
- * styling, disabled state, and click handler functionality.
+ * Button
+ * Purpose: Renders a reusable button component with a label and click handler.
+ * Input:
+ *   - label (string): The text displayed inside the button.
+ *   - onClick (() => void): Function executed when the button is clicked.
+ * Output:
+ *   - JSX.Element: A rendered <button> element.
  */
+
 const Button: React.FC<ButtonProps> = ({
   id,
   label,

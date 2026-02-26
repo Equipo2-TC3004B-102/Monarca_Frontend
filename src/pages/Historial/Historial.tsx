@@ -1,6 +1,11 @@
-/*
- * Historial.tsx - Travel history page component that displays a list of travel records
- * with minimal data: ID, trip title, travel date, destination, and request date.
+/**
+ * FileName: Historial.tsx
+ * Description: This file contains the Historial component used in the Refunds section of the application.
+ * It provides a customizable history page with travel records and related actions.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -15,24 +20,11 @@ import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 
-//Interface for travel records data
-//interface TravelRecord {
-//id: string;
-//title: string;
-//travelDate: string;
-//destination: string;
-//requestDate: string;
-//}
-// // Interface for travel records data
-// interface TravelRecord {
-//   id: string;
-//   title: string;
-//   travelDate: string;
-//   destination: string;
-//   requestDate: string;
-// }
-
-
+/**
+ * renderStatus, converts API status strings to localized display text with appropriate styling.
+ * Input: status (string)
+ * Output: JSX element - styled status badge
+ */
 const renderStatus = (status: string) => {
   let statusText = "";
   let styles = "";
@@ -88,14 +80,23 @@ const renderStatus = (status: string) => {
     )
 }
 
+/**
+ * Historial, displays a paginated table of travel request history with status indicators, filtering by user permissions, and detailed action buttons.
+ * Input: none
+ * Output: JSX element - complete travel history page with table and tutorial overlay
+ */
 export const Historial = () => {
-  // State to store selected travel record details
-  // const [selectedTravel, setSelectedTravel] = useState<TravelRecord | null>(null);
+  // State to store travel records with formatted data and action buttons
   const [dataWithActions, setDataWithActions] = useState([]);
   const { authState } = useAuth();
   const navigate = useNavigate();
   const { handleVisitPage, tutorial, setTutorial } = useApp();
 
+  /**
+   * Fetches travel records from API with permission-based filtering and formats data for display.
+   * Input: none
+   * Output: void (updates dataWithActions state)
+   */
   // Fetch travel records data from API
   useEffect(() => {
     const fetchTravelRecords = async () => {

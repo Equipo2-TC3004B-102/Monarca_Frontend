@@ -1,8 +1,11 @@
 /**
- * @file RequestRow.tsx
- * @description Vista de solicitudes de viaje con tabla editable, dropdowns, inputs y acciones.
- * @lastEdited 2025-04-25
- * @author Isaac
+ * FileName: RequestRow.tsx
+ * Description: This file contains the RequestRow component used in the Refunds section of the application.
+ * It provides a customizable request row with editable fields and dropdowns.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
  */
 
 import { useState } from "react";
@@ -12,24 +15,25 @@ import InputField from "../components/Refunds/InputField";
 import Dropdown from "../components/Refunds/DropDown";
 // import { FaSyncAlt } from "react-icons/fa";
 
-// Opciones del dropdown para campo de estado
+// Dropdown options for field state
 const STATUS_OPTIONS = [
   { value: "autorizado", label: "Autorizado" },
   { value: "pendiente", label: "Pendiente" },
 ];
 
-// Opciones del dropdown para campo de moneda
+// Dropdown options for currency field
 const MONEDA_OPTIONS = [
   { value: "MXN", label: "MXN" },
   { value: "USD", label: "USD" },
 ];
 
 /**
- * Componente principal que renderiza una tabla editable con datos de viajes,
- * campos de entrada editables, controles de paginación y metainformación del empleado.
+ * RequestRow, renders an editable table with travel request data, input fields, pagination controls, and employee metadata.
+ * Input: none
+ * Output: JSX element - a complete request row management component
  */
 const RequestRow = () => {
-  // Estado para almacenar los datos de cada fila de la tabla
+  // State to store the data for each row of the table
   const [data, setData] = useState([
     {
       id: "0001",
@@ -55,7 +59,7 @@ const RequestRow = () => {
     },
   ]);
 
-  // Configuración de columnas para la tabla editable
+  // Column configuration for the editable table
   const columns = [
     {
       key: "status",
@@ -199,7 +203,7 @@ const RequestRow = () => {
 
   return (
     <div className="p-6 bg-white shadow-md rounded-lg">
-      {/* Encabezado con botón de acción y refresco */}
+      {/* Header section with action button and refresh */}
       <div className="flex items-center justify-between mb-6">
         <Button
           label="Viajes"
@@ -208,14 +212,14 @@ const RequestRow = () => {
         {/* <FaSyncAlt className="text-[#0a2c6d] text-2xl cursor-pointer" /> */}
       </div>
 
-      {/* Tabla editable con componentes personalizados */}
+      {/* Editable table with custom components */}
       <DynamicTable
         columns={columns as any}
         initialData={data}
         onDataChange={setData}
       />
 
-      {/* Información adicional del empleado */}
+      {/* Employee additional information */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 text-sm text-[#0a2c6d] font-medium">
         <div className="bg-gray-100 p-2 rounded">Empleado: 000001</div>
         <div className="bg-gray-100 p-2 rounded">Nombre: Juan Pérez</div>
