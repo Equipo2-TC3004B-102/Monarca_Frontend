@@ -1,3 +1,9 @@
+/**
+ * FileName: Approvals.tsx
+ * Description: Approvals page component, which displays a list of approvals and allows users to approve or reject them.
+ * Authors: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 import React, { useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
 import { getRequest } from "../../utils/apiService";
@@ -15,7 +21,14 @@ const columns = [
   { key: "departureDate", header: "Fecha Salida" },
   { key: "country", header: "Lugar de Salida" },
 ];
-
+/**
+ * FunctionName: renderStatus
+ * Purpose of the function: to render the status of the approval.
+ * Input: status: string
+ * Output: statusText: string, styles: string
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 const renderStatus = (status: string) => {
   let statusText = "";
   let styles = "";
@@ -71,6 +84,14 @@ const renderStatus = (status: string) => {
     )
 }
 
+/**
+ * FunctionName: Approvals
+ * Purpose of the function: to display the approvals page.
+ * Input: none
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 export const Approvals: React.FC = () => {
   const [dataWithActions, setDataWithActions] = useState([]);
   const location = useLocation();

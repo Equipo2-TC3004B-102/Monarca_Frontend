@@ -1,6 +1,20 @@
+/**
+ * FileName: reservations.test.tsx
+ * Description: dummy data for the reservations page.
+ * Authors: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 import { describe, it, expect } from "vitest";
 import { TravelAgencyFormData } from "./../../pages/Reservations/local/dummyData.ts";
 
+/**
+ * FunctionName: TravelAgencyFormData
+ * Purpose of the function: to test the dummy data for the reservations page.
+ * Input: none
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 describe("TravelAgencyFormData", () => {
  it("exports array with correct structure", () => {
    expect(Array.isArray(TravelAgencyFormData)).toBe(true);
