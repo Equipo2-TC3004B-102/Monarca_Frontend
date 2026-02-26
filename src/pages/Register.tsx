@@ -1,3 +1,11 @@
+/**
+ * FileName: Register.tsx
+ * Description: Renders the registration page with a form for new users to create an account, including fields for email and password, and links to the login page for existing users.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 

@@ -1,3 +1,11 @@
+/**
+ * FileName: e2e.ts
+ * Description: This file is the main support file for end-to-end tests in the Monarca application. It is processed and loaded automatically before your test files.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 // ***********************************************************
 // This example support/e2e.ts is processed and
 // loaded automatically before your test files.

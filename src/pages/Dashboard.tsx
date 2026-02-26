@@ -1,3 +1,11 @@
+/**
+ * FileName: Dashboard.tsx
+ * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { useEffect } from "react";
 import {useApp} from "../hooks/app/appContext";
 import { Permission, useAuth } from "../hooks/auth/authContext";

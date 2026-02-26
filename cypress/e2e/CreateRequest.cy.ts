@@ -1,4 +1,18 @@
+/**
+ * FileName: CreateRequest.cy.ts
+ * Description: End-to-end tests for creating a travel request in the Monarca application.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
+/**
+ * FunctionName: Create Travel Request as Requester, purpose of the function is to test the end-to-end flow of creating a travel request in the Monarca application.
+ * Input: None (the tests will perform actions on the application)
+ * Output: Verification that a travel request is created successfully.
+ */
 describe("Create Travel Request as Requester", () => {
+    // Before all tests, log in as a requester to ensure we have the necessary permissions to create a travel request
     before("Login as a requester", () => {
         cy.visit("/");
         cy.get('input[name="email"]').type("requester1@monarca.com");
@@ -6,7 +20,7 @@ describe("Create Travel Request as Requester", () => {
         cy.contains("Continuar").click();
         cy.url().should("include", "/dashboard");
     });
-
+    // Test case to create a new travel request and verify that it was created successfully
     it("Create a new travel request", () => {
         cy.get('a[data-cy="mosaic-crear-solicitud-de-viaje"]').should("be.visible");
         cy.get('a[data-cy="mosaic-crear-solicitud-de-viaje"]').click();
