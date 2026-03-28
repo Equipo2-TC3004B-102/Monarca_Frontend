@@ -30,6 +30,7 @@ export const Reservations = () => {
   const [request, setRequest] = useState<any>({});
   const [isFormValid, _setIsFormValid] = useState(true);
   const { handleVisitPage, tutorial } = useApp();
+  const [activePreview, setActivePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -88,6 +89,8 @@ export const Reservations = () => {
     const { name, files } = e.target;
     const file = files ? files[0] : null;
     const fileName = file ? file.name : "";
+
+    const previewUrl = file ? URL.createObjectURL(file) : null;
     
     const updatedFormData = {
       ...formData,
@@ -96,6 +99,7 @@ export const Reservations = () => {
         [name]: file,
         // Guardar también el nombre del archivo para mostrarlo
         [`${name}_name`]: fileName,
+        [`${name}_preview`]: previewUrl,
       }
     };
     setFormData(updatedFormData);
@@ -333,6 +337,16 @@ export const Reservations = () => {
                             id={`hotel_file_${destination.id}`}
                             selectedFileName={formData[destination.id]?.hotel_file_name}
                           />
+                          {formData[destination.id]?.hotel_file_preview && (
+                            <button
+                              type="button"
+                              onClick={() => setActivePreview(formData[destination.id].hotel_file_preview)}
+                              className="mt-2 text-sm text-blue-600 underline"
+                            >
+                              Vista previa del archivo
+                            </button>
+                          )}
+
                         </div>
                       </div>
                     )}
@@ -403,10 +417,40 @@ export const Reservations = () => {
                             id={`plane_file_${destination.id}`}
                             selectedFileName={formData[destination.id]?.plane_file_name}
                           />
+                          {formData[destination.id]?.plane_file_preview && (
+                            <button
+                              type="button"
+                              onClick={() => setActivePreview(formData[destination.id].plane_file_preview)}
+                              className="mt-2 text-sm text-blue-600 underline"
+                            >
+                              Vista previa del archivo
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}
                   </section>
+
+                  {activePreview && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                      <div className="bg-white rounded-lg p-4 w-[90%] max-w-4xl h-[80vh] relative">
+                        <button
+                          type="button"
+                          onClick={() => setActivePreview(null)}
+                          className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded"
+                        >
+                          X
+                        </button>
+
+                        <iframe
+                          src={activePreview}
+                          className="w-full h-full rounded"
+                          title="Vista previa del archivo"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               ))}
             </div>
