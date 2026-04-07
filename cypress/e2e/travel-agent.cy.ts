@@ -4,6 +4,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 26/03/2026 [Diego de la Vega] Added reusable reservation opening step and dynamic first-action selection.
  */
 
 /**
@@ -12,6 +13,13 @@
  * Output: Verification that the booking process works correctly for travel agents.
  */
 describe("Travel Agent - Full Booking Flow", () => {
+  // Opens the first available reservation flow from the pending reservations list.
+  const openFirstReservation = () => {
+    cy.contains("Viajes por reservar").click();
+    cy.contains("a", "Reservar").first().click();
+    cy.contains("Asignar reservaciones").should("be.visible");
+  };
+
   // Before each test, log in as a travel agent to ensure we have the necessary permissions to access the booking functionality
   beforeEach(() => {
     cy.visit("/");
@@ -29,9 +37,7 @@ describe("Travel Agent - Full Booking Flow", () => {
   };
   // Test case to book only a flight and verify that the booking is successful
   it("1. Reserva solo vuelo", () => {
-    cy.contains("Viajes por reservar").click();
-    cy.contains("a", "Reservar").first().click();
-    cy.contains("Asignar reservaciones").should("be.visible");
+    openFirstReservation();
 
     cy.get('input[placeholder="Ingresa el título de la reservación"]').type(
       "Vuelo CDMX-NY"
@@ -54,9 +60,7 @@ describe("Travel Agent - Full Booking Flow", () => {
   });
   // Test case to book a multi-destination trip with both flight and hotel for two destinations, and verify that the booking is successful
   it("2. Reserva multidestino (vuelo y hotel para dos destinos)", () => {
-    cy.contains("Viajes por reservar").click();
-    cy.contains("a", "Reservar").first().click();
-    cy.contains("Asignar reservaciones").should("be.visible");
+    openFirstReservation();
 
     // Two blocks of destination: cy.get().eq(0) y .eq(1)
     for (let i = 0; i < 2; i++) {
@@ -101,9 +105,7 @@ describe("Travel Agent - Full Booking Flow", () => {
   });
   // Test case to book only a hotel and verify that the booking is successful
   it("3. Reserva solo hotel", () => {
-    cy.contains("Viajes por reservar").click();
-    cy.contains("a", "Reservar").first().click();
-    cy.contains("Asignar reservaciones").should("be.visible");
+    openFirstReservation();
 
     cy.get('input[placeholder="Ingresa el título de la reservación"]').type(
       "Hotel CDMX"
@@ -126,9 +128,7 @@ describe("Travel Agent - Full Booking Flow", () => {
   });
   // Test case to book a single destination with both flight and hotel, and verify that the booking is successful
   it("4. Reserva vuelo y hotel (1 destino)", () => {
-    cy.contains("Viajes por reservar").click();
-    cy.contains("a", "Reservar").first().click();
-    cy.contains("Asignar reservaciones").should("be.visible");
+    openFirstReservation();
 
     // Hotel
     cy.get('input[placeholder="Ingresa el título de la reservación"]')

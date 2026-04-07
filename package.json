@@ -3,7 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "22.14.x",
+    "npm": "10.x"
+  },
+  "volta": {
+    "node": "22.14.0",
+    "npm": "10.9.2"
+  },
   "scripts": {
+    "setup": "npm run setup:env && npm run check:env",
+    "setup:env": "node scripts/setup-env.mjs",
+    "check:env": "node scripts/setup-env.mjs --check",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
