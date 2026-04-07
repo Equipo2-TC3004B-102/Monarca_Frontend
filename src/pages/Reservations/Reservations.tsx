@@ -2,7 +2,9 @@
  * FileName: Reservations.tsx
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
- * Last Modification made: original Moncarca team
+ * Last Modification made: 
+ * 06/04/2026 Rebeca Davila Added a pdf preview for the plane and hotel documents after uploading the files
+ * to the form
  */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -341,7 +343,7 @@ export const Reservations = () => {
                             <button
                               type="button"
                               onClick={() => setActivePreview(formData[destination.id].hotel_file_preview)}
-                              className="mt-2 text-sm text-blue-600 underline"
+                              className="mt-2 text-sm text-blue-600 underline cursor-pointer"
                             >
                               Vista previa del archivo
                             </button>
@@ -421,7 +423,7 @@ export const Reservations = () => {
                             <button
                               type="button"
                               onClick={() => setActivePreview(formData[destination.id].plane_file_preview)}
-                              className="mt-2 text-sm text-blue-600 underline"
+                              className="mt-2 text-sm text-blue-600 underline cursor-pointer"
                             >
                               Vista previa del archivo
                             </button>
@@ -433,15 +435,14 @@ export const Reservations = () => {
 
                   {activePreview && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                      <div className="bg-white rounded-lg p-4 w-[90%] max-w-4xl h-[80vh] relative">
-                        <button
+                      <button
                           type="button"
                           onClick={() => setActivePreview(null)}
-                          className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded"
+                          className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
                         >
                           X
                         </button>
-
+                      <div className="bg-white rounded-lg p-1 w-[90%] max-w-4xl h-[90vh] relative">
                         <iframe
                           src={activePreview}
                           className="w-full h-full rounded"
