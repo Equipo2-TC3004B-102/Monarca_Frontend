@@ -1,4 +1,9 @@
-// src/pages/Historial/local/dummyData.ts
+/**
+ * FileName: dummyData.ts
+ * Description: dummy data for the approvals page.
+ * Authors: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 
 export const approvalsData = [
     {

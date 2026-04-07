@@ -1,3 +1,11 @@
+/*
+ * Vouchers.tsx
+ * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
+ * Authors: Original Monarca team
+ * Last Modification made:
+ * 25/02/2026 [Diego Ortega] Added specified format.
+ */
+
 import { Link, useNavigate } from "react-router-dom";
 import DynamicTable, {
   TableRow as DynamicTableRow,
@@ -14,6 +22,10 @@ import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
 
+/**
+ * FormDataRow
+ * Interface extending DynamicTableRow to include specific refund voucher fields.
+ */
 interface FormDataRow extends DynamicTableRow {
   spentClass: string;
   amount: number;
@@ -22,6 +34,11 @@ interface FormDataRow extends DynamicTableRow {
   XMLFile?: File;
   PDFFile?: File;
 }
+
+/**
+ * Trip
+ * Interface representing basic trip information for the header details.
+ */
 interface Trip {
   id: number | string;
   title: string;
@@ -31,6 +48,12 @@ interface Trip {
   };
 }
 
+/**
+ * Vouchers Component
+ * Main form for registering refund vouchers associated with a specific trip request.
+ * Input: None (uses URL params for ID)
+ * Output: JSX.Element - The refund request form view.
+ */
 export const Vouchers = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -45,6 +68,10 @@ export const Vouchers = () => {
   });
   const [commentValue, setCommentValue] = useState<string>("");
 
+  /**
+   * fetchTrip
+   * Fetches the specific trip data from the API using the ID in the URL.
+   */
   useEffect(() => {
     const fetchTrip = async () => {
       try {
@@ -52,7 +79,7 @@ export const Vouchers = () => {
         setTrip(response);
       } catch (err) {
         console.error(
-          "Error al cargar el viaje: ",
+          "Error loading trip: ",
           err instanceof Error ? err.message : err
         );
       }
@@ -60,9 +87,15 @@ export const Vouchers = () => {
     fetchTrip();
   }, []);
 
+  /**
+   * handleSubmitRefund
+   * Processes the form data, uploads each voucher as a multipart/form-data request, 
+   * and finalizes the request status.
+   * Input: None
+   * Output: Promise<void>
+   */
   const handleSubmitRefund = async () => {
     try {
-      // comprobante_pendiente, comprobante_denegado, comprobante_aprobado
       let formDataToSend = null;
       for (const rowData of formData) {
         formDataToSend = new FormData();
@@ -71,12 +104,11 @@ export const Vouchers = () => {
           "id_request",
           trip.id.toString()
         );
-        //formDataToSend.append("comment", commentDescriptionOfSpend);
         formDataToSend.append("date", new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
         formDataToSend.append("tax_type", rowData.taxIndicator);
-        formDataToSend.append("status", "comprobante_pendiente");
+        formDataToSend.append("status", "pending_voucher");
         formDataToSend.append("currency", "MXN");
         formDataToSend.append("id_approver", "");
         if (rowData.XMLFile) {
@@ -88,38 +120,33 @@ export const Vouchers = () => {
         }
 
         await postRequest("/vouchers/upload", formDataToSend);
-        toast.success("Solicitud de reembolso enviada con éxito.");
+        toast.success("Refund request successfully submitted.");
       }
       await patchRequest(`/requests/finished-uploading-vouchers/${id}`, {});
       navigate("/refunds");
     } catch (err) {
       console.error(
-        "Error al enviar la solicitud de reembolso: ",
+        "Error sending refund request: ",
         err instanceof Error ? err.message : err
       );
       toast.error(
-        "Error al enviar la solicitud de reembolso. Por favor, inténtelo de nuevo más tarde."
+        "Error submitting refund request. Please try again later."
       );
     } finally {
-      // Reset form data and comment after submission
+      
       setFormData([]);
-      //setCommentDescriptionOfSpend("");
     }
   };
+
+  /**
+   * Schema definition for the DynamicTable.
+   * Defines headers, default values, and custom cell rendering for each column.
+   */
   const columnsSchemaVauchers = [
     {
       key: "spentClass",
-      header: "Clase de gasto",
+      header: "Expense class",
       defaultValue: "",
-      /*
-       * An fast example of how the renderCell function works:
-       * 1. When change the option in the dropdown, the native OnChange function of the dropdown is called.
-       * 2. OnChangeComponentFunction is acually the function passed as a prop to the renderCell function,
-       *    in this case (newValue) => handleFieldChange(rowIndex, column.key, newValue) in the DynamicTable component.
-       * 3. This function is used to update the component from child to parent, so it will update the value of the
-       *   column in the row with the new value selected in the dropdown.
-       *
-       */
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -131,13 +158,13 @@ export const Vouchers = () => {
           options={spendOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Seleccione"
+          placeholder="Choose"
         />
       ),
     },
     {
       key: "amount",
-      header: "Monto MXN",
+      header: "Amount MXN",
       defaultValue: 0,
       renderCell: (
         value: CellValueType,
@@ -150,13 +177,13 @@ export const Vouchers = () => {
           type="number"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
-          placeholder="Ingrese"
+          placeholder="Enter"
         />
       ),
     },
     {
       key: "taxIndicator",
-      header: "Indicador de impuesto",
+      header: "Tax Indicator",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -169,13 +196,13 @@ export const Vouchers = () => {
           options={taxIndicatorOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Seleccione"
+          placeholder="Choose"
         />
       ),
     },
     {
       key: "date",
-      header: "Fecha del comprobante",
+      header: "Date of voucher",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -193,7 +220,7 @@ export const Vouchers = () => {
     },
     {
       key: "XMLFile",
-      header: "Archivo XML",
+      header: "XML File",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
@@ -220,13 +247,13 @@ export const Vouchers = () => {
               }
             }
           }}
-          placeholder="Subir archivo XML"
+          placeholder="Upload XML file"
         />
       ),
     },
     {
       key: "PDFFile",
-      header: "Archivo PDF",
+      header: "PDF File",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
@@ -253,19 +280,21 @@ export const Vouchers = () => {
               }
             }
           }}
-          placeholder="Subir archivo PDF"
+          placeholder="Upload PDF File"
         />
       ),
     },
   ];
 
+  /**
+   * Syncs the local state with the table's updated data.
+   * Input: data (DynamicTableRow[])
+   */
   const handleFormDataChange = (newData: FormDataRow[]) => {
     setFormData(newData);
   };
 
-  // Wrapper function to handle the type conversion
   const handleDynamicTableDataChange = (data: DynamicTableRow[]) => {
-    // Convert DynamicTableRow[] to FormDataRow[]
     handleFormDataChange(data as FormDataRow[]);
   };
 
@@ -275,26 +304,26 @@ export const Vouchers = () => {
       <GoBack />
       <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
-          Formato de solicitud de reembolso
+          Refund request form
         </h2>
         <div className="mb-4">
           {/*
           * Display general information about the trip, such as ID, name, destination,
           */}
           <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
-            Información del viaje
+            Trip information
           </h3>
           <p>
-            <strong>ID del viaje:</strong> {trip.id}
+            <strong>Trip ID:</strong> {trip.id}
           </p>
           <p>
-            <strong>Nombre del viaje:</strong> {trip.title}
+            <strong>Trip Name:</strong> {trip.title}
           </p>
           <p>
-            <strong>Destino:</strong> {trip.destination.city}
+            <strong>Destination:</strong> {trip.destination.city}
           </p>
           <p>
-            <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
+            <strong>Advance Money:</strong> {formatMoney(trip.advance_money)}
           </p>
         </div>
         {/*
@@ -317,12 +346,12 @@ export const Vouchers = () => {
         * The comment is stored in the commentDescriptionOfSpend state,
         * and is updated with the setCommentDescriptionOfSpend function.
         */}
-        <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentario</h3>
+        <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Coments</h3>
         <InputField 
           id="comment-refund"
           type="text"
           value={commentValue}
-          placeholder="Ingrese un comentario"
+          placeholder="Add Comments"
           onChange={(e) => setCommentValue(e.target.value)}
         />
         <div className="mt-6 flex justify-between">
@@ -330,7 +359,7 @@ export const Vouchers = () => {
             to="/refunds"
             className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
           >
-            Cancelar
+            Cancel
           </Link>
           <button
             id="submit-refund"
@@ -339,7 +368,7 @@ export const Vouchers = () => {
               handleSubmitRefund();
             }}
           >
-            Enviar Solicitud
+            Send request
           </button>
         </div>
       </div>

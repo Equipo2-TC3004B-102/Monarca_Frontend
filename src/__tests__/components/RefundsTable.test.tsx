@@ -1,3 +1,12 @@
+/**
+ * RefundsTable.test.tsx
+ * Description: Test suite for the Refunds Table component, validating rendering, pagination behavior,
+ * handling of empty and null values, boundary conditions, CSS classes, and JSX cell content.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import Table from "./../../components/Refunds/Table.tsx";

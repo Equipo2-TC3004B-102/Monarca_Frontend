@@ -1,3 +1,11 @@
+/**
+ * FileName: commands.ts
+ * Description: This file contains custom Cypress commands for the Monarca application, which can be used across multiple test files to perform common actions such as logging in, navigating to specific pages, and interacting with UI elements. These commands help to reduce code duplication and improve the maintainability of the test suite.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 /// <reference types="cypress" />
 import "cypress-file-upload";
 // ***********************************************

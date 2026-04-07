@@ -1,3 +1,13 @@
+/**
+ * FileName: FilePreviewerReservation.tsx
+ * Description: This file contains the FilePreviewer component used in the 
+ * Refunds section of the application, specifically for reservation files.
+ * It provides a preview of a reservation file with its metadata and download options.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
+ */
 import formatMoney from "../../utils/formatMoney";
 
 
@@ -10,7 +20,11 @@ interface FilePreviewerProps {
     fileIndex: number;
 }
 
-
+/**
+ * FilePreviewer, displays a reservation file preview with price metadata and PDF download option.
+ * Input: file (object with link, class, price), fileIndex (number)
+ * Output: JSX element - a preview panel with iframe and price information with PDF download button
+ */
 
 const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
     return (

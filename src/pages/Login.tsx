@@ -1,19 +1,51 @@
+/**
+ * Login.tsx
+ * Description: Login page component that authenticates a user via the backend API and redirects to the dashboard on success. Displays toast notifications for validation and authentication errors.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { postRequest } from "../utils/apiService";
 import { ToastContainer, toast } from "react-toastify";
 
+/**
+ * User, represents the login form payload.
+ * Input:
+ * - email (string): User email used for authentication.
+ * - password (string): User password used for authentication.
+ * Output: User interface - Used for typing form state and API payload.
+ */
 interface User {
   email: string;
   password: string;
 }
 
+/**
+ * LoginPage, renders the login UI and handles authentication flow.
+ * Input: None.
+ * Output: JSX.Element - Login form UI with toast notifications and navigation on success.
+ *
+ * Business logic:
+ * - Validates that both email and password are present before sending the request.
+ * - Calls POST /login with the provided credentials.
+ * - On success (result.status === true), navigates to /dashboard.
+ * - On failure, shows an error toast with a user-friendly message.
+ */
 export default function LoginPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User>({
     email: "",
     password: "",
   });
+
+  /**
+   * handleSubmit, validates input fields and performs login request to the API.
+   * Input:
+   * - event (React.FormEvent<HTMLFormElement>): Form submit event.
+   * Output: Promise<void> - Navigates on success, shows toast messages on validation or request errors.
+   */
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user.email || !user.password) {
@@ -59,6 +91,12 @@ export default function LoginPage() {
     }
   };
 
+  /**
+   * handleChange, updates form state when the user types in an input field.
+   * Input:
+   * - event (React.ChangeEvent<HTMLInputElement>): Change event from an input element.
+   * Output: void - Updates the "user" state with the new field value.
+   */
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUser({
       ...user,

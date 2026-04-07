@@ -1,7 +1,25 @@
+/**
+ * AprovalsTable.test.tsx
+ * Description: Automated tests for the Approvals Table UI component using React Testing Library and Vitest.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { describe, it, expect } from "vitest";
 import Table from "./../../components/Approvals/Table.tsx";
+
+/**
+ * TableWrapper, provides the required Router context for the Table component during tests.
+ * Input:
+ *  - children (React.ReactNode): The component tree to be rendered within BrowserRouter.
+ * Output:
+ *  - JSX.Element: The children wrapped with BrowserRouter.
+ * Notes:
+ *  - The Table component (or its children) uses react-router, so tests must render it inside a router.
+ */
 
 const TableWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>{children}</BrowserRouter>

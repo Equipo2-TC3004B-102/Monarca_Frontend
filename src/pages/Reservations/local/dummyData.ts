@@ -1,4 +1,9 @@
-// src/pages/Historial/local/dummyData.ts
+/**
+ * FileName: dummyData.ts
+ * Description: dummy data for the reservations page.
+ * Authors: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 
 export const TravelAgencyFormData = [
   {

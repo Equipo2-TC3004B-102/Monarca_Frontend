@@ -1,6 +1,17 @@
-// src/pages/NotFound.jsx
+/**
+ * FileName: Error.tsx
+ * Description: Renders a styled 404 error page with navigation options for users who attempt to access non-existent pages.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
 import { Link } from "react-router-dom";
 
+/**
+ * FunctionName: NotFound, renders a styled 404 error page with navigation options for users who attempt to access non-existent pages.
+ * Input: none
+ * Output: JSX component containing the 404 error message and navigation links.
+ */
 const NotFound = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-6">

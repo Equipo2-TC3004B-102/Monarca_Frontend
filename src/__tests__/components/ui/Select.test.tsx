@@ -1,3 +1,15 @@
+/**
+ * Select.test.tsx
+ * Description: Test suite to check the behavior of the Select component under 
+ * different scenarios to ensure it works correctly. It verifies that the component displays a placeholder when no value 
+ * is selected, shows the selected option, handles loading and disabled states, displays appropriate messages when there 
+ * are no options, calls onChange when an option is chosen, applies direction-based styling, and visually highlights the 
+ * selected option in the dropdown.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
