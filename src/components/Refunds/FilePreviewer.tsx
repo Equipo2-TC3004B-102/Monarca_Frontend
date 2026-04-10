@@ -1,3 +1,12 @@
+/**
+ * FileName: FilePreviewer.tsx
+ * Description: This file contains the FilePreviewer component used in the Refunds section of the application.
+ * It provides a preview of a file with its metadata and download options.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
+ */
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
 
@@ -14,8 +23,11 @@ interface FilePreviewerProps {
     fileIndex: number;
 }
 
-
-
+/**
+ * FilePreviewer, displays a file preview with metadata (class, amount, date, status) and download options for XML and PDF formats.
+ * Input: file (object with file_url_pdf, file_url_xml, class, amount, date, status), fileIndex (number)
+ * Output: JSX element - a preview panel with iframe and file information with download buttons
+ */
 const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
     return (
         <>

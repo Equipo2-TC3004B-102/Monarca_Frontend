@@ -1,10 +1,22 @@
-// cypress/e2e/login.cy.js
+/**
+ * FileName: login.cy.ts
+ * Description: End-to-end tests for the login functionality of the Monarca application, covering various scenarios such as successful login, validation of required fields, error handling for failed login attempts, and navigation to the forgot password page.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
+/**
+ * FunctionName: Login Page, purpose of the function is to test the login functionality of the Monarca application.
+ * Input: None (the tests will perform actions on the application)
+ * Output: Verification of the expected outcomes for each login scenario, such as successful login, validation of required fields, error handling for failed login attempts, and navigation to the forgot password page.
+ */
 describe("Login Page", () => {
   beforeEach(() => {
     // Visit the login page before each test
     cy.visit("/");
   });
-
+  // Test case to verify that the login form is displayed correctly with all necessary UI elements
   it("displays the login form correctly", () => {
     // Check main UI elements are present
     cy.contains("INICIO DE SESIÓN").should("be.visible");
@@ -15,7 +27,7 @@ describe("Login Page", () => {
     cy.contains("¿Olvidaste tu contraseña?").should("be.visible");
     cy.contains("Continuar").should("be.visible");
   });
-
+  // Test case to validate that both email and password fields are required for login
   it("requires both email and password fields", () => {
     // Try to submit with empty fields - should show alert
     cy.contains("Continuar").click();
@@ -56,7 +68,7 @@ describe("Login Page", () => {
   //   // Should navigate to dashboard
   //   cy.url().should("include", "/dashboard");
   // });
-
+  // Test case to handle login failure scenario
   it("shows error alert on login failure", () => {
     // Intercept API request with failure
     cy.intercept("POST", "/login", {
@@ -74,7 +86,7 @@ describe("Login Page", () => {
       expect(text).to.equal("Error al iniciar sesion");
     });
   });
-
+  // Test case to handle API error scenario
   it("shows error alert on API error", () => {
     // Intercept API request with failure
     cy.intercept("POST", "/login", {
@@ -92,7 +104,7 @@ describe("Login Page", () => {
       expect(text).to.equal("Error");
     });
   });
-
+  // Test case to navigate to the forgot password page
   it("can navigate to forgot password page", () => {
     cy.contains("¿Olvidaste tu contraseña?").click();
     cy.url().should("include", "/register");

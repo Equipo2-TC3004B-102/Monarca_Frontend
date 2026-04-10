@@ -1,3 +1,12 @@
+/**
+ * FileName: Sidebar.tsx
+ * Description: Renders the left navigation sidebar with the application logo, user info,
+ *              and permission-based navigation links using SidebarOption items.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 // ***************** images *****************
 import logo from "../assets/logo.png";
 
@@ -6,6 +15,11 @@ import SidebarOption from "./SiderbarOption";
 
 import { AuthState, Permission } from "../hooks/auth/authContext";
 
+/**
+ * FunctionName: Sidebar, renders the aside navigation panel with logo, user details, and role-gated menu links.
+ * Input: user - AuthState object containing userName, userLastName, userRole, and userPermissions.
+ * Output: JSX aside element with navigation options filtered by user permissions.
+ */
 function Sidebar({ user }: { user: AuthState }) {
   return (
     <aside

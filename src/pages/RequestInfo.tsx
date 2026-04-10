@@ -1,3 +1,11 @@
+/**
+ * RequestInfo.tsx
+ * Description: Displays travel request details, destination/reservation data, and role-based request actions.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 23/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { patchRequest, postRequest } from '../utils/apiService';
@@ -21,6 +29,11 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useApp } from '../hooks/app/appContext';
 
+/**
+ * renderStatus, function to convert internal request status codes into user-friendly Spanish labels for display in the UI.
+ * Inputs: status (string) - The internal status code of the request.
+ * Returns: string - The user-friendly label corresponding to the status code.
+ */
 const renderStatus = (status: string) => {
   switch (status) {
     case "Pending Review":
@@ -48,6 +61,11 @@ const renderStatus = (status: string) => {
     }
 }
 
+  /**
+   * RequestInfo, renders request details and allows approval workflow actions according to permissions and status.
+   * Inputs: None (reads request id from route params and user context from hooks).
+   * Returns: JSX.Element - Request detail page content.
+   */
 const RequestInfo: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -68,6 +86,11 @@ const RequestInfo: React.FC = () => {
   const { handleVisitPage, tutorial } = useApp();
 
   useEffect(() => {
+    /**
+     * fetchData, loads request data from API and normalizes fields for UI display.
+     * Inputs: None, it uses route id from closure scope.
+     * Returns: Promise<void> - Updates component state.
+     */
     const fetchData = async () => {
       try {
         const response = await getRequest(`/requests/${id}`);
@@ -107,6 +130,11 @@ const RequestInfo: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    /**
+     * fetchAgencies, loads travel agencies used in the approval action.
+     * Inputs: None.
+     * Returns: Promise<void> - Updates agencies state.
+     */
     const fetchAgencies = async () => {
       try {
         const response = await getRequest('/travel-agencies');
@@ -132,6 +160,11 @@ const RequestInfo: React.FC = () => {
     { key: 'createdAt', label: 'Fecha de creación' },
   ];
 
+  /**
+   * approve, approves the request with the selected travel agency.
+   * Inputs: None, it uses selectedAgency and request id from state/context.
+   * Returns: Promise<void> - Sends API request and redirects on success.
+   */
   const approve = async () => {
     if (!selectedAgency) {
       toast.error('Selecciona una agencia de viaje', {
@@ -159,6 +192,13 @@ const RequestInfo: React.FC = () => {
     }
   };
 
+  /**
+   * Title: requestChanges
+   * Purpose: Creates a revision entry to request changes with a reviewer comment.
+   * Inputs:
+   * - None (uses comment and request id from state/context).
+   * Returns: Promise<void> - Sends revision request and redirects on success.
+   */
   const requestChanges = async () => {
     if (!comment.trim()) {
       toast.error('Escribe un comentario para solicitar cambios', {
@@ -187,6 +227,13 @@ const RequestInfo: React.FC = () => {
     }
   };
 
+  /**
+   * Title: deny
+   * Purpose: Denies the current travel request.
+   * Inputs:
+   * - None (uses request id from route params).
+   * Returns: Promise<void> - Sends deny request and redirects on success.
+   */
   const deny = async () => {
     try {
       await patchRequest(`/requests/deny/${id}`, {});
@@ -205,6 +252,13 @@ const RequestInfo: React.FC = () => {
     }
   };
 
+  /**
+   * Title: cancel
+   * Purpose: Cancels the current travel request.
+   * Inputs:
+   * - None (uses request id from route params).
+   * Returns: Promise<void> - Sends cancel request and redirects on success.
+   */
   const cancel = async () => {
     try {
       await patchRequest(`/requests/cancel/${id}`, {});
@@ -223,6 +277,13 @@ const RequestInfo: React.FC = () => {
     }
   };
 
+  /**
+   * Title: register
+   * Purpose: Marks the request as registered in the SOI approval step.
+   * Inputs:
+   * - None (uses request id from route params).
+   * Returns: Promise<void> - Sends status update and redirects on success.
+   */
   const register = async () => {
     try {
       await patchRequest(`/requests/SOI-approve/${id}`, {});
@@ -241,6 +302,11 @@ const RequestInfo: React.FC = () => {
     }
   }
 
+  /**
+   * complete, marks the request as completed and routes to refund review flow.
+   * Inputs: None, uses request id from route params.
+   * Returns: Promise<void> - Sends completion request and redirects on success.
+   */
   const complete = async () => {
     try {
       await patchRequest(`/requests/complete-request/${id}`, {});
@@ -259,7 +325,7 @@ const RequestInfo: React.FC = () => {
     }
   }
 
-  return (
+  return ( // Returns the main JSX content of the RequestInfo page, including request details, destinations, reservations, vouchers, and action buttons based on user permissions and request status.
     <Tutorial page ="requestInfo" run={tutorial}>
     <div className="pb-10">
       <GoBack />
@@ -800,4 +866,4 @@ const RequestInfo: React.FC = () => {
   );
 };
 
-export default RequestInfo;
+export default RequestInfo; // Exports the RequestInfo component as the default export of this module, allowing it to be imported and used in other parts of the application.

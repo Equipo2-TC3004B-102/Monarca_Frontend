@@ -1,3 +1,11 @@
+/**
+ * FileName: Reservations.tsx
+ * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 06/04/2026 Rebeca Davila Added a pdf preview for the plane and hotel documents after uploading the files
+ * to the form
+ */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Input from "../../components/Refunds/InputField";
@@ -9,6 +17,14 @@ import { postRequest } from "../../utils/apiService";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 
+/**
+ * FunctionName: Reservations
+ * Purpose of the function: to display the reservations page.
+ * Input: none
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 export const Reservations = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -16,6 +32,7 @@ export const Reservations = () => {
   const [request, setRequest] = useState<any>({});
   const [isFormValid, _setIsFormValid] = useState(true);
   const { handleVisitPage, tutorial } = useApp();
+  const [activePreview, setActivePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -62,10 +79,20 @@ export const Reservations = () => {
       handleVisitPage();
     }, []);
 
+  /**
+ * FunctionName: handleFileChange
+ * Purpose of the function: to handle the file change event.
+ * Input: e: React.ChangeEvent<HTMLInputElement>, id: string
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
     const { name, files } = e.target;
     const file = files ? files[0] : null;
     const fileName = file ? file.name : "";
+
+    const previewUrl = file ? URL.createObjectURL(file) : null;
     
     const updatedFormData = {
       ...formData,
@@ -74,11 +101,20 @@ export const Reservations = () => {
         [name]: file,
         // Guardar también el nombre del archivo para mostrarlo
         [`${name}_name`]: fileName,
+        [`${name}_preview`]: previewUrl,
       }
     };
     setFormData(updatedFormData);
   };
 
+  /**
+ * FunctionName: handleChange
+ * Purpose of the function: to handle the change event.
+ * Input: e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string) => {
     const { name, value } = e.target;
     const updatedFormData = {
@@ -91,6 +127,14 @@ export const Reservations = () => {
     setFormData(updatedFormData);
   };
 
+  /**
+ * FunctionName: handleSubmit
+ * Purpose of the function: to handle the submit event.
+ * Input: e: React.FormEvent
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
       if (formData === null || Object.keys(formData).length === 0) {
@@ -295,6 +339,16 @@ export const Reservations = () => {
                             id={`hotel_file_${destination.id}`}
                             selectedFileName={formData[destination.id]?.hotel_file_name}
                           />
+                          {formData[destination.id]?.hotel_file_preview && (
+                            <button
+                              type="button"
+                              onClick={() => setActivePreview(formData[destination.id].hotel_file_preview)}
+                              className="mt-2 text-sm text-blue-600 underline cursor-pointer"
+                            >
+                              Vista previa del archivo
+                            </button>
+                          )}
+
                         </div>
                       </div>
                     )}
@@ -365,10 +419,39 @@ export const Reservations = () => {
                             id={`plane_file_${destination.id}`}
                             selectedFileName={formData[destination.id]?.plane_file_name}
                           />
+                          {formData[destination.id]?.plane_file_preview && (
+                            <button
+                              type="button"
+                              onClick={() => setActivePreview(formData[destination.id].plane_file_preview)}
+                              className="mt-2 text-sm text-blue-600 underline cursor-pointer"
+                            >
+                              Vista previa del archivo
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}
                   </section>
+
+                  {activePreview && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                      <button
+                          type="button"
+                          onClick={() => setActivePreview(null)}
+                          className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
+                        >
+                          X
+                        </button>
+                      <div className="bg-white rounded-lg p-1 w-[90%] max-w-4xl h-[90vh] relative">
+                        <iframe
+                          src={activePreview}
+                          className="w-full h-full rounded"
+                          title="Vista previa del archivo"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               ))}
             </div>

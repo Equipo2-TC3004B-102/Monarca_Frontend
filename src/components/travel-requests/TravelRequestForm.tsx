@@ -1,3 +1,11 @@
+/**
+ * TravelRequestForm.tsx
+ * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
+ * Authors: Original Monarca team
+ * Last Modification made:
+ * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
@@ -52,23 +60,15 @@ const formSchema = z.object({
   priority: z.enum(["alta", "media", "baja"]),
   requirements: z.string().optional(),
   advance_money: z
-    .string()
-    .trim()
-    .nonempty({ message: "Este campo es obligatorio" })
-    .refine((value) => /^\d+(\.\d{1,2})?$/.test(value), {
-      message: "Ingresa una cantidad válida con hasta dos decimales",
-    })
-    .refine((value) => Number(value) > 0, {
-      message: "El dinero adelantado debe ser mayor a 0",
-    })
-    .transform((value) => Number(value)),
+    .number()
+    .int()
+    .positive({ message: "El dinero adelantado debe ser positivo" }),
   requests_destinations: z
     .array(destinationSchema)
     .min(1, "Al menos un destino"),
 });
 
-type FormValues = z.input<typeof formSchema>;
-type SubmitValues = z.output<typeof formSchema>;
+type RawFormValues = z.infer<typeof formSchema>;
 
 interface TravelRequestFormProps {
   initialData?: CreateRequest;
@@ -77,15 +77,20 @@ interface TravelRequestFormProps {
 
 interface DestinationFieldsProps {
   idx: number;
-  control: Control<FormValues>;
-  register: UseFormRegister<FormValues>;
+  control: Control<RawFormValues>;
+  register: UseFormRegister<RawFormValues>;
   destinationOptions: { id: string | number; name: string }[];
-  errors: FieldErrors<FormValues>["requests_destinations"];
+  errors: FieldErrors<RawFormValues>["requests_destinations"];
   remove: (index: number) => void;
-  setValue: UseFormSetValue<FormValues>;
+  setValue: UseFormSetValue<RawFormValues>;
   isLoadingDestinations: boolean;
 }
 
+/**
+ * DestinationFields, renders one destination block with dates, details, and travel requirements inside the form.
+ * Inputs: props: DestinationFieldsProps - Destination index, form controls, options, and handlers.
+ * Returns: JSX.Element - Destination section UI.
+ */
 function DestinationFields({
   idx,
   control,
@@ -274,6 +279,13 @@ function DestinationFields({
   );
 }
 
+/**
+ * TravelRequestForm, renders and manages the full travel request form in create or edit mode.
+ * Inputs:
+ * - initialData?: CreateRequest - Optional preloaded values for edit mode.
+ * - requestId?: string - Optional request identifier used for updates.
+ * Returns: JSX.Element - Form UI with submit actions.
+ */
 function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
   const { destinationOptions, isLoading: isLoadingDestinations } =
@@ -293,14 +305,14 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     formState: { errors },
     reset,
     setValue,
-  } = useForm<FormValues, unknown, SubmitValues>({
+  } = useForm<RawFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       id_origin_city: null,
       motive: "",
       title: "",
       priority: "media",
-      advance_money: "",
+      advance_money: 0,
       requirements: "",
       requests_destinations: [
         {
@@ -321,7 +333,12 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     name: "requests_destinations",
   });
 
-  const onSubmit = async (data: SubmitValues) => {
+  /**
+   * onSubmit, Validates destination stay rules, builds payload data, and creates or updates a request.
+   * Inputs:data: RawFormValues - Validated form values provided by react-hook-form.
+   * Returns: Promise<void> - Executes mutation requests and navigation side effects.
+   */
+  const onSubmit = async (data: RawFormValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");
       return;
@@ -362,7 +379,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
     const payload = {
       id_origin_city: data.id_origin_city,
-      title: data.title,
+      title: data.motive,
       motive: data.motive,
       requirements: data.requirements || undefined,
       priority: data.priority,
@@ -500,42 +517,8 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 </label>
                 <Input
                   id="advance_money"
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="0.00"
-                  {...register("advance_money", {
-                    onChange: (e) => {
-                      let value = e.target.value;
-
-                      value = value.replace(",", ".");
-                      value = value.replace(/[^0-9.]/g, "");
-
-                      const parts = value.split(".");
-                      if (parts.length > 2) {
-                        value = `${parts[0]}.${parts.slice(1).join("")}`;
-                      }
-
-                      if (parts[1]?.length > 2) {
-                        value = `${parts[0]}.${parts[1].slice(0, 2)}`;
-                      }
-
-                      e.target.value = value;
-                    },
-                    onBlur: (e) => {
-                      const value = e.target.value.trim();
-
-                      if (!value) return;
-
-                      if (/^\d+(\.\d{1,2})?$/.test(value)) {
-                        e.target.value = Number(value).toFixed(2);
-                      }
-                    },
-                  })}
-                  onKeyDown={(e) => {
-                    if (["e", "E", "+", "-"].includes(e.key)) {
-                      e.preventDefault();
-                    }
-                  }}
+                  type="number"
+                  {...register("advance_money", { valueAsNumber: true })}
                 />
                 <FieldError msg={errors.advance_money?.message} />
               </div>

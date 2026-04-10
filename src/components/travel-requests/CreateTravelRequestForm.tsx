@@ -1,3 +1,11 @@
+/**
+ * CreateTravelRequestForm.tsx
+ * Description: Travel request creation form component with destination management and Zod validation.
+ * Authors: Monarca Original Team
+ * Last Modification made:
+ * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
@@ -48,22 +56,19 @@ const formSchema = z.object({
   priority: z.enum(["alta", "media", "baja"]),
   requirements: z.string().optional(),
   advance_money: z
-    .string()
-    .trim()
-    .nonempty({ message: "Este campo es obligatorio" })
-    .regex(/^\d+([.,]\d{1,2})?$/, {
-      message: "Ingresa una cantidad válida con hasta dos decimales",
-    })
-    .refine((value) => Number(value.replace(",", ".")) > 0, {
-      message: "El dinero adelantado debe ser mayor a 0",
-    })
-    .transform((value) => Number(value.replace(",", "."))),
+    .number()
+    .int()
+    .positive({ message: "El dinero adelantado debe ser positivo" }),
   destinations: z.array(destinationSchema).min(1, "Al menos un destino"),
 });
 
-type FormValues = z.input<typeof formSchema>;
-type SubmitValues = z.output<typeof formSchema>;
+type RawFormValues = z.infer<typeof formSchema>;
 
+/**
+ * CreateTravelRequestForm, renders the travel request creation form with destination fields, validation schemas, and submission logic.
+ * Inputs: None, uses hooks for destinations, navigation, and request creation.
+ * Returns: JSX.Element - Form UI for creating travel requests with dynamic destination fields.
+ */
 function CreateTravelRequestForm() {
   const navigate = useNavigate();
   const { destinationOptions, isLoading: isLoadingDestinations } =
@@ -75,14 +80,14 @@ function CreateTravelRequestForm() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<FormValues, unknown, SubmitValues>({
+  } = useForm<RawFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       id_origin_city: null,
       motive: "",
       title: "",
       priority: "media",
-      advance_money: "",
+      advance_money: 0,
       requirements: "",
       destinations: [
         {
@@ -105,7 +110,12 @@ function CreateTravelRequestForm() {
     name: "destinations",
   });
 
-  const onSubmit = async (data: SubmitValues) => {
+  /**
+   * onSubmit, validates and submits travel request data, transforming destinations to API format.
+   * Inputs: data (RawFormValues) - Form data containing origin, motive, destinations, and other request details.
+   * Returns: Promise<void> - Executes mutation, displays toast notifications, and navigates on success.
+   */
+  const onSubmit = async (data: RawFormValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");
       return;
@@ -131,7 +141,7 @@ function CreateTravelRequestForm() {
 
     const payload = {
       id_origin_city: data.id_origin_city,
-      title: data.title,
+      title: data.motive,
       motive: data.motive,
       requirements: data.requirements || undefined,
       priority: data.priority,
@@ -257,46 +267,11 @@ function CreateTravelRequestForm() {
                 Dinero adelantado (MXN)
               </label>
               <Input
-                type="text"
-                inputMode="decimal"
-                placeholder="0.00"
-                {...register("advance_money", {
-                  onBlur: (e) => {
-                    const value = e.target.value.trim().replace(",", ".");
-
-                    if (!value) return;
-
-                    if (/^\d+(\.\d{1,2})?$/.test(value)) {
-                      e.target.value = Number(value).toFixed(2);
-                    }
-                  },
-                  onChange: (e) => {
-                    let value = e.target.value;
-
-                    value = value.replace(",", ".");
-
-                    // Solo permite números y un punto decimal
-                    value = value.replace(/[^0-9.]/g, "");
-
-                    // Evita más de un punto decimal
-                    const parts = value.split(".");
-                    if (parts.length > 2) {
-                      value = `${parts[0]}.${parts.slice(1).join("")}`;
-                    }
-
-                    // Limita a dos decimales
-                    if (parts[1]?.length > 2) {
-                      value = `${parts[0]}.${parts[1].slice(0, 2)}`;
-                    }
-
-                    e.target.value = value;
-                  },
+                type="number"
+                min={1}
+                {...register(`advance_money` as const, {
+                  valueAsNumber: true,
                 })}
-                onKeyDown={(e) => {
-                  if (["e", "E", "+", "-"].includes(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
               />
               <FieldError msg={errors?.advance_money?.message} />
             </div>

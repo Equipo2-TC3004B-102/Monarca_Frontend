@@ -1,10 +1,12 @@
 /**
- * @file GoBack.test.tsx
- * @description This file contains the test suite for the GoBack component. It tests that the back button renders with the correct label and navigates to /dashboard when clicked.
- * @lastEdited 2025-05-27
- * @author Leon Blanga
+ * GoBack.test.tsx
+ * Description: This file contains the test suite for the GoBack component. 
+ * It tests that the back button renders with the correct label and navigates to /dashboard 
+ * when clicked.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
  */
-
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";

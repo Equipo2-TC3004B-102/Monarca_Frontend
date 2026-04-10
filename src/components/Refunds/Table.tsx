@@ -1,8 +1,11 @@
-/*
- * Table component that renders data in a customizable table format with pagination.
- *
- * Last edit: April 20, 2025
- * Authors: José Manuel García Zumaya
+/**
+ * FileName: Table.tsx
+ * Description: This file contains the Table component used in the Refunds section of the application.
+ * It provides a customizable table with pagination controls.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
  */
 import React, { ReactNode, useState } from "react";
 
@@ -43,6 +46,11 @@ interface TableProps {
 /*
  * Table component that renders a table based on the provided columns and data with pagination controls.
  */
+/**
+ * Table, renders a paginated table with dynamic columns and rows based on provided data schema.
+ * Input: columns (Column[]), data (array of objects), itemsPerPage (number)
+ * Output: JSX element - a complete table component with pagination controls
+ */
 const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
   /*
    * State to manage the current page of the table.
@@ -73,6 +81,11 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
    * Function to update the current page using the UseState hook.
    * We ensure that the page number is within the valid range to avoid
    * out of bounds errors.
+   */
+  /**
+   * changePage, updates the current page number with bounds checking to ensure valid page range.
+   * Input: page (number)
+   * Output: void
    */
   const changePage = (page: number) => {
     if (page < 1) page = 1;

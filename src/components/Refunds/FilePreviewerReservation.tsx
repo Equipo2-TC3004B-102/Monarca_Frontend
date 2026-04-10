@@ -1,3 +1,13 @@
+/**
+ * FileName: FilePreviewerReservation.tsx
+ * Description: This file contains the FilePreviewer component used in the 
+ * Refunds section of the application, specifically for reservation files.
+ * It provides a preview of a reservation file with its metadata and download options.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 06/04/2026 Rebeca Davila Modified the position of the costs and the preview of the document, and
+ * changed the link to a button to let the users to download the files.
+ */
 import formatMoney from "../../utils/formatMoney";
 
 
@@ -10,35 +20,51 @@ interface FilePreviewerProps {
     fileIndex: number;
 }
 
-
+/**
+ * FilePreviewer, displays a reservation file preview with price metadata and PDF download option.
+ * Input: file (object with link, class, price), fileIndex (number)
+ * Output: JSX element - a preview panel with iframe and price information with PDF download button
+ */
 
 const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
     return (
         <>
-            <div className="grid grid-cols-3 w-full h-96 mb-4">
-                <iframe
-                  src={`${file.link}#navpanes=0&view=FitH`}
-                  width="100%"
-                  height="100%"
-                  title={`Comprobante de Solicitud ${fileIndex + 1}`}
-                  className="border-0 col-span-2"
-                />
-
-                <div className="flex flex-col bg-white p-6 gap-3 col-span-1">
-                  <p id={`price-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Cantidad: </span><span className="text-green-700">{formatMoney(file.price)}</span></p>
-                </div>
-              </div>
-
+          <div className="flex flex-col">
+            <div className="flex flex-col bg-white p-6 gap-3 col-span-1 ml-14">
+              <p id={`price-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Cantidad: </span><span className="text-green-700">{formatMoney(file.price)}</span></p>
+            </div>
+            <div className="w-[90%] max-w-4xl h-[90vh] relative self-center">
+              <iframe
+                src={`${file.link}#navpanes=0&view=FitH`}
+                width="100%"
+                height="100%"
+                title={`Comprobante de Solicitud ${fileIndex + 1}`}
+                className="border-0 col-span-2"
+            /> 
+          </div>
+          </div>
               <div className="mt-4 flex justify-between items-center">
                 <div className="flex space-x-4">
-                  <a
-                    id={`download-file-pdf-${fileIndex}`}
-                    href={file.link}
-                    download={`comprobante${fileIndex + 1}.pdf`}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer"
+                  <button
+                    onClick={async () => {
+                      const response = await fetch(file.link);
+                      const blob = await response.blob();
+
+                      const url = window.URL.createObjectURL(blob);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = `comprobante${fileIndex + 1}.pdf`;
+
+                      document.body.appendChild(link);
+                      link.click();
+
+                      link.remove();
+                      window.URL.revokeObjectURL(url);
+                    }}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 cursor-pointer"
                   >
                     Descargar PDF
-                  </a>
+                  </button>
                 </div>
               </div>
         </>
