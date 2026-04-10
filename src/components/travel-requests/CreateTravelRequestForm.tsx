@@ -48,13 +48,21 @@ const formSchema = z.object({
   priority: z.enum(["alta", "media", "baja"]),
   requirements: z.string().optional(),
   advance_money: z
-    .number()
-    .int()
-    .positive({ message: "El dinero adelantado debe ser positivo" }),
+    .string()
+    .trim()
+    .nonempty({ message: "Este campo es obligatorio" })
+    .regex(/^\d+([.,]\d{1,2})?$/, {
+      message: "Ingresa una cantidad válida con hasta dos decimales",
+    })
+    .refine((value) => Number(value.replace(",", ".")) > 0, {
+      message: "El dinero adelantado debe ser mayor a 0",
+    })
+    .transform((value) => Number(value.replace(",", "."))),
   destinations: z.array(destinationSchema).min(1, "Al menos un destino"),
 });
 
-type RawFormValues = z.infer<typeof formSchema>;
+type FormValues = z.input<typeof formSchema>;
+type SubmitValues = z.output<typeof formSchema>;
 
 function CreateTravelRequestForm() {
   const navigate = useNavigate();
@@ -67,14 +75,14 @@ function CreateTravelRequestForm() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<RawFormValues>({
+  } = useForm<FormValues, unknown, SubmitValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       id_origin_city: null,
       motive: "",
       title: "",
       priority: "media",
-      advance_money: 0,
+      advance_money: "",
       requirements: "",
       destinations: [
         {
@@ -97,7 +105,7 @@ function CreateTravelRequestForm() {
     name: "destinations",
   });
 
-  const onSubmit = async (data: RawFormValues) => {
+  const onSubmit = async (data: SubmitValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");
       return;
@@ -123,7 +131,7 @@ function CreateTravelRequestForm() {
 
     const payload = {
       id_origin_city: data.id_origin_city,
-      title: data.motive,
+      title: data.title,
       motive: data.motive,
       requirements: data.requirements || undefined,
       priority: data.priority,
@@ -249,11 +257,46 @@ function CreateTravelRequestForm() {
                 Dinero adelantado (MXN)
               </label>
               <Input
-                type="number"
-                min={1}
-                {...register(`advance_money` as const, {
-                  valueAsNumber: true,
+                type="text"
+                inputMode="decimal"
+                placeholder="0.00"
+                {...register("advance_money", {
+                  onBlur: (e) => {
+                    const value = e.target.value.trim().replace(",", ".");
+
+                    if (!value) return;
+
+                    if (/^\d+(\.\d{1,2})?$/.test(value)) {
+                      e.target.value = Number(value).toFixed(2);
+                    }
+                  },
+                  onChange: (e) => {
+                    let value = e.target.value;
+
+                    value = value.replace(",", ".");
+
+                    // Solo permite números y un punto decimal
+                    value = value.replace(/[^0-9.]/g, "");
+
+                    // Evita más de un punto decimal
+                    const parts = value.split(".");
+                    if (parts.length > 2) {
+                      value = `${parts[0]}.${parts.slice(1).join("")}`;
+                    }
+
+                    // Limita a dos decimales
+                    if (parts[1]?.length > 2) {
+                      value = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                    }
+
+                    e.target.value = value;
+                  },
                 })}
+                onKeyDown={(e) => {
+                  if (["e", "E", "+", "-"].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
               />
               <FieldError msg={errors?.advance_money?.message} />
             </div>
