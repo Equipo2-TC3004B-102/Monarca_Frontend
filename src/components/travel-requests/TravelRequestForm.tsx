@@ -24,6 +24,7 @@ import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select from "../ui/Select";
+import SearchableSelect from "../ui/SearchableSelect";
 import FieldError from "../ui/FieldError";
 import { useCreateTravelRequest } from "../../hooks/requests/useCreateRequest";
 import { useUpdateTravelRequest } from "../../hooks/requests/useUpdateRequest";
@@ -31,6 +32,7 @@ import { useDestinations } from "../../hooks/destinations/useDestinations";
 import { CreateRequest } from "../../types/requests";
 import GoBack from "../GoBack";
 import { useEffect } from "react";
+import { currencyOptions } from "../../utils/currencies";
 
 type Option = { id: number | string; name: string };
 
@@ -63,6 +65,7 @@ const formSchema = z.object({
     .number()
     .int()
     .positive({ message: "El dinero adelantado debe ser positivo" }),
+  currency: z.string().nonempty({ message: "Selecciona una moneda" }),
   requests_destinations: z
     .array(destinationSchema)
     .min(1, "Al menos un destino"),
@@ -313,6 +316,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       title: "",
       priority: "media",
       advance_money: 0,
+      currency: "MXN",
       requirements: "",
       requests_destinations: [
         {
@@ -384,6 +388,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       requirements: data.requirements || undefined,
       priority: data.priority,
       advance_money: data.advance_money,
+      currency: data.currency,
       requests_destinations,
     };
 
@@ -508,19 +513,43 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 <FieldError msg={errors.priority?.message} />
               </div>
 
-              <div>
-                <label
-                  htmlFor="advance_money"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Dinero adelantado
-                </label>
-                <Input
-                  id="advance_money"
-                  type="number"
-                  {...register("advance_money", { valueAsNumber: true })}
-                />
-                <FieldError msg={errors.advance_money?.message} />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <label
+                    htmlFor="advance_money"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Dinero adelantado
+                  </label>
+                  <Input
+                    id="advance_money"
+                    type="number"
+                    {...register("advance_money", { valueAsNumber: true })}
+                  />
+                  <FieldError msg={errors.advance_money?.message} />
+                </div>
+                <div className="w-full sm:w-1/3">
+                  <label
+                    htmlFor="currency"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Moneda
+                  </label>
+                  <Controller
+                    control={control}
+                    name="currency"
+                    render={({ field }) => (
+                      <SearchableSelect
+                        id="currency"
+                        options={currencyOptions}
+                        value={currencyOptions.find((o) => o.id === field.value)}
+                        onChange={(opt) => field.onChange(opt.id)}
+                        placeholder="Moneda"
+                      />
+                    )}
+                  />
+                  <FieldError msg={errors.currency?.message} />
+                </div>
               </div>
 
               <div className="sm:col-span-2">
