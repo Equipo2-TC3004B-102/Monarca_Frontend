@@ -3,7 +3,7 @@
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 06/04/2026 Rebeca Davila Added a pdf preview for the plane and hotel documents after uploading the files
+ * 14/04/2026 - (JinSik Yoon) Added file upload functionality and preview for reservations.
  * to the form
  */
 import { useEffect, useState } from "react";
