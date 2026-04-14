@@ -63,8 +63,8 @@ const formSchema = z.object({
     .string()
     .trim()
     .nonempty({ message: "Este campo es obligatorio" })
-    .refine((value) => /^\d+(\.\d{1,2})?$/.test(value), {
-      message: "Ingresa una cantidad válida con hasta dos decimales",
+    .refine((value) => /^\d+$/.test(value), {
+      message: "Ingresa un número entero (sin decimales)",
     })
     .refine((value) => Number(value) > 0, {
       message: "El dinero adelantado debe ser mayor a 0",
@@ -320,7 +320,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       motive: "",
       title: "",
       priority: "media",
-      advance_money: "",
+      advance_money: 0,
       requirements: "",
       requests_destinations: [
         {
@@ -525,35 +525,17 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 </label>
                 <Input
                   id="advance_money"
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="0.00"
+                  type="number"
+                  step="1"
+                  placeholder="0"
                   {...register("advance_money", {
                     onChange: (e) => {
                       let value = e.target.value;
 
-                      value = value.replace(",", ".");
-                      value = value.replace(/[^0-9.]/g, "");
-
-                      const parts = value.split(".");
-                      if (parts.length > 2) {
-                        value = `${parts[0]}.${parts.slice(1).join("")}`;
-                      }
-
-                      if (parts[1]?.length > 2) {
-                        value = `${parts[0]}.${parts[1].slice(0, 2)}`;
-                      }
+                      // solo números enteros
+                      value = value.replace(/[^0-9]/g, "");
 
                       e.target.value = value;
-                    },
-                    onBlur: (e) => {
-                      const value = e.target.value.trim();
-
-                      if (!value) return;
-
-                      if (/^\d+(\.\d{1,2})?$/.test(value)) {
-                        e.target.value = Number(value).toFixed(2);
-                      }
                     },
                   })}
                   onKeyDown={(e) => {
