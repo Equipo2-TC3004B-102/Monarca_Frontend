@@ -320,7 +320,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       motive: "",
       title: "",
       priority: "media",
-      advance_money: "",
+      advance_money: 0,
       requirements: "",
       requests_destinations: [
         {
