@@ -4,6 +4,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 26/03/2026 [Diego de la Vega] Replaced fixed row selector with dynamic expense action selector.
  */
 
 /**
@@ -28,8 +29,7 @@ describe("Upload Voucher as Requester", () => {
         cy.get('a[data-cy="mosaic-comprobar-gastos"]').click();
         cy.url().should("include", "/refunds");
         cy.contains("Viajes con gastos por comprobar").should("be.visible");
-        cy.get('button[id="comprobar-0"]').should("be.visible");
-        cy.get('button[id="comprobar-0"]').click();
+        cy.get('button[id^="comprobar-"]').first().should("be.visible").click();
         cy.contains("Formato de solicitud de reembolso").should("be.visible");
         cy.contains("Información del viaje").should("be.visible");
         cy.contains("ID del viaje").should("be.visible");
