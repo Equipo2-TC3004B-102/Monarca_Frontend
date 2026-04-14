@@ -115,8 +115,6 @@ export const Reservations = () => {
         ...prev,
         [errorKey]: "Este formato no es válido. Solo se permiten PDF y XML.",
       }));
-
-      // limpiar input
       e.target.value = "";
 
       return;
