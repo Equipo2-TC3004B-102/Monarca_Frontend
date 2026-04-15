@@ -60,15 +60,23 @@ const formSchema = z.object({
   priority: z.enum(["alta", "media", "baja"]),
   requirements: z.string().optional(),
   advance_money: z
-    .number()
-    .int()
-    .positive({ message: "El dinero adelantado debe ser positivo" }),
+    .string()
+    .trim()
+    .nonempty({ message: "Este campo es obligatorio" })
+    .refine((value) => /^\d+$/.test(value), {
+      message: "Ingresa un número entero (sin decimales)",
+    })
+    .refine((value) => Number(value) > 0, {
+      message: "El dinero adelantado debe ser mayor a 0",
+    })
+    .transform((value) => Number(value)),
   requests_destinations: z
     .array(destinationSchema)
     .min(1, "Al menos un destino"),
 });
 
-type RawFormValues = z.infer<typeof formSchema>;
+type FormValues = z.input<typeof formSchema>;
+type SubmitValues = z.output<typeof formSchema>;
 
 interface TravelRequestFormProps {
   initialData?: CreateRequest;
@@ -77,12 +85,12 @@ interface TravelRequestFormProps {
 
 interface DestinationFieldsProps {
   idx: number;
-  control: Control<RawFormValues>;
-  register: UseFormRegister<RawFormValues>;
+  control: Control<FormValues>;
+  register: UseFormRegister<FormValues>;
   destinationOptions: { id: string | number; name: string }[];
-  errors: FieldErrors<RawFormValues>["requests_destinations"];
+  errors: FieldErrors<FormValues>["requests_destinations"];
   remove: (index: number) => void;
-  setValue: UseFormSetValue<RawFormValues>;
+  setValue: UseFormSetValue<FormValues>;
   isLoadingDestinations: boolean;
 }
 
@@ -305,7 +313,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     formState: { errors },
     reset,
     setValue,
-  } = useForm<RawFormValues>({
+  } = useForm<FormValues, unknown, SubmitValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       id_origin_city: null,
@@ -335,10 +343,10 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
   /**
    * onSubmit, Validates destination stay rules, builds payload data, and creates or updates a request.
-   * Inputs:data: RawFormValues - Validated form values provided by react-hook-form.
+   * Inputs:data: SubmitValues - Validated form values provided by react-hook-form.
    * Returns: Promise<void> - Executes mutation requests and navigation side effects.
    */
-  const onSubmit = async (data: RawFormValues) => {
+  const onSubmit = async (data: SubmitValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");
       return;
@@ -379,7 +387,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
     const payload = {
       id_origin_city: data.id_origin_city,
-      title: data.motive,
+      title: data.title,
       motive: data.motive,
       requirements: data.requirements || undefined,
       priority: data.priority,
@@ -518,7 +526,23 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 <Input
                   id="advance_money"
                   type="number"
-                  {...register("advance_money", { valueAsNumber: true })}
+                  step="1"
+                  placeholder="0"
+                  {...register("advance_money", {
+                    onChange: (e) => {
+                      let value = e.target.value;
+
+                      // solo números enteros
+                      value = value.replace(/[^0-9]/g, "");
+
+                      e.target.value = value;
+                    },
+                  })}
+                  onKeyDown={(e) => {
+                    if (["e", "E", "+", "-"].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
                 <FieldError msg={errors.advance_money?.message} />
               </div>

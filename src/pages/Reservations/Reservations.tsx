@@ -3,7 +3,7 @@
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 06/04/2026 Rebeca Davila Added a pdf preview for the plane and hotel documents after uploading the files
+ * 14/04/2026 - (JinSik Yoon) Added file upload functionality and preview for reservations.
  * to the form
  */
 import { useEffect, useState } from "react";
@@ -33,6 +33,7 @@ export const Reservations = () => {
   const [isFormValid, _setIsFormValid] = useState(true);
   const { handleVisitPage, tutorial } = useApp();
   const [activePreview, setActivePreview] = useState<string | null>(null);
+  const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -90,19 +91,51 @@ export const Reservations = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
     const { name, files } = e.target;
     const file = files ? files[0] : null;
-    const fileName = file ? file.name : "";
 
-    const previewUrl = file ? URL.createObjectURL(file) : null;
-    
+    if (!file) return;
+
+    const allowedMimeTypes = [
+      "application/pdf",
+      "application/xml",
+      "text/xml",
+    ];
+
+    const allowedExtensions = [".pdf", ".xml"];
+    const fileName = file.name;
+    const fileExtension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+
+    const isValidMimeType = allowedMimeTypes.includes(file.type);
+    const isValidExtension = allowedExtensions.includes(fileExtension);
+
+    const errorKey = `${id}_${name}`;
+
+    // invalid file → set error message
+    if (!isValidMimeType || !isValidExtension) {
+      setFileErrors((prev) => ({
+        ...prev,
+        [errorKey]: "Este formato no es válido. Solo se permiten PDF y XML.",
+      }));
+      e.target.value = "";
+
+      return;
+    }
+
+    // valid file → clear error message, set preview URL, and update form data
+    setFileErrors((prev) => ({
+      ...prev,
+      [errorKey]: "",
+    }));
+
+    const previewUrl = URL.createObjectURL(file);
+
     const updatedFormData = {
       ...formData,
       [id]: {
         ...formData[id],
         [name]: file,
-        // Guardar también el nombre del archivo para mostrarlo
         [`${name}_name`]: fileName,
         [`${name}_preview`]: previewUrl,
-      }
+      },
     };
     setFormData(updatedFormData);
   };
@@ -333,12 +366,17 @@ export const Reservations = () => {
                           
                           <Input
                             type="file"
-                            accept=".pdf"
+                            accept="*"
                             onChange={(e) => handleFileChange(e, destination.id)}
                             name="hotel_file"
                             id={`hotel_file_${destination.id}`}
                             selectedFileName={formData[destination.id]?.hotel_file_name}
                           />
+                          {fileErrors[`${destination.id}_hotel_file`] && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {fileErrors[`${destination.id}_hotel_file`]}
+                            </p>
+                          )}
                           {formData[destination.id]?.hotel_file_preview && (
                             <button
                               type="button"
@@ -413,12 +451,17 @@ export const Reservations = () => {
                           </label>
                           <Input
                             type="file"
-                            accept=".pdf"
+                            accept="*"
                             onChange={(e) => handleFileChange(e, destination.id)}
                             name="plane_file"
                             id={`plane_file_${destination.id}`}
                             selectedFileName={formData[destination.id]?.plane_file_name}
                           />
+                          {fileErrors[`${destination.id}_plane_file`] && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {fileErrors[`${destination.id}_plane_file`]}
+                            </p>
+                          )}
                           {formData[destination.id]?.plane_file_preview && (
                             <button
                               type="button"
