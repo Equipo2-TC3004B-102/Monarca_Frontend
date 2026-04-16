@@ -3,7 +3,7 @@
  * Description: Component that displays a table of trip requests awaiting final voucher approval by an administrator.
  * Authors: Original Monarca team
  * Last Modification made:
- * 25/02/2026 [Diego Ortega] Added specified format.
+  * 16/04/2026 [Rebeca-Davila] Changed the title of the list
  */
 
 import { useEffect, useState } from "react";
@@ -239,7 +239,7 @@ export const RefundsReview = () => {
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-[var(--blue)]">
-            Refund Requests to be Approved
+            Comprobantes y Reembolsos
           </h2>
           <RefreshButton />
         </div>
