@@ -3,7 +3,7 @@
  * Description: Page component that displays trips with pending refunds to be reviewed by authorized personnel.
  * Authors: Original Monarca team
  * Last Modification made:
- * 25/02/2026 [Diego Ortega] Added Specified Format.
+  * 16/04/2026 [Rebeca-Davila] Changed the title of the list
  */
 
 import { useState, useEffect } from "react";
@@ -188,7 +188,7 @@ export const CheckRefunds = () => {
         <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-[var(--blue)]">
-                Trips with refunds to review
+                Comprobantes y Reembolsos por registrar
             </h2>
             <RefreshButton />
           </div>
