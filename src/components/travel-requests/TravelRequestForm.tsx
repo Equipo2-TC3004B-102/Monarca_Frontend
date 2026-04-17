@@ -35,9 +35,9 @@ import { useEffect } from "react";
 type Option = { id: number | string; name: string };
 
 const priorityOptions: Option[] = [
-  { id: "alta", name: "Alta" },
-  { id: "media", name: "Media" },
-  { id: "baja", name: "Baja" },
+  { id: "high", name: "Alta" },
+  { id: "medium", name: "Media" },
+  { id: "low", name: "Baja" },
 ];
 
 const destinationSchema = z.object({
@@ -57,7 +57,7 @@ const formSchema = z.object({
   id_origin_city: z.string().nullable(),
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
   title: z.string().nonempty({ message: "Escribe el título del viaje" }),
-  priority: z.enum(["alta", "media", "baja"]),
+  priority: z.enum(["high", "medium", "low"]),
   requirements: z.string().optional(),
   advance_money: z
     .string()
@@ -319,7 +319,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       id_origin_city: null,
       motive: "",
       title: "",
-      priority: "media",
+      priority: "medium",
       advance_money: 0,
       requirements: "",
       requests_destinations: [
@@ -392,6 +392,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       requirements: data.requirements || undefined,
       priority: data.priority,
       advance_money: data.advance_money,
+      currency: "MXN",
       requests_destinations,
     };
 
