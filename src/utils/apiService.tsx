@@ -34,7 +34,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      console.error("Error en la respuesta de la API:", error.response);
+      console.error(
+        "API ERROR FULL:",
+        JSON.stringify(error.response?.data, null, 2)
+      );
       if (error.response.status === 401) {
         // Token refresh logic or redirect to login could be implemented here
       }

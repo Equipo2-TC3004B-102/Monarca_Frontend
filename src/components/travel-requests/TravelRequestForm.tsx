@@ -37,9 +37,9 @@ import { currencyOptions } from "../../utils/currencies";
 type Option = { id: number | string; name: string };
 
 const priorityOptions: Option[] = [
-  { id: "alta", name: "Alta" },
-  { id: "media", name: "Media" },
-  { id: "baja", name: "Baja" },
+  { id: "high", name: "Alta" },
+  { id: "medium", name: "Media" },
+  { id: "low", name: "Baja" },
 ];
 
 const destinationSchema = z.object({
@@ -59,7 +59,7 @@ const formSchema = z.object({
   id_origin_city: z.string().nullable(),
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
   title: z.string().nonempty({ message: "Escribe el título del viaje" }),
-  priority: z.enum(["alta", "media", "baja"]),
+  priority: z.enum(["high", "medium", "low"]),
   requirements: z.string().optional(),
   advance_money: z
     .number()
@@ -71,7 +71,8 @@ const formSchema = z.object({
     .min(1, "Al menos un destino"),
 });
 
-type RawFormValues = z.infer<typeof formSchema>;
+type FormValues = z.input<typeof formSchema>;
+type SubmitValues = z.output<typeof formSchema>;
 
 interface TravelRequestFormProps {
   initialData?: CreateRequest;
@@ -80,12 +81,12 @@ interface TravelRequestFormProps {
 
 interface DestinationFieldsProps {
   idx: number;
-  control: Control<RawFormValues>;
-  register: UseFormRegister<RawFormValues>;
+  control: Control<FormValues>;
+  register: UseFormRegister<FormValues>;
   destinationOptions: { id: string | number; name: string }[];
-  errors: FieldErrors<RawFormValues>["requests_destinations"];
+  errors: FieldErrors<FormValues>["requests_destinations"];
   remove: (index: number) => void;
-  setValue: UseFormSetValue<RawFormValues>;
+  setValue: UseFormSetValue<FormValues>;
   isLoadingDestinations: boolean;
 }
 
@@ -308,13 +309,13 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     formState: { errors },
     reset,
     setValue,
-  } = useForm<RawFormValues>({
+  } = useForm<FormValues, unknown, SubmitValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       id_origin_city: null,
       motive: "",
       title: "",
-      priority: "media",
+      priority: "medium",
       advance_money: 0,
       currency: "MXN",
       requirements: "",
@@ -339,10 +340,10 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
   /**
    * onSubmit, Validates destination stay rules, builds payload data, and creates or updates a request.
-   * Inputs:data: RawFormValues - Validated form values provided by react-hook-form.
+   * Inputs:data: SubmitValues - Validated form values provided by react-hook-form.
    * Returns: Promise<void> - Executes mutation requests and navigation side effects.
    */
-  const onSubmit = async (data: RawFormValues) => {
+  const onSubmit = async (data: SubmitValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");
       return;
@@ -383,7 +384,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
     const payload = {
       id_origin_city: data.id_origin_city,
-      title: data.motive,
+      title: data.title,
       motive: data.motive,
       requirements: data.requirements || undefined,
       priority: data.priority,
