@@ -101,7 +101,9 @@ const RequestInfo: React.FC = () => {
           reservations: reservations,
           formatted_status: renderStatus(response.status),
           createdAt: formatDate(response.createdAt),
-          advance_money_str: formatMoney(response.advance_money),
+          advance_money_str: formatMoney(response.advance_money, "MXN"),
+          unconverted_advance_money_str: response.currency && response.currency !== "MXN" ? formatMoney(response.unconverted_advance_money, response.currency) : undefined,
+          exchange_rate_str: response.currency && response.currency !== "MXN" ? `$${response.exchange_rate} MXN` : undefined,
           admin: response.admin.name + ' ' + response.admin.last_name,          
           id_origin_city: response.destination.city,
           destinations: response.requests_destinations.map((dest: any) => dest.destination.city).join(', '),
@@ -147,18 +149,21 @@ const RequestInfo: React.FC = () => {
     fetchAgencies();
   }, []);
 
-  const labels: { key: keyof typeof data; label: string }[] = [
+  const labels: { key: string; label: string }[] = [
     { key: 'id', label: 'ID solicitud' },
     { key: 'admin', label: 'Aprobador' },
     { key: 'id_origin_city', label: 'Ciudad de Origen' },
     { key: 'destinations', label: 'Destinos' },
     { key: 'motive', label: 'Motivo' },
-    { key: 'advance_money_str', label: 'Anticipo' },
+    { key: 'currency', label: 'Moneda' },
+    { key: 'unconverted_advance_money_str', label: 'Anticipo (Moneda Origen)' },
+    { key: 'exchange_rate_str', label: 'Tipo de Cambio' },
+    { key: 'advance_money_str', label: 'Anticipo (MXN)' },
     { key: 'formatted_status', label: 'Estado' },
     { key: 'requirements', label: 'Requerimientos' },
     { key: 'priority', label: 'Prioridad' },
     { key: 'createdAt', label: 'Fecha de creación' },
-  ];
+  ].filter(label => data[label.key] !== undefined && data[label.key] !== null);
 
   /**
    * approve, approves the request with the selected travel agency.
@@ -640,7 +645,7 @@ const RequestInfo: React.FC = () => {
                   id="advance_money"
                   type="text"
                   readOnly
-                  value={formatMoney(Number(data?.advance_money) || 0)}
+                  value={formatMoney(Number(data?.advance_money) || 0, "MXN")}
                   className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                 />
               </div>
@@ -668,7 +673,7 @@ const RequestInfo: React.FC = () => {
                         return acc + Number(file.amount);
                       }
                       return acc;
-                    }, 0) ?? 0))
+                    }, 0) ?? 0)), "MXN"
                   )}
                   className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
                       ${(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
