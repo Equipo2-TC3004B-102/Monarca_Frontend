@@ -25,7 +25,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
   return (
     <aside
       id="logo-sidebar"
-      className="w-[200px] md:w-[250px] h-full pt-20 bg-[var(--gray)] text-[var(--black)]"
+      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--gray)] text-[var(--black)]"
       aria-label="Sidebar"
     >
       <div className="h-full px-3 pb-4 overflow-y-auto">
