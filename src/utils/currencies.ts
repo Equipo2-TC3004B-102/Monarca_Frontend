@@ -17,5 +17,6 @@ export const currencyOptions = [
   { id: "BRL", name: "(BRL) Real Brasileño", banxico_id: "SF290312" },
   { id: "ARS", name: "(ARS) Peso Argentino", banxico_id: "SF290311" },
   { id: "CLP", name: "(CLP) Peso Chileno", banxico_id: "SF290351" },
-  { id: "COP", name: "(COP) Peso Colombiano", banxico_id: "SF290382" }
+  { id: "COP", name: "(COP) Peso Colombiano", banxico_id: "SF290382" },
+  { id: "MXN", name: "(MXN) Peso Mexicano", banxico_id: " " }
 ];
