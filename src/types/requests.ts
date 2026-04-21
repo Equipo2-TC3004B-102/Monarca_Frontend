@@ -4,7 +4,7 @@
  * Represents the payload structure sent to the backend when submitting a travel request.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Sebastián Borjas] Added support for advance money currency.
  */
 
 import { RequestDestination } from "./requestDestinations";
@@ -27,6 +27,7 @@ export type CreateRequest = {
   requirements?: string;
   priority: "alta" | "media" | "baja";
   advance_money?: number;
+  unconverted_advance_money?: number;
   currency: string;
   requests_destinations: RequestDestination[];
 };

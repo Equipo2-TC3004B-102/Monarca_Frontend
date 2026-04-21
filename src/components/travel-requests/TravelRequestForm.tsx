@@ -3,6 +3,7 @@
  * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
  * Authors: Original Monarca team
  * Last Modification made:
+ * 20/04/2026 [Sebastián Borjas] Fixed currency display on edit.
  * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
  */
 
@@ -71,7 +72,7 @@ const formSchema = z.object({
     .transform((value) => Number(value))
     .refine((value) => value >= 0, {
       message: "El dinero adelantado no puede ser negativo",
-  }),
+    }),
   currency: z.string().nonempty({ message: "Selecciona una moneda" }),
   requests_destinations: z
     .array(destinationSchema)
@@ -613,24 +614,24 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               </div>
             </div>
 
-<div id="destination_info">
-            <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
-            {fields.map((field, idx) => (
-              <DestinationFields
-                key={field.id}
-                idx={idx}
-                control={control}
-                register={register}
-                destinationOptions={destinationOptions}
-                errors={errors.requests_destinations}
-                remove={remove}
-                setValue={setValue}
-                isLoadingDestinations={isLoadingDestinations}
-              />
-            ))}
-</div>
-            <Button 
-            id="new_destination"
+            <div id="destination_info">
+              <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
+              {fields.map((field, idx) => (
+                <DestinationFields
+                  key={field.id}
+                  idx={idx}
+                  control={control}
+                  register={register}
+                  destinationOptions={destinationOptions}
+                  errors={errors.requests_destinations}
+                  remove={remove}
+                  setValue={setValue}
+                  isLoadingDestinations={isLoadingDestinations}
+                />
+              ))}
+            </div>
+            <Button
+              id="new_destination"
               type="button"
               onClick={() =>
                 append({
@@ -647,14 +648,14 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               + Añadir destino
             </Button>
 
-            <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending} id= {isEditing ? "update_travel_request" : "create_travel_request"}>
+            <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending} id={isEditing ? "update_travel_request" : "create_travel_request"}>
               {isPending
                 ? isEditing
                   ? "Actualizando..."
                   : "Creando..."
                 : isEditing
-                ? "Actualizar viaje"
-                : "Crear viaje"}
+                  ? "Actualizar viaje"
+                  : "Crear viaje"}
             </Button>
           </form>
         </div>

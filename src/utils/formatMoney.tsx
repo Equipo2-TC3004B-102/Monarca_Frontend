@@ -3,7 +3,7 @@
  * Description: Provides a utility function for formatting numerical values into a standardized Mexican Peso (MXN) currency format, ensuring consistent display of monetary values across the application.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Sebastián Borjas] Added support for advance money currency.
  */
 
 /**
