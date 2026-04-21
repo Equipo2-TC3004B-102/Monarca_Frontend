@@ -4,6 +4,8 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 23/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Diego de la Vega] Added provider support status display and
+ *                             destination/date fallbacks for partial responses.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -61,6 +63,25 @@ const renderStatus = (status: string) => {
     }
 }
 
+/**
+ * renderProviderSupportStatus, maps backend provider compatibility codes to
+ * user-friendly Spanish labels for request destination detail rendering.
+ * Inputs: status (string | undefined) - Provider compatibility status code.
+ * Returns: string - Human-readable status label.
+ */
+const renderProviderSupportStatus = (status?: string) => {
+  switch (status) {
+    case 'supported':
+      return 'Compatible';
+    case 'unsupported':
+      return 'No compatible';
+    case 'pending_provider':
+      return 'Pendiente de proveedor';
+    default:
+      return 'Pendiente de proveedor';
+  }
+};
+
   /**
    * RequestInfo, renders request details and allows approval workflow actions according to permissions and status.
    * Inputs: None (reads request id from route params and user context from hooks).
@@ -94,7 +115,9 @@ const RequestInfo: React.FC = () => {
     const fetchData = async () => {
       try {
         const response = await getRequest(`/requests/${id}`);
-        const reservations = response.requests_destinations.map((dest: any) => dest.reservations).flat();
+        const reservations = (response.requests_destinations || [])
+          .map((dest: any) => dest.reservations)
+          .flat();
         console.log(response);
         setData({
           ...response,
@@ -105,8 +128,18 @@ const RequestInfo: React.FC = () => {
           unconverted_advance_money_str: response.currency && response.currency !== "MXN" ? formatMoney(response.unconverted_advance_money, response.currency) : undefined,
           exchange_rate_str: response.currency && response.currency !== "MXN" ? `$${response.exchange_rate} MXN` : undefined,
           admin: response.admin.name + ' ' + response.admin.last_name,          
-          id_origin_city: response.destination.city,
-          destinations: response.requests_destinations.map((dest: any) => dest.destination.city).join(', '),
+          id_origin_city:
+            response.destination?.city ||
+            response.destination?.iata_code ||
+            'Origen no disponible',
+          destinations: (response.requests_destinations || [])
+            .map(
+              (dest: any) =>
+                dest.destination?.city ||
+                dest.destination?.iata_code ||
+                'Destino no disponible',
+            )
+            .join(', '),
         });
         setSelectedAgency(response.id_travel_agency || '');
       } catch (error) {
@@ -381,7 +414,11 @@ const RequestInfo: React.FC = () => {
                         id={`destination-${index}`}
                         type="text"
                         readOnly
-                        value={dest.destination.city}
+                        value={
+                          dest.destination?.city ||
+                          dest.destination?.iata_code ||
+                          'Destino no disponible'
+                        }
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -395,7 +432,7 @@ const RequestInfo: React.FC = () => {
                         id={`arrival-${index}`}
                         type="text"
                         readOnly
-                        value={formatDate(dest.arrival_date)}
+                        value={dest.arrival_date ? formatDate(dest.arrival_date) : 'Sin fecha'}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -409,7 +446,7 @@ const RequestInfo: React.FC = () => {
                         id={`departure-${index}`}
                         type="text"
                         readOnly
-                        value={formatDate(dest.departure_date)}
+                        value={dest.departure_date ? formatDate(dest.departure_date) : 'Sin fecha'}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -423,7 +460,19 @@ const RequestInfo: React.FC = () => {
                         id={`details-${index}`}
                         type="text"
                         readOnly
-                        value={dest.details}
+                        value={dest.details || 'Sin detalles'}
+                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      />
+                      <label
+                        className="block text-xs font-semibold text-gray-500 mb-1 mt-2"
+                      >
+                        Estado proveedor
+                      </label>
+                      <input
+                        id={`provider-support-status-${index}`}
+                        type="text"
+                        readOnly
+                        value={renderProviderSupportStatus(dest.provider_support_status)}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
