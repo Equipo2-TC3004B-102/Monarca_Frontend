@@ -515,7 +515,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
+                <div className="w-full sm:w-1/3">
                   <label
                     htmlFor="advance_money"
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -529,7 +529,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                   />
                   <FieldError msg={errors.advance_money?.message} />
                 </div>
-                <div className="w-full sm:w-1/3">
+                <div className="flex-1">
                   <label
                     htmlFor="currency"
                     className="block mb-2 text-sm font-medium text-gray-900"
