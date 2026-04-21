@@ -3,7 +3,7 @@
  * Description: Travel request creation form component with destination management and Zod validation.
  * Authors: Monarca Original Team
  * Last Modification made:
- * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Jin Sik Yoon] Implemented form validation with Zod, dynamic destination fields, and API integration for creating travel requests.
  */
 
 import { Button } from "../ui/Button";
@@ -269,7 +269,7 @@ function CreateTravelRequestForm() {
               <Input
                 type="number"
                 min={1}
-                {...register(`advance_money` as const, {
+                {...register("advance_money", {
                   valueAsNumber: true,
                 })}
               />
