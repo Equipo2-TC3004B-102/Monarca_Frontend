@@ -4,7 +4,7 @@
  * styling and ref forwarding.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
  */
 import React from "react";
 import clsx from "clsx";
