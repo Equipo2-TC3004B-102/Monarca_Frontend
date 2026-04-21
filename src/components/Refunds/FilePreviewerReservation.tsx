@@ -5,8 +5,7 @@
  * It provides a preview of a reservation file with its metadata and download options.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 06/04/2026 Rebeca Davila Modified the position of the costs and the preview of the document, and
- * changed the link to a button to let the users to download the files.
+ * 17/04/2026 [Rebeca-Davila] Made the container for the pdf previews smaller for mobil screens
  */
 import formatMoney from "../../utils/formatMoney";
 
@@ -33,7 +32,7 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
             <div className="flex flex-col bg-white p-6 gap-3 col-span-1 ml-14">
               <p id={`price-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Cantidad: </span><span className="text-green-700">{formatMoney(file.price)}</span></p>
             </div>
-            <div className="w-[90%] max-w-4xl h-[90vh] relative self-center">
+            <div className="w-[100%] max-w-4xl h-[70vh] lg:h-[90vh] relative self-center">
               <iframe
                 src={`${file.link}#navpanes=0&view=FitH`}
                 width="100%"

@@ -3,7 +3,7 @@
  * Description: Reusable table component with pagination, row expansion for details, and custom action links.
  * Authors: Original Monarca team
  * Last Modification made:
- * 25/02/2026 [Diego Ortega] Added Specified Format.
+ * 17/04/2026 [Rebeca-Davila] Change the text of the button of see details to "Ver detalles"
  */
 
 import { Link } from "react-router-dom";
@@ -144,9 +144,9 @@ const Table: React.FC<TableProps> = ({
                   <td className="text-sm">
                     <Link
                       to={`${link}/${row.id}`}
-                      className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
+                      className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
                     >
-                      See Details
+                      Ver detalles
                     </Link>
                   </td>
 
