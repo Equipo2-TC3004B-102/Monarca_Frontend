@@ -317,7 +317,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       title: "",
       priority: "medium",
       advance_money: 0,
-      currency: "MXN",
+      currency: "",
       requirements: "",
       requests_destinations: [
         {
