@@ -4,7 +4,7 @@
  * styling and ref forwarding.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
  */
 import React from "react";
 import clsx from "clsx";
@@ -27,14 +27,58 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
  * Output: JSX.Element - An <input> element with merged classes and forwarded props.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, onWheel, type, ...props }, ref) => {
     /**
      * baseStyles, provides default Tailwind/CSS classes for consistent input appearance across the UI.
      */
     const baseStyles =
       "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
     return (
-      <input ref={ref} className={clsx(baseStyles, className)} {...props} />
+      <input
+        ref={ref}
+        type={type}
+        className={clsx(baseStyles, className)}
+        onFocus={(e) => {
+          if (type === "number") {
+            const el = e.currentTarget as HTMLInputElement & {
+              _wheelHandler?: (event: WheelEvent) => void;
+            };
+
+            const handleWheel = (event: WheelEvent) => {
+              event.preventDefault();
+              const current = parseFloat(el.value || "0");
+
+              if (event.deltaY < 0) {
+                el.value = (current + 1).toFixed(2);
+              } else {
+                el.value = Math.max(0, current - 1).toFixed(2);
+              }
+
+              el.dispatchEvent(new Event("input", { bubbles: true }));
+            };
+
+            el._wheelHandler = handleWheel;
+            el.addEventListener("wheel", handleWheel, { passive: false });
+          }
+
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          if (type === "number") {
+            const el = e.currentTarget as HTMLInputElement & {
+              _wheelHandler?: (event: WheelEvent) => void;
+            };
+
+            if (el._wheelHandler) {
+              el.removeEventListener("wheel", el._wheelHandler);
+              delete el._wheelHandler;
+            }
+          }
+
+          onBlur?.(e);
+        }}
+        {...props}
+      />
     );
   }
 );
