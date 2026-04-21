@@ -27,14 +27,26 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
  * Output: JSX.Element - An <input> element with merged classes and forwarded props.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, onWheel, type, ...props }, ref) => {
     /**
      * baseStyles, provides default Tailwind/CSS classes for consistent input appearance across the UI.
      */
     const baseStyles =
       "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
     return (
-      <input ref={ref} className={clsx(baseStyles, className)} {...props} />
+      <input
+        ref={ref}
+        type={type}
+        className={clsx(baseStyles, className)}
+        onWheel={(e) => {
+          if (type === "number") {
+            e.currentTarget.blur();
+          }
+
+          onWheel?.(e);
+        }}
+        {...props}
+      />
     );
   }
 );
