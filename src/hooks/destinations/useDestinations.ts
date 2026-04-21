@@ -4,8 +4,13 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Diego de la Vega] Added resilient option labels and exposed
+ *                             optional iata_code/airport_name metadata.
+ * 20/04/2026 [Diego de la Vega] Sorted destination options alphabetically and grouped destinations by city and country to avoid
+ *                             repeated city options in selectors.
  */
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { getRequest } from "../../utils/apiService";
 import { Destination, DestinationOption } from "../../types/destinations";
 
@@ -21,7 +26,8 @@ async function fetchDestinations(): Promise<Destination[]> {
 /**
  * FunctionName: useDestinations, returns a query object for fetching all destination data.
  * Input: none
- * Output: an object containing the destinations data, loading state, and error state.
+ * Output: an object containing the destinations data, loading state, error state,
+ *         and UI options with fallback labels when city/country is missing.
  */
 export function useDestinations() {
   const {
@@ -34,13 +40,58 @@ export function useDestinations() {
   });
 
   // Transform destinations into options format for the Select component
-  // Ensure destinations is an array before mapping
-  const destinationOptions: DestinationOption[] = Array.isArray(destinations)
-    ? destinations.map((dest) => ({
+  // Ensure destinations is an array before grouping
+  const destinationOptions: DestinationOption[] = useMemo(() => {
+    if (!Array.isArray(destinations)) {
+      return [];
+    }
+
+    const groupedByCity = new Map<string, DestinationOption>();
+
+    for (const dest of destinations) {
+      const city = dest.city?.trim();
+      const country = dest.country?.trim();
+
+      if (city && country) {
+        const groupKey = `${city.toLowerCase()}|${country.toLowerCase()}`;
+        const existing = groupedByCity.get(groupKey);
+
+        if (existing) {
+          existing.airport_ids = [...(existing.airport_ids || []), dest.id];
+          if (!existing.iata_code && dest.iata_code) {
+            existing.iata_code = dest.iata_code;
+          }
+          if (!existing.airport_name && dest.airport_name) {
+            existing.airport_name = dest.airport_name;
+          }
+          continue;
+        }
+
+        groupedByCity.set(groupKey, {
+          id: dest.id,
+          name: `${city}, ${country}`,
+          iata_code: dest.iata_code,
+          airport_name: dest.airport_name,
+          airport_ids: [dest.id],
+        });
+        continue;
+      }
+
+      const fallbackName =
+        dest.city || dest.country || dest.iata_code || "Destino sin nombre";
+      groupedByCity.set(`id:${dest.id}`, {
         id: dest.id,
-        name: `${dest.city}, ${dest.country}`,
-      }))
-    : [];
+        name: fallbackName,
+        iata_code: dest.iata_code,
+        airport_name: dest.airport_name,
+        airport_ids: [dest.id],
+      });
+    }
+
+    return Array.from(groupedByCity.values()).sort((a, b) =>
+      a.name.localeCompare(b.name, "es", { sensitivity: "base" }),
+    );
+  }, [destinations]);
 
   return {
     destinations: Array.isArray(destinations) ? destinations : [],
