@@ -107,7 +107,7 @@ const Table: React.FC<TableProps> = ({
               ))}
 
               <th className="px-4 py-2 text-center border-r border-[#0a2c6d]">
-                Details
+                Detalles
               </th>
 
               <th className="px-4 py-2 text-center rounded-r-lg">Data</th>
@@ -118,7 +118,7 @@ const Table: React.FC<TableProps> = ({
             {currentItems.length <= 0 ? (
               <tr>
                 <td colSpan={columns.length + 2} className="text-center pt-10">
-                  No data available.
+                  No hay datos disponibles
                 </td>
               </tr>
             ) : currentItems.map((row: any) => (

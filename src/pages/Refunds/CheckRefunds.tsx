@@ -152,7 +152,7 @@ export const CheckRefunds = () => {
     }, []);
 
   const columnsSchemaTrips = [
-    { key: "status", header: "Estatus" },
+    { key: "status", header: "Estado" },
     { key: "title", header: "Viaje" },
     { key: "date", header: "Fecha del viaje" },
     { key: "origin", header: "Lugar de salida" },

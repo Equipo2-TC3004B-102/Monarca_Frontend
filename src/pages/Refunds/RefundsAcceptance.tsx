@@ -185,7 +185,7 @@ const RefundsAcceptance: React.FC = () => {
     { key: "destinations", label: 'Destinos' },
     { key: "motive", label: 'Motivo' },
     { key: "advance_money_str", label: 'Anticipo' },
-    { key: "status", label: "Estatus" },
+    { key: "status", label: "Estado" },
     { key: "requirements", label: "Requerimientos" },
     { key: "priority", label: "Prioridad" },
     { key: "createdAt", label: "Fecha de creación" },
