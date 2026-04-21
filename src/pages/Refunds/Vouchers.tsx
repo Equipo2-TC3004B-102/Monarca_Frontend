@@ -4,6 +4,8 @@
  * Authors: Original Monarca team
  * Last Modification made:
  * 25/02/2026 [Diego Ortega] Added specified format.
+ * 20/04/2026 [Diego de la Vega] Added destination fallback display to avoid
+ *                             null access when destination data is missing.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -43,8 +45,9 @@ interface Trip {
   id: number | string;
   title: string;
   advance_money: number;
-  destination: {
-    city: string;
+  destination?: {
+    city?: string;
+    iata_code?: string;
   };
 }
 
@@ -62,9 +65,6 @@ export const Vouchers = () => {
     id: 0,
     title: "",
     advance_money: 0,
-    destination: {
-      city: "",
-    },
   });
   const [commentValue, setCommentValue] = useState<string>("");
 
@@ -320,7 +320,7 @@ export const Vouchers = () => {
             <strong>Trip Name:</strong> {trip.title}
           </p>
           <p>
-            <strong>Destination:</strong> {trip.destination.city}
+            <strong>Destination:</strong> {trip.destination?.city || trip.destination?.iata_code || "Destino no disponible"}
           </p>
           <p>
             <strong>Advance Money:</strong> {formatMoney(trip.advance_money)}

@@ -4,6 +4,8 @@
  * Authors: Original Monarca team
  * Last Modification made:
   * 16/04/2026 [Rebeca-Davila] Changed the title of the list
+  * 20/04/2026 [Diego de la Vega] Added safe destination fallback rendering for
+  *                             requests with missing city values.
  */
 
 import { useEffect, useState } from "react";
@@ -21,8 +23,9 @@ import { useApp } from "../../hooks/app/appContext";
 
 interface Destination {
   id: string;
-  country: string;
-  city: string;
+  country?: string;
+  city?: string;
+  iata_code?: string;
 }
 
 interface RequestDestination {
@@ -162,7 +165,10 @@ export const RefundsReview = () => {
               ? formatDate(firstDestination.departure_date)
               : "N/A",
             formattedAdvance: formatMoney(trip.advance_money),
-            origin: trip.destination.city,
+            origin:
+              trip.destination?.city ||
+              trip.destination?.iata_code ||
+              "Destino no disponible",
             formattedCreatedAt: formatDate(trip.createdAt),
           };
         });

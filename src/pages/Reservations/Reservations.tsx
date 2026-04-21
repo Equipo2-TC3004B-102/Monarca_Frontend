@@ -5,6 +5,8 @@
  * Last Modification made: 
  * 14/04/2026 - (JinSik Yoon) Added file upload functionality and preview for reservations.
  * to the form
+ * 20/04/2026 [Diego de la Vega] Added fallback mapping for origin/destination
+ *                             values and defensive handling of empty destination arrays.
  */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -42,14 +44,20 @@ export const Reservations = () => {
         const response = await getRequest(`/requests/${id}`);
         setRequest({
           ...response,
-          requests_destinations: response.requests_destinations.map((destination: any) => ({
+          requests_destinations: (response.requests_destinations || []).map((destination: any) => ({
             ...destination,
-            origin: response.destination.city + ", " + response.destination.country,
-            origin_city: response.destination.city,
-            origin_country: response.destination.country,
-            destination_full: destination.destination.city + ", " + destination.destination.country,
-            destination_city: destination.destination.city,
-            destination_country: destination.destination.country,
+            origin: `${response.destination?.city || response.destination?.iata_code || "Origen no disponible"}${response.destination?.country ? `, ${response.destination.country}` : ""}`,
+            origin_city:
+              response.destination?.city ||
+              response.destination?.iata_code ||
+              "Origen no disponible",
+            origin_country: response.destination?.country || "",
+            destination_full: `${destination.destination?.city || destination.destination?.iata_code || "Destino no disponible"}${destination.destination?.country ? `, ${destination.destination.country}` : ""}`,
+            destination_city:
+              destination.destination?.city ||
+              destination.destination?.iata_code ||
+              "Destino no disponible",
+            destination_country: destination.destination?.country || "",
             departure_date: formatDate(destination.departure_date),
             arrival_date: formatDate(destination.arrival_date),
             hotel_required: destination.is_hotel_required ? "Sí" : "No",
@@ -195,8 +203,9 @@ export const Reservations = () => {
         }),
       };
       // Compute the length depending if each request destination has hotel or plane or both
-      const hotelLength = request.requests_destinations.filter((destination: any) => destination.is_hotel_required).length;
-      const planeLength = request.requests_destinations.filter((destination: any) => destination.is_plane_required).length;
+      const requestDestinations = request.requests_destinations || [];
+      const hotelLength = requestDestinations.filter((destination: any) => destination.is_hotel_required).length;
+      const planeLength = requestDestinations.filter((destination: any) => destination.is_plane_required).length;
       const totalLength = hotelLength + planeLength;
       if (formattedData.reservations.length !== totalLength) {
         toast.error("Por favor completa todos los campos requeridos.");
@@ -208,7 +217,7 @@ export const Reservations = () => {
         const key = Object.keys(formData)[index];
         const hotelValid = data.hotel_title && data.hotel_comments && data.hotel_file;
         const planeValid = data.plane_title && data.plane_comments && data.plane_file;
-        const requestDestination = request.requests_destinations.find((destination: any) => destination.id === key);
+        const requestDestination = requestDestinations.find((destination: any) => destination.id === key);
         if (!requestDestination) {
           return false;
         }

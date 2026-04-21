@@ -4,6 +4,8 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Diego de la Vega] Added defensive destination/date fallbacks to
+ *                             prevent crashes when request data is incomplete.
  */
 
 import { useEffect, useState } from "react";
@@ -98,8 +100,8 @@ const renderStatus = (status: string) => {
  * - On mount, fetches trips from "/requests/to-reserve".
  * - Enriches each trip with UI-specific fields:
  *   - status badge (renderStatus)
- *   - country (destination city)
- *   - departureDate (computed from the first destination ordered by destination_order)
+ *   - country (destination city or fallback label)
+ *   - departureDate (first destination departure date or fallback label)
  *   - action link to booking details
  * - Triggers tutorial logic based on visited pages stored in localStorage.
  */
@@ -117,24 +119,32 @@ const Bookings = () => {
       try {
         const response = await getRequest("/requests/to-reserve");
         setDataWithActions(
-          response.map((trip: any) => ({
-            ...trip,
-            status: renderStatus(trip.status),
-            country: trip.destination.city,
-            departureDate: formatDate(
-              trip.requests_destinations.sort(
-                (a: any, b: any) => a.destination_order - b.destination_order
-              )[0].departure_date
-            ),
-            action: (
-              <Link
-                to={`/bookings/${trip.id}`}
-                className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-              >
-                Reservar
-              </Link>
-            ),
-          }))
+          response.map((trip: any) => {
+            const sortedDestinations = [...(trip.requests_destinations || [])].sort(
+              (a: any, b: any) => a.destination_order - b.destination_order
+            );
+            const firstDestination = sortedDestinations[0];
+
+            return {
+              ...trip,
+              status: renderStatus(trip.status),
+              country:
+                trip.destination?.city ||
+                trip.destination?.iata_code ||
+                "Destino no disponible",
+              departureDate: firstDestination?.departure_date
+                ? formatDate(firstDestination.departure_date)
+                : "Sin fecha",
+              action: (
+                <Link
+                  to={`/bookings/${trip.id}`}
+                  className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
+                >
+                  Reservar
+                </Link>
+              ),
+            };
+          })
         );
       } catch (error) {
         console.error("Error fetching travel records:", error);

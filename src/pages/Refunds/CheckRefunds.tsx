@@ -4,6 +4,8 @@
  * Authors: Original Monarca team
  * Last Modification made:
   * 16/04/2026 [Rebeca-Davila] Changed the title of the list
+  * 20/04/2026 [Diego de la Vega] Added destination/date fallback mapping for
+  *                             incomplete request destination payloads.
  */
 
 import { useState, useEffect } from "react";
@@ -114,14 +116,26 @@ export const CheckRefunds = () => {
       try {
         setLoading(true);
         const response = await getRequest("/requests/refund-to-approve-SOI");
-        setTrips(response.map((trip: any) => ({
-          ...trip,
-          status: renderStatus(trip.status),
-          date: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
-          advance_money: formatMoney(trip.advance_money),
-          origin: trip.destination.city,
-          createdAt: formatDate(trip.createdAt),
-        })));
+        setTrips(response.map((trip: any) => {
+          const sortedDestinations = [...(trip.requests_destinations || [])].sort(
+            (a: any, b: any) => a.destination_order - b.destination_order
+          );
+          const firstDestination = sortedDestinations[0];
+
+          return {
+            ...trip,
+            status: renderStatus(trip.status),
+            date: firstDestination?.departure_date
+              ? formatDate(firstDestination.departure_date)
+              : "N/A",
+            advance_money: formatMoney(trip.advance_money),
+            origin:
+              trip.destination?.city ||
+              trip.destination?.iata_code ||
+              "Destino no disponible",
+            createdAt: formatDate(trip.createdAt),
+          };
+        }));
       } catch (err) {
         toast.error(
           "Error loading trips. Please try again later."  

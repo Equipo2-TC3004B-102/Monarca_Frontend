@@ -6,6 +6,8 @@
  * Last Modification made: 
  * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
  * clarity and maintainability.
+ * 20/04/2026 [Diego de la Vega] Added destination/date fallback rendering for
+ *                             incomplete request destination data.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -119,25 +121,37 @@ export const Historial = () => {
           response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
         }
         // Data with actions (edit buttons)
-        setDataWithActions(response?.map((record: any, index: number) => ({
-          ...record,
-          status: renderStatus(record.status),
-          createdAt: formatDate(record.createdAt),
-          country: record.destination.city,
-          departureDate: formatDate(record.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
-          index,
-          action: (
-            <Button
-              className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-              label="Ver detalles"
-              id={`details-${index}`}
-              driver-id="details"
-              onClickFunction={() => {
-                navigate(`/requests/${record.id}`);
-              }}
-            />
-          ),
-        })));
+        setDataWithActions(response?.map((record: any, index: number) => {
+          const sortedDestinations = [...(record.requests_destinations || [])].sort(
+            (a: any, b: any) => a.destination_order - b.destination_order
+          );
+          const firstDestination = sortedDestinations[0];
+
+          return {
+            ...record,
+            status: renderStatus(record.status),
+            createdAt: formatDate(record.createdAt),
+            country:
+              record.destination?.city ||
+              record.destination?.iata_code ||
+              "Destino no disponible",
+            departureDate: firstDestination?.departure_date
+              ? formatDate(firstDestination.departure_date)
+              : "Sin fecha",
+            index,
+            action: (
+              <Button
+                className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
+                label="Ver detalles"
+                id={`details-${index}`}
+                driver-id="details"
+                onClickFunction={() => {
+                  navigate(`/requests/${record.id}`);
+                }}
+              />
+            ),
+          };
+        }));
         //   action: record.status == "Changes Needed" && (
         //     <Button
         //       label="Editar"
