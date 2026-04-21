@@ -1,3 +1,11 @@
+/**
+ * currencies.ts
+ * Description: Currency options for the travel request form.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 20/04/2026 [Sebastián Borjas] Added support for advance money currency.
+ */
+
 export const currencyOptions = [
   { id: "USD", name: "United States Dollar", banxico_id: "SF43718" },
   { id: "EUR", name: "Euro", banxico_id: "SF46410" },

@@ -3,7 +3,7 @@
  * Description: Renders the page for editing an existing travel request, including the travel request form pre-filled with the current data of the request being edited.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Sebastián Borjas] Fixed currency display on edit.
  */
 import { useParams } from "react-router-dom";
 import TravelRequestForm from "../components/travel-requests/TravelRequestForm";
@@ -30,7 +30,13 @@ function EditTravelRequest() {
 
   return (
     <div>
-      <TravelRequestForm requestId={id} initialData={travelRequest} />
+      <TravelRequestForm
+        requestId={id}
+        initialData={{
+          ...travelRequest,
+          advance_money: travelRequest.unconverted_advance_money ?? travelRequest.advance_money
+        }}
+      />
     </div>
   );
 }
