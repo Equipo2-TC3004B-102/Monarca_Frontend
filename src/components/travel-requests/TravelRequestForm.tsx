@@ -3,7 +3,7 @@
  * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
  * Authors: Original Monarca team
  * Last Modification made:
- * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
  */
 
 import { Button } from "../ui/Button";
@@ -62,9 +62,16 @@ const formSchema = z.object({
   priority: z.enum(["Alta", "Media", "Baja"]),
   requirements: z.string().optional(),
   advance_money: z
-    .number()
-    .int()
-    .positive({ message: "El dinero adelantado debe ser positivo" }),
+    .string()
+    .trim()
+    .nonempty({ message: "El dinero adelantado es obligatorio" })
+    .refine((value) => /^\d+(\.\d{1,2})?$/.test(value), {
+      message: "Ingresa un número válido con máximo 2 decimales",
+    })
+    .transform((value) => Number(value))
+    .refine((value) => value >= 0, {
+      message: "El dinero adelantado no puede ser negativo",
+  }),
   currency: z.string().nonempty({ message: "Selecciona una moneda" }),
   requests_destinations: z
     .array(destinationSchema)
@@ -316,8 +323,8 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       motive: "",
       title: "",
       priority: "Media",
-      advance_money: 0,
-      currency: "MXN",
+      advance_money: "0.00",
+      currency: "",
       requirements: "",
       requests_destinations: [
         {
@@ -515,21 +522,59 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
+                <div className="w-full sm:w-1/3">
                   <label
                     htmlFor="advance_money"
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
                     Dinero adelantado
                   </label>
-                  <Input
-                    id="advance_money"
-                    type="number"
-                    {...register("advance_money", { valueAsNumber: true })}
+                  <Controller
+                    control={control}
+                    name="advance_money"
+                    render={({ field }) => (
+                      <Input
+                        id="advance_money"
+                        type="number"
+                        min={0}
+                        step="any"
+                        placeholder="0.00"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          if (value === "") {
+                            field.onChange("");
+                            return;
+                          }
+                          if (/^\d*\.?\d{0,2}$/.test(value)) {
+                            field.onChange(value);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value.trim();
+
+                          if (value === "") {
+                            field.onChange("0.00");
+                            return;
+                          }
+
+                          const num = Number(value);
+                          if (!isNaN(num)) {
+                            field.onChange(num.toFixed(2));
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (["e", "E", "+", "-"].includes(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
+                      />
+                    )}
                   />
                   <FieldError msg={errors.advance_money?.message} />
                 </div>
-                <div className="w-full sm:w-1/3">
+                <div className="flex-1">
                   <label
                     htmlFor="currency"
                     className="block mb-2 text-sm font-medium text-gray-900"
