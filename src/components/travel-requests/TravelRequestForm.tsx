@@ -4,8 +4,9 @@
  * Authors: Original Monarca team
  * Last Modification made:
  * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
- * 20/04/2026 [Diego de la Vega] Enabled searchable origin/destination selectors
- *                             with incremental filtering while typing.
+ * 20/04/2026 [Sebastián Borjas] Fixed currency display on edit.
+ * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
+ * 20/04/2026 [Diego de la Vega] Enabled searchable origin/destination selectors with incremental filtering while typing.
  */
 
 import { Button } from "../ui/Button";
@@ -39,9 +40,9 @@ import { currencyOptions } from "../../utils/currencies";
 type Option = { id: number | string; name: string };
 
 const priorityOptions: Option[] = [
-  { id: "high", name: "Alta" },
-  { id: "medium", name: "Media" },
-  { id: "low", name: "Baja" },
+  { id: "alta", name: "Alta" },
+  { id: "media", name: "Media" },
+  { id: "baja", name: "Baja" },
 ];
 
 const destinationSchema = z.object({
@@ -61,12 +62,19 @@ const formSchema = z.object({
   id_origin_city: z.string().nullable(),
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
   title: z.string().nonempty({ message: "Escribe el título del viaje" }),
-  priority: z.enum(["high", "medium", "low"]),
+  priority: z.enum(["alta", "media", "baja"]),
   requirements: z.string().optional(),
   advance_money: z
-    .number()
-    .int()
-    .positive({ message: "El dinero adelantado debe ser positivo" }),
+    .string()
+    .trim()
+    .nonempty({ message: "El dinero adelantado es obligatorio" })
+    .refine((value) => /^\d+(\.\d{1,2})?$/.test(value), {
+      message: "Ingresa un número válido con máximo 2 decimales",
+    })
+    .transform((value) => Number(value))
+    .refine((value) => value >= 0, {
+      message: "El dinero adelantado no puede ser negativo",
+    }),
   currency: z.string().nonempty({ message: "Selecciona una moneda" }),
   requests_destinations: z
     .array(destinationSchema)
@@ -83,7 +91,7 @@ interface TravelRequestFormProps {
 
 interface DestinationFieldsProps {
   idx: number;
-  control: Control<FormValues>;
+  control: Control<FormValues, unknown, SubmitValues>;
   register: UseFormRegister<FormValues>;
   destinationOptions: { id: string | number; name: string }[];
   destinationOptionsById: Map<string, { id: string | number; name: string }>;
@@ -313,6 +321,26 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const isEditing = !!requestId;
   const isPending = isEditing ? isUpdating : isCreating;
 
+  const initialFormValues = useMemo<FormValues | undefined>(() => {
+    if (!initialData) {
+      return undefined;
+    }
+
+    return {
+      ...initialData,
+      id_origin_city: initialData.id_origin_city ?? null,
+      advance_money:
+        initialData.advance_money !== undefined &&
+        initialData.advance_money !== null
+          ? initialData.advance_money.toFixed(2)
+          : "0.00",
+      requests_destinations: initialData.requests_destinations.map((destination) => ({
+        ...destination,
+        details: destination.details ?? "",
+      })),
+    };
+  }, [initialData]);
+
   const {
     control,
     register,
@@ -322,13 +350,13 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     setValue,
   } = useForm<FormValues, unknown, SubmitValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
+    defaultValues: initialFormValues || {
       id_origin_city: null,
       motive: "",
       title: "",
-      priority: "medium",
-      advance_money: 0,
-      currency: "MXN",
+      priority: "media",
+      advance_money: "0.00",
+      currency: "",
       requirements: "",
       requests_destinations: [
         {
@@ -526,21 +554,59 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
+                <div className="w-full sm:w-1/3">
                   <label
                     htmlFor="advance_money"
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
                     Dinero adelantado
                   </label>
-                  <Input
-                    id="advance_money"
-                    type="number"
-                    {...register("advance_money", { valueAsNumber: true })}
+                  <Controller
+                    control={control}
+                    name="advance_money"
+                    render={({ field }) => (
+                      <Input
+                        id="advance_money"
+                        type="number"
+                        min={0}
+                        step="any"
+                        placeholder="0.00"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          if (value === "") {
+                            field.onChange("");
+                            return;
+                          }
+                          if (/^\d*\.?\d{0,2}$/.test(value)) {
+                            field.onChange(value);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value.trim();
+
+                          if (value === "") {
+                            field.onChange("0.00");
+                            return;
+                          }
+
+                          const num = Number(value);
+                          if (!isNaN(num)) {
+                            field.onChange(num.toFixed(2));
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (["e", "E", "+", "-"].includes(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
+                      />
+                    )}
                   />
                   <FieldError msg={errors.advance_money?.message} />
                 </div>
-                <div className="w-full sm:w-1/3">
+                <div className="flex-1">
                   <label
                     htmlFor="currency"
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -579,25 +645,25 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               </div>
             </div>
 
-<div id="destination_info">
-            <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
-            {fields.map((field, idx) => (
-              <DestinationFields
-                key={field.id}
-                idx={idx}
-                control={control}
-                register={register}
-                destinationOptions={destinationOptions}
-                destinationOptionsById={destinationOptionsById}
-                errors={errors.requests_destinations}
-                remove={remove}
-                setValue={setValue}
-                isLoadingDestinations={isLoadingDestinations}
-              />
-            ))}
-</div>
-            <Button 
-            id="new_destination"
+            <div id="destination_info">
+              <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
+              {fields.map((field, idx) => (
+                <DestinationFields
+                  key={field.id}
+                  idx={idx}
+                  control={control}
+                  register={register}
+                  destinationOptions={destinationOptions}
+                  destinationOptionsById={destinationOptionsById}
+                  errors={errors.requests_destinations}
+                  remove={remove}
+                  setValue={setValue}
+                  isLoadingDestinations={isLoadingDestinations}
+                />
+              ))}
+            </div>
+            <Button
+              id="new_destination"
               type="button"
               onClick={() =>
                 append({
@@ -614,14 +680,14 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               + Añadir destino
             </Button>
 
-            <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending} id= {isEditing ? "update_travel_request" : "create_travel_request"}>
+            <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending} id={isEditing ? "update_travel_request" : "create_travel_request"}>
               {isPending
                 ? isEditing
                   ? "Actualizando..."
                   : "Creando..."
                 : isEditing
-                ? "Actualizar viaje"
-                : "Crear viaje"}
+                  ? "Actualizar viaje"
+                  : "Crear viaje"}
             </Button>
           </form>
         </div>

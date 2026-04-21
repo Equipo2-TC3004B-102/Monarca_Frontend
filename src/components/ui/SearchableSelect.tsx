@@ -1,7 +1,9 @@
 /**
  * SearchableSelect.tsx
  * Description: Reusable Select component built with Headless UI Combobox for an accessible, searchable dropdown.
+ * Authors: Original Moncarca team
  * Last Modification made:
+ * 20/04/2026 [Sebastián Borjas] Added support for advance money currency.
  * 20/04/2026 [Diego de la Vega] Optimized option rendering for large datasets by
  *                             mounting option items only while the dropdown is open.
  */
@@ -138,7 +140,7 @@ export default function SearchableSelect({
                   )}
                   {query !== "" && filteredOptions.length >= MAX_VISIBLE_OPTIONS && (
                     <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500">
-                      Mostrando los primeros {MAX_VISIBLE_OPTIONS} resultados. Refina tu búsqueda.
+                      Mostrando los primeros {MAX_VISIBLE_OPTIONS} resultados. Refina tu busqueda.
                     </div>
                   )}
                 </>
