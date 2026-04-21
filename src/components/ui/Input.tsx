@@ -38,12 +38,44 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         type={type}
         className={clsx(baseStyles, className)}
-        onWheel={(e) => {
+        onFocus={(e) => {
           if (type === "number") {
-            e.currentTarget.blur();
+            const el = e.currentTarget as HTMLInputElement & {
+              _wheelHandler?: (event: WheelEvent) => void;
+            };
+
+            const handleWheel = (event: WheelEvent) => {
+              event.preventDefault();
+              const current = parseFloat(el.value || "0");
+
+              if (event.deltaY < 0) {
+                el.value = (current + 1).toFixed(2);
+              } else {
+                el.value = Math.max(0, current - 1).toFixed(2);
+              }
+
+              el.dispatchEvent(new Event("input", { bubbles: true }));
+            };
+
+            el._wheelHandler = handleWheel;
+            el.addEventListener("wheel", handleWheel, { passive: false });
           }
 
-          onWheel?.(e);
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          if (type === "number") {
+            const el = e.currentTarget as HTMLInputElement & {
+              _wheelHandler?: (event: WheelEvent) => void;
+            };
+
+            if (el._wheelHandler) {
+              el.removeEventListener("wheel", el._wheelHandler);
+              delete el._wheelHandler;
+            }
+          }
+
+          onBlur?.(e);
         }}
         {...props}
       />
