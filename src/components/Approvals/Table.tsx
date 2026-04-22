@@ -169,31 +169,31 @@ const Table: React.FC<TableProps> = ({
                     >
                       <div className="grid grid-cols-3 gap-6">
                         <div>
-                          <strong>Applicant:</strong>{" "}
+                          <strong>Solicitante:</strong>{" "}
                           {`${row?.user?.name} ${row?.user?.last_name}`}
                         </div>
                         <div>
-                          <strong>E-Mail:</strong>{" "}
+                          <strong>Correo:</strong>{" "}
                           {row?.user?.email}
                         </div>
                         <div>
-                          <strong>Approver:</strong>{" "}
+                          <strong>Aprobador:</strong>{" "}
                           {`${row?.admin?.name} ${row?.admin?.last_name}`}
                         </div>
                         <div>
-                          <strong>Status:</strong> {row?.status}
+                          <strong>Estado:</strong> {row?.status}
                         </div>
                         <div>
-                          <strong>Motive:</strong> {row?.motive}
+                          <strong>Motivo:</strong> {row?.motive}
                         </div>
                         <div>
-                          <strong>Departure date:</strong> {row?.departureDate}
+                          <strong>Fecha de salida:</strong> {row?.departureDate}
                         </div>
                         <div>
-                          <strong>Department:</strong> {row?.user?.department?.name ?? "N/A"}
+                          <strong>Departamento:</strong> {row?.user?.department?.name ?? "N/A"}
                         </div>
                         <div>
-                          <strong>Cost Center:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
+                          <strong>Centro de costos:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
                         </div>
                       </div>
                     </td>
