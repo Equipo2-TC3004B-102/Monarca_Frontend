@@ -3,7 +3,6 @@
  * Description: Component that displays a table of trip requests awaiting final voucher approval by an administrator.
  * Authors: Original Monarca team
  * Last Modification made:
-  * 16/04/2026 [Rebeca-Davila] Changed the title of the list
   * 20/04/2026 [Diego de la Vega] Added safe destination fallback rendering for
   *                             requests with missing city values.
  */
@@ -76,44 +75,44 @@ const renderStatus = (status: string) => {
   let styles = "";
   switch (status) {
     case "Pending Review":
-      statusText = "Under Review";
-      styles = "text-[#55447a] bg-[#bea8ef]";
+      statusText = "En revisión";
+      styles = "text-[#55447a] font-bold bg-[#bea8ef]";
       break;
     case "Denied":
-      statusText = "Denied";
-      styles = "text-[#680909] bg-[#eca6a6]";
+      statusText = "Denegado";
+      styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Cancelled":
-      statusText = "Cancelled";
-      styles = "text-[#680909] bg-[#eca6a6]";
+      statusText = "Cancelado";
+      styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Changes Needed":
-      statusText = "Changes Needed";
-      styles = "text-[#755619] bg-[#f1dbb1]";
+      statusText = "Cambios necesarios";
+      styles = "text-[#755619] font-bold bg-[#f1dbb1]";
       break;
     case "Pending Reservations":
-      statusText = "Pending Reservations";
-      styles = "text-[#8c5308] bg-[#f1c180]";
+      statusText = "Reservas pendientes";
+      styles = "text-[#8c5308] font-bold bg-[#f1c180]";
       break;
     case "Pending Accounting Approval":
-      statusText = "Pending Accounting Approval";
-      styles = "text-[var(--dark-blue)] bg-[#99b5e3]";
+      statusText = "Contabilidad pendiente";
+      styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]";
       break;
     case "Pending Vouchers Approval":
-      statusText = "Pending Vouchers Approval";
-      styles = "text-[var(--dark-blue)] bg-[#c6c4fb]";
+      statusText = "Comprobantes pendientes";
+      styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]";
       break;
     case "In Progress":
-      statusText = "In Progress";
-      styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
+      statusText = "En progreso";
+      styles = "text-[#138080] font-bold bg-[#b7f1f1]";
       break;
     case "Pending Refund Approval": 
-      statusText = "Pending Refund Approval";
-      styles = "text-[#575107] bg-[#f0eaa5]";
+      statusText = "Reembolso pendiente";
+      styles = "text-[#575107] font-bold bg-[#f0eaa5]";
       break;
     case "Completed": 
-      statusText = "Completed";
-      styles = "text-[#24390d] bg-[#c7e6ab]";
+      statusText = "Completado";
+      styles = "text-[#24390d] font-bold bg-[#c7e6ab]";
       break;
     default:
       statusText = status;
@@ -204,12 +203,12 @@ export const RefundsReview = () => {
     }, []);
 
   const columnsSchemaTrips = [
-    { key: "status", header: "Status" },
-    { key: "title", header: "Trip Name" },
-    { key: "date", header: "Travel Date" },
-    { key: "origin", header: "Departure Location" },
-    { key: "formattedAdvance", header: "Advance Payment" },
-    { key: "formattedCreatedAt", header: "Request Date" },
+    { key: "status", header: "Estado" },
+    { key: "title", header: "Viaje" },
+    { key: "date", header: "Fecha del viaje" },
+    { key: "origin", header: "Lugar de salida" },
+    { key: "formattedAdvance", header: "Anticipo" },
+    { key: "formattedCreatedAt", header: "Fecha de solicitud" },
     { key: "action", header: "" },
   ];
 
@@ -231,8 +230,8 @@ export const RefundsReview = () => {
     formattedCreatedAt: trip.formattedCreatedAt,
     action: (
       <Button
-        className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-        label="See vouchers"
+        className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
+        label="Ver comprobantes"
         onClickFunction={() => navigate(`/refunds-review/${trip.id}`)}
       />
     ),

@@ -3,8 +3,6 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 23/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
- * 20/04/2026 [Sebastián Borjas] Added support for advance money currency.
  * 20/04/2026 [Diego de la Vega] Added provider support status display and destination/date fallbacks for partial responses.
  */
 
@@ -369,7 +367,7 @@ const RequestInfo: React.FC = () => {
         <GoBack />
         <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
-            <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
+            <div className="w-fit bg-[var(--blue)] text-white text-xs lg:text-base px-4 py-2 rounded-full mb-6">
               Información de Solicitud: <span>{id}</span>
             </div>
             <p className="mb-6 text-gray-700 font-medium">

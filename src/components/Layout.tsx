@@ -54,7 +54,7 @@ function Layout({ children }: LayoutProps) {
         <div className="flex flex-1 relative">
           {openSidebar && (
             <div
-              className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+              className="fixed inset-0 bg-black/50 z-30 md:hidden"
               onClick={() => setOpenSidebar(false)}
             />
           )}
@@ -62,15 +62,15 @@ function Layout({ children }: LayoutProps) {
           {/* Sidebar flotante */}
           <div className={`absolute top-0 left-0 bottom-0 z-40 bg-[var(--gray)] transform transition-transform duration-500 ${
               openSidebar ? "translate-x-0" : "-translate-x-full"}
-              lg:hidden`}>
+              md:hidden`}>
             <Sidebar user={authState} onNavigate={() => setOpenSidebar(false)}/>
           </div>
 
-          <div className="hidden lg:flex shrink-0 self-stretch bg-[var(--gray)]">
+          <div className="hidden md:flex shrink-0 self-stretch bg-[var(--gray)]">
             <Sidebar user={authState}/>
           </div>
 
-          <div className="px-10 pt-10 flex-1">{children}</div>
+          <div className="w-screen px-10 pt-10 flex-1 pb-10 md:pb-0">{children}</div>
         </div>
         <button
           className="bg-[var(--blue)] text-white px-4 py-2 rounded hover:bg-[var(--dark-blue)] transition-colors text-sm fixed bottom-15 right-4 z-50 flex items-center"

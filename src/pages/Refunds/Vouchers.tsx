@@ -3,7 +3,6 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
- * 25/02/2026 [Diego Ortega] Added specified format.
  * 20/04/2026 [Diego de la Vega] Added destination fallback display to avoid
  *                             null access when destination data is missing.
  */
@@ -145,7 +144,7 @@ export const Vouchers = () => {
   const columnsSchemaVauchers = [
     {
       key: "spentClass",
-      header: "Expense class",
+      header: "Clase de gasto",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -158,13 +157,13 @@ export const Vouchers = () => {
           options={spendOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Choose"
+          placeholder="Clase"
         />
       ),
     },
     {
       key: "amount",
-      header: "Amount MXN",
+      header: "Importe",
       defaultValue: 0,
       renderCell: (
         value: CellValueType,
@@ -177,13 +176,13 @@ export const Vouchers = () => {
           type="number"
           value={value as string}
           onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
-          placeholder="Enter"
+          placeholder="0"
         />
       ),
     },
     {
       key: "taxIndicator",
-      header: "Tax Indicator",
+      header: "Indicador de Impuestos",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -196,13 +195,13 @@ export const Vouchers = () => {
           options={taxIndicatorOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Choose"
+          placeholder="Indicador"
         />
       ),
     },
     {
       key: "date",
-      header: "Date of voucher",
+      header: "Fecha de comprobante",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -220,7 +219,7 @@ export const Vouchers = () => {
     },
     {
       key: "XMLFile",
-      header: "XML File",
+      header: "Archivo XML",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
@@ -247,13 +246,13 @@ export const Vouchers = () => {
               }
             }
           }}
-          placeholder="Upload XML file"
+          placeholder="Sube archivo XML"
         />
       ),
     },
     {
       key: "PDFFile",
-      header: "PDF File",
+      header: "Archivo PDF",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
@@ -280,7 +279,7 @@ export const Vouchers = () => {
               }
             }
           }}
-          placeholder="Upload PDF File"
+          placeholder="Sube archivo PDF"
         />
       ),
     },
@@ -304,26 +303,26 @@ export const Vouchers = () => {
       <GoBack />
       <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
-          Refund request form
+          Solicitud de comprobante
         </h2>
         <div className="mb-4">
           {/*
           * Display general information about the trip, such as ID, name, destination,
           */}
           <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
-            Trip information
+            Información del viaje
           </h3>
           <p>
-            <strong>Trip ID:</strong> {trip.id}
+            <strong>Viaje ID:</strong> {trip.id}
           </p>
           <p>
-            <strong>Trip Name:</strong> {trip.title}
+            <strong>Nombre de viaje:</strong> {trip.title}
           </p>
           <p>
-            <strong>Destination:</strong> {trip.destination?.city || trip.destination?.iata_code || "Destino no disponible"}
+            <strong>Destino:</strong> {trip.destination?.city || trip.destination?.iata_code || "Destino no disponible"}
           </p>
           <p>
-            <strong>Advance Money:</strong> {formatMoney(trip.advance_money)}
+            <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
           </p>
         </div>
         {/*
@@ -346,12 +345,12 @@ export const Vouchers = () => {
         * The comment is stored in the commentDescriptionOfSpend state,
         * and is updated with the setCommentDescriptionOfSpend function.
         */}
-        <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Coments</h3>
+        <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentarios</h3>
         <InputField 
           id="comment-refund"
           type="text"
           value={commentValue}
-          placeholder="Add Comments"
+          placeholder="Escribe comentarios"
           onChange={(e) => setCommentValue(e.target.value)}
         />
         <div className="mt-6 flex justify-between">
@@ -359,7 +358,7 @@ export const Vouchers = () => {
             to="/refunds"
             className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
           >
-            Cancel
+            Cancelar
           </Link>
           <button
             id="submit-refund"
@@ -368,7 +367,7 @@ export const Vouchers = () => {
               handleSubmitRefund();
             }}
           >
-            Send request
+            Enviar
           </button>
         </div>
       </div>

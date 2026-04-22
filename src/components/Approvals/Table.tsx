@@ -3,7 +3,7 @@
  * Description: Reusable table component with pagination, row expansion for details, and custom action links.
  * Authors: Original Monarca team
  * Last Modification made:
- * 25/02/2026 [Diego Ortega] Added Specified Format.
+ * 17/04/2026 [Rebeca-Davila] Change the text of the button of see details to "Ver detalles"
  */
 
 import { Link } from "react-router-dom";
@@ -107,10 +107,10 @@ const Table: React.FC<TableProps> = ({
               ))}
 
               <th className="px-4 py-2 text-center border-r border-[#0a2c6d]">
-                Details
+                Detalles
               </th>
 
-              <th className="px-4 py-2 text-center rounded-r-lg">Data</th>
+              <th className="px-4 py-2 text-center rounded-r-lg">Datos</th>
             </tr>
           </thead>
 
@@ -118,7 +118,7 @@ const Table: React.FC<TableProps> = ({
             {currentItems.length <= 0 ? (
               <tr>
                 <td colSpan={columns.length + 2} className="text-center pt-10">
-                  No data available.
+                  No hay datos disponibles
                 </td>
               </tr>
             ) : currentItems.map((row: any) => (
@@ -144,9 +144,9 @@ const Table: React.FC<TableProps> = ({
                   <td className="text-sm">
                     <Link
                       to={`${link}/${row.id}`}
-                      className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
+                      className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
                     >
-                      See Details
+                      Ver detalles
                     </Link>
                   </td>
 
@@ -169,31 +169,31 @@ const Table: React.FC<TableProps> = ({
                     >
                       <div className="grid grid-cols-3 gap-6">
                         <div>
-                          <strong>Applicant:</strong>{" "}
+                          <strong>Solicitante:</strong>{" "}
                           {`${row?.user?.name} ${row?.user?.last_name}`}
                         </div>
                         <div>
-                          <strong>E-Mail:</strong>{" "}
+                          <strong>Correo:</strong>{" "}
                           {row?.user?.email}
                         </div>
                         <div>
-                          <strong>Approver:</strong>{" "}
+                          <strong>Aprobador:</strong>{" "}
                           {`${row?.admin?.name} ${row?.admin?.last_name}`}
                         </div>
                         <div>
-                          <strong>Status:</strong> {row?.status}
+                          <strong>Estado:</strong> {row?.status}
                         </div>
                         <div>
-                          <strong>Motive:</strong> {row?.motive}
+                          <strong>Motivo:</strong> {row?.motive}
                         </div>
                         <div>
-                          <strong>Departure date:</strong> {row?.departureDate}
+                          <strong>Fecha de salida:</strong> {row?.departureDate}
                         </div>
                         <div>
-                          <strong>Department:</strong> {row?.user?.department?.name ?? "N/A"}
+                          <strong>Departamento:</strong> {row?.user?.department?.name ?? "N/A"}
                         </div>
                         <div>
-                          <strong>Cost Center:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
+                          <strong>Centro de costos:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
                         </div>
                       </div>
                     </td>

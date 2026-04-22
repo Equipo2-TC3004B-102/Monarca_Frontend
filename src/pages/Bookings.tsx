@@ -3,7 +3,6 @@
  * Description: Bookings page that lists travel requests pending reservation. Fetches data from the API, formats and enriches each row (status badge, destination, departure date), and provides navigation to the reservation flow.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
  * 20/04/2026 [Diego de la Vega] Added defensive destination/date fallbacks to
  *                             prevent crashes when request data is incomplete.
  */
@@ -44,43 +43,43 @@ const renderStatus = (status: string) => {
   switch (status) {
     case "Pending Review":
       statusText = "En revisión";
-      styles = "text-[#55447a] bg-[#bea8ef]";
+      styles = "text-[#55447a] font-bold bg-[#bea8ef]";
       break;
     case "Denied":
       statusText = "Denegado";
-      styles = "text-[#680909] bg-[#eca6a6]";
+      styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Cancelled":
       statusText = "Cancelado";
-      styles = "text-[#680909] bg-[#eca6a6]";
+      styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Changes Needed":
       statusText = "Cambios necesarios";
-      styles = "text-[#755619] bg-[#f1dbb1]";
+      styles = "text-[#755619] font-bold bg-[#f1dbb1]";
       break;
     case "Pending Reservations":
       statusText = "Reservas pendientes";
-      styles = "text-[#8c5308] bg-[#f1c180]";
+      styles = "text-[#8c5308] font-bold bg-[#f1c180]";
       break;
     case "Pending Accounting Approval":
       statusText = "Contabilidad pendiente";
-      styles = "text-[var(--dark-blue)] bg-[#99b5e3]";
+      styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]";
       break;
     case "Pending Vouchers Approval":
       statusText = "Comprobantes pendientes";
-      styles = "text-[var(--dark-blue)] bg-[#c6c4fb]";
+      styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]";
       break;
     case "In Progress":
       statusText = "En progreso";
-      styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
+      styles = "text-[#138080] font-bold bg-[#b7f1f1]";
       break;
     case "Pending Refund Approval":
       statusText = "Reembolso pendiente";
-      styles = "text-[#575107] bg-[#f0eaa5]";
+      styles = "text-[#575107] font-bold bg-[#f0eaa5]";
       break;
     case "Completed":
       statusText = "Completado";
-      styles = "text-[#24390d] bg-[#c7e6ab]";
+      styles = "text-[#24390d] font-bold bg-[#c7e6ab]";
       break;
     default:
       statusText = status;
@@ -138,7 +137,7 @@ const Bookings = () => {
               action: (
                 <Link
                   to={`/bookings/${trip.id}`}
-                  className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
+                  className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
                 >
                   Reservar
                 </Link>
