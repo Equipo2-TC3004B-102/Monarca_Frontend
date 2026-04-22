@@ -110,7 +110,7 @@ const Table: React.FC<TableProps> = ({
                 Detalles
               </th>
 
-              <th className="px-4 py-2 text-center rounded-r-lg">Data</th>
+              <th className="px-4 py-2 text-center rounded-r-lg">Datos</th>
             </tr>
           </thead>
 
