@@ -38,9 +38,9 @@ import { currencyOptions } from "../../utils/currencies";
 type Option = { id: number | string; name: string };
 
 const priorityOptions: Option[] = [
-  { id: "high", name: "Alta" },
-  { id: "medium", name: "Media" },
-  { id: "low", name: "Baja" },
+  { id: "Alta", name: "Alta" },
+  { id: "Media", name: "Media" },
+  { id: "Baja", name: "Baja" },
 ];
 
 const destinationSchema = z.object({
@@ -60,7 +60,7 @@ const formSchema = z.object({
   id_origin_city: z.string().nullable(),
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
   title: z.string().nonempty({ message: "Escribe el título del viaje" }),
-  priority: z.enum(["high", "medium", "low"]),
+  priority: z.enum(["Alta", "Media", "Baja"]),
   requirements: z.string().optional(),
   advance_money: z
     .string()
@@ -323,7 +323,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       id_origin_city: null,
       motive: "",
       title: "",
-      priority: "medium",
+      priority: "Media",
       advance_money: "0.00",
       currency: "",
       requirements: "",
