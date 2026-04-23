@@ -27,7 +27,7 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
  * Output: JSX.Element - An <input> element with merged classes and forwarded props.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, onWheel, type, ...props }, ref) => {
+  ({ className, onWheel, type, onFocus, onBlur, ...props }, ref) => {
     /**
      * baseStyles, provides default Tailwind/CSS classes for consistent input appearance across the UI.
      */

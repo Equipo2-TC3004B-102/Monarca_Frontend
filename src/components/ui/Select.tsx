@@ -40,7 +40,7 @@ type Option = {
 type SelectProps = {
   options: Option[];
   value: Option | null | undefined;
-  onChange: (option: Option) => void;
+  onChange: (option: Option | null) => void;
   direction?: "up" | "down";
   isLoading?: boolean;
   isDisabled?: boolean;
