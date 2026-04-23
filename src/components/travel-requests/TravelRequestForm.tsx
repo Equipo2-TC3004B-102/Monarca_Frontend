@@ -426,7 +426,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       title: data.title,
       motive: data.motive,
       requirements: data.requirements || undefined,
-      priority: data.priority,
+      priority: data.priority.toLowerCase() as "alta" | "media" | "baja",
       advance_money: data.advance_money,
       currency: data.currency,
       requests_destinations,
@@ -521,7 +521,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                           ? destinationOptionsById.get(String(field.value))
                           : null
                       }
-                      onChange={(opt) => field.onChange(opt ? opt.id : null)}
+                      onChange={(opt) => opt && field.onChange(opt ? opt.id : null)}
                       isLoading={isLoadingDestinations}
                       placeholder="Selecciona ciudad de origen"
                     />

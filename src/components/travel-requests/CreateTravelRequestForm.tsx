@@ -59,6 +59,7 @@ const formSchema = z.object({
     .number()
     .int()
     .positive({ message: "El dinero adelantado debe ser positivo" }),
+  currency: z.string().optional(),
   destinations: z.array(destinationSchema).min(1, "Al menos un destino"),
 });
 
@@ -88,6 +89,7 @@ function CreateTravelRequestForm() {
       title: "",
       priority: "media",
       advance_money: 0,
+      currency: "",
       requirements: "",
       destinations: [
         {
@@ -144,8 +146,9 @@ function CreateTravelRequestForm() {
       title: data.motive,
       motive: data.motive,
       requirements: data.requirements || undefined,
-      priority: data.priority,
+      priority: data.priority.toLowerCase() as "alta" | "media" | "baja", ,
       advance_money: data.advance_money,
+      currency: data.currency ?? "",
       requests_destinations,
     };
 
@@ -227,7 +230,7 @@ function CreateTravelRequestForm() {
                         ? destinationOptions.find((o) => o.id === field.value)
                         : null
                     }
-                    onChange={(opt) => field.onChange(opt.id)}
+                    onChange={(opt) => opt && field.onChange(opt.id)}
                     isLoading={isLoadingDestinations}
                     placeholder="Selecciona ciudad de origen"
                   />
@@ -251,7 +254,7 @@ function CreateTravelRequestForm() {
                   <Select
                     options={priorityOptions}
                     value={priorityOptions.find((o) => o.id === field.value)}
-                    onChange={(opt) => field.onChange(opt.id)}
+                    onChange={(opt) => opt && field.onChange(opt.id)}
                   />
                 )}
               />
@@ -325,7 +328,7 @@ function CreateTravelRequestForm() {
                                 )
                               : null
                           }
-                          onChange={(opt) => field.onChange(opt.id)}
+                          onChange={(opt) => opt && field.onChange(opt.id)}
                           isLoading={isLoadingDestinations}
                           placeholder="Selecciona destino"
                         />
