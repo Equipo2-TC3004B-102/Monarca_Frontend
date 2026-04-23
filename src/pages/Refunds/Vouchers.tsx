@@ -109,7 +109,6 @@ export const Vouchers = () => {
         formDataToSend.append("tax_type", rowData.taxIndicator);
         formDataToSend.append("status", "pending_voucher");
         formDataToSend.append("currency", "MXN");
-        formDataToSend.append("id_approver", "");
         if (rowData.XMLFile) {
           formDataToSend.append("file_url_xml", rowData.XMLFile);
         }
