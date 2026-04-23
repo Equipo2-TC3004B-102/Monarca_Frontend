@@ -7,6 +7,7 @@
  * to the form
  * 20/04/2026 [Diego de la Vega] Added fallback mapping for origin/destination
  *                             values and defensive handling of empty destination arrays.
+ * 22/04/2026 [Sebastián Borjas] Added MXN currency indicator next to hotel and flight price fields.
  */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";

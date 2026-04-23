@@ -3,9 +3,10 @@
  * Description: This file contains the FilePreviewer component used in the Refunds section of the application.
  * It provides a preview of a file with its metadata and download options.
  * Authors: Original Moncarca team
- * Last Modification made: 
- * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * Last Modification made:
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for
  * clarity and maintainability.
+ * 22/04/2026 [Sebastián Borjas] Added display of original amount, currency, and exchange rate for foreign-currency vouchers.
  */
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";

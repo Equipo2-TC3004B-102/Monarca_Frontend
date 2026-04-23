@@ -4,6 +4,7 @@
  * Authors: Original Monarca team
  * Last Modification made:
  * 20/04/2026 [Diego de la Vega] Added fallback rendering for origin/destination values when destination data is partial.
+ * 22/04/2026 [Sebastián Borjas] Fixed voucher approval flow: corrected status strings for buttons, totals, and optimistic updates.
  */
 
 import React, { useState, useEffect, useRef } from "react";

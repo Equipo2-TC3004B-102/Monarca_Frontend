@@ -5,6 +5,7 @@
  * Last Modification made:
  * 20/04/2026 [Diego de la Vega] Added destination fallback display to avoid
  *                             null access when destination data is missing.
+ * 22/04/2026 [Sebastián Borjas] Added multi-currency support, compact upload buttons, and fixed table cell alignment.
  */
 
 import { Link, useNavigate } from "react-router-dom";
