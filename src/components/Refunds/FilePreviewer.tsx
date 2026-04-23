@@ -17,6 +17,9 @@ interface FilePreviewerProps {
         file_url_xml: string;
         class: string;
         amount: number;
+        unconverted_amount?: number | null;
+        currency?: string;
+        exchange_rate?: number | null;
         date: string;
         status: string;
     };
@@ -42,7 +45,24 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
 
                 <div className="flex flex-col bg-white p-6 gap-3 col-span-1">
                   <p id={`class-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Clase: </span>{file.class}</p>
-                  <p id={`amount-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Cantidad: </span><span className="text-green-700">{formatMoney(file.amount)}</span></p>
+                  <p id={`amount-file-${fileIndex}`}>
+                    <span className="font-semibold text-[var(--blue)]">Cantidad (MXN): </span>
+                    <span className="text-green-700">{formatMoney(file.amount)}</span>
+                  </p>
+                  {file.unconverted_amount != null && file.currency && file.currency !== "MXN" && (
+                    <>
+                      <p id={`unconverted-amount-file-${fileIndex}`}>
+                        <span className="font-semibold text-[var(--blue)]">Cantidad original: </span>
+                        <span className="text-amber-700">{file.unconverted_amount} {file.currency}</span>
+                      </p>
+                      {file.exchange_rate != null && (
+                        <p id={`exchange-rate-file-${fileIndex}`}>
+                          <span className="font-semibold text-[var(--blue)]">Tipo de cambio: </span>
+                          {Number(file.exchange_rate).toFixed(4)} MXN/{file.currency}
+                        </p>
+                      )}
+                    </>
+                  )}
                   <p id={`date-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Fecha: </span>{formatDate(file.date)}</p>
                   <p id={`status-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Estado: </span>{file.status}</p>
                 </div>

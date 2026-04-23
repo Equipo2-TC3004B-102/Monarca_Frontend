@@ -22,6 +22,7 @@ import formatMoney from "../../utils/formatMoney";
 import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
+import { currencyOptions } from "../../utils/currencies";
 
 /**
  * FormDataRow
@@ -30,6 +31,7 @@ import { Tutorial } from "../../components/Tutorial";
 interface FormDataRow extends DynamicTableRow {
   spentClass: string;
   amount: number;
+  currency: string;
   taxIndicator: string;
   date: string;
   XMLFile?: File;
@@ -108,7 +110,7 @@ export const Vouchers = () => {
         formDataToSend.append("amount", rowData.amount.toString());
         formDataToSend.append("tax_type", rowData.taxIndicator);
         formDataToSend.append("status", "pending_voucher");
-        formDataToSend.append("currency", "MXN");
+        formDataToSend.append("currency", rowData.currency || "MXN");
         if (rowData.XMLFile) {
           formDataToSend.append("file_url_xml", rowData.XMLFile);
         }
@@ -157,6 +159,7 @@ export const Vouchers = () => {
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder="Clase"
+          wrapperClassName="relative flex flex-col"
         />
       ),
     },
@@ -170,12 +173,34 @@ export const Vouchers = () => {
         _rowIndex?: number,
         _cellIndex?: number
       ) => (
-        <InputField
-          id={`amount-${_rowIndex}-${_cellIndex}`}
-          type="number"
+        <div className="-mb-4">
+          <InputField
+            id={`amount-${_rowIndex}-${_cellIndex}`}
+            type="number"
+            value={value as string}
+            onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
+            placeholder="0"
+          />
+        </div>
+      ),
+    },
+    {
+      key: "currency",
+      header: "Moneda",
+      defaultValue: "MXN",
+      renderCell: (
+        value: CellValueType,
+        onChangeComponentFunction: (newValue: CellValueType) => void,
+        _rowIndex?: number,
+        _cellIndex?: number
+      ) => (
+        <Dropdown
+          id={`currency-${_rowIndex}-${_cellIndex}`}
+          options={currencyOptions.map((c) => ({ value: c.id, label: c.id }))}
           value={value as string}
-          onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
-          placeholder="0"
+          onChange={(e) => onChangeComponentFunction(e.target.value)}
+          placeholder="Moneda"
+          wrapperClassName="relative flex flex-col"
         />
       ),
     },
@@ -195,6 +220,7 @@ export const Vouchers = () => {
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder="Indicador"
+          wrapperClassName="relative flex flex-col"
         />
       ),
     },
@@ -208,79 +234,125 @@ export const Vouchers = () => {
         _rowIndex?: number,
         _cellIndex?: number
       ) => (
-        <InputField
-          id={`date-${_rowIndex}-${_cellIndex}`}
-          type="date"
-          value={value as string}
-          onChange={(e) => onChangeComponentFunction(e.target.value)}
-        />
+        <div className="-mb-4">
+          <InputField
+            id={`date-${_rowIndex}-${_cellIndex}`}
+            type="date"
+            value={value as string}
+            onChange={(e) => onChangeComponentFunction(e.target.value)}
+          />
+        </div>
       ),
     },
     {
       key: "XMLFile",
-      header: "Archivo XML",
+      header: "XML",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         rowIndex?: number,
         _cellIndex?: number
-      ) => (
-        <InputField
-          id={`xml_file-${rowIndex}-${_cellIndex}`}
-          selectedFileName={formData[rowIndex || 0]?.XMLFile?.name || ""}
-          type="file"
-          accept=".xml"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              onChangeComponentFunction(file);
-              if (rowIndex !== undefined) {
-                const updatedFormData = [...formData];
-
-                if (updatedFormData[rowIndex]) {
-                  updatedFormData[rowIndex].XMLFile = file;
-                  setFormData(updatedFormData);
+      ) => {
+        const xmlName = formData[rowIndex || 0]?.XMLFile?.name || "";
+        const inputId = `xml_file-${rowIndex}-${_cellIndex}`;
+        return (
+          <div className="flex flex-col items-center gap-1">
+            <input
+              id={inputId}
+              type="file"
+              accept=".xml"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  onChangeComponentFunction(file);
+                  if (rowIndex !== undefined) {
+                    const updatedFormData = [...formData];
+                    if (updatedFormData[rowIndex]) {
+                      updatedFormData[rowIndex].XMLFile = file;
+                      setFormData(updatedFormData);
+                    }
+                  }
                 }
-              }
-            }
-          }}
-          placeholder="Sube archivo XML"
-        />
-      ),
+              }}
+            />
+            <label
+              htmlFor={inputId}
+              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-colors whitespace-nowrap
+                ${xmlName
+                  ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
+                  : "bg-white/20 text-white border border-white/50 hover:bg-white/30"
+                }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+              {xmlName ? "Cambiar" : "XML"}
+            </label>
+            {xmlName && (
+              <span className="text-xs text-green-200 truncate max-w-[80px]" title={xmlName}>
+                {xmlName}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "PDFFile",
-      header: "Archivo PDF",
+      header: "PDF",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         rowIndex?: number,
         _cellIndex?: number
-      ) => (
-        <InputField
-          id={`pdf_file-${rowIndex}-${_cellIndex}`}
-          selectedFileName={formData[rowIndex || 0]?.PDFFile?.name || ""}
-          type="file"
-          accept=".pdf"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              onChangeComponentFunction(file);
-
-              if (rowIndex !== undefined) {
-                const updatedFormData = [...formData];
-                if (updatedFormData[rowIndex]) {
-                  updatedFormData[rowIndex].PDFFile = file;
-                  setFormData(updatedFormData);
+      ) => {
+        const pdfName = formData[rowIndex || 0]?.PDFFile?.name || "";
+        const inputId = `pdf_file-${rowIndex}-${_cellIndex}`;
+        return (
+          <div className="flex flex-col items-center gap-1">
+            <input
+              id={inputId}
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  onChangeComponentFunction(file);
+                  if (rowIndex !== undefined) {
+                    const updatedFormData = [...formData];
+                    if (updatedFormData[rowIndex]) {
+                      updatedFormData[rowIndex].PDFFile = file;
+                      setFormData(updatedFormData);
+                    }
+                  }
                 }
-              }
-            }
-          }}
-          placeholder="Sube archivo PDF"
-        />
-      ),
+              }}
+            />
+            <label
+              htmlFor={inputId}
+              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-colors whitespace-nowrap
+                ${pdfName
+                  ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
+                  : "bg-white/20 text-white border border-white/50 hover:bg-white/30"
+                }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+              {pdfName ? "Cambiar" : "PDF"}
+            </label>
+            {pdfName && (
+              <span className="text-xs text-green-200 truncate max-w-[80px]" title={pdfName}>
+                {pdfName}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
   ];
 

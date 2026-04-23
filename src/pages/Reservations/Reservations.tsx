@@ -349,20 +349,23 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`hotel_price_${destination.id}`}
                           >
                             Precio
                           </label>
-                          <Input
-                            placeholder="Ingresa el precio del hotel"
-                            value={formData[destination.id]?.hotel_price || ""}
-                            onChange={(e) => handleChange(e, destination.id)}
-                            name="hotel_price"
-                            type="number"
-                            id={`hotel_price_${destination.id}`}
-                          />
+                          <div className="flex items-center gap-2">
+                            <Input
+                              placeholder="Ingresa el precio del hotel"
+                              value={formData[destination.id]?.hotel_price || ""}
+                              onChange={(e) => handleChange(e, destination.id)}
+                              name="hotel_price"
+                              type="number"
+                              id={`hotel_price_${destination.id}`}
+                            />
+                            <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
+                          </div>
                         </div>
 
                         <div>
@@ -435,20 +438,23 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`plane_price_${destination.id}`}
                           >
                             Precio
                           </label>
-                          <Input
-                            placeholder="Ingresa el precio del vuelo"
-                            value={formData[destination.id]?.plane_price || ""}
-                            onChange={(e) => handleChange(e, destination.id)}
-                            name="plane_price"
-                            type="number"
-                            id={`plane_price_${destination.id}`}
-                          />
+                          <div className="flex items-center gap-2">
+                            <Input
+                              placeholder="Ingresa el precio del vuelo"
+                              value={formData[destination.id]?.plane_price || ""}
+                              onChange={(e) => handleChange(e, destination.id)}
+                              name="plane_price"
+                              type="number"
+                              id={`plane_price_${destination.id}`}
+                            />
+                            <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
+                          </div>
                         </div>
 
                         <div>

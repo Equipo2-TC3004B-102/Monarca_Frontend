@@ -58,6 +58,9 @@ interface RequestData {
     status: string;
     class: string;
     amount: number;
+    unconverted_amount: number | null;
+    currency: string;
+    exchange_rate: number | null;
     date: string;
   }>;
 }
