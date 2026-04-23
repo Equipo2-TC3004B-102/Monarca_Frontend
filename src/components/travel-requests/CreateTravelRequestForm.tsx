@@ -146,7 +146,7 @@ function CreateTravelRequestForm() {
       title: data.motive,
       motive: data.motive,
       requirements: data.requirements || undefined,
-      priority: data.priority.toLowerCase() as "alta" | "media" | "baja", ,
+      priority: data.priority.toLowerCase() as "alta" | "media" | "baja",
       advance_money: data.advance_money,
       currency: data.currency ?? "",
       requests_destinations,
