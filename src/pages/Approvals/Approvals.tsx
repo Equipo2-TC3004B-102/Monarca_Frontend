@@ -1,9 +1,9 @@
 /**
  * FileName: Approvals.tsx
  * Description: Approvals page component, which displays a list of approvals and allows users to approve or reject them.
- * Authors: Original Moncarca team
+ * Authors: Original Monarca team
  * Last Modification made:
- * 17/04/2026 [Rebeca-Davila] Added font-bold to the status labels
+ * 20/04/2026 [Diego de la Vega] Added destination/date fallback rendering for requests with partial destination payloads.
  */
 import React, { useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
@@ -104,16 +104,24 @@ export const Approvals: React.FC = () => {
       try {
         const response = await getRequest("/requests/to-approve");
         setDataWithActions(
-          response.map((trip: any) => ({
-            ...trip,
-            status: renderStatus(trip.status),
-            country: trip.destination.city,
-            departureDate: formatDate(
-              trip.requests_destinations.sort(
-                (a: any, b: any) => a.destination_order - b.destination_order
-              )[0].departure_date
-            ),
-          }))
+          response.map((trip: any) => {
+            const sortedDestinations = [...(trip.requests_destinations || [])].sort(
+              (a: any, b: any) => a.destination_order - b.destination_order
+            );
+            const firstDestination = sortedDestinations[0];
+
+            return {
+              ...trip,
+              status: renderStatus(trip.status),
+              country:
+                trip.destination?.city ||
+                trip.destination?.iata_code ||
+                "Destino no disponible",
+              departureDate: firstDestination?.departure_date
+                ? formatDate(firstDestination.departure_date)
+                : "Sin fecha",
+            };
+          })
         );
       } catch (error) {
         console.error("Error fetching travel records:", error);

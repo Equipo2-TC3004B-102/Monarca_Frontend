@@ -4,7 +4,7 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 17/04/2026 [Rebeca-Davila] Added font-bold to the status labels"
+ * 20/04/2026 [Diego de la Vega] Added destination/date fallback rendering for incomplete request destination data.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -118,25 +118,37 @@ export const Historial = () => {
           response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
         }
         // Data with actions (edit buttons)
-        setDataWithActions(response?.map((record: any, index: number) => ({
-          ...record,
-          status: renderStatus(record.status),
-          createdAt: formatDate(record.createdAt),
-          country: record.destination.city,
-          departureDate: formatDate(record.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
-          index,
-          action: (
-            <Button
-              className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor pointer"
-              label="Ver detalles"
-              id={`details-${index}`}
-              driver-id="details"
-              onClickFunction={() => {
-                navigate(`/requests/${record.id}`);
-              }}
-            />
-          ),
-        })));
+        setDataWithActions(response?.map((record: any, index: number) => {
+          const sortedDestinations = [...(record.requests_destinations || [])].sort(
+            (a: any, b: any) => a.destination_order - b.destination_order
+          );
+          const firstDestination = sortedDestinations[0];
+
+          return {
+            ...record,
+            status: renderStatus(record.status),
+            createdAt: formatDate(record.createdAt),
+            country:
+              record.destination?.city ||
+              record.destination?.iata_code ||
+              "Destino no disponible",
+            departureDate: firstDestination?.departure_date
+              ? formatDate(firstDestination.departure_date)
+              : "Sin fecha",
+            index,
+            action: (
+              <Button
+                className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor pointer"
+                label="Ver detalles"
+                id={`details-${index}`}
+                driver-id="details"
+                onClickFunction={() => {
+                  navigate(`/requests/${record.id}`);
+                }}
+              />
+            ),
+          };
+        }));
         //   action: record.status == "Changes Needed" && (
         //     <Button
         //       label="Editar"

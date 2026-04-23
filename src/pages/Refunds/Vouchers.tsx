@@ -3,7 +3,8 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
- * 17/04/2026 [Rebeca-Davila] Translated all the labels in english to spanish
+ * 20/04/2026 [Diego de la Vega] Added destination fallback display to avoid
+ *                             null access when destination data is missing.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -43,8 +44,9 @@ interface Trip {
   id: number | string;
   title: string;
   advance_money: number;
-  destination: {
-    city: string;
+  destination?: {
+    city?: string;
+    iata_code?: string;
   };
 }
 
@@ -62,9 +64,6 @@ export const Vouchers = () => {
     id: 0,
     title: "",
     advance_money: 0,
-    destination: {
-      city: "",
-    },
   });
   const [commentValue, setCommentValue] = useState<string>("");
 
@@ -320,7 +319,7 @@ export const Vouchers = () => {
             <strong>Nombre de viaje:</strong> {trip.title}
           </p>
           <p>
-            <strong>Destino:</strong> {trip.destination.city}
+            <strong>Destino:</strong> {trip.destination?.city || trip.destination?.iata_code || "Destino no disponible"}
           </p>
           <p>
             <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}

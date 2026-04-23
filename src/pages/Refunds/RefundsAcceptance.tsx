@@ -3,7 +3,7 @@
  * Description: Detailed view for reviewing, approving, or denying individual expense vouchers associated with a trip request.
  * Authors: Original Monarca team
  * Last Modification made:
- * 17/04/2026 [Rebeca-Davila] Translated all the labels in english to spanish
+ * 20/04/2026 [Diego de la Vega] Added fallback rendering for origin/destination values when destination data is partial.
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -42,11 +42,13 @@ interface RequestData {
   createdAt?: string;
   advance_money_str?: string;
   destination?: {
-    city: string;
+    city?: string;
+    iata_code?: string;
   };
   requests_destinations?: Array<{
     destination: {
-      city: string;
+      city?: string;
+      iata_code?: string;
     };
   }>;
   vouchers?: Array<{
@@ -66,7 +68,8 @@ interface RequestData {
  */
 interface Dest {
   destination: {
-    city: string;
+    city?: string;
+    iata_code?: string;
   };
 }
 
@@ -150,9 +153,17 @@ const RefundsAcceptance: React.FC = () => {
           createdAt: formatDate(response.createdAt),
           advance_money_str: formatMoney(response.advance_money),
           admin: response.admin.name + " " + response.admin.last_name,
-          id_origin_city: response.destination.city,
-          destinations: response.requests_destinations
-            .map((dest: Dest) => dest.destination.city)
+          id_origin_city:
+            response.destination?.city ||
+            response.destination?.iata_code ||
+            "Origen no disponible",
+          destinations: (response.requests_destinations || [])
+            .map(
+              (dest: Dest) =>
+                dest.destination?.city ||
+                dest.destination?.iata_code ||
+                "Destino no disponible",
+            )
             .join(", "),
         });
       } catch (error) {

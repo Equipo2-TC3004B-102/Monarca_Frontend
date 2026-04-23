@@ -3,8 +3,10 @@
  * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
  * Authors: Original Monarca team
  * Last Modification made:
+ * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
  * 20/04/2026 [Sebastián Borjas] Fixed currency display on edit.
  * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
+ * 20/04/2026 [Diego de la Vega] Enabled searchable origin/destination selectors with incremental filtering while typing.
  */
 
 import { Button } from "../ui/Button";
@@ -32,15 +34,15 @@ import { useUpdateTravelRequest } from "../../hooks/requests/useUpdateRequest";
 import { useDestinations } from "../../hooks/destinations/useDestinations";
 import { CreateRequest } from "../../types/requests";
 import GoBack from "../GoBack";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { currencyOptions } from "../../utils/currencies";
 
 type Option = { id: number | string; name: string };
 
 const priorityOptions: Option[] = [
-  { id: "Alta", name: "Alta" },
-  { id: "Media", name: "Media" },
-  { id: "Baja", name: "Baja" },
+  { id: "alta", name: "Alta" },
+  { id: "media", name: "Media" },
+  { id: "baja", name: "Baja" },
 ];
 
 const destinationSchema = z.object({
@@ -60,7 +62,7 @@ const formSchema = z.object({
   id_origin_city: z.string().nullable(),
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
   title: z.string().nonempty({ message: "Escribe el título del viaje" }),
-  priority: z.enum(["Alta", "Media", "Baja"]),
+  priority: z.enum(["alta", "media", "baja"]),
   requirements: z.string().optional(),
   advance_money: z
     .string()
@@ -89,9 +91,10 @@ interface TravelRequestFormProps {
 
 interface DestinationFieldsProps {
   idx: number;
-  control: Control<FormValues>;
+  control: Control<FormValues, unknown, SubmitValues>;
   register: UseFormRegister<FormValues>;
   destinationOptions: { id: string | number; name: string }[];
+  destinationOptionsById: Map<string, { id: string | number; name: string }>;
   errors: FieldErrors<FormValues>["requests_destinations"];
   remove: (index: number) => void;
   setValue: UseFormSetValue<FormValues>;
@@ -108,6 +111,7 @@ function DestinationFields({
   control,
   register,
   destinationOptions,
+  destinationOptionsById,
   errors,
   remove,
   setValue,
@@ -157,15 +161,15 @@ function DestinationFields({
             control={control}
             name={`requests_destinations.${idx}.id_destination`}
             render={({ field }) => (
-              <Select
+              <SearchableSelect
                 id={`destination-${idx}`}
                 options={destinationOptions}
                 value={
                   field.value
-                    ? destinationOptions.find((o) => o.id === field.value)
+                    ? destinationOptionsById.get(String(field.value))
                     : null
                 }
-                onChange={(opt) => field.onChange(opt.id)}
+                onChange={(opt) => field.onChange(opt ? opt.id : null)}
                 isLoading={isLoadingDestinations}
                 placeholder="Selecciona destino"
               />
@@ -302,6 +306,13 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
   const { destinationOptions, isLoading: isLoadingDestinations } =
     useDestinations();
+  const destinationOptionsById = useMemo(
+    () =>
+      new Map(
+        destinationOptions.map((option) => [String(option.id), option]),
+      ),
+    [destinationOptions],
+  );
   const { createTravelRequestMutation, isPending: isCreating } =
     useCreateTravelRequest();
   const { updateTravelRequestMutation, isPending: isUpdating } =
@@ -309,6 +320,26 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
   const isEditing = !!requestId;
   const isPending = isEditing ? isUpdating : isCreating;
+
+  const initialFormValues = useMemo<FormValues | undefined>(() => {
+    if (!initialData) {
+      return undefined;
+    }
+
+    return {
+      ...initialData,
+      id_origin_city: initialData.id_origin_city ?? null,
+      advance_money:
+        initialData.advance_money !== undefined &&
+        initialData.advance_money !== null
+          ? initialData.advance_money.toFixed(2)
+          : "0.00",
+      requests_destinations: initialData.requests_destinations.map((destination) => ({
+        ...destination,
+        details: destination.details ?? "",
+      })),
+    };
+  }, [initialData]);
 
   const {
     control,
@@ -319,11 +350,11 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     setValue,
   } = useForm<FormValues, unknown, SubmitValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
+    defaultValues: initialFormValues || {
       id_origin_city: null,
       motive: "",
       title: "",
-      priority: "Media",
+      priority: "media",
       advance_money: "0.00",
       currency: "",
       requirements: "",
@@ -482,15 +513,15 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                   control={control}
                   name="id_origin_city"
                   render={({ field }) => (
-                    <Select
+                    <SearchableSelect
                       id="id_origin_city"
                       options={destinationOptions}
                       value={
                         field.value
-                          ? destinationOptions.find((o) => o.id === field.value)
+                          ? destinationOptionsById.get(String(field.value))
                           : null
                       }
-                      onChange={(opt) => field.onChange(opt.id)}
+                      onChange={(opt) => field.onChange(opt ? opt.id : null)}
                       isLoading={isLoadingDestinations}
                       placeholder="Selecciona ciudad de origen"
                     />
@@ -590,7 +621,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                         id="currency"
                         options={currencyOptions}
                         value={currencyOptions.find((o) => o.id === field.value)}
-                        onChange={(opt) => field.onChange(opt.id)}
+                          onChange={(opt) => field.onChange(opt ? opt.id : "")}
                         placeholder="Moneda"
                       />
                     )}
@@ -623,6 +654,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                   control={control}
                   register={register}
                   destinationOptions={destinationOptions}
+                  destinationOptionsById={destinationOptionsById}
                   errors={errors.requests_destinations}
                   remove={remove}
                   setValue={setValue}
