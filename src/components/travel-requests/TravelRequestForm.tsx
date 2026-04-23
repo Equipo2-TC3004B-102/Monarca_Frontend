@@ -545,7 +545,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                       id="priority"
                       options={priorityOptions}
                       value={priorityOptions.find((o) => o.id === field.value)}
-                      onChange={(opt) => field.onChange(opt.id)}
+                      onChange={(opt) => opt && field.onChange(opt.id)}
                       placeholder="Selecciona prioridad"
                     />
                   )}
