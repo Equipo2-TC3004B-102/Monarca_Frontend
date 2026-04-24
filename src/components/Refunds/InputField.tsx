@@ -47,6 +47,11 @@ interface InputFieldProps {
   onFocus?: () => void;
   validateField?: (value: string) => string | undefined;
   selectedFileName?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  onWheel?: React.WheelEventHandler<HTMLInputElement>;
+  onMouseEnter?: React.MouseEventHandler<HTMLInputElement>;
+  onMouseLeave?: React.MouseEventHandler<HTMLInputElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 }
 
 /**
@@ -71,6 +76,11 @@ const InputField: React.FC<InputFieldProps> = ({
   onFocus,
   validateField,
   selectedFileName,
+  onWheel,
+  onMouseEnter,
+  onMouseLeave,
+  onKeyDown,
+  inputMode,
 }) => {
   // Set default placeholder for date inputs
   const effectivePlaceholder =
@@ -240,6 +250,11 @@ const InputField: React.FC<InputFieldProps> = ({
             onChange={handleChange}
             onBlur={handleBlur}
             onFocus={handleFocus}
+            onWheel={onWheel}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onKeyDown={onKeyDown}
+            inputMode={inputMode}
             aria-invalid={!!errorMessage}
             aria-required={required}
           />

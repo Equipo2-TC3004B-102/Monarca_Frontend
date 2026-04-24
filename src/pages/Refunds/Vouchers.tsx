@@ -208,7 +208,7 @@ export const Vouchers = () => {
               onChangeComponentFunction(finalValue);
               document.body.style.overflow = "auto";
             }}
-            onKeyDown={(e) => {
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (["e", "E", "+", "-"].includes(e.key)) {
                 e.preventDefault();
               }
