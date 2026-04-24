@@ -3,8 +3,7 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added destination fallback display to avoid
- *                             null access when destination data is missing.
+ * 23/04/2026 [Jin Sik Yoon] - Implemented form submission to handle multiple vouchers, added validation for amount field, and enhanced user experience with file upload previews and error handling.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -164,20 +163,63 @@ export const Vouchers = () => {
     {
       key: "amount",
       header: "Importe",
-      defaultValue: 0,
+      defaultValue: "0.00",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         _rowIndex?: number,
         _cellIndex?: number
       ) => (
-        <InputField
-          id={`amount-${_rowIndex}-${_cellIndex}`}
-          type="number"
-          value={value as string}
-          onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
-          placeholder="0"
-        />
+        <div
+          onWheelCapture={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const current = Number(value || 0);
+            const next =
+              e.deltaY < 0 ? current + 1 : Math.max(0, current - 1);
+
+            onChangeComponentFunction(next.toFixed(2));
+          }}
+          onMouseEnter={() => {
+            document.body.style.overflow = "hidden";
+          }}
+          onMouseLeave={() => {
+            document.body.style.overflow = "auto";
+          }}
+        >
+          <InputField
+            id={`amount-${_rowIndex}-${_cellIndex}`}
+            type="text"
+            inputMode="decimal"
+            value={(value as string) ?? "0.00"}
+            placeholder="0.00"
+            onChange={(e) => {
+              const val = e.target.value;
+
+              if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                onChangeComponentFunction(val);
+              }
+            }}
+            onBlur={() => {
+              const finalValue =
+                value === "" ? "0.00" : Number(value || 0).toFixed(2);
+
+              onChangeComponentFunction(finalValue);
+              document.body.style.overflow = "auto";
+            }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (["e", "E", "+", "-"].includes(e.key)) {
+                e.preventDefault();
+              }
+
+              if (e.key === "Enter" && Number(value || 0) === 0) {
+                e.preventDefault();
+                toast.error("El importe no puede ser 0.00");
+              }
+            }}
+          />
+        </div>
       ),
     },
     {
