@@ -331,7 +331,7 @@ const InputField: React.FC<InputFieldProps> = ({
   };
 
   return (
-    <div className="flex flex-col mb-4">
+    <div className="flex flex-col">
       {renderInput()}
       {errorMessage && (
         <p className="mt-1 text-xs text-red-600">{errorMessage}</p>
