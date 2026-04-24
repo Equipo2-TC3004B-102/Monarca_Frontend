@@ -25,6 +25,7 @@ import FieldError from "../ui/FieldError";
 
 import { useCreateTravelRequest } from "../../hooks/requests/useCreateRequest";
 import { useDestinations } from "../../hooks/destinations/useDestinations";
+import { usePersistedForm } from "../../hooks/app/usePersistedForm";
 
 type Option = { id: number | string; name: string };
 
@@ -107,6 +108,12 @@ function CreateTravelRequestForm() {
 
   const { createTravelRequestMutation, isPending } = useCreateTravelRequest();
 
+  const { clearPersistedForm } = usePersistedForm<RawFormValues>({
+    storageKey: "createTravelRequestForm:legacy",
+    control,
+    reset,
+  });
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "destinations",
@@ -161,6 +168,7 @@ function CreateTravelRequestForm() {
         closeOnClick: true,
         pauseOnHover: true,
       });
+      clearPersistedForm();
       reset();
       navigate("/dashboard");
     } catch (error) {

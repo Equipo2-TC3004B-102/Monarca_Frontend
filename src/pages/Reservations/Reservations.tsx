@@ -7,8 +7,9 @@
  * to the form
  * 20/04/2026 [Diego de la Vega] Added fallback mapping for origin/destination
  *                             values and defensive handling of empty destination arrays.
+ * 23/04/2026 [Santiago-Coronado] Implemented form state persistence in localStorage to prevent data loss on accidental refreshes.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Input from "../../components/Refunds/InputField";
 import TextArea from "../../components/Refunds/TextArea";
@@ -30,18 +31,94 @@ import { useApp } from "../../hooks/app/appContext";
 export const Reservations = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const requestId =
+    id ||
+    (typeof window !== "undefined"
+      ? window.location.pathname.split("/").filter(Boolean).pop()
+      : undefined);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [request, setRequest] = useState<any>({});
   const [isFormValid, _setIsFormValid] = useState(true);
   const { handleVisitPage, tutorial } = useApp();
   const [activePreview, setActivePreview] = useState<string | null>(null);
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+  const isDraftHydratedRef = useRef(false);
+  const hasSkippedInitialPersistRef = useRef(false);
+  const isPersistenceEnabledRef = useRef(true);
+  const reservationDraftStorageKey = requestId
+    ? `reservationsFormDraft:${requestId}`
+    : "reservationsFormDraft:unknown";
+
+  const getPersistableFormData = (data: Record<string, any>) => {
+    return Object.fromEntries(
+      Object.entries(data).map(([destinationId, values]) => {
+        const cleanedValues = Object.fromEntries(
+          Object.entries(values || {}).filter(([fieldName]) => {
+            return (
+              !fieldName.endsWith("_file") &&
+              !fieldName.endsWith("_file_name") &&
+              !fieldName.endsWith("_preview")
+            );
+          })
+        );
+
+        return [destinationId, cleanedValues];
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (!requestId || typeof window === "undefined") {
+      isDraftHydratedRef.current = true;
+      return;
+    }
+
+    try {
+      const rawDraft = window.localStorage.getItem(reservationDraftStorageKey);
+      if (rawDraft) {
+        setFormData(JSON.parse(rawDraft));
+      }
+    } catch {
+      window.localStorage.removeItem(reservationDraftStorageKey);
+    } finally {
+      isDraftHydratedRef.current = true;
+    }
+  }, [id, reservationDraftStorageKey]);
+
+  useEffect(() => {
+    if (
+      !requestId ||
+      typeof window === "undefined" ||
+      !isDraftHydratedRef.current
+    ) {
+      return;
+    }
+
+    if (!isPersistenceEnabledRef.current) {
+      return;
+    }
+
+    if (!hasSkippedInitialPersistRef.current) {
+      hasSkippedInitialPersistRef.current = true;
+      return;
+    }
+
+    try {
+      const safeFormData = getPersistableFormData(formData);
+      window.localStorage.setItem(
+        reservationDraftStorageKey,
+        JSON.stringify(safeFormData)
+      );
+    } catch {
+      // Ignore localStorage write errors to keep the form usable.
+    }
+  }, [formData, requestId, reservationDraftStorageKey]);
 
   useEffect(() => {
     const fetchRequest = async () => {
       try {
         // Simulate an API call to fetch data
-        const response = await getRequest(`/requests/${id}`);
+        const response = await getRequest(`/requests/${requestId}`);
         setRequest({
           ...response,
           requests_destinations: (response.requests_destinations || []).map((destination: any) => ({
@@ -72,7 +149,7 @@ export const Reservations = () => {
       }
     }
     fetchRequest();
-  }, []);
+  }, [requestId]);
 
   useEffect(() => {
       // Get the visited pages from localStorage
@@ -253,8 +330,10 @@ export const Reservations = () => {
       );
       if (responses) {
         toast.success("Reservaciones enviadas correctamente.");
+        isPersistenceEnabledRef.current = false;
         setFormData({});
-        await patchRequest(`/requests/finished-reservations/${id}`, {});
+        window.localStorage.removeItem(reservationDraftStorageKey);
+        await patchRequest(`/requests/finished-reservations/${requestId}`, {});
         navigate("/dashboard");
       } else {
         toast.error("Error al enviar las reservaciones.");
