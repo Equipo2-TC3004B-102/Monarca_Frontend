@@ -5,6 +5,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
+ * 23/04/2026 [Santiago Coronado Hernández] Added onWheel and onFocus handler for number inputs to allow incrementing/decrementing values with mouse wheel, and ensured proper cleanup of event listeners on blur to prevent memory leaks.
  */
 import React from "react";
 import clsx from "clsx";
@@ -27,7 +28,7 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
  * Output: JSX.Element - An <input> element with merged classes and forwarded props.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, onWheel, type, onFocus, onBlur, ...props }, ref) => {
+  ({ className, onWheel, onFocus, onBlur, type, ...props }, ref) => {
     /**
      * baseStyles, provides default Tailwind/CSS classes for consistent input appearance across the UI.
      */

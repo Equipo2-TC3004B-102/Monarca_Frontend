@@ -88,11 +88,22 @@ const renderProviderSupportStatus = (status?: string) => {
 const RequestInfo: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const requestId =
+    id ||
+    (typeof window !== 'undefined'
+      ? window.location.pathname.split('/').filter(Boolean).pop()
+      : undefined);
   const { authState } = useAuth();
   const [data, setData] = useState<any>({});
   const [comment, setComment] = useState('');
   const [agencies, setAgencies] = useState<any[]>([]);
   const [selectedAgency, setSelectedAgency] = useState('');
+  const isDraftHydratedRef = React.useRef(false);
+  const hasSkippedInitialPersistRef = React.useRef(false);
+  const isPersistenceEnabledRef = React.useRef(true);
+  const requestInfoDraftKey = requestId
+    ? `requestInfoDraft:${requestId}`
+    : 'requestInfoDraft:unknown';
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevRef = React.useRef(null);
@@ -104,6 +115,44 @@ const RequestInfo: React.FC = () => {
 
   const { handleVisitPage, tutorial } = useApp();
 
+  const normalizeAmount = (value: unknown): number | undefined => {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+
+    if (typeof value === 'string' && value.trim() === '') {
+      return undefined;
+    }
+
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  };
+
+  const getStoredDraft = () => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    try {
+      const rawDraft = window.localStorage.getItem(requestInfoDraftKey);
+      return rawDraft
+        ? (JSON.parse(rawDraft) as { comment?: string; selectedAgency?: string })
+        : null;
+    } catch {
+      window.localStorage.removeItem(requestInfoDraftKey);
+      return null;
+    }
+  };
+
+  const clearRequestInfoDraft = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    isPersistenceEnabledRef.current = false;
+    window.localStorage.removeItem(requestInfoDraftKey);
+  };
+
   useEffect(() => {
     /**
      * fetchData, loads request data from API and normalizes fields for UI display.
@@ -112,18 +161,35 @@ const RequestInfo: React.FC = () => {
      */
     const fetchData = async () => {
       try {
-        const response = await getRequest(`/requests/${id}`);
+        const response = await getRequest(`/requests/${requestId}`);
+        const draft = getStoredDraft();
+        const normalizedAdvanceMoney = normalizeAmount(response.advance_money);
+        const normalizedUnconvertedAdvanceMoney = normalizeAmount(
+          response.unconverted_advance_money,
+        );
+        const effectiveAdvanceMoney =
+          normalizedUnconvertedAdvanceMoney ?? normalizedAdvanceMoney ?? 0;
         const reservations = (response.requests_destinations || [])
           .map((dest: any) => dest.reservations)
           .flat();
         console.log(response);
         setData({
           ...response,
+          effective_advance_money: effectiveAdvanceMoney,
           reservations: reservations,
           formatted_status: renderStatus(response.status),
           createdAt: formatDate(response.createdAt),
-          advance_money_str: formatMoney(response.advance_money, "MXN"),
-          unconverted_advance_money_str: response.currency && response.currency !== "MXN" ? formatMoney(response.unconverted_advance_money, response.currency) : undefined,
+          advance_money_str: formatMoney(
+            normalizedAdvanceMoney ?? effectiveAdvanceMoney,
+            "MXN",
+          ),
+          unconverted_advance_money_str:
+            response.currency && response.currency !== "MXN"
+              ? formatMoney(
+                  normalizedUnconvertedAdvanceMoney ?? effectiveAdvanceMoney,
+                  response.currency,
+                )
+              : undefined,
           exchange_rate_str: response.currency && response.currency !== "MXN" ? `$${response.exchange_rate} MXN` : undefined,
           admin: response.admin.name + ' ' + response.admin.last_name,
           id_origin_city:
@@ -139,14 +205,58 @@ const RequestInfo: React.FC = () => {
             )
             .join(', '),
         });
-        setSelectedAgency(response.id_travel_agency || '');
+        setSelectedAgency(draft?.selectedAgency || response.id_travel_agency || '');
+        setComment(draft?.comment || '');
       } catch (error) {
         console.error('Error fetching request data:', error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [requestId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !requestId) {
+      isDraftHydratedRef.current = true;
+      return;
+    }
+
+    const draft = getStoredDraft();
+    if (draft) {
+      setComment(draft.comment || '');
+      setSelectedAgency(draft.selectedAgency || '');
+    }
+
+    isDraftHydratedRef.current = true;
+  }, [requestId]);
+
+  useEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !requestId ||
+      !isDraftHydratedRef.current ||
+      !isPersistenceEnabledRef.current
+    ) {
+      return;
+    }
+
+    if (!hasSkippedInitialPersistRef.current) {
+      hasSkippedInitialPersistRef.current = true;
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(
+        requestInfoDraftKey,
+        JSON.stringify({
+          comment,
+          selectedAgency,
+        })
+      );
+    } catch {
+      // Ignore localStorage write errors to keep the screen usable.
+    }
+  }, [comment, selectedAgency, requestId, requestInfoDraftKey]);
 
   useEffect(() => {
     // Get the visited pages from localStorage
@@ -213,6 +323,7 @@ const RequestInfo: React.FC = () => {
       await patchRequest(`/requests/approve/${id}`, {
         id_travel_agency: selectedAgency,
       });
+      clearRequestInfoDraft();
       toast.success(`Solicitud aprobada con ${selectedAgency}`, {
         position: 'top-right',
         autoClose: 3000,
@@ -248,6 +359,7 @@ const RequestInfo: React.FC = () => {
         id_request: id,
         comment: comment,
       });
+      clearRequestInfoDraft();
       toast.info('Se han solicitado cambios', {
         position: 'top-right',
         autoClose: 3000,
@@ -273,6 +385,7 @@ const RequestInfo: React.FC = () => {
   const deny = async () => {
     try {
       await patchRequest(`/requests/deny/${id}`, {});
+      clearRequestInfoDraft();
       toast.error('Solicitud denegada', {
         position: 'top-right',
         autoClose: 3000,
@@ -298,6 +411,7 @@ const RequestInfo: React.FC = () => {
   const cancel = async () => {
     try {
       await patchRequest(`/requests/cancel/${id}`, {});
+      clearRequestInfoDraft();
       toast.error('Solicitud cancelada', {
         position: 'top-right',
         autoClose: 3000,
@@ -323,6 +437,7 @@ const RequestInfo: React.FC = () => {
   const register = async () => {
     try {
       await patchRequest(`/requests/SOI-approve/${id}`, {});
+      clearRequestInfoDraft();
       toast.success('Solicitud marcada como registrada', {
         position: 'top-right',
         autoClose: 3000,
@@ -346,6 +461,7 @@ const RequestInfo: React.FC = () => {
   const complete = async () => {
     try {
       await patchRequest(`/requests/complete-request/${id}`, {});
+      clearRequestInfoDraft();
       toast.success('Solicitud marcada como completada', {
         position: 'top-right',
         autoClose: 3000,
@@ -360,6 +476,16 @@ const RequestInfo: React.FC = () => {
       return;
     }
   }
+
+  const previewAdvanceMoney = normalizeAmount(data?.effective_advance_money) ?? 0;
+  const approvedVoucherTotal =
+    data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+      if (file.status === "Voucher Approved") {
+        return acc + Number(file.amount);
+      }
+      return acc;
+    }, 0) ?? 0;
+  const previewBalance = previewAdvanceMoney - approvedVoucherTotal;
 
   return ( // Returns the main JSX content of the RequestInfo page, including request details, destinations, reservations, vouchers, and action buttons based on user permissions and request status.
     <Tutorial page="requestInfo" run={tutorial}>
@@ -668,12 +794,7 @@ const RequestInfo: React.FC = () => {
                         id="total_vouchers"
                         type="text"
                         readOnly
-                        value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                          if (file.status === "Voucher Approved") {
-                            return acc + +file.amount;
-                          }
-                          return acc;
-                        }, 0) ?? 0)}
+                        value={formatMoney(approvedVoucherTotal)}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -688,7 +809,7 @@ const RequestInfo: React.FC = () => {
                         id="advance_money"
                         type="text"
                         readOnly
-                        value={formatMoney(Number(data?.advance_money) || 0, "MXN")}
+                        value={formatMoney(previewAdvanceMoney, "MXN")}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -697,35 +818,15 @@ const RequestInfo: React.FC = () => {
                         htmlFor={"total"}
                         className="block text-xs font-semibold text-gray-500 mb-1"
                       >
-                        Saldo {(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                          (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                            if (file.status === "Voucher Approved") {
-                              return acc + Number(file.amount);
-                            }
-                            return acc;
-                          }, 0) ?? 0) < 0 ? "a favor" : "en contra"}
+                        Saldo {previewBalance < 0 ? "a favor" : "en contra"}
                       </label>
                       <input
                         id="balance"
                         type="text"
                         readOnly
-                        value={formatMoney(
-                          Math.abs((typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                            (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                              if (file.status === "Voucher Approved") {
-                                return acc + Number(file.amount);
-                              }
-                              return acc;
-                            }, 0) ?? 0)), "MXN"
-                        )}
+                        value={formatMoney(Math.abs(previewBalance), "MXN")}
                         className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
-                      ${(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                            (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                              if (file.status === "Voucher Approved") {
-                                return acc + Number(file.amount);
-                              }
-                              return acc;
-                            }, 0) ?? 0) > 0 ? "text-red-500" : "text-green-600"
+                      ${previewBalance > 0 ? "text-red-500" : "text-green-600"
                           }`}
                       />
                     </div>
