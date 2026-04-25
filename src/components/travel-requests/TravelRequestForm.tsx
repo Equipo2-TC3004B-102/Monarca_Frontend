@@ -65,7 +65,7 @@ const formSchema = z.object({
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
   title: z.string().nonempty({ message: "Escribe el título del viaje" }),
   priority: z.enum(["alta", "media", "baja"]),
-  requirements: z.string().optional(),
+  requirements: z.string().nullable().optional(),
   advance_money: z
     .string()
     .trim()
