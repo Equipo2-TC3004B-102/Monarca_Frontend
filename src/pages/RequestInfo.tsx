@@ -115,6 +115,19 @@ const RequestInfo: React.FC = () => {
 
   const { handleVisitPage, tutorial } = useApp();
 
+  const normalizeAmount = (value: unknown): number | undefined => {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+
+    if (typeof value === 'string' && value.trim() === '') {
+      return undefined;
+    }
+
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  };
+
   const getStoredDraft = () => {
     if (typeof window === 'undefined') {
       return null;
@@ -150,17 +163,33 @@ const RequestInfo: React.FC = () => {
       try {
         const response = await getRequest(`/requests/${requestId}`);
         const draft = getStoredDraft();
+        const normalizedAdvanceMoney = normalizeAmount(response.advance_money);
+        const normalizedUnconvertedAdvanceMoney = normalizeAmount(
+          response.unconverted_advance_money,
+        );
+        const effectiveAdvanceMoney =
+          normalizedUnconvertedAdvanceMoney ?? normalizedAdvanceMoney ?? 0;
         const reservations = (response.requests_destinations || [])
           .map((dest: any) => dest.reservations)
           .flat();
         console.log(response);
         setData({
           ...response,
+          effective_advance_money: effectiveAdvanceMoney,
           reservations: reservations,
           formatted_status: renderStatus(response.status),
           createdAt: formatDate(response.createdAt),
-          advance_money_str: formatMoney(response.advance_money, "MXN"),
-          unconverted_advance_money_str: response.currency && response.currency !== "MXN" ? formatMoney(response.unconverted_advance_money, response.currency) : undefined,
+          advance_money_str: formatMoney(
+            normalizedAdvanceMoney ?? effectiveAdvanceMoney,
+            "MXN",
+          ),
+          unconverted_advance_money_str:
+            response.currency && response.currency !== "MXN"
+              ? formatMoney(
+                  normalizedUnconvertedAdvanceMoney ?? effectiveAdvanceMoney,
+                  response.currency,
+                )
+              : undefined,
           exchange_rate_str: response.currency && response.currency !== "MXN" ? `$${response.exchange_rate} MXN` : undefined,
           admin: response.admin.name + ' ' + response.admin.last_name,
           id_origin_city:
@@ -447,6 +476,16 @@ const RequestInfo: React.FC = () => {
       return;
     }
   }
+
+  const previewAdvanceMoney = normalizeAmount(data?.effective_advance_money) ?? 0;
+  const approvedVoucherTotal =
+    data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+      if (file.status === "Voucher Approved") {
+        return acc + Number(file.amount);
+      }
+      return acc;
+    }, 0) ?? 0;
+  const previewBalance = previewAdvanceMoney - approvedVoucherTotal;
 
   return ( // Returns the main JSX content of the RequestInfo page, including request details, destinations, reservations, vouchers, and action buttons based on user permissions and request status.
     <Tutorial page="requestInfo" run={tutorial}>
@@ -755,12 +794,7 @@ const RequestInfo: React.FC = () => {
                         id="total_vouchers"
                         type="text"
                         readOnly
-                        value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                          if (file.status === "Voucher Approved") {
-                            return acc + +file.amount;
-                          }
-                          return acc;
-                        }, 0) ?? 0)}
+                        value={formatMoney(approvedVoucherTotal)}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -775,7 +809,7 @@ const RequestInfo: React.FC = () => {
                         id="advance_money"
                         type="text"
                         readOnly
-                        value={formatMoney(Number(data?.advance_money) || 0, "MXN")}
+                        value={formatMoney(previewAdvanceMoney, "MXN")}
                         className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
                     </div>
@@ -784,35 +818,15 @@ const RequestInfo: React.FC = () => {
                         htmlFor={"total"}
                         className="block text-xs font-semibold text-gray-500 mb-1"
                       >
-                        Saldo {(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                          (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                            if (file.status === "Voucher Approved") {
-                              return acc + Number(file.amount);
-                            }
-                            return acc;
-                          }, 0) ?? 0) < 0 ? "a favor" : "en contra"}
+                        Saldo {previewBalance < 0 ? "a favor" : "en contra"}
                       </label>
                       <input
                         id="balance"
                         type="text"
                         readOnly
-                        value={formatMoney(
-                          Math.abs((typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                            (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                              if (file.status === "Voucher Approved") {
-                                return acc + Number(file.amount);
-                              }
-                              return acc;
-                            }, 0) ?? 0)), "MXN"
-                        )}
+                        value={formatMoney(Math.abs(previewBalance), "MXN")}
                         className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
-                      ${(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                            (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                              if (file.status === "Voucher Approved") {
-                                return acc + Number(file.amount);
-                              }
-                              return acc;
-                            }, 0) ?? 0) > 0 ? "text-red-500" : "text-green-600"
+                      ${previewBalance > 0 ? "text-red-500" : "text-green-600"
                           }`}
                       />
                     </div>

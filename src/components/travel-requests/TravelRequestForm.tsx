@@ -328,13 +328,17 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       return undefined;
     }
 
+    const parsedAdvanceMoney = Number(initialData.advance_money);
+
     return {
       ...initialData,
       id_origin_city: initialData.id_origin_city ?? null,
       advance_money:
         initialData.advance_money !== undefined &&
         initialData.advance_money !== null
-          ? initialData.advance_money.toFixed(2)
+          ? Number.isFinite(parsedAdvanceMoney)
+            ? parsedAdvanceMoney.toFixed(2)
+            : "0.00"
           : "0.00",
       requests_destinations: initialData.requests_destinations.map((destination) => ({
         ...destination,
@@ -383,6 +387,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     storageKey: persistStorageKey,
     control,
     reset,
+    enabled: !isEditing,
   });
 
   const { fields, append, remove } = useFieldArray({

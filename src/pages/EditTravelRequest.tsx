@@ -18,6 +18,19 @@ function EditTravelRequest() {
   const { id } = useParams<{ id: string }>();
   const { data: travelRequest, isLoading } = useGetRequest(id!);
 
+  const normalizeAmount = (value: unknown): number | undefined => {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+
+    if (typeof value === "string" && value.trim() === "") {
+      return undefined;
+    }
+
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  };
+
   console.log(travelRequest);
 
   if (isLoading) {
@@ -34,7 +47,9 @@ function EditTravelRequest() {
         requestId={id}
         initialData={{
           ...travelRequest,
-          advance_money: travelRequest.unconverted_advance_money ?? travelRequest.advance_money
+          advance_money:
+            normalizeAmount(travelRequest.unconverted_advance_money) ??
+            normalizeAmount(travelRequest.advance_money),
         }}
       />
     </div>
