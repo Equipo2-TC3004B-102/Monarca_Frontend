@@ -286,7 +286,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   };
 
   return (
-    <div className="flex flex-col mb-4">
+    <div className="flex flex-col">
       {renderTextArea()}
       {errorMessage && (
         <p className="mt-1 text-xs text-red-600">{errorMessage}</p>
