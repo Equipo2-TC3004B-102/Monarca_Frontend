@@ -55,7 +55,7 @@ export default function AdminUsers() {
       const text = await file.text();
       const parsed = JSON.parse(text);
       const payload = Array.isArray(parsed) ? parsed : [parsed];
-      const result = await postRequest("/users/import", payload);
+      const result = await postRequest("/users/import", payload as unknown as Record<string, unknown>);
       setMessage({
         text: `${result.created} usuario(s) creado(s).${result.errors?.length ? " Errores: " + result.errors.join(", ") : ""}`,
         error: result.errors?.length > 0,
