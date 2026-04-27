@@ -74,11 +74,11 @@ export default function SearchableSelect({
     <Combobox value={value || null} onChange={handleChange} disabled={isDisabled}>
       {({ open }) => (
         <div className="relative">
-          <div className="relative w-full cursor-default rounded-md bg-white text-left text-gray-900 ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-600 sm:text-sm sm:leading-6">
+          <div className="relative w-full cursor-default rounded-md bg-gray-50 border border-gray-300 text-left text-gray-900 focus-within:ring-2 focus-within:ring-indigo-600 sm:text-sm sm:leading-6">
             <ComboboxInput
               id={id}
               className={`w-full border-none py-2.5 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 rounded-md ${
-                isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+                isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-gray-50"
               }`}
               displayValue={(option: Option | null) =>
                 isLoading ? "Cargando..." : option?.name ?? ""

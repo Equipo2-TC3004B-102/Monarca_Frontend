@@ -4,8 +4,7 @@
  * It provides a customizable table with dynamic rows and columns.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
- * clarity and maintainability.
+ * 23/04/2026 Rebeca Davila Added an X button to delete vouchers spaces
  */
 import React, { useState, ReactNode } from "react";
 
@@ -109,7 +108,17 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }, {} as Record<string, any>); // Ensure proper typing of the default row
 
     /* Add the new row to the tableData state */
-    const updatedData = [...tableData,defaultRow];
+    const updatedData = [...tableData, defaultRow];
+    setTableData(updatedData);
+
+    if (onDataChange) {
+      onDataChange(updatedData);
+    }
+  };
+
+  const deleteItem = (rowIndex: number) => {
+    const updatedData = tableData.filter((_, index) => index !== rowIndex);
+
     setTableData(updatedData);
 
     if (onDataChange) {
@@ -147,13 +156,15 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className={`px-4 py-2 text-center ${
-                    index === 0 ? "rounded-l-lg" : ""
-                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""} ${column.className ?? ""}`}
+                  className={`px-4 py-2 text-center ${index === 0 ? "rounded-l-lg" : ""
+                    } ${index === columns.length - 1 ? "rounded-r-lg" : ""} ${column.className ?? ""}`}
                 >
                   {column.header}
                 </th>
               ))}
+              <th className="px-4 py-2 text-center rounded-r-lg">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -163,11 +174,9 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                   {columns.map((column, cellIndex) => (
                     <td
                       key={cellIndex}
-                      className={`px-4 py-3 ${
-                        cellIndex === 0 ? "rounded-l-lg" : ""
-                      } ${
-                        cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
-                      } ${column.className ?? ""}`}
+                      className={`px-4 py-3 ${cellIndex === 0 ? "rounded-l-lg" : ""
+                        } ${cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
+                        } ${column.className ?? ""}`}
                     >
                       {
                         /*
@@ -181,26 +190,35 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                          */
                         column.renderCell
                           ? column.renderCell(
-                              row[column.key],
-                              (newValue) =>
-                                handleFieldChange(
-                                  rowIndex,
-                                  column.key,
-                                  newValue
-                                ),
-                              rowIndex,
-                              cellIndex
-                            )
+                            row[column.key],
+                            (newValue) =>
+                              handleFieldChange(
+                                rowIndex,
+                                column.key,
+                                newValue
+                              ),
+                            rowIndex,
+                            cellIndex
+                          )
                           : renderCellContent(row[column.key])
                       }
                     </td>
                   ))}
+                  <td className="px-4 py-3 rounded-r-lg">
+                    <button
+                      type="button"
+                      onClick={() => deleteItem(rowIndex)}
+                      className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors hover:cursor-pointer"
+                    >
+                      X
+                    </button>
+                  </td>
                 </tr>
 
                 {/* Expanded row (optional) */}
                 {expandedRows.includes(rowIndex) && renderExpandedRow && (
                   <tr className="bg-[#f4f6f8] text-black">
-                    <td colSpan={columns.length} className="px-6 py-4">
+                    <td colSpan={columns.length + 1} className="px-6 py-4">
                       {renderExpandedRow(rowIndex)}
                     </td>
                   </tr>

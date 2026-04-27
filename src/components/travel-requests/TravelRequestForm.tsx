@@ -7,6 +7,7 @@
  * 20/04/2026 [Sebastián Borjas] Fixed currency display on edit.
  * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
  * 20/04/2026 [Diego de la Vega] Enabled searchable origin/destination selectors with incremental filtering while typing.
+ * 23/04/2026 [Santiago Coronado Hernández] Use PersistedForm hook to save form state in localStorage for better UX on accidental refreshes or navigation.
  */
 
 import { Button } from "../ui/Button";
@@ -36,6 +37,7 @@ import { CreateRequest } from "../../types/requests";
 import GoBack from "../GoBack";
 import { useEffect, useMemo } from "react";
 import { currencyOptions } from "../../utils/currencies";
+import { usePersistedForm } from "../../hooks/app/usePersistedForm";
 
 type Option = { id: number | string; name: string };
 
@@ -63,7 +65,7 @@ const formSchema = z.object({
   motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
   title: z.string().nonempty({ message: "Escribe el título del viaje" }),
   priority: z.enum(["alta", "media", "baja"]),
-  requirements: z.string().optional(),
+  requirements: z.string().nullable().optional(),
   advance_money: z
     .string()
     .trim()
@@ -326,13 +328,17 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       return undefined;
     }
 
+    const parsedAdvanceMoney = Number(initialData.advance_money);
+
     return {
       ...initialData,
       id_origin_city: initialData.id_origin_city ?? null,
       advance_money:
         initialData.advance_money !== undefined &&
         initialData.advance_money !== null
-          ? initialData.advance_money.toFixed(2)
+          ? Number.isFinite(parsedAdvanceMoney)
+            ? parsedAdvanceMoney.toFixed(2)
+            : "0.00"
           : "0.00",
       requests_destinations: initialData.requests_destinations.map((destination) => ({
         ...destination,
@@ -370,6 +376,18 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
         },
       ],
     },
+  });
+
+  const persistStorageKey =
+    isEditing && requestId
+      ? `travelRequestForm:edit:${requestId}`
+      : "travelRequestForm:create";
+
+  const { clearPersistedForm } = usePersistedForm<FormValues, SubmitValues>({
+    storageKey: persistStorageKey,
+    control,
+    reset,
+    enabled: !isEditing,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -441,6 +459,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
         toast.success("¡Solicitud de viaje creada exitosamente!");
       }
 
+      clearPersistedForm();
       reset();
       navigate("/dashboard");
     } catch (error) {

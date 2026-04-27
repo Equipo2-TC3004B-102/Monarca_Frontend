@@ -43,7 +43,7 @@ export const Dashboard = ({title}:DashboardProps) => {
 
   return (
     <Tutorial page="dashboard" run={tutorial}>
-      <div className="flex flex-col lg:flex-row items-center md:justify-center gap-y-20 gap-x-20 py-10 px-1 ml-0">
+      <div className="flex flex-col lg:flex-row flex-wrap items-center md:justify-center gap-y-20 gap-x-20 py-10 px-1 ml-0">
         {authState.userPermissions.includes("create_request" as Permission) && (
           <Mosaic title="Crear solicitud de viaje" iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create" id="create-request"/>
         )}
