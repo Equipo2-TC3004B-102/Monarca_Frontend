@@ -7,6 +7,7 @@
  */
 import { useEffect, useRef } from "react";
 import { Control, FieldValues, UseFormReset, useWatch } from "react-hook-form";
+import { toast } from "react-toastify";
 
 interface UsePersistedFormParams<
   T extends FieldValues,
@@ -40,6 +41,9 @@ export function usePersistedForm<
   const isHydratedRef = useRef(false);
   const hasSkippedInitialPersistRef = useRef(false);
   const isPersistenceEnabledRef = useRef(true);
+  const restoreSuccessToastId = `${storageKey}:restore-success`;
+  const restoreErrorToastId = `${storageKey}:restore-error`;
+  const saveErrorToastId = `${storageKey}:save-error`;
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") {
@@ -52,13 +56,19 @@ export function usePersistedForm<
       if (storedValue) {
         const parsed = JSON.parse(storedValue) as T;
         reset(parsed);
+        toast.success("Información recuperada automáticamente.", {
+          toastId: restoreSuccessToastId,
+        });
       }
     } catch {
+      toast.error("No se pudo recuperar la información guardada.", {
+        toastId: restoreErrorToastId,
+      });
       window.localStorage.removeItem(storageKey);
     } finally {
       isHydratedRef.current = true;
     }
-  }, [enabled, reset, storageKey]);
+  }, [enabled, reset, restoreErrorToastId, restoreSuccessToastId, storageKey]);
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined" || !isHydratedRef.current) {
@@ -77,9 +87,12 @@ export function usePersistedForm<
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(values));
     } catch {
+      toast.error("No se pudo guardar la información automáticamente.", {
+        toastId: saveErrorToastId,
+      });
       // Ignore quota and serialization errors to avoid blocking form usage.
     }
-  }, [enabled, storageKey, values]);
+  }, [enabled, saveErrorToastId, storageKey, values]);
 
   const clearPersistedForm = () => {
     if (typeof window === "undefined") {
