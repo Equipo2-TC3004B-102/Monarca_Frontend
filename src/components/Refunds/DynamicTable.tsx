@@ -156,13 +156,12 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className={`px-4 py-2 text-center ${index === 0 ? "rounded-l-lg" : ""
-                    } ${index === columns.length - 1 ? "rounded-r-lg" : ""} ${column.className ?? ""}`}
+                  className={`px-4 py-2 text-center ${index === 0 ? "rounded-l-lg" : ""} ${column.className ?? ""}`}
                 >
                   {column.header}
                 </th>
               ))}
-              <th className="px-4 py-2 text-center rounded-r-lg">
+              <th className="px-4 py-2 text-center rounded-r-lg w-20">
                 Acciones
               </th>
             </tr>
@@ -174,9 +173,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                   {columns.map((column, cellIndex) => (
                     <td
                       key={cellIndex}
-                      className={`px-4 py-3 ${cellIndex === 0 ? "rounded-l-lg" : ""
-                        } ${cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
-                        } ${column.className ?? ""}`}
+                      className={`px-4 py-3 align-middle ${cellIndex === 0 ? "rounded-l-lg" : ""} ${column.className ?? ""}`}
                     >
                       {
                         /*
@@ -204,13 +201,13 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                       }
                     </td>
                   ))}
-                  <td className="px-4 py-3 rounded-r-lg">
+                  <td className="px-4 py-3 rounded-r-lg align-middle text-center w-20">
                     <button
                       type="button"
                       onClick={() => deleteItem(rowIndex)}
                       className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors hover:cursor-pointer"
                     >
-                      X
+                      ✕
                     </button>
                   </td>
                 </tr>

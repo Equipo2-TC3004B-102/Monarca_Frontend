@@ -175,7 +175,7 @@ export const Vouchers = () => {
         _rowIndex?: number,
         _cellIndex?: number
       ) => (
-        <div className="-mb-4">
+        <div>
           <div
             onWheelCapture={(e) => {
               e.preventDefault();
@@ -281,7 +281,7 @@ export const Vouchers = () => {
         _rowIndex?: number,
         _cellIndex?: number
       ) => (
-        <div className="-mb-4">
+        <div>
           <InputField
             id={`date-${_rowIndex}-${_cellIndex}`}
             type="date"
