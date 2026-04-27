@@ -8,6 +8,7 @@
  * 20/04/2026 [Diego de la Vega] Added fallback mapping for origin/destination
  *                             values and defensive handling of empty destination arrays.
  * 22/04/2026 [Sebastián Borjas] Added MXN currency indicator next to hotel and flight price fields.
+ * 23/04/2026 - [Jin Sik Yoon] Updated form submission to handle multiple reservations and added validation for required fields.
  */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -167,6 +168,34 @@ export const Reservations = () => {
       }
     };
     setFormData(updatedFormData);
+  };
+
+  const handlePriceWheel = (
+    e: React.WheelEvent<HTMLInputElement>,
+    id: string
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent.preventDefault();
+    e.nativeEvent.stopImmediatePropagation();
+
+    const { name, value } = e.currentTarget;
+    const current = Number(value || 0);
+
+    const next =
+      e.deltaY < 0 ? current + 1 : Math.max(0, current - 1);
+
+    setFormData((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [name]: next.toFixed(2),
+      },
+    }));
+  };
+
+  const setPageScroll = (enabled: boolean) => {
+    document.body.style.overflow = enabled ? "auto" : "hidden";
   };
 
   /**
@@ -357,12 +386,29 @@ export const Reservations = () => {
                             Precio
                           </label>
                           <div className="flex items-center gap-2">
-                            <Input
+                            <input
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2"
                               placeholder="Ingresa el precio del hotel"
-                              value={formData[destination.id]?.hotel_price || ""}
-                              onChange={(e) => handleChange(e, destination.id)}
+                              value={formData[destination.id]?.hotel_price ?? "0.00"}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+                                  handleChange(e, destination.id);
+                                }
+                              }}
+                              onWheel={(e) => handlePriceWheel(e, destination.id)}
+                              onMouseEnter={() => setPageScroll(false)}
+                              onMouseLeave={() => setPageScroll(true)}
+                              onFocus={() => setPageScroll(false)}
+                              onBlur={(e) => {
+                                const value = e.target.value.trim();
+                                e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
+                                handleChange(e, destination.id);
+                                setPageScroll(true);
+                              }}
                               name="hotel_price"
-                              type="number"
+                              type="text"
+                              inputMode="decimal"
                               id={`hotel_price_${destination.id}`}
                             />
                             <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
@@ -446,12 +492,35 @@ export const Reservations = () => {
                             Precio
                           </label>
                           <div className="flex items-center gap-2">
-                            <Input
+                            <input
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2"
                               placeholder="Ingresa el precio del vuelo"
-                              value={formData[destination.id]?.plane_price || ""}
-                              onChange={(e) => handleChange(e, destination.id)}
+                              value={formData[destination.id]?.plane_price ?? "0.00"}
+                              onChange={(e) => {
+                                const value = e.target.value;
+
+                                if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+                                  handleChange(e, destination.id);
+                                }
+                              }}
+                              onWheel={(e) => handlePriceWheel(e, destination.id)}
+                              onMouseEnter={() => setPageScroll(false)}
+                              onMouseLeave={() => setPageScroll(true)}
+                              onFocus={() => setPageScroll(false)}
+                              onBlur={(e) => {
+                                const value = e.target.value.trim();
+                                e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
+                                handleChange(e, destination.id);
+                                setPageScroll(true);
+                              }}
+                              onKeyDown={(e) => {
+                                if (["e", "E", "+", "-"].includes(e.key)) {
+                                  e.preventDefault();
+                                }
+                              }}
                               name="plane_price"
-                              type="number"
+                              type="text"
+                              inputMode="decimal"
                               id={`plane_price_${destination.id}`}
                             />
                             <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>

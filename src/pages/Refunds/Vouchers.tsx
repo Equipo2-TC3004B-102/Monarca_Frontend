@@ -6,6 +6,7 @@
  * 20/04/2026 [Diego de la Vega] Added destination fallback display to avoid
  *                             null access when destination data is missing.
  * 22/04/2026 [Sebastián Borjas] Added multi-currency support, compact upload buttons, and fixed table cell alignment.
+ * 23/04/2026 [Jin Sik Yoon] - Implemented form submission to handle multiple vouchers, added validation for amount field, and enhanced user experience with file upload previews and error handling.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -134,7 +135,7 @@ export const Vouchers = () => {
         "Error submitting refund request. Please try again later."
       );
     } finally {
-      
+
       setFormData([]);
     }
   };
@@ -167,7 +168,7 @@ export const Vouchers = () => {
     {
       key: "amount",
       header: "Importe",
-      defaultValue: 0,
+      defaultValue: "0.00",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -175,20 +176,64 @@ export const Vouchers = () => {
         _cellIndex?: number
       ) => (
         <div className="-mb-4">
-          <InputField
-            id={`amount-${_rowIndex}-${_cellIndex}`}
-            type="number"
-            value={value as string}
-            onChange={(e) => onChangeComponentFunction(Number(e.target.value))}
-            placeholder="0"
-          />
+          <div
+            onWheelCapture={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              const current = Number(value || 0);
+              const next =
+                e.deltaY < 0 ? current + 1 : Math.max(0, current - 1);
+
+              onChangeComponentFunction(next.toFixed(2));
+            }}
+            onMouseEnter={() => {
+              document.body.style.overflow = "hidden";
+            }}
+            onMouseLeave={() => {
+              document.body.style.overflow = "auto";
+            }}
+          >
+            <InputField
+              id={`amount-${_rowIndex}-${_cellIndex}`}
+              type="text"
+              inputMode="decimal"
+              value={(value as string) ?? "0.00"}
+              placeholder="0.00"
+              onChange={(e) => {
+                const val = e.target.value;
+
+                if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                  onChangeComponentFunction(val);
+                }
+              }}
+              onBlur={() => {
+                const finalValue =
+                  value === "" ? "0.00" : Number(value || 0).toFixed(2);
+
+                onChangeComponentFunction(finalValue);
+                document.body.style.overflow = "auto";
+              }}
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (["e", "E", "+", "-"].includes(e.key)) {
+                  e.preventDefault();
+                }
+
+                if (e.key === "Enter" && Number(value || 0) === 0) {
+                  e.preventDefault();
+                  toast.error("El importe no puede ser 0.00");
+                }
+              }}
+            />
+          </div>
         </div>
       ),
     },
     {
       key: "currency",
       header: "Moneda",
-      defaultValue: "MXN",
+      defaultValue: "",
+      className: "w-32",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -209,6 +254,7 @@ export const Vouchers = () => {
       key: "taxIndicator",
       header: "Indicador de Impuestos",
       defaultValue: "",
+      className: "w-34",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -371,33 +417,33 @@ export const Vouchers = () => {
 
   return (
     <>
-    <Tutorial page="vouchers">
-      <GoBack />
-      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-        <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
-          Solicitud de comprobante
-        </h2>
-        <div className="mb-4">
-          {/*
+      <Tutorial page="vouchers">
+        <GoBack />
+        <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+          <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
+            Solicitud de comprobante
+          </h2>
+          <div className="mb-4">
+            {/*
           * Display general information about the trip, such as ID, name, destination,
           */}
-          <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
-            Información del viaje
-          </h3>
-          <p>
-            <strong>Viaje ID:</strong> {trip.id}
-          </p>
-          <p>
-            <strong>Nombre de viaje:</strong> {trip.title}
-          </p>
-          <p>
-            <strong>Destino:</strong> {trip.destination?.city || trip.destination?.iata_code || "Destino no disponible"}
-          </p>
-          <p>
-            <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
-          </p>
-        </div>
-        {/*
+            <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
+              Información del viaje
+            </h3>
+            <p>
+              <strong>Viaje ID:</strong> {trip.id}
+            </p>
+            <p>
+              <strong>Nombre de viaje:</strong> {trip.title}
+            </p>
+            <p>
+              <strong>Destino:</strong> {trip.destination?.city || trip.destination?.iata_code || "Destino no disponible"}
+            </p>
+            <p>
+              <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
+            </p>
+          </div>
+          {/*
         * which contains the schema of the table.
         * The table is created initially with initially empty data,
         * and the user can add new rows to the table.
@@ -405,45 +451,45 @@ export const Vouchers = () => {
         * which is passed as a prop to the DynamicTable component.
         * The handleFormDataChange function updates the formData state with the new data.
         */}
-        <div id="vouchers">
-          <DynamicTable
-            columns={columnsSchemaVauchers}
-            initialData={formData}
-            onDataChange={handleDynamicTableDataChange}
-          />
-        </div>
-        {/*
+          <div id="vouchers">
+            <DynamicTable
+              columns={columnsSchemaVauchers}
+              initialData={formData}
+              onDataChange={handleDynamicTableDataChange}
+            />
+          </div>
+          {/*
         * Display a field to add a comment to the refund request.
         * The comment is stored in the commentDescriptionOfSpend state,
         * and is updated with the setCommentDescriptionOfSpend function.
         */}
-        <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentarios</h3>
-        <InputField 
-          id="comment-refund"
-          type="text"
-          value={commentValue}
-          placeholder="Escribe comentarios"
-          onChange={(e) => setCommentValue(e.target.value)}
-        />
-        <div className="mt-6 flex justify-between">
-          <Link
-            to="/refunds"
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
-          >
-            Cancelar
-          </Link>
-          <button
-            id="submit-refund"
-            className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
-            onClick={() => {
-              handleSubmitRefund();
-            }}
-          >
-            Enviar
-          </button>
+          <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentarios</h3>
+          <InputField
+            id="comment-refund"
+            type="text"
+            value={commentValue}
+            placeholder="Escribe comentarios"
+            onChange={(e) => setCommentValue(e.target.value)}
+          />
+          <div className="mt-6 flex justify-between">
+            <Link
+              to="/refunds"
+              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
+            >
+              Cancelar
+            </Link>
+            <button
+              id="submit-refund"
+              className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
+              onClick={() => {
+                handleSubmitRefund();
+              }}
+            >
+              Enviar
+            </button>
+          </div>
         </div>
-      </div>
-    </Tutorial>
+      </Tutorial>
     </>
   );
 };

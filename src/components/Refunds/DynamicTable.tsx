@@ -30,6 +30,7 @@ export interface Column {
   key: string;
   header: string;
   defaultValue?: CellValueType;
+  className?: string;
   renderCell?: (
     value: CellValueType,
     handleFieldChange: (newValue: CellValueType) => void,
@@ -148,7 +149,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                   key={index}
                   className={`px-4 py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
-                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""}`}
+                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""} ${column.className ?? ""}`}
                 >
                   {column.header}
                 </th>
@@ -166,7 +167,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                         cellIndex === 0 ? "rounded-l-lg" : ""
                       } ${
                         cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
-                      }`}
+                      } ${column.className ?? ""}`}
                     >
                       {
                         /*
