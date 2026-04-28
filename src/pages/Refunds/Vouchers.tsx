@@ -98,6 +98,10 @@ export const Vouchers = () => {
    * Output: Promise<void>
    */
   const handleSubmitRefund = async () => {
+    if (formData.some((row) => !row.currency)) {
+      toast.error("Por favor selecciona una moneda para cada comprobante.");
+      return;
+    }
     try {
       let formDataToSend = null;
       for (const rowData of formData) {
