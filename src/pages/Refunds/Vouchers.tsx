@@ -129,6 +129,7 @@ export const Vouchers = () => {
         toast.success("Refund request successfully submitted.");
       }
       await patchRequest(`/requests/finished-uploading-vouchers/${id}`, {});
+      setFormData([]);
       navigate("/refunds");
     } catch (err) {
       console.error(
@@ -138,9 +139,6 @@ export const Vouchers = () => {
       toast.error(
         "Error submitting refund request. Please try again later."
       );
-    } finally {
-
-      setFormData([]);
     }
   };
 
