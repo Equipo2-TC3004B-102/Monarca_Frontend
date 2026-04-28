@@ -103,6 +103,13 @@ jobs:
         env:
           PGPASSWORD: postgres
       
+      # Enable uuid-ossp extension required by TypeORM entities
+      - name: Enable uuid-ossp extension
+        run: |
+          psql -h localhost -U postgres -d MonarcaDB -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
+        env:
+          PGPASSWORD: postgres
+
       # Create database and run migrations/seeds
       - name: Setup Database and Seed
         run: |

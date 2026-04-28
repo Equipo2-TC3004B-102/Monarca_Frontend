@@ -3,7 +3,12 @@
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 23/04/2026 [Santiago-Coronado] Implemented form state persistence in localStorage to prevent data loss on accidental refreshes.
+ * 14/04/2026 - (JinSik Yoon) Added file upload functionality and preview for reservations.
+ * to the form
+ * 20/04/2026 [Diego de la Vega] Added fallback mapping for origin/destination
+ *                             values and defensive handling of empty destination arrays.
+ * 22/04/2026 [Sebastián Borjas] Added MXN currency indicator next to hotel and flight price fields.
+ * 23/04/2026 - [Jin Sik Yoon] Updated form submission to handle multiple reservations and added validation for required fields.
  */
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -148,18 +153,18 @@ export const Reservations = () => {
   }, [requestId]);
 
   useEffect(() => {
-      // Get the visited pages from localStorage
-      const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
-      // Check if the current page is already in the visited pages
-      const isPageVisited = visitedPages.includes(location.pathname);
-  
-      // If the page is not visited, set the tutorial to true
-      if (!isPageVisited) {
-        // setTutorial(true);
-      }
-      // Add the current page to the visited pages
-      handleVisitPage();
-    }, []);
+    // Get the visited pages from localStorage
+    const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+    // Check if the current page is already in the visited pages
+    const isPageVisited = visitedPages.includes(location.pathname);
+
+    // If the page is not visited, set the tutorial to true
+    if (!isPageVisited) {
+      // setTutorial(true);
+    }
+    // Add the current page to the visited pages
+    handleVisitPage();
+  }, []);
 
   /**
  * FunctionName: handleFileChange
@@ -279,89 +284,89 @@ export const Reservations = () => {
  */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-      if (formData === null || Object.keys(formData).length === 0) {
-        toast.error("Por favor completa todos los campos requeridos.");
-        return;
+    if (formData === null || Object.keys(formData).length === 0) {
+      toast.error("Por favor completa todos los campos requeridos.");
+      return;
+    }
+    // Format the formData to match the API requirements
+    const formattedData = {
+      reservations: Object.entries(formData).flatMap(([key, value]) => {
+        const hotelReservation = value.hotel_title && {
+          title: value.hotel_title,
+          comments: value.hotel_comments,
+          price: parseFloat(value.hotel_price),
+          file: value.hotel_file,
+          id_request_destination: key,
+        };
+        const planeReservation = value.plane_title && {
+          title: value.plane_title,
+          comments: value.plane_comments,
+          price: parseFloat(value.plane_price),
+          file: value.plane_file,
+          id_request_destination: key,
+        };
+        return [hotelReservation, planeReservation].filter(Boolean);
+      }),
+    };
+    // Compute the length depending if each request destination has hotel or plane or both
+    const requestDestinations = request.requests_destinations || [];
+    const hotelLength = requestDestinations.filter((destination: any) => destination.is_hotel_required).length;
+    const planeLength = requestDestinations.filter((destination: any) => destination.is_plane_required).length;
+    const totalLength = hotelLength + planeLength;
+    if (formattedData.reservations.length !== totalLength) {
+      toast.error("Por favor completa todos los campos requeridos.");
+      return;
+    }
+    // Check if the form is valid
+    const isValid = Object.values(formData).every((data, index) => {
+      // Get the key of the currrent value
+      const key = Object.keys(formData)[index];
+      const hotelValid = data.hotel_title && data.hotel_comments && data.hotel_file;
+      const planeValid = data.plane_title && data.plane_comments && data.plane_file;
+      const requestDestination = requestDestinations.find((destination: any) => destination.id === key);
+      if (!requestDestination) {
+        return false;
       }
-      // Format the formData to match the API requirements
-      const formattedData = {
-        reservations: Object.entries(formData).flatMap(([key, value]) => {
-          const hotelReservation = value.hotel_title && {
-            title: value.hotel_title,
-            comments: value.hotel_comments,
-            price: parseFloat(value.hotel_price),
-            file: value.hotel_file,
-            id_request_destination: key,
-          };
-          const planeReservation = value.plane_title && {
-            title: value.plane_title,
-            comments: value.plane_comments,
-            price: parseFloat(value.plane_price),
-            file: value.plane_file,
-            id_request_destination: key,
-          };
-          return [hotelReservation, planeReservation].filter(Boolean);
-        }),
-      };
-      // Compute the length depending if each request destination has hotel or plane or both
-      const requestDestinations = request.requests_destinations || [];
-      const hotelLength = requestDestinations.filter((destination: any) => destination.is_hotel_required).length;
-      const planeLength = requestDestinations.filter((destination: any) => destination.is_plane_required).length;
-      const totalLength = hotelLength + planeLength;
-      if (formattedData.reservations.length !== totalLength) {
-        toast.error("Por favor completa todos los campos requeridos.");
-        return;
+      // Check if hotel or plane is required
+      if (requestDestination.is_hotel_required && requestDestination.is_plane_required) {
+        return hotelValid && planeValid;
+      } else if (requestDestination.is_hotel_required && !requestDestination.is_plane_required) {
+        return hotelValid;
+      } else if (requestDestination.is_plane_required && !requestDestination.is_hotel_required) {
+        return planeValid;
       }
-      // Check if the form is valid
-      const isValid = Object.values(formData).every((data, index) => {
-        // Get the key of the currrent value
-        const key = Object.keys(formData)[index];
-        const hotelValid = data.hotel_title && data.hotel_comments && data.hotel_file;
-        const planeValid = data.plane_title && data.plane_comments && data.plane_file;
-        const requestDestination = requestDestinations.find((destination: any) => destination.id === key);
-        if (!requestDestination) {
-          return false;
+      return true;
+    });
+    if (!isValid) {
+      toast.error("Por favor completa todos los campos requeridos.");
+      return;
+    }
+    // Send the data to the API
+    const responses = await Promise.all(
+      formattedData.reservations.map(async (reservation) => {
+        const formData = new FormData();
+        formData.append("title", reservation.title);
+        formData.append("comments", reservation.comments);
+        formData.append("price", reservation.price);
+        formData.append("file", reservation.file);
+        formData.append("id_request_destination", reservation.id_request_destination);
+        try {
+          await postRequest("/reservations", formData);
+        } catch (error) {
+          console.error("Error sending data:", error);
         }
-        // Check if hotel or plane is required
-        if (requestDestination.is_hotel_required && requestDestination.is_plane_required) {
-          return hotelValid && planeValid;
-        } else if (requestDestination.is_hotel_required && !requestDestination.is_plane_required) {
-          return hotelValid;
-        } else if (requestDestination.is_plane_required && !requestDestination.is_hotel_required) {
-          return planeValid;
-        }
-        return true;
-      });
-      if (!isValid) {
-        toast.error("Por favor completa todos los campos requeridos.");
-        return;
-      }
-      // Send the data to the API
-      const responses = await Promise.all(
-        formattedData.reservations.map(async (reservation) => {
-          const formData = new FormData();
-          formData.append("title", reservation.title);
-          formData.append("comments", reservation.comments);
-          formData.append("price", reservation.price);
-          formData.append("file", reservation.file);
-          formData.append("id_request_destination", reservation.id_request_destination);
-          try {
-            await postRequest("/reservations", formData);
-          } catch (error) {
-            console.error("Error sending data:", error);
-          }
-        })
-      );
-      if (responses) {
-        toast.success("Reservaciones enviadas correctamente.");
-        isPersistenceEnabledRef.current = false;
-        setFormData({});
-        window.localStorage.removeItem(reservationDraftStorageKey);
-        await patchRequest(`/requests/finished-reservations/${requestId}`, {});
-        navigate("/dashboard");
-      } else {
-        toast.error("Error al enviar las reservaciones.");
-      }
+      })
+    );
+    if (responses) {
+      toast.success("Reservaciones enviadas correctamente.");
+      isPersistenceEnabledRef.current = false;
+      setFormData({});
+      window.localStorage.removeItem(reservationDraftStorageKey);
+      await patchRequest(`/requests/finished-reservations/${requestId}`, {});
+      navigate("/dashboard");
+    } else {
+      toast.error("Error al enviar las reservaciones.");
+    }
   }
 
   const labels: { key: keyof typeof request; label: string }[] = [
@@ -382,13 +387,13 @@ export const Reservations = () => {
           <h2 className="text-2xl font-bold text-[var(--blue)] mb-4">
             Asignar reservaciones
           </h2>
-          <form 
+          <form
             className="space-y-6"
             onSubmit={handleSubmit}
           >
             <div className="">
               {request?.requests_destinations?.map((destination: any) => (
-                <div 
+                <div
                   key={destination.id}
                   className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
                 >
@@ -420,7 +425,7 @@ export const Reservations = () => {
                       <div className="flex flex-col gap-y-4" id="hotel-reservation">
                         <h3 className="text-[var(--blue)] mb-4 font-bold">Información del hotel</h3>
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`hotel_title_${destination.id}`}
                           >
@@ -436,7 +441,7 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`hotel_comments_${destination.id}`}
                           >
@@ -452,47 +457,50 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`hotel_price_${destination.id}`}
                           >
                             Precio
                           </label>
-                          <input
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                            placeholder="Ingresa el precio del hotel"
-                            value={formData[destination.id]?.hotel_price ?? "0.00"}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+                          <div className="flex items-center gap-2">
+                            <input
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                              placeholder="Ingresa el precio del hotel"
+                              value={formData[destination.id]?.hotel_price ?? "0.00"}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+                                  handleChange(e, destination.id);
+                                }
+                              }}
+                              onWheel={(e) => handlePriceWheel(e, destination.id)}
+                              onMouseEnter={() => setPageScroll(false)}
+                              onMouseLeave={() => setPageScroll(true)}
+                              onFocus={() => setPageScroll(false)}
+                              onBlur={(e) => {
+                                const value = e.target.value.trim();
+                                e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
                                 handleChange(e, destination.id);
-                              }
-                            }}
-                            onWheel={(e) => handlePriceWheel(e, destination.id)}
-                            onMouseEnter={() => setPageScroll(false)}
-                            onMouseLeave={() => setPageScroll(true)}
-                            onFocus={() => setPageScroll(false)}
-                            onBlur={(e) => {
-                              const value = e.target.value.trim();
-                              e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
-                              handleChange(e, destination.id);
-                              setPageScroll(true);
-                            }}
-                            name="hotel_price"
-                            type="text"
-                            inputMode="decimal"
-                            id={`hotel_price_${destination.id}`}
-                          />
+                                setPageScroll(true);
+                              }}
+                              name="hotel_price"
+                              type="text"
+                              inputMode="decimal"
+                              id={`hotel_price_${destination.id}`}
+                            />
+                            <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
+                          </div>
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`hotel_file_${destination.id}`}
                           >
                             Subir archivos de hotel
                           </label>
-                          
+
                           <Input
                             type="file"
                             accept="*"
@@ -523,7 +531,7 @@ export const Reservations = () => {
                       <div className="flex flex-col gap-y-4" id="plane-reservation">
                         <h3 className="text-[var(--blue)] mb-4 font-bold">Información del vuelo</h3>
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`plane_title_${destination.id}`}
                           >
@@ -539,7 +547,7 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`plane_comments_${destination.id}`}
                           >
@@ -555,47 +563,50 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`plane_price_${destination.id}`}
                           >
                             Precio
                           </label>
-                          <input
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                            placeholder="Ingresa el precio del vuelo"
-                            value={formData[destination.id]?.plane_price ?? "0.00"}
-                            onChange={(e) => {
-                              const value = e.target.value;
+                          <div className="flex items-center gap-2">
+                            <input
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                              placeholder="Ingresa el precio del vuelo"
+                              value={formData[destination.id]?.plane_price ?? "0.00"}
+                              onChange={(e) => {
+                                const value = e.target.value;
 
-                              if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+                                if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+                                  handleChange(e, destination.id);
+                                }
+                              }}
+                              onWheel={(e) => handlePriceWheel(e, destination.id)}
+                              onMouseEnter={() => setPageScroll(false)}
+                              onMouseLeave={() => setPageScroll(true)}
+                              onFocus={() => setPageScroll(false)}
+                              onBlur={(e) => {
+                                const value = e.target.value.trim();
+                                e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
                                 handleChange(e, destination.id);
-                              }
-                            }}
-                            onWheel={(e) => handlePriceWheel(e, destination.id)}
-                            onMouseEnter={() => setPageScroll(false)}
-                            onMouseLeave={() => setPageScroll(true)}
-                            onFocus={() => setPageScroll(false)}
-                            onBlur={(e) => {
-                              const value = e.target.value.trim();
-                              e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
-                              handleChange(e, destination.id);
-                              setPageScroll(true);
-                            }}
-                            onKeyDown={(e) => {
-                              if (["e", "E", "+", "-"].includes(e.key)) {
-                                e.preventDefault();
-                              }
-                            }}
-                            name="plane_price"
-                            type="text"
-                            inputMode="decimal"
-                            id={`plane_price_${destination.id}`}
-                          />
+                                setPageScroll(true);
+                              }}
+                              onKeyDown={(e) => {
+                                if (["e", "E", "+", "-"].includes(e.key)) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              name="plane_price"
+                              type="text"
+                              inputMode="decimal"
+                              id={`plane_price_${destination.id}`}
+                            />
+                            <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
+                          </div>
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-900"
                             htmlFor={`plane_file_${destination.id}`}
                           >
@@ -631,12 +642,12 @@ export const Reservations = () => {
                   {activePreview && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                       <button
-                          type="button"
-                          onClick={() => setActivePreview(null)}
-                          className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
-                        >
-                          X
-                        </button>
+                        type="button"
+                        onClick={() => setActivePreview(null)}
+                        className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
+                      >
+                        X
+                      </button>
                       <div className="bg-white rounded-lg p-1 w-[90%] max-w-4xl h-[90vh] relative">
                         <iframe
                           src={activePreview}
@@ -655,11 +666,10 @@ export const Reservations = () => {
               <button
                 type="submit"
                 id="assign-reservations"
-                className={`px-4 py-2 rounded-md transition-colors ${
-                  isFormValid
+                className={`px-4 py-2 rounded-md transition-colors ${isFormValid
                     ? "bg-[#0a2c6d] text-white hover:bg-[#0d3d94]"
                     : "bg-gray-400 text-white cursor-not-allowed"
-                }`}
+                  }`}
               >
                 Enviar reservaciones
               </button>

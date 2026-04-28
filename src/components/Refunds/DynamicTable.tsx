@@ -29,6 +29,7 @@ export interface Column {
   key: string;
   header: string;
   defaultValue?: CellValueType;
+  className?: string;
   renderCell?: (
     value: CellValueType,
     handleFieldChange: (newValue: CellValueType) => void,
@@ -107,7 +108,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }, {} as Record<string, any>); // Ensure proper typing of the default row
 
     /* Add the new row to the tableData state */
-    const updatedData = [...tableData,defaultRow];
+    const updatedData = [...tableData, defaultRow];
     setTableData(updatedData);
 
     if (onDataChange) {
@@ -116,14 +117,14 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   };
 
   const deleteItem = (rowIndex: number) => {
-  const updatedData = tableData.filter((_, index) => index !== rowIndex);
+    const updatedData = tableData.filter((_, index) => index !== rowIndex);
 
-  setTableData(updatedData);
+    setTableData(updatedData);
 
-  if (onDataChange) {
-    onDataChange(updatedData);
-  }
-};
+    if (onDataChange) {
+      onDataChange(updatedData);
+    }
+  };
 
   /**
    * renderCellContent, safely renders cell content handling various data types including Files, objects, and primitives.
@@ -155,14 +156,12 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className={`px-4 py-2 text-center ${
-                    index === 0 ? "rounded-l-lg" : ""
-                  }`}
+                  className={`px-4 py-2 text-center ${index === 0 ? "rounded-l-lg" : ""} ${column.className ?? ""}`}
                 >
                   {column.header}
                 </th>
               ))}
-              <th className="px-4 py-2 text-center rounded-r-lg">
+              <th className="px-4 py-2 text-center rounded-r-lg w-20">
                 Acciones
               </th>
             </tr>
@@ -174,10 +173,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                   {columns.map((column, cellIndex) => (
                     <td
                       key={cellIndex}
-                      className={`px-4 py-3 ${
-                        cellIndex === 0 ? "rounded-l-lg" : ""
-                      }`}
-                      
+                      className={`px-4 py-3 align-middle ${cellIndex === 0 ? "rounded-l-lg" : ""} ${column.className ?? ""}`}
                     >
                       {
                         /*
@@ -191,29 +187,29 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                          */
                         column.renderCell
                           ? column.renderCell(
-                              row[column.key],
-                              (newValue) =>
-                                handleFieldChange(
-                                  rowIndex,
-                                  column.key,
-                                  newValue
-                                ),
-                              rowIndex,
-                              cellIndex
-                            )
+                            row[column.key],
+                            (newValue) =>
+                              handleFieldChange(
+                                rowIndex,
+                                column.key,
+                                newValue
+                              ),
+                            rowIndex,
+                            cellIndex
+                          )
                           : renderCellContent(row[column.key])
                       }
                     </td>
                   ))}
-                  <td className="px-4 py-3 rounded-r-lg">
-                  <button
-                    type="button"
-                    onClick={() => deleteItem(rowIndex)}
-                    className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors hover:cursor-pointer"
-                  >
-                    X
-                  </button>
-                </td>
+                  <td className="px-4 py-3 rounded-r-lg align-middle text-center w-20">
+                    <button
+                      type="button"
+                      onClick={() => deleteItem(rowIndex)}
+                      className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors hover:cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </td>
                 </tr>
 
                 {/* Expanded row (optional) */}

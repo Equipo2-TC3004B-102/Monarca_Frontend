@@ -336,6 +336,11 @@ const InputField: React.FC<InputFieldProps> = ({
             onChange={handleChange}
             onBlur={handleBlur}
             onFocus={handleFocus}
+            onWheel={onWheel}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onKeyDown={onKeyDown}
+            inputMode={inputMode}
             aria-invalid={!!errorMessage}
             aria-required={required}
             role={type === "date" ? "spinbutton" : undefined}

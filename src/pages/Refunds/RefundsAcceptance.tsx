@@ -4,6 +4,7 @@
  * Authors: Original Monarca team
  * Last Modification made:
  * 20/04/2026 [Diego de la Vega] Added fallback rendering for origin/destination values when destination data is partial.
+ * 22/04/2026 [Sebastián Borjas] Fixed voucher approval flow: corrected status strings for buttons, totals, and optimistic updates.
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -58,6 +59,9 @@ interface RequestData {
     status: string;
     class: string;
     amount: number;
+    unconverted_amount: number | null;
+    currency: string;
+    exchange_rate: number | null;
     date: string;
   }>;
 }
@@ -212,7 +216,7 @@ const RefundsAcceptance: React.FC = () => {
       await patchRequest(`/vouchers/${id}/approve`, {});
       const updatedVouchers = data?.vouchers?.map((voucher) => {
         if (voucher.id === id) {
-          return { ...voucher, status: "approved_voucher" };
+          return { ...voucher, status: "Voucher Approved" };
         }
         return voucher;
       });
@@ -233,7 +237,7 @@ const RefundsAcceptance: React.FC = () => {
       await patchRequest(`/vouchers/${id}/deny`, {});
       const updatedVouchers = data?.vouchers?.map((voucher) => {
         if (voucher.id === id) {
-          return { ...voucher, status: "denied_voucher" };
+          return { ...voucher, status: "Voucher Denied" };
         }
         return voucher;
       });
@@ -340,9 +344,9 @@ const RefundsAcceptance: React.FC = () => {
                       />
                       <div className="flex space-x-4 justify-end mt-6 absolute z-50 bottom-0 right-4">
                           <button 
-                            disabled={file?.status !== "comprobante_pendiente"}
+                            disabled={file?.status !== "pending_voucher"}
                             className={`px-4 py-2 text-white rounded-md  hover:cursor-pointer 
-                              ${file?.status !== "comprobante_pendiente" 
+                              ${file?.status !== "pending_voucher" 
                                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                 : "bg-red-600 hover:bg-red-700"
                               }`}
@@ -352,9 +356,9 @@ const RefundsAcceptance: React.FC = () => {
                               Rechazar
                           </button>
                           <button 
-                              disabled={file?.status !== "comprobante_pendiente"}
+                              disabled={file?.status !== "pending_voucher"}
                               className={`px-4 py-2  text-white rounded-md  hover:cursor-pointer
-                                ${file?.status !== "comprobante_pendiente"
+                                ${file?.status !== "pending_voucher"
                                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                   : "bg-green-600 hover:bg-green-700"
                                 }`}
@@ -406,7 +410,7 @@ const RefundsAcceptance: React.FC = () => {
                   type="text"
                   readOnly
                   value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                    if (file.status === "voucher_approved") {
+                    if (file.status === "Voucher Approved") {
                       return acc + +file.amount;
                     }
                     return acc;
@@ -442,7 +446,7 @@ const RefundsAcceptance: React.FC = () => {
                   readOnly
                   value={formatMoney(
                     (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                      if (file.status === "voucher_approved") {
+                      if (file.status === "Voucher Approved") {
                         return acc + Number(file.amount);
                       }
                       return acc;
