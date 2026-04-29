@@ -15,6 +15,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
 import EditTravelRequest from "./pages/EditTravelRequest.tsx";
+import AdminUsers from "./pages/Admin/AdminUsers.tsx";
+import AdminRules from "./pages/Admin/AdminRules.tsx";
 
 import {
   ProtectedRoute,
@@ -130,6 +132,14 @@ export const router = createBrowserRouter([
       {
         path: "/refunds-review/:id",
         element: <RefundsAcceptance />,
+      },
+      {
+        path: "/admin/users",
+        element: <AdminUsers />,
+      },
+      {
+        path: "/admin/rules",
+        element: <AdminRules />,
       },
 
       /**

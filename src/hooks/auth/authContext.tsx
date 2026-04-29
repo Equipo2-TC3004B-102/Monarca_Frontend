@@ -56,6 +56,7 @@ export interface AuthState {
   userEmail: string;
   userPermissions: Permission[];
   userRole: string;
+  isSystemAdmin: boolean;
 }
 
 /**
@@ -103,6 +104,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     userRole: "",
     userEmail: "",
     userPermissions: [],
+    isSystemAdmin: false,
   });
 
   useEffect(() => {
@@ -129,6 +131,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                 (permission: { name: string }) => permission.name
               ),
               userEmail: response.user.email,
+              isSystemAdmin: response.user.is_system_admin ?? false,
             });
             setLoadingProfile(false);
           } else {
@@ -168,6 +171,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         userRole: "",
         userEmail: "",
         userPermissions: [],
+        isSystemAdmin: false,
       });
     }
   };
