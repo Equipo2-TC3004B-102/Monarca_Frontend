@@ -75,6 +75,12 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("submit_reservations" as Permission) && (
               <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
             )}
+            {user.isSystemAdmin && (
+              <SidebarOption label="Lista de usuarios" pathIcon="/assets/viajes_por_aprobar.png" link="/admin/users" onClick={onNavigate}/>
+            )}
+            {user.isSystemAdmin && (
+              <SidebarOption label="Reglas" pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
+            )}
         </ul>
       </div>
     </aside>
