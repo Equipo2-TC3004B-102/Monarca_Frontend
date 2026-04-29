@@ -1,3 +1,10 @@
+/**
+ * FileName: Tutorial.tsx
+ * Description: Tutorial component for the application.
+ * Authors: Original Moncarca team
+ * Last Modification made: 25/02/2026 Sebastian Borjas
+ */
+
 import { driver } from "driver.js";
 import { useEffect } from "react";
 import { useApp } from "../hooks/app/appContext";
@@ -412,6 +419,14 @@ interface TutorialProps {
    run?: boolean;
   }
 
+  /**
+* FunctionName: Tutorial
+ * Purpose of the function: to display the tutorial for the application.
+ * Input: values on the input
+ * Output: returned values
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 export const Tutorial = ({ children,page, run = false }: TutorialProps) => {
   const { setTutorial } = useApp();
   useEffect(() => {

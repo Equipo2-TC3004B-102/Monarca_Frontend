@@ -1,7 +1,9 @@
-/*
- * Refunds page component, which displays a list of trips and allows users to request refunds.
- * The component includes a table of trips with an action button to request a refund.
- * When a refund is requested, a form is displayed with fields for entering details about the refund request.
+/**
+ * CheckRefunds.tsx
+ * Description: Page component that displays trips with pending refunds to be reviewed by authorized personnel.
+ * Authors: Original Monarca team
+ * Last Modification made:
+ * 25/02/2026 [Diego Ortega] Added Specified Format.
  */
 
 import { useState, useEffect } from "react";
@@ -17,7 +19,10 @@ import { useNavigate } from "react-router-dom";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 
-
+/**
+ * Trip
+ * Interface to define the structure of a trip object used within the component.
+ */
 interface Trip {
   id: number | string;
   tripName: string;
@@ -28,48 +33,54 @@ interface Trip {
   status: string;
 }
 
+/**
+ * renderStatus, assigns a styled badge and translated text based on the trip status.
+ * Input: status (string)
+ * Output: JSX.Element
+ */
+
 const renderStatus = (status: string) => {
   let statusText = "";
   let styles = "";
   switch (status) {
     case "Pending Review":
-      statusText = "En revisión";
+      statusText = "Under Review";
       styles = "text-[#55447a] bg-[#bea8ef]";
       break;
     case "Denied":
-      statusText = "Denegado";
+      statusText = "Denied";
       styles = "text-[#680909] bg-[#eca6a6]";
       break;
     case "Cancelled":
-      statusText = "Cancelado";
+      statusText = "Cancelled";
       styles = "text-[#680909] bg-[#eca6a6]";
       break;
     case "Changes Needed":
-      statusText = "Cambios necesarios";
+      statusText = "Changes Needed";
       styles = "text-[#755619] bg-[#f1dbb1]";
       break;
     case "Pending Reservations":
-      statusText = "Reservas pendientes";
+      statusText = "Pending Reservations";
       styles = "text-[#8c5308] bg-[#f1c180]";
       break;
     case "Pending Accounting Approval":
-      statusText = "Contabilidad pendiente";
+      statusText = "Pending Accounting Approval";
       styles = "text-[var(--dark-blue)] bg-[#99b5e3]";
       break;
     case "Pending Vouchers Approval":
-      statusText = "Comprobantes pendientes";
+      statusText = "Pending Vouchers Approval";
       styles = "text-[var(--dark-blue)] bg-[#c6c4fb]";
       break;
     case "In Progress":
-      statusText = "En progreso";
+      statusText = "In Progress";
       styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
       break;
     case "Pending Refund Approval": 
-      statusText = "Reembolso pendiente";
+      statusText = "Pending Refund Approval";
       styles = "text-[#575107] bg-[#f0eaa5]";
       break;
     case "Completed": 
-      statusText = "Completado";
+      statusText = "Completed";
       styles = "text-[#24390d] bg-[#c7e6ab]";
       break;
     default:
@@ -83,12 +94,21 @@ const renderStatus = (status: string) => {
     )
 }
 
+/**
+ * CheckRefunds, main page component for viewing and managing refunds to be checked.
+ * Input: None
+ * Output: JSX.Element - The rendered page with a table of trips.
+ */
 export const CheckRefunds = () => {
   const navigate = useNavigate();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { handleVisitPage, tutorial, setTutorial } = useApp();
 
+  /**
+   * useEffect hook to fetch trip data from the API on component mount.
+   * Maps and formats the response data to match the Trip interface.
+   */
   useEffect(() => {
     const fetchTrips = async () => {
       try {
@@ -104,11 +124,11 @@ export const CheckRefunds = () => {
         })));
       } catch (err) {
         toast.error(
-          "Error al cargar los viajes. Por favor, inténtelo de nuevo más tarde."  
+          "Error loading trips. Please try again later."  
         );
     
         console.error(
-          "Error al cargar viajes: ",
+          "Error loading trips: ",
           err instanceof Error ? err.message : err
         );
       } finally {
@@ -118,34 +138,33 @@ export const CheckRefunds = () => {
     fetchTrips();
   }, []);
 
+  /**
+   * useEffect hook to manage the tutorial state based on whether the user has visited the page before.
+   */
   useEffect(() => {
-      // Get the visited pages from localStorage
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
-      // Check if the current page is already in the visited pages
       const isPageVisited = visitedPages.includes(location.pathname);
   
-      // If the page is not visited, set the tutorial to true
       if (!isPageVisited) {
         setTutorial(true);
       }
-      // Add the current page to the visited pages
       handleVisitPage();
     }, []);
 
   const columnsSchemaTrips = [
-    { key: "status", header: "Estatus" },
-    { key: "title", header: "Nombre del viaje" },
-    { key: "date", header: "Fecha viaje" },
-    { key: "origin", header: "Lugar de Salida" },
-    { key: "advance_money", header: "Anticipo" },
-    { key: "createdAt", header: "Fecha solicitud" },
+    { key: "status", header: "Status" },
+    { key: "title", header: "Trip Name" },
+    { key: "date", header: "Travel Date" },
+    { key: "origin", header: "Departure Location" },
+    { key: "advance_money", header: "Advance" },
+    { key: "createdAt", header: "Request Date" },
     { key: "action", header: "" },
   ];
   
   if (loading) {
     return (
       <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-        <p className="text-center">Cargando datos de viajes...</p>
+        <p className="text-center">Loading trip data...</p>
       </div>
     );
   }
@@ -156,7 +175,7 @@ export const CheckRefunds = () => {
       <Button
         id={`refund-details-${index}`}
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-        label="Registrar"
+        label="Register"
         onClickFunction={() => navigate(`/requests/${trip.id}`)}
       />
     ),
@@ -169,7 +188,7 @@ export const CheckRefunds = () => {
         <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-[var(--blue)]">
-                Viajes con reembolsos por revisar
+                Trips with refunds to review
             </h2>
             <RefreshButton />
           </div>

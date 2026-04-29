@@ -1,3 +1,14 @@
+/**
+ * Button.test.tsx
+ * Description: Test suite to verify the correct behavior of the Button component. 
+ * It checks that the button renders its children properly, applies custom and default 
+ * styles, handles click events, and forwards additional props (such as disabled) to the 
+ * underlying HTML element.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Button } from "../../../components/ui/Button";

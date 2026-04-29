@@ -1,3 +1,13 @@
+/**
+ * SideBar.test.tsx
+ * Description: Test suite for the Sidebar component, verifying correct rendering of user information,
+ * logo display, and conditional navigation options based on authentication state and user permissions.
+ * Includes router context and mocked dependencies to isolate component behavior.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'

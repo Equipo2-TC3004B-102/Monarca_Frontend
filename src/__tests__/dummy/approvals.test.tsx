@@ -1,6 +1,20 @@
+/**
+ * FileName: approvals.test.tsx
+ * Description: dummy data for the approvals page.
+ * Authors: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 import { describe, it, expect } from "vitest";
 import { approvalsData } from "./../../pages/Approvals/local/dummyData.ts";
 
+/**
+ * FunctionName: Approvals Dummy Data
+ * Purpose of the function: to test the dummy data for the approvals page.
+ * Input: none
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 describe("Approvals Dummy Data", () => {
   it("should contain 8 approval records", () => {
     expect(approvalsData).toHaveLength(8);

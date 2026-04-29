@@ -1,3 +1,13 @@
+/**
+ * Switch.test.tsx
+ * Description: Test suite for the Switch component, validating rendering in checked/unchecked states,
+ * change handling, disabled behavior, custom className merging, screen reader label rendering,
+ * and thumb position updates based on the checked state to ensure proper toggle interaction and accessibility.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Switch from "../../../components/ui/Switch";

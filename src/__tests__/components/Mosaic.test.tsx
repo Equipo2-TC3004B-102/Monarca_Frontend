@@ -1,8 +1,10 @@
 /**
- * @file Mosaic.test.tsx
- * @description This file contains the test suite for the Mosaic component. It tests title rendering, icon image attributes, and that the component is wrapped in a Link with the correct href.
- * @lastEdited 2025-05-27
- * @author Leon Blanga
+ * Mosaic.test.tsx
+ * Description: This file contains the test suite for the Mosaic component. It tests title rendering, 
+ * icon image attributes, and that the component is wrapped in a Link with the correct href.
+ * Authors: Original Moncarca team
+ * Last Modification made:
+ * 24/02/2026 [Rebeca Davila Araiza] Added detailed comments and documentation for clarity and maintainability.
  */
 
 import { render, screen } from "@testing-library/react";
@@ -35,7 +37,7 @@ describe("Mosaic", () => {
   });
 
   it("envuelve todo en un enlace al destino correcto", () => {
-    // obtenemos el enlace y verificamos su href
+    // the link is obtained and then it verifies its href
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", props.link);
   });

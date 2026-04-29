@@ -1,3 +1,12 @@
+/**
+ * FileName: InputField.tsx
+ * Description: This file contains the InputField component used in the Refunds section of the application.
+ * It provides a customizable input field with proper validation and styling.
+ * Authors: Original Moncarca team
+ * Last Modification made: 
+ * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * clarity and maintainability.
+ */
 import React, { ChangeEvent, useState } from "react";
 
 /*
@@ -41,8 +50,9 @@ interface InputFieldProps {
 }
 
 /**
- * InputField component that renders a customizable input field with proper validation.
- * Now includes client-side validation for required fields and custom validation rules.
+ * InputField, renders a customizable input field with client-side validation, supporting multiple input types and proper error handling.
+ * Input: id, name, type, accept, value, placeholder, className, disabled, required, label, error, onChange, onBlur, onFocus, validateField, selectedFileName
+ * Output: JSX element - a validated input field component with error messages
  */
 const InputField: React.FC<InputFieldProps> = ({
   id,
@@ -71,7 +81,11 @@ const InputField: React.FC<InputFieldProps> = ({
   const [isTouched, setIsTouched] = useState(false);
   const [wasChanged, setWasChanged] = useState(false);
 
-  // Helper function to check if value is empty based on input type
+  /**
+   * isEmptyValue, determines if an input value is empty based on its input type.
+   * Input: val (string | undefined), inputType (string)
+   * Output: boolean - true if value is empty, false otherwise
+   */
   const isEmptyValue = (val: string | undefined, inputType: string = type): boolean => {
     // Para file inputs, verificamos si hay un archivo seleccionado
     if (inputType === "file") {
@@ -137,7 +151,11 @@ const InputField: React.FC<InputFieldProps> = ({
   // Text color
   const textClass = "text-[#0a2c6d]";
 
-  // Validate the field - modified to accept a touched parameter
+  /**
+   * validateInput, validates an input field based on required status and custom validation rules.
+   * Input: inputValue (string | undefined), touched (boolean)
+   * Output: boolean - true if validation passes, false otherwise
+   */
   const validateInput = (inputValue: string | undefined, touched: boolean = isTouched) => {
     // Check if field is required and empty
     if (required && isEmptyValue(inputValue) && touched) {
@@ -157,7 +175,11 @@ const InputField: React.FC<InputFieldProps> = ({
     }
   };
 
-  // Handle validation on blur
+  /**
+   * handleBlur, handles blur event, marks field as touched, validates input and calls original onBlur callback.
+   * Input: none
+   * Output: void
+   */
   const handleBlur = () => {
     setIsTouched(true);
     // Pass true as touched parameter since we're setting it to true
@@ -167,7 +189,11 @@ const InputField: React.FC<InputFieldProps> = ({
     if (onBlur) onBlur();
   };
 
-  // Handle change event
+  /**
+   * handleChange, handles input change event, marks field as changed, validates input and calls original onChange callback.
+   * Input: e (ChangeEvent<HTMLInputElement>)
+   * Output: void
+   */
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     // Call original onChange handler
     onChange(e);
@@ -182,13 +208,21 @@ const InputField: React.FC<InputFieldProps> = ({
     validateInput(valueToValidate);
   };
 
-  // Handle focus event
+  /**
+   * handleFocus, handles focus event, marks field as touched and calls original onFocus callback.
+   * Input: none
+   * Output: void
+   */
   const handleFocus = () => {
     setIsTouched(true);
     if (onFocus) onFocus();
   };
 
-  // Handle special display requirements for different input types
+  /**
+   * renderInput, renders the appropriate input element based on input type (checkbox, radio, file, or standard inputs).
+   * Input: none
+   * Output: JSX element - input element with appropriate wrapper and label
+   */
   const renderInput = () => {
     // Special case for checkbox and radio inputs
     if (type === "checkbox" || type === "radio") {

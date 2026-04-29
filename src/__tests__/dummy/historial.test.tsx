@@ -1,6 +1,20 @@
+/**
+ * FileName: historial.test.tsx
+ * Description: dummy data for the historial page.
+ * Authors: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 import { describe, it, expect } from "vitest";
 import { historialData } from "./../../pages/Historial/local/dummyData.ts";
 
+/**
+ * FunctionName: historialData
+ * Purpose of the function: to test the dummy data for the historial page.
+ * Input: none
+ * Output: none
+ * Author: Original Moncarca team
+ * Last Modification made: original Moncarca team
+ */
 describe("historialData", () => {
   it("exports array with 3 items", () => {
     expect(Array.isArray(historialData)).toBe(true);

@@ -1,3 +1,11 @@
+/**
+ * RefundsAcceptance.tsx
+ * Description: Detailed view for reviewing, approving, or denying individual expense vouchers associated with a trip request.
+ * Authors: Original Monarca team
+ * Last Modification made:
+ * 25/02/2026 [Diego Ortega] Added specified format.
+ */
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getRequest } from "../../utils/apiService";
@@ -15,6 +23,11 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { toast } from "react-toastify";
 import { useApp } from "../../hooks/app/appContext";
+
+/**
+ * RequestData
+ * Interface defining the structure of the detailed trip request and its associated vouchers.
+ */
 
 interface RequestData {
   id?: string;
@@ -47,44 +60,53 @@ interface RequestData {
   }>;
 }
 
+/**
+ * Dest
+ * Interface for destination mapping.
+ */
 interface Dest {
   destination: {
     city: string;
   };
 }
 
+/**
+ * renderStatus, transforms the technical status string into a readable format.
+ * Input: status (string) - Raw status from backend.
+ * Output: string - Formatted status text.
+ */
 export const renderStatus = (status: string) => {
   let statusText = "";
   switch (status) {
     case "Pending Review":
-      statusText = "En revisión";
+      statusText = "Pending Review";
       break;
     case "Denied":
-      statusText = "Denegado";
+      statusText = "Denied";
       break;
     case "Cancelled":
-      statusText = "Cancelado";
+      statusText = "Cancelled";
       break;
     case "Changes Needed":
-      statusText = "Cambios necesarios";
+      statusText = "Changes Needed";
       break;
     case "Pending Reservations":
-      statusText = "Reservas pendientes";
+      statusText = "Pending Reservations";
       break;
     case "Pending Accounting Approval":
-      statusText = "Contabilidad pendiente";
+      statusText = "Pending Accounting Approval";
       break;
     case "Pending Vouchers Approval":
-      statusText = "Comprobantes pendientes";
+      statusText = "Pending Vouchers Approval";
       break;
     case "In Progress":
-      statusText = "En progreso";
+      statusText = "In Progress";
       break;
     case "Pending Refund Approval": 
-      statusText = "Reembolso pendiente";
+      statusText = "Pending Refund Approval";
       break;
     case "Completed": 
-      statusText = "Completado";
+      statusText = "Completed";
       break;
     default:
       statusText = status;
@@ -94,6 +116,11 @@ export const renderStatus = (status: string) => {
     )
 }
 
+/**
+ * RefundsAcceptance, main component for individual voucher validation.
+ * Input: None (React Functional Component)
+ * Output: JSX.Element - The rendered component.
+ */
 const RefundsAcceptance: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -107,6 +134,11 @@ const RefundsAcceptance: React.FC = () => {
 
   const { handleVisitPage, tutorial } = useApp();
 
+  /**
+   * fetchData, retrieves the complete trip request data including associated vouchers.
+   * Input: None (Uses ID from URL params)
+   * Output: Promise<void>
+   */
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -134,39 +166,42 @@ const RefundsAcceptance: React.FC = () => {
     fetchData();
   }, [id]);
 
+  /**
+   * Tracks page visits for the tutorial system.
+   */
   useEffect(() => {
-      // Get the visited pages from localStorage
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
-      // Check if the current page is already in the visited pages
       const isPageVisited = visitedPages.includes(location.pathname);
   
-      // If the page is not visited, set the tutorial to true
       if (!isPageVisited) {
-        // setTutorial(true);
       }
-      // Add the current page to the visited pages
       handleVisitPage();
     }, []);
 
   const labels: { key: keyof RequestData; label: string }[] = [
-    { key: "id", label: "ID solicitud" },
-    { key: "admin", label: "Aprobador" },
-    { key: "id_origin_city", label: "Ciudad de Origen" },
-    { key: "destinations", label: "Destinos" },
-    { key: "motive", label: "Motivo" },
-    { key: "advance_money_str", label: "Anticipo" },
-    { key: "status", label: "Estado" },
-    { key: "requirements", label: "Requerimientos" },
-    { key: "priority", label: "Prioridad" },
-    { key: "createdAt", label: "Fecha de creación" },
+    { key: "id", label: "Request ID" },
+    { key: "admin", label: "Approver" },
+    { key: "id_origin_city", label: "Origin City" },
+    { key: "destinations", label: "Destinations" },
+    { key: "motive", label: "Motive" },
+    { key: "advance_money_str", label: "Advance" },
+    { key: "status", label: "Status" },
+    { key: "requirements", label: "Requirements" },
+    { key: "priority", label: "Priority" },
+    { key: "createdAt", label: "Creation Date" },
   ];
 
+  /**
+   * approveVoucher, updates a single voucher status to approved via API.
+   * Input: voucherId (string)
+   * Output: Promise<void>
+   */
   const approveVoucher = async (id: string) => {
     try {
       await patchRequest(`/vouchers/${id}/approve`, {});
       const updatedVouchers = data?.vouchers?.map((voucher) => {
         if (voucher.id === id) {
-          return { ...voucher, status: "comprobante_aprobado" };
+          return { ...voucher, status: "approved_voucher" };
         }
         return voucher;
       });
@@ -177,12 +212,17 @@ const RefundsAcceptance: React.FC = () => {
     }
   }
 
+  /**
+   * denyVoucher, updates a single voucher status to denied via API.
+   * Input: voucherId (string)
+   * Output: Promise<void>
+   */
   const denyVoucher = async (id: string) => {
     try {
       await patchRequest(`/vouchers/${id}/deny`, {});
       const updatedVouchers = data?.vouchers?.map((voucher) => {
         if (voucher.id === id) {
-          return { ...voucher, status: "comprobante_rechazado" };
+          return { ...voucher, status: "denied_voucher" };
         }
         return voucher;
       });
@@ -192,10 +232,15 @@ const RefundsAcceptance: React.FC = () => {
     }
   } 
 
+  /**
+   * completeRequest, finalizes the verification process for the entire request.
+   * Input: None
+   * Output: Promise<void>
+   */
   const completeRequest = async () => {
     try {
       await patchRequest(`/requests/finished-approving-vouchers/${id}`, {});
-      toast.success("Comprobación de solicitud completada");
+      toast.success("Verification of Application Completed");
       navigate("/dashboard");
     } catch (error) {
       console.error("Error completing request:", error);
@@ -209,7 +254,7 @@ const RefundsAcceptance: React.FC = () => {
         <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
             <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
-              Información de Solicitud: <span>{id}</span>
+              Application Information: <span>{id}</span>
             </div>
 
             <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
@@ -249,17 +294,17 @@ const RefundsAcceptance: React.FC = () => {
               <div className="bg-white p-4 rounded-lg shadow-md relative" id="vouchers">
                 <section className="mb-10">
                   <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                    Información importante
+                    Important Information
                   </h1>
                   <p className="text-sm text-gray-600">
-                    - Se debe aprobar o denegar individualmente cada uno de los comprobantes
+                    - Each voucher must be approved or denied individually.
                   </p>
                   <p className="text-sm text-gray-600">
-                    - Al finalizar la aprobación de comprobantes, se debe dar click en el botón "Completar Comprobación"
+                    - After the voucher approval process is complete, click the "Complete Verification" button.
                   </p>
                 </section>
                 <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                  Comprobante de Solicitud {currentIndex + 1} de{" "}
+                  Application Voucher {currentIndex + 1} of{" "}
                   {data?.vouchers?.length}
                 </h2>
                 {/* Display the existing PDF using an iframe */}
@@ -293,7 +338,7 @@ const RefundsAcceptance: React.FC = () => {
                               onClick={() => denyVoucher(file?.id)}
                             id="deny-button"
                           >
-                              Denegar
+                              Deny
                           </button>
                           <button 
                               disabled={file?.status !== "comprobante_pendiente"}
@@ -305,7 +350,7 @@ const RefundsAcceptance: React.FC = () => {
                               onClick={() => approveVoucher(file?.id)}
                               id="approve-button"
                             >
-                              Aprobar
+                              Approve
                           </button>
                       </div>
                     </SwiperSlide>
@@ -321,7 +366,7 @@ const RefundsAcceptance: React.FC = () => {
                           : "bg-gray-300 text-gray-700 hover:bg-gray-400"
                       }`}
                     >
-                      Anterior
+                      Previous
                     </button>
                     <button
                       disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
@@ -333,7 +378,7 @@ const RefundsAcceptance: React.FC = () => {
                       }`}
                       id="next-voucher"
                     >
-                      Siguiente
+                      Incoming
                     </button>
                 </div>
               </div>
@@ -343,14 +388,14 @@ const RefundsAcceptance: React.FC = () => {
                   htmlFor={"total"}
                   className="block text-xs font-semibold text-gray-500 mb-1"
                 >
-                  Total de Comprobantes
+                  Total of Vouchers
                 </label>
                 <input
                   id={"total"}
                   type="text"
                   readOnly
                   value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                    if (file.status === "comprobante_aprobado") {
+                    if (file.status === "voucher_approved") {
                       return acc + +file.amount;
                     }
                     return acc;
@@ -363,7 +408,7 @@ const RefundsAcceptance: React.FC = () => {
                   htmlFor={"advance_money"}
                   className="block text-xs font-semibold text-gray-500 mb-1"
                 >
-                  Anticipo
+                  Advance
                 </label>
                 <input
                   id={"advance_money"}
@@ -386,7 +431,7 @@ const RefundsAcceptance: React.FC = () => {
                   readOnly
                   value={formatMoney(
                     (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                      if (file.status === "comprobante_aprobado") {
+                      if (file.status === "voucher_approved") {
                         return acc + Number(file.amount);
                       }
                       return acc;
@@ -401,15 +446,15 @@ const RefundsAcceptance: React.FC = () => {
               <div className="flex space-x-4 justify-end mt-6">
                   <button 
                     className={`px-4 py-2 text-white rounded-md hover:cursor-pointer 
-                      ${data?.vouchers?.some((file) => file.status === "comprobante_pendiente")
+                      ${data?.vouchers?.some((file) => file.status === "pending_voucher")
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-[var(--blue)] hover:bg-[var(--dark-blue)]"
                       }`}
-                    disabled={data?.vouchers?.some((file) => file.status === "comprobante_pendiente")}
+                    disabled={data?.vouchers?.some((file) => file.status === "pending_voucher")}
                     onClick={completeRequest}
                     id="complete-refund"
                   >
-                      Completar Comprobación
+                      Finish Verification
                   </button>
               </div>
             </div>
