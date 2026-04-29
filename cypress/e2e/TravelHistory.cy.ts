@@ -4,6 +4,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 26/03/2026 [Diego de la Vega] Replaced fixed detail selectors and static UUID assertion with dynamic selectors.
  */
 
 /**
@@ -27,9 +28,8 @@ describe("Travel History as Requester", () => {
         cy.get('a[data-cy="mosaic-historial-de-viajes"]').click();
         cy.url().should("include", "/history");
         cy.contains("Historial de viajes").should("be.visible");
-        cy.get('button[id="details-0"]').should("be.visible");
-        cy.get('button[id="details-0"]').click();
-        cy.url().should("include", "/requests/581c998a-9f67-4431-b6ab-635ec9794ba7");
+        cy.get('button[id^="details-"]').first().should("be.visible").click();
+        cy.url().should("match", /\/requests\/[a-f0-9-]{36}$/);
         cy.get('input[id="id"]').should("be.visible");
         cy.get('input[id="admin"]').should("be.visible");
         cy.get('input[id="id_origin_city"]').should("be.visible");

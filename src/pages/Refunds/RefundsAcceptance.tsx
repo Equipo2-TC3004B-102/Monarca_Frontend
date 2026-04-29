@@ -3,7 +3,8 @@
  * Description: Detailed view for reviewing, approving, or denying individual expense vouchers associated with a trip request.
  * Authors: Original Monarca team
  * Last Modification made:
- * 25/02/2026 [Diego Ortega] Added specified format.
+ * 20/04/2026 [Diego de la Vega] Added fallback rendering for origin/destination values when destination data is partial.
+ * 22/04/2026 [Sebastián Borjas] Fixed voucher approval flow: corrected status strings for buttons, totals, and optimistic updates.
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -42,11 +43,13 @@ interface RequestData {
   createdAt?: string;
   advance_money_str?: string;
   destination?: {
-    city: string;
+    city?: string;
+    iata_code?: string;
   };
   requests_destinations?: Array<{
     destination: {
-      city: string;
+      city?: string;
+      iata_code?: string;
     };
   }>;
   vouchers?: Array<{
@@ -56,6 +59,9 @@ interface RequestData {
     status: string;
     class: string;
     amount: number;
+    unconverted_amount: number | null;
+    currency: string;
+    exchange_rate: number | null;
     date: string;
   }>;
 }
@@ -66,7 +72,8 @@ interface RequestData {
  */
 interface Dest {
   destination: {
-    city: string;
+    city?: string;
+    iata_code?: string;
   };
 }
 
@@ -79,34 +86,34 @@ export const renderStatus = (status: string) => {
   let statusText = "";
   switch (status) {
     case "Pending Review":
-      statusText = "Pending Review";
+      statusText = "En revisión";
       break;
     case "Denied":
-      statusText = "Denied";
+      statusText = "Denegado";
       break;
     case "Cancelled":
-      statusText = "Cancelled";
+      statusText = "Cancelado";
       break;
     case "Changes Needed":
-      statusText = "Changes Needed";
+      statusText = "Cambios necesarios";
       break;
     case "Pending Reservations":
-      statusText = "Pending Reservations";
+      statusText = "Reservas pendientes";
       break;
     case "Pending Accounting Approval":
-      statusText = "Pending Accounting Approval";
+      statusText = "Contabilidad pendiente";
       break;
     case "Pending Vouchers Approval":
-      statusText = "Pending Vouchers Approval";
+      statusText = "Comprobantes pendientes";
       break;
     case "In Progress":
-      statusText = "In Progress";
+      statusText = "En progreso";
       break;
     case "Pending Refund Approval": 
-      statusText = "Pending Refund Approval";
+      statusText = "Reembolso pendiente";
       break;
     case "Completed": 
-      statusText = "Completed";
+      statusText = "Completado";
       break;
     default:
       statusText = status;
@@ -150,9 +157,17 @@ const RefundsAcceptance: React.FC = () => {
           createdAt: formatDate(response.createdAt),
           advance_money_str: formatMoney(response.advance_money),
           admin: response.admin.name + " " + response.admin.last_name,
-          id_origin_city: response.destination.city,
-          destinations: response.requests_destinations
-            .map((dest: Dest) => dest.destination.city)
+          id_origin_city:
+            response.destination?.city ||
+            response.destination?.iata_code ||
+            "Origen no disponible",
+          destinations: (response.requests_destinations || [])
+            .map(
+              (dest: Dest) =>
+                dest.destination?.city ||
+                dest.destination?.iata_code ||
+                "Destino no disponible",
+            )
             .join(", "),
         });
       } catch (error) {
@@ -179,16 +194,16 @@ const RefundsAcceptance: React.FC = () => {
     }, []);
 
   const labels: { key: keyof RequestData; label: string }[] = [
-    { key: "id", label: "Request ID" },
-    { key: "admin", label: "Approver" },
-    { key: "id_origin_city", label: "Origin City" },
-    { key: "destinations", label: "Destinations" },
-    { key: "motive", label: "Motive" },
-    { key: "advance_money_str", label: "Advance" },
-    { key: "status", label: "Status" },
-    { key: "requirements", label: "Requirements" },
-    { key: "priority", label: "Priority" },
-    { key: "createdAt", label: "Creation Date" },
+    { key: "id", label: 'ID solicitud' },
+    { key: "admin", label: 'Aprobador' },
+    { key: "id_origin_city", label: 'Ciudad de Origen' },
+    { key: "destinations", label: 'Destinos' },
+    { key: "motive", label: 'Motivo' },
+    { key: "advance_money_str", label: 'Anticipo' },
+    { key: "status", label: "Estado" },
+    { key: "requirements", label: "Requerimientos" },
+    { key: "priority", label: "Prioridad" },
+    { key: "createdAt", label: "Fecha de creación" },
   ];
 
   /**
@@ -201,7 +216,7 @@ const RefundsAcceptance: React.FC = () => {
       await patchRequest(`/vouchers/${id}/approve`, {});
       const updatedVouchers = data?.vouchers?.map((voucher) => {
         if (voucher.id === id) {
-          return { ...voucher, status: "approved_voucher" };
+          return { ...voucher, status: "Voucher Approved" };
         }
         return voucher;
       });
@@ -222,7 +237,7 @@ const RefundsAcceptance: React.FC = () => {
       await patchRequest(`/vouchers/${id}/deny`, {});
       const updatedVouchers = data?.vouchers?.map((voucher) => {
         if (voucher.id === id) {
-          return { ...voucher, status: "denied_voucher" };
+          return { ...voucher, status: "Voucher Denied" };
         }
         return voucher;
       });
@@ -254,7 +269,7 @@ const RefundsAcceptance: React.FC = () => {
         <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
             <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
-              Application Information: <span>{id}</span>
+              Información de Solicitud: <span>{id}</span>
             </div>
 
             <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
@@ -294,17 +309,17 @@ const RefundsAcceptance: React.FC = () => {
               <div className="bg-white p-4 rounded-lg shadow-md relative" id="vouchers">
                 <section className="mb-10">
                   <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                    Important Information
+                    Información Importante                  
                   </h1>
                   <p className="text-sm text-gray-600">
-                    - Each voucher must be approved or denied individually.
+                    - Cada comprobante debe ser aprobado o negado individualmente.
                   </p>
                   <p className="text-sm text-gray-600">
-                    - After the voucher approval process is complete, click the "Complete Verification" button.
+                    - Despues de completar el proceso de aprobación de comprobante, haz click en el boton de "Terminar Verificación".
                   </p>
                 </section>
                 <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                  Application Voucher {currentIndex + 1} of{" "}
+                  Comprobante {currentIndex + 1} of{" "}
                   {data?.vouchers?.length}
                 </h2>
                 {/* Display the existing PDF using an iframe */}
@@ -329,28 +344,28 @@ const RefundsAcceptance: React.FC = () => {
                       />
                       <div className="flex space-x-4 justify-end mt-6 absolute z-50 bottom-0 right-4">
                           <button 
-                            disabled={file?.status !== "comprobante_pendiente"}
+                            disabled={file?.status !== "pending_voucher"}
                             className={`px-4 py-2 text-white rounded-md  hover:cursor-pointer 
-                              ${file?.status !== "comprobante_pendiente" 
+                              ${file?.status !== "pending_voucher" 
                                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                 : "bg-red-600 hover:bg-red-700"
                               }`}
                               onClick={() => denyVoucher(file?.id)}
                             id="deny-button"
                           >
-                              Deny
+                              Rechazar
                           </button>
                           <button 
-                              disabled={file?.status !== "comprobante_pendiente"}
+                              disabled={file?.status !== "pending_voucher"}
                               className={`px-4 py-2  text-white rounded-md  hover:cursor-pointer
-                                ${file?.status !== "comprobante_pendiente"
+                                ${file?.status !== "pending_voucher"
                                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                   : "bg-green-600 hover:bg-green-700"
                                 }`}
                               onClick={() => approveVoucher(file?.id)}
                               id="approve-button"
                             >
-                              Approve
+                              Aprobar
                           </button>
                       </div>
                     </SwiperSlide>
@@ -388,14 +403,14 @@ const RefundsAcceptance: React.FC = () => {
                   htmlFor={"total"}
                   className="block text-xs font-semibold text-gray-500 mb-1"
                 >
-                  Total of Vouchers
+                  Total de comprobantes
                 </label>
                 <input
                   id={"total"}
                   type="text"
                   readOnly
                   value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                    if (file.status === "voucher_approved") {
+                    if (file.status === "Voucher Approved") {
                       return acc + +file.amount;
                     }
                     return acc;
@@ -408,7 +423,7 @@ const RefundsAcceptance: React.FC = () => {
                   htmlFor={"advance_money"}
                   className="block text-xs font-semibold text-gray-500 mb-1"
                 >
-                  Advance
+                  Anticipo
                 </label>
                 <input
                   id={"advance_money"}
@@ -431,7 +446,7 @@ const RefundsAcceptance: React.FC = () => {
                   readOnly
                   value={formatMoney(
                     (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                      if (file.status === "voucher_approved") {
+                      if (file.status === "Voucher Approved") {
                         return acc + Number(file.amount);
                       }
                       return acc;
@@ -454,7 +469,7 @@ const RefundsAcceptance: React.FC = () => {
                     onClick={completeRequest}
                     id="complete-refund"
                   >
-                      Finish Verification
+                      Terminar Verificación
                   </button>
               </div>
             </div>

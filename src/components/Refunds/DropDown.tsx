@@ -50,7 +50,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   options,
   placeholder = "Select an option",
   className = "p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 text-[#0a2c6d] focus:ring-blue-500 bg-white hover:cursor-pointer",
-  wrapperClassName = "relative flex flex-col mb-4",
+  wrapperClassName = "relative flex flex-col",
   disabled = false,
   required = false,
   label,

@@ -4,9 +4,11 @@
  *              Footer, toast notifications, and a floating Tutorial trigger button around page content.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 16/04/2026 [Rebeca-Davila] Reorganized the header, body, and footer inside a single flex; and added a
+ * toggle function to the side bar so that it can open and close with a botton that only appears on movil view
  */
 
+import React, {useState} from 'react';
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/auth/authContext";
 import { ToastContainer} from 'react-toastify';
@@ -34,6 +36,7 @@ interface LayoutProps {
 function Layout({ children }: LayoutProps) {
   const { authState, loadingProfile } = useAuth();
   const { setTutorial } = useApp();
+  const [openSidebar, setOpenSidebar] = useState(false);
 
 
   // Check if the profile is loading
@@ -45,12 +48,29 @@ function Layout({ children }: LayoutProps) {
     
   return (
     <div>
-      <Header />
       <ToastContainer />
-      <div className="flex flex-col min-h-screen">
-        <div className="flex flex-1">
-          <Sidebar user={authState} />
-          <div className="px-16 pt-32 flex-1">{children}</div>
+      <div className="flex flex-col min-h-screen w-screen">
+        <Header toggleSidebar={() => setOpenSidebar(prev => !prev)}/>
+        <div className="flex flex-1 relative">
+          {openSidebar && (
+            <div
+              className="fixed inset-0 bg-black/50 z-30 md:hidden"
+              onClick={() => setOpenSidebar(false)}
+            />
+          )}
+
+          {/* Sidebar flotante */}
+          <div className={`absolute top-0 left-0 bottom-0 z-40 bg-[var(--gray)] transform transition-transform duration-500 ${
+              openSidebar ? "translate-x-0" : "-translate-x-full"}
+              md:hidden`}>
+            <Sidebar user={authState} onNavigate={() => setOpenSidebar(false)}/>
+          </div>
+
+          <div className="hidden md:flex shrink-0 self-stretch bg-[var(--gray)]">
+            <Sidebar user={authState}/>
+          </div>
+
+          <div className="w-screen px-10 pt-10 flex-1 pb-10 md:pb-0">{children}</div>
         </div>
         <button
           className="bg-[var(--blue)] text-white px-4 py-2 rounded hover:bg-[var(--dark-blue)] transition-colors text-sm fixed bottom-15 right-4 z-50 flex items-center"

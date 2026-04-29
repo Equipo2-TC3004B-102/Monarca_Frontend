@@ -4,6 +4,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 26/03/2026 [Diego de la Vega] Replaced fixed detail selector with dynamic selector.
  */
 
 /**
@@ -27,8 +28,7 @@ describe("Register Spend as SOI", () => {
         cy.get('a[data-cy="mosaic-viajes-por-registrar"]').click();
         cy.url().should("include", "/history");
         cy.contains("Historial de viajes").should("be.visible");
-        cy.get('button[id="details-0"]').should("be.visible");
-        cy.get('button[id="details-0"]').click();
+        cy.get('button[id^="details-"]').first().should("be.visible").click();
         cy.get('input[id="id"]').should("be.visible");
         cy.get('input[id="admin"]').should("be.visible");
         cy.get('input[id="id_origin_city"]').should("be.visible");

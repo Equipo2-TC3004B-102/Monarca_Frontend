@@ -3,7 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 23/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Diego de la Vega] Added provider support status display and destination/date fallbacks for partial responses.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -52,38 +52,106 @@ const renderStatus = (status: string) => {
       return "Comprobantes pendientes";
     case "In Progress":
       return "En progreso";
-    case "Pending Refund Approval": 
+    case "Pending Refund Approval":
       return "Reembolso pendiente";
-    case "Completed": 
+    case "Completed":
       return "Completado";
     default:
       return status;
-    }
+  }
 }
 
-  /**
-   * RequestInfo, renders request details and allows approval workflow actions according to permissions and status.
-   * Inputs: None (reads request id from route params and user context from hooks).
-   * Returns: JSX.Element - Request detail page content.
-   */
+/**
+ * renderProviderSupportStatus, maps backend provider compatibility codes to
+ * user-friendly Spanish labels for request destination detail rendering.
+ * Inputs: status (string | undefined) - Provider compatibility status code.
+ * Returns: string - Human-readable status label.
+ */
+const renderProviderSupportStatus = (status?: string) => {
+  switch (status) {
+    case 'supported':
+      return 'Compatible';
+    case 'unsupported':
+      return 'No compatible';
+    case 'pending_provider':
+      return 'Pendiente de proveedor';
+    default:
+      return 'Pendiente de proveedor';
+  }
+};
+
+/**
+ * RequestInfo, renders request details and allows approval workflow actions according to permissions and status.
+ * Inputs: None (reads request id from route params and user context from hooks).
+ * Returns: JSX.Element - Request detail page content.
+ */
 const RequestInfo: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const requestId =
+    id ||
+    (typeof window !== 'undefined'
+      ? window.location.pathname.split('/').filter(Boolean).pop()
+      : undefined);
   const { authState } = useAuth();
   const [data, setData] = useState<any>({});
   const [comment, setComment] = useState('');
   const [agencies, setAgencies] = useState<any[]>([]);
   const [selectedAgency, setSelectedAgency] = useState('');
+  const isDraftHydratedRef = React.useRef(false);
+  const hasSkippedInitialPersistRef = React.useRef(false);
+  const isPersistenceEnabledRef = React.useRef(true);
+  const requestInfoDraftKey = requestId
+    ? `requestInfoDraft:${requestId}`
+    : 'requestInfoDraft:unknown';
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevRef = React.useRef(null);
   const nextRef = React.useRef(null);
-  
+
   const [currentIndexRes, setCurrentIndexRes] = useState(0);
   const prevRefRes = React.useRef(null);
   const nextRefRes = React.useRef(null);
 
   const { handleVisitPage, tutorial } = useApp();
+
+  const normalizeAmount = (value: unknown): number | undefined => {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+
+    if (typeof value === 'string' && value.trim() === '') {
+      return undefined;
+    }
+
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  };
+
+  const getStoredDraft = () => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    try {
+      const rawDraft = window.localStorage.getItem(requestInfoDraftKey);
+      return rawDraft
+        ? (JSON.parse(rawDraft) as { comment?: string; selectedAgency?: string })
+        : null;
+    } catch {
+      window.localStorage.removeItem(requestInfoDraftKey);
+      return null;
+    }
+  };
+
+  const clearRequestInfoDraft = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    isPersistenceEnabledRef.current = false;
+    window.localStorage.removeItem(requestInfoDraftKey);
+  };
 
   useEffect(() => {
     /**
@@ -93,27 +161,102 @@ const RequestInfo: React.FC = () => {
      */
     const fetchData = async () => {
       try {
-        const response = await getRequest(`/requests/${id}`);
-        const reservations = response.requests_destinations.map((dest: any) => dest.reservations).flat();
+        const response = await getRequest(`/requests/${requestId}`);
+        const draft = getStoredDraft();
+        const normalizedAdvanceMoney = normalizeAmount(response.advance_money);
+        const normalizedUnconvertedAdvanceMoney = normalizeAmount(
+          response.unconverted_advance_money,
+        );
+        const effectiveAdvanceMoney =
+          normalizedUnconvertedAdvanceMoney ?? normalizedAdvanceMoney ?? 0;
+        const reservations = (response.requests_destinations || [])
+          .map((dest: any) => dest.reservations)
+          .flat();
         console.log(response);
         setData({
           ...response,
+          effective_advance_money: effectiveAdvanceMoney,
           reservations: reservations,
           formatted_status: renderStatus(response.status),
           createdAt: formatDate(response.createdAt),
-          advance_money_str: formatMoney(response.advance_money),
-          admin: response.admin.name + ' ' + response.admin.last_name,          
-          id_origin_city: response.destination.city,
-          destinations: response.requests_destinations.map((dest: any) => dest.destination.city).join(', '),
+          advance_money_str: formatMoney(
+            normalizedAdvanceMoney ?? effectiveAdvanceMoney,
+            "MXN",
+          ),
+          unconverted_advance_money_str:
+            response.currency && response.currency !== "MXN"
+              ? formatMoney(
+                  normalizedUnconvertedAdvanceMoney ?? effectiveAdvanceMoney,
+                  response.currency,
+                )
+              : undefined,
+          exchange_rate_str: response.currency && response.currency !== "MXN" ? `$${response.exchange_rate} MXN` : undefined,
+          admin: response.admin.name + ' ' + response.admin.last_name,
+          id_origin_city:
+            response.destination?.city ||
+            response.destination?.iata_code ||
+            'Origen no disponible',
+          destinations: (response.requests_destinations || [])
+            .map(
+              (dest: any) =>
+                dest.destination?.city ||
+                dest.destination?.iata_code ||
+                'Destino no disponible',
+            )
+            .join(', '),
         });
-        setSelectedAgency(response.id_travel_agency || '');
+        setSelectedAgency(draft?.selectedAgency || response.id_travel_agency || '');
+        setComment(draft?.comment || '');
       } catch (error) {
         console.error('Error fetching request data:', error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [requestId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !requestId) {
+      isDraftHydratedRef.current = true;
+      return;
+    }
+
+    const draft = getStoredDraft();
+    if (draft) {
+      setComment(draft.comment || '');
+      setSelectedAgency(draft.selectedAgency || '');
+    }
+
+    isDraftHydratedRef.current = true;
+  }, [requestId]);
+
+  useEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !requestId ||
+      !isDraftHydratedRef.current ||
+      !isPersistenceEnabledRef.current
+    ) {
+      return;
+    }
+
+    if (!hasSkippedInitialPersistRef.current) {
+      hasSkippedInitialPersistRef.current = true;
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(
+        requestInfoDraftKey,
+        JSON.stringify({
+          comment,
+          selectedAgency,
+        })
+      );
+    } catch {
+      // Ignore localStorage write errors to keep the screen usable.
+    }
+  }, [comment, selectedAgency, requestId, requestInfoDraftKey]);
 
   useEffect(() => {
     // Get the visited pages from localStorage
@@ -147,18 +290,21 @@ const RequestInfo: React.FC = () => {
     fetchAgencies();
   }, []);
 
-  const labels: { key: keyof typeof data; label: string }[] = [
+  const labels: { key: string; label: string }[] = [
     { key: 'id', label: 'ID solicitud' },
     { key: 'admin', label: 'Aprobador' },
     { key: 'id_origin_city', label: 'Ciudad de Origen' },
     { key: 'destinations', label: 'Destinos' },
     { key: 'motive', label: 'Motivo' },
-    { key: 'advance_money_str', label: 'Anticipo' },
+    { key: 'currency', label: 'Moneda' },
+    { key: 'unconverted_advance_money_str', label: 'Anticipo (Moneda Origen)' },
+    { key: 'exchange_rate_str', label: 'Tipo de Cambio' },
+    { key: 'advance_money_str', label: 'Anticipo (MXN)' },
     { key: 'formatted_status', label: 'Estado' },
     { key: 'requirements', label: 'Requerimientos' },
     { key: 'priority', label: 'Prioridad' },
     { key: 'createdAt', label: 'Fecha de creación' },
-  ];
+  ].filter(label => data[label.key] !== undefined && data[label.key] !== null);
 
   /**
    * approve, approves the request with the selected travel agency.
@@ -173,10 +319,11 @@ const RequestInfo: React.FC = () => {
       });
       return;
     }
-    try{
+    try {
       await patchRequest(`/requests/approve/${id}`, {
         id_travel_agency: selectedAgency,
       });
+      clearRequestInfoDraft();
       toast.success(`Solicitud aprobada con ${selectedAgency}`, {
         position: 'top-right',
         autoClose: 3000,
@@ -212,6 +359,7 @@ const RequestInfo: React.FC = () => {
         id_request: id,
         comment: comment,
       });
+      clearRequestInfoDraft();
       toast.info('Se han solicitado cambios', {
         position: 'top-right',
         autoClose: 3000,
@@ -237,6 +385,7 @@ const RequestInfo: React.FC = () => {
   const deny = async () => {
     try {
       await patchRequest(`/requests/deny/${id}`, {});
+      clearRequestInfoDraft();
       toast.error('Solicitud denegada', {
         position: 'top-right',
         autoClose: 3000,
@@ -262,6 +411,7 @@ const RequestInfo: React.FC = () => {
   const cancel = async () => {
     try {
       await patchRequest(`/requests/cancel/${id}`, {});
+      clearRequestInfoDraft();
       toast.error('Solicitud cancelada', {
         position: 'top-right',
         autoClose: 3000,
@@ -287,6 +437,7 @@ const RequestInfo: React.FC = () => {
   const register = async () => {
     try {
       await patchRequest(`/requests/SOI-approve/${id}`, {});
+      clearRequestInfoDraft();
       toast.success('Solicitud marcada como registrada', {
         position: 'top-right',
         autoClose: 3000,
@@ -310,6 +461,7 @@ const RequestInfo: React.FC = () => {
   const complete = async () => {
     try {
       await patchRequest(`/requests/complete-request/${id}`, {});
+      clearRequestInfoDraft();
       toast.success('Solicitud marcada como completada', {
         position: 'top-right',
         autoClose: 3000,
@@ -325,127 +477,153 @@ const RequestInfo: React.FC = () => {
     }
   }
 
+  const previewAdvanceMoney = normalizeAmount(data?.effective_advance_money) ?? 0;
+  const approvedVoucherTotal =
+    data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+      if (file.status === "Voucher Approved") {
+        return acc + Number(file.amount);
+      }
+      return acc;
+    }, 0) ?? 0;
+  const previewBalance = previewAdvanceMoney - approvedVoucherTotal;
+
   return ( // Returns the main JSX content of the RequestInfo page, including request details, destinations, reservations, vouchers, and action buttons based on user permissions and request status.
-    <Tutorial page ="requestInfo" run={tutorial}>
-    <div className="pb-10">
-      <GoBack />
-      <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
-        <div className="px-8 py-10 flex flex-col">
-          <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
-            Información de Solicitud: <span>{id}</span>
-          </div>
-          <p className="mb-6 text-gray-700 font-medium">
-            Solicitante: <span className="text-[var(--blue)]">{data?.user?.name} {data?.user?.last_name}</span>
-          </p>
+    <Tutorial page="requestInfo" run={tutorial}>
+      <div className="pb-10">
+        <GoBack />
+        <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
+          <div className="px-8 py-10 flex flex-col">
+            <div className="w-fit bg-[var(--blue)] text-white text-xs lg:text-base px-4 py-2 rounded-full mb-6">
+              Información de Solicitud: <span>{id}</span>
+            </div>
+            <p className="mb-6 text-gray-700 font-medium">
+              Solicitante: <span className="text-[var(--blue)]">{data?.user?.name} {data?.user?.last_name}</span>
+            </p>
 
-          <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
-            {labels.map(({ key, label }) => (
-              <div key={key as string}>
-                <label
-                  htmlFor={key as string}
-                  className="block text-xs font-semibold text-gray-500 mb-1"
-                >
-                  {label}
-                </label>
-                <input
-                  id={key as string}
-                  type="text"
-                  readOnly
-                  value={String(data[key])}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                />
-              </div>
-            ))}
-          </section>
+            <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
+              {labels.map(({ key, label }) => (
+                <div key={key as string}>
+                  <label
+                    htmlFor={key as string}
+                    className="block text-xs font-semibold text-gray-500 mb-1"
+                  >
+                    {label}
+                  </label>
+                  <input
+                    id={key as string}
+                    type="text"
+                    readOnly
+                    value={String(data[key])}
+                    className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                  />
+                </div>
+              ))}
+            </section>
 
-          <section id="destinations-info">
+            <section id="destinations-info">
               <p
                 className="block text-sm font-medium text-gray-700 mb-4"
               >
                 Detalles de los destinos
               </p>
               {data?.requests_destinations?.map((dest: any, index: number) => (
-                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-8" key={dest.id}>
-                    <div>
-                      <label
-                        className="block text-xs font-semibold text-gray-500 mb-1"
-                      >
-                        Lugar
-                      </label>
-                      <input
-                        id={`destination-${index}`}
-                        type="text"
-                        readOnly
-                        value={dest.destination.city}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        className="block text-xs font-semibold text-gray-500 mb-1"
-                      >
-                        Fecha de llegada
-                      </label>
-                      <input
-                        id={`arrival-${index}`}
-                        type="text"
-                        readOnly
-                        value={formatDate(dest.arrival_date)}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        className="block text-xs font-semibold text-gray-500 mb-1"
-                      >
-                        Fecha de salida
-                      </label>
-                      <input
-                        id={`departure-${index}`}
-                        type="text"
-                        readOnly
-                        value={formatDate(dest.departure_date)}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        className="block text-xs font-semibold text-gray-500 mb-1"
-                      >
-                        Detalles
-                      </label>
-                      <input
-                        id={`details-${index}`}
-                        type="text"
-                        readOnly
-                        value={dest.details}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                      />
-                    </div>
-                    <div className="flex items-center justify-start gap-1">
-                        {dest.is_hotel_required && (
-                          <p id={`hotel-${index}`} className='text-sm bg-[var(--yellow)] rounded-full px-2 py-1 w-fit'>Hotel</p>
-                        )}
-                        {dest.is_plane_required && (
-                          <p id={`plane-${index}`} className='text-sm bg-[var(--blue)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>Avión</p>
-                        )}
-                        {dest.stay_days && (
-                          <p id={`stay-days-${index}`} className='text-sm bg-[var(--green)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{dest.stay_days} días</p>
-                        )}
-                      
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-8" key={dest.id}>
+                  <div>
+                    <label
+                      className="block text-xs font-semibold text-gray-500 mb-1"
+                    >
+                      Lugar
+                    </label>
+                    <input
+                      id={`destination-${index}`}
+                      type="text"
+                      readOnly
+                      value={
+                        dest.destination?.city ||
+                        dest.destination?.iata_code ||
+                        'Destino no disponible'
+                      }
+                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    />
                   </div>
-              ))}
-          </section>
+                  <div>
+                    <label
+                      className="block text-xs font-semibold text-gray-500 mb-1"
+                    >
+                      Fecha de llegada
+                    </label>
+                    <input
+                      id={`arrival-${index}`}
+                      type="text"
+                      readOnly
+                      value={dest.arrival_date ? formatDate(dest.arrival_date) : 'Sin fecha'}
+                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className="block text-xs font-semibold text-gray-500 mb-1"
+                    >
+                      Fecha de salida
+                    </label>
+                    <input
+                      id={`departure-${index}`}
+                      type="text"
+                      readOnly
+                      value={dest.departure_date ? formatDate(dest.departure_date) : 'Sin fecha'}
+                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className="block text-xs font-semibold text-gray-500 mb-1"
+                    >
+                      Detalles
+                    </label>
+                    <input
+                      id={`details-${index}`}
+                      type="text"
+                      readOnly
+                      value={dest.details || 'Sin detalles'}
+                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    />
+                    <label
+                      className="block text-xs font-semibold text-gray-500 mb-1 mt-2"
+                    >
+                      Estado proveedor
+                    </label>
+                    <input
+                      id={`provider-support-status-${index}`}
+                      type="text"
+                      readOnly
+                      value={renderProviderSupportStatus(dest.provider_support_status)}
+                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    />
+                  </div>
+                  <div className="flex items-center justify-start gap-1">
+                    {dest.is_hotel_required && (
+                      <p id={`hotel-${index}`} className='text-sm bg-[var(--yellow)] rounded-full px-2 py-1 w-fit'>Hotel</p>
+                    )}
+                    {dest.is_plane_required && (
+                      <p id={`plane-${index}`} className='text-sm bg-[var(--blue)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>Avión</p>
+                    )}
+                    {dest.stay_days && (
+                      <p id={`stay-days-${index}`} className='text-sm bg-[var(--green)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{dest.stay_days} días</p>
+                    )}
 
-          {data?.revisions?.length > 0 && <section id="revisions-info">
+                  </div>
+                </div>
+              ))}
+            </section>
+
+            {data?.revisions?.length > 0 && <section id="revisions-info">
               <p
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Revisiones anteriores
               </p>
               <div className="grid grid-cols-1 gap-2 mb-6">
-              {data?.revisions?.map((revision: any, index: number) => (
+                {data?.revisions?.map((revision: any, index: number) => (
                   <div key={revision.id}>
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1"
@@ -460,408 +638,374 @@ const RequestInfo: React.FC = () => {
                       className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                     />
                   </div>
-              ))}
+                ))}
               </div>
-          </section>}
+            </section>}
 
-          {data?.reservations?.length > 0 && 
-            <section id="vouchers-info">
-              <p 
+            {data?.reservations?.length > 0 &&
+              <section id="vouchers-info">
+                <p
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Reservaciones de la solicitud
                 </p>
                 <div className="mb-4">
-              <div className="bg-white p-4 relative">
-                <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                  Reservaciones {currentIndexRes + 1} de{" "}
-                  {data?.reservations?.length}
-                </h2>
-                {/* Display the existing PDF using an iframe */}
-                <Swiper
-                    modules={[Navigation, Pagination]}
-                    spaceBetween={50}
-                    slidesPerView={1}
-                    pagination={{ clickable: true }}
-                    onBeforeInit={(swiper: any) => {
-                      if (typeof swiper.params.navigation !== 'boolean') {
-                        swiper.params.navigation.prevEl = prevRefRes.current;
-                        swiper.params.navigation.nextEl = nextRefRes.current;
-                      }
-                    }}
-                    onSlideChange={(swiper: any) => setCurrentIndexRes(swiper.activeIndex)}
-                >
-                  {data?.reservations?.map((file: any, index: number) => (
-                    <SwiperSlide key={index}>
-                      <FilePreviewerReservation 
-                          file={file} 
-                          fileIndex={index}
+                  <div className="bg-white p-4 relative">
+                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                      Reservaciones {currentIndexRes + 1} de{" "}
+                      {data?.reservations?.length}
+                    </h2>
+                    {/* Display the existing PDF using an iframe */}
+                    <Swiper
+                      modules={[Navigation, Pagination]}
+                      spaceBetween={50}
+                      slidesPerView={1}
+                      pagination={{ clickable: true }}
+                      onBeforeInit={(swiper: any) => {
+                        if (typeof swiper.params.navigation !== 'boolean') {
+                          swiper.params.navigation.prevEl = prevRefRes.current;
+                          swiper.params.navigation.nextEl = nextRefRes.current;
+                        }
+                      }}
+                      onSlideChange={(swiper: any) => setCurrentIndexRes(swiper.activeIndex)}
+                    >
+                      {data?.reservations?.map((file: any, index: number) => (
+                        <SwiperSlide key={index}>
+                          <FilePreviewerReservation
+                            file={file}
+                            fileIndex={index}
+                          />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                      <button
+                        ref={prevRefRes}
+                        disabled={currentIndexRes === 0}
+                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndexRes === 0
+                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                          }`}
+                      >
+                        Anterior
+                      </button>
+                      <button
+                        disabled={currentIndexRes === ((data?.reservations?.length ?? 0) - 1)}
+                        ref={nextRefRes}
+                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndexRes === (data?.reservations?.length ?? 0) - 1
+                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                          }`}
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  </div>
+                  <section className="grid grid-cols-3 gap-5">
+                    <div className="my-5">
+                      <label
+                        htmlFor={"total"}
+                        className="block text-xs font-semibold text-gray-500 mb-1"
+                      >
+                        Total de Reservaciones
+                      </label>
+                      <input
+                        id="total_vouchers"
+                        type="text"
+                        readOnly
+                        value={formatMoney(data?.reservations?.reduce((acc: number, file: { price: number }) => {
+                          return acc + +file.price;
+                        }, 0) ?? 0)}
+                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-                <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
-                    <button
-                      ref={prevRefRes}
-                      disabled={currentIndexRes === 0}
-                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                        currentIndexRes === 0
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
-                    >
-                      Anterior
-                    </button>
-                    <button
-                      disabled={currentIndexRes === ((data?.reservations?.length ?? 0) - 1)}
-                      ref={nextRefRes} 
-                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                        currentIndexRes === (data?.reservations?.length ?? 0) - 1
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
-                    >
-                      Siguiente
-                    </button>
+                    </div>
+                  </section>
                 </div>
-              </div>
-              <section className="grid grid-cols-3 gap-5">
-              <div className="my-5">
-                <label
-                  htmlFor={"total"}
-                  className="block text-xs font-semibold text-gray-500 mb-1"
-                >
-                  Total de Reservaciones
-                </label>
-                <input
-                  id="total_vouchers"
-                  type="text"
-                  readOnly
-                  value={formatMoney(data?.reservations?.reduce((acc: number, file: { price: number }) => {
-                    return acc + +file.price;
-                  }, 0) ?? 0)}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                />
-              </div>
-              </section>
-            </div>
-          </section>}
+              </section>}
 
-          {data?.vouchers?.length > 0 && 
-            <section id="vouchers-info">
-              <p 
+            {data?.vouchers?.length > 0 &&
+              <section id="vouchers-info">
+                <p
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Comprobantes de la solicitud
                 </p>
                 <div className="mb-4">
-              <div className="bg-white p-4 relative">
-                <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                  Comprobante {currentIndex + 1} de{" "}
-                  {data?.vouchers?.length}
-                </h2>
-                {/* Display the existing PDF using an iframe */}
-                <Swiper
-                    modules={[Navigation, Pagination]}
-                    spaceBetween={50}
-                    slidesPerView={1}
-                    pagination={{ clickable: true }}
-                    onBeforeInit={(swiper: any) => {
-                      if (typeof swiper.params.navigation !== 'boolean') {
-                        swiper.params.navigation.prevEl = prevRef.current;
-                        swiper.params.navigation.nextEl = nextRef.current;
-                      }
-                    }}
-                    onSlideChange={(swiper: any) => setCurrentIndex(swiper.activeIndex)}
-                >
-                  {data?.vouchers?.map((file: any, index: number) => (
-                    <SwiperSlide key={index}>
-                      <FilePreviewer 
-                          file={file} 
-                          fileIndex={index}
+                  <div className="bg-white p-4 relative">
+                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                      Comprobante {currentIndex + 1} de{" "}
+                      {data?.vouchers?.length}
+                    </h2>
+                    {/* Display the existing PDF using an iframe */}
+                    <Swiper
+                      modules={[Navigation, Pagination]}
+                      spaceBetween={50}
+                      slidesPerView={1}
+                      pagination={{ clickable: true }}
+                      onBeforeInit={(swiper: any) => {
+                        if (typeof swiper.params.navigation !== 'boolean') {
+                          swiper.params.navigation.prevEl = prevRef.current;
+                          swiper.params.navigation.nextEl = nextRef.current;
+                        }
+                      }}
+                      onSlideChange={(swiper: any) => setCurrentIndex(swiper.activeIndex)}
+                    >
+                      {data?.vouchers?.map((file: any, index: number) => (
+                        <SwiperSlide key={index}>
+                          <FilePreviewer
+                            file={file}
+                            fileIndex={index}
+                          />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                      <button
+                        ref={prevRef}
+                        disabled={currentIndex === 0}
+                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndex === 0
+                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                          }`}
+                      >
+                        Anterior
+                      </button>
+                      <button
+                        disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
+                        ref={nextRef}
+                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndex === (data?.vouchers?.length ?? 0) - 1
+                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                          }`}
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  </div>
+                  <section className="grid grid-cols-3 gap-5">
+                    <div className="my-5">
+                      <label
+                        htmlFor={"total"}
+                        className="block text-xs font-semibold text-gray-500 mb-1"
+                      >
+                        Total de Comprobantes
+                      </label>
+                      <input
+                        id="total_vouchers"
+                        type="text"
+                        readOnly
+                        value={formatMoney(approvedVoucherTotal)}
+                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                       />
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-                <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
-                    <button
-                      ref={prevRef}
-                      disabled={currentIndex === 0}
-                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                        currentIndex === 0
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
-                    >
-                      Anterior
-                    </button>
-                    <button
-                      disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
-                      ref={nextRef} 
-                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                        currentIndex === (data?.vouchers?.length ?? 0) - 1
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
-                    >
-                      Siguiente
-                    </button>
+                    </div>
+                    <div className="my-5">
+                      <label
+                        htmlFor={"advance_money"}
+                        className="block text-xs font-semibold text-gray-500 mb-1"
+                      >
+                        Anticipo
+                      </label>
+                      <input
+                        id="advance_money"
+                        type="text"
+                        readOnly
+                        value={formatMoney(previewAdvanceMoney, "MXN")}
+                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      />
+                    </div>
+                    <div className="my-5">
+                      <label
+                        htmlFor={"total"}
+                        className="block text-xs font-semibold text-gray-500 mb-1"
+                      >
+                        Saldo {previewBalance < 0 ? "a favor" : "en contra"}
+                      </label>
+                      <input
+                        id="balance"
+                        type="text"
+                        readOnly
+                        value={formatMoney(Math.abs(previewBalance), "MXN")}
+                        className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
+                      ${previewBalance > 0 ? "text-red-500" : "text-green-600"
+                          }`}
+                      />
+                    </div>
+                  </section>
                 </div>
-              </div>
-              <section className="grid grid-cols-3 gap-5">
-              <div className="my-5">
-                <label
-                  htmlFor={"total"}
-                  className="block text-xs font-semibold text-gray-500 mb-1"
-                >
-                  Total de Comprobantes
-                </label>
-                <input
-                  id="total_vouchers"
-                  type="text"
-                  readOnly
-                  value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                    if (file.status === "Voucher Approved") {
-                      return acc + +file.amount;
-                    }
-                    return acc;
-                  }, 0) ?? 0)}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                />
-              </div>
-              <div className="my-5">
-                <label
-                  htmlFor={"advance_money"}
-                  className="block text-xs font-semibold text-gray-500 mb-1"
-                >
-                  Anticipo
-                </label>
-                <input
-                  id="advance_money"
-                  type="text"
-                  readOnly
-                  value={formatMoney(Number(data?.advance_money) || 0)}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                />
-              </div>
-              <div className="my-5">
-                <label
-                  htmlFor={"total"}
-                  className="block text-xs font-semibold text-gray-500 mb-1"
-                >
-                  Saldo {(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                    (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                      if (file.status === "Voucher Approved") {
-                        return acc + Number(file.amount);
-                      }
-                      return acc;
-                    }, 0) ?? 0) < 0 ? "a favor" : "en contra"} 
-                </label>
-                <input
-                  id="balance"
-                  type="text"
-                  readOnly
-                  value={formatMoney(
-                    Math.abs((typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                    (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                      if (file.status === "Voucher Approved") {
-                        return acc + Number(file.amount);
-                      }
-                      return acc;
-                    }, 0) ?? 0))
-                  )}
-                  className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
-                      ${(typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0) -
-                    (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                      if (file.status === "Voucher Approved") {
-                        return acc + Number(file.amount);
-                      }
-                      return acc;
-                    }, 0) ?? 0) > 0 ? "text-red-500" : "text-green-600"
-                  }`}
-                />
-              </div>
-              </section>
-            </div>
-          </section>}
+              </section>}
 
-          {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10" id="travel-agency">
-            <label
-              htmlFor="agency"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              {data.status !== "Pending Review" ? "Agencia de viaje" : "Agencias de viaje"}
-            </label>
-            {data.status === "Pending Review" ? (
-              <select
-                id="agency"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedAgency}
-                disabled={data.status !== "Pending Review"}
-                onChange={(e) => setSelectedAgency(e.target.value)}
+            {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10" id="travel-agency">
+              <label
+                htmlFor="agency"
+                className="block text-sm font-medium text-gray-700 mb-1"
               >
-                <option value="">-- Selecciona una agencia --</option>
-                {agencies.map((agency) => (
-                  <option key={agency.id} value={agency.id}>
-                    {agency.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type="text"
-                readOnly
-                value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name}
-                className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                {data.status !== "Pending Review" ? "Agencia de viaje" : "Agencias de viaje"}
+              </label>
+              {data.status === "Pending Review" ? (
+                <select
+                  id="agency"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={selectedAgency}
+                  disabled={data.status !== "Pending Review"}
+                  onChange={(e) => setSelectedAgency(e.target.value)}
+                >
+                  <option value="">-- Selecciona una agencia --</option>
+                  {agencies.map((agency) => (
+                    <option key={agency.id} value={agency.id}>
+                      {agency.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  readOnly
+                  value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name}
+                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                />
+              )}
+            </section>}
+
+
+            {authState.userPermissions.includes("approve_request" as Permission) && data.status === "Pending Review" && <section className="mb-8" id="comment-section">
+              <label
+                htmlFor="comment"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Comentarios
+              </label>
+              <textarea
+                id="comment"
+                rows={4}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Escribe tus comentarios aquí..."
               />
-            )}
-          </section>}
+            </section>}
 
-
-          {authState.userPermissions.includes("approve_request" as Permission) && data.status === "Pending Review" && <section className="mb-8" id="comment-section">
-            <label
-              htmlFor="comment"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Comentarios
-            </label>
-            <textarea
-              id="comment"
-              rows={4}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Escribe tus comentarios aquí..."
-            />
-          </section>}
-
-          {/* Botones de acción */}
-          {authState.userPermissions.includes("approve_request" as Permission) &&
-          <>
-              {data.status === "Pending Review" &&
-                <section className="mb-10">
-                  <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                    Información importante
-                  </h1>
-                  <p className="text-sm text-gray-600">
-                    - Para aprobar esta solicitud, debes seleccionar una agencia de viaje y proporcionar un comentario si es necesario.
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    - Si la solicitud requiere cambios, puedes solicitarlo escribiendo un comentario.
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    - Si deseas denegar la solicitud, puedes hacerlo directamente.
-                  </p>
-                </section>
-              }
-              <footer className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={approve}
-                  disabled={!selectedAgency || data.status !== "Pending Review"}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition
-                    ${
-                      selectedAgency && data.status === "Pending Review"
+            {/* Botones de acción */}
+            {authState.userPermissions.includes("approve_request" as Permission) &&
+              <>
+                {data.status === "Pending Review" &&
+                  <section className="mb-10">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                      Información importante
+                    </h1>
+                    <p className="text-sm text-gray-600">
+                      - Para aprobar esta solicitud, debes seleccionar una agencia de viaje y proporcionar un comentario si es necesario.
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      - Si la solicitud requiere cambios, puedes solicitarlo escribiendo un comentario.
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      - Si deseas denegar la solicitud, puedes hacerlo directamente.
+                    </p>
+                  </section>
+                }
+                <footer className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={approve}
+                    disabled={!selectedAgency || data.status !== "Pending Review"}
+                    className={`flex-1 py-3 rounded-lg font-semibold transition
+                    ${selectedAgency && data.status === "Pending Review"
                         ? 'bg-green-600 hover:bg-green-700 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                id="approve-request-button"
-                >
-                  Aprobar
-                </button>
-                <button
-                  onClick={requestChanges}
-                  disabled={!comment.trim() || data.status !== "Pending Review"}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition
+                      }`}
+                    id="approve-request-button"
+                  >
+                    Aprobar
+                  </button>
+                  <button
+                    onClick={requestChanges}
+                    disabled={!comment.trim() || data.status !== "Pending Review"}
+                    className={`flex-1 py-3 rounded-lg font-semibold transition
                     ${comment.trim() && data.status === "Pending Review"
                         ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
+                      }`}
 
-                id="changes-request-button"
-                >
-                  Solicitar cambios
-                </button>
-                <button
-                  onClick={deny}
-                  disabled={data.status !== "Pending Review"}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition
+                    id="changes-request-button"
+                  >
+                    Solicitar cambios
+                  </button>
+                  <button
+                    onClick={deny}
+                    disabled={data.status !== "Pending Review"}
+                    className={`flex-1 py-3 rounded-lg font-semibold transition
                     ${data.status === "Pending Review"
-                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    id="deny-request-button"
+                  >
+                    Denegar
+                  </button>
+                </footer>
+              </>
+            }
+
+            {authState.userPermissions.includes("create_request" as Permission) &&
+              <footer className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => navigate(`/requests/${id}/edit`)}
+                  disabled={data.status !== "Changes Needed"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition ${data.status === "Changes Needed"
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
-                id="deny-request-button"
+                  id="edit-request-button"
                 >
-                  Denegar
+                  Editar
+                </button>
+                <button
+                  onClick={cancel}
+                  disabled={data.status !== "Pending Review" && data.status !== "Changes Needed"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition ${data.status !== "Pending Review" && data.status !== "Changes Needed"
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-red-600 hover:bg-red-700 text-white"
+                    }`}
+                  id="cancel-request-button"
+                >
+                  Cancelar
+                </button>
+
+              </footer>}
+
+            {authState.userPermissions.includes("check_budgets" as Permission) && data.status === "Pending Accounting Approval" &&
+              <footer className="flex flex-col sm:flex-row gap-4">
+                <button
+                  id="register-spend"
+                  onClick={register}
+                  disabled={data.status !== "Pending Accounting Approval"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition ${data.status === "Pending Accounting Approval"
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                  Marcar como registrado
                 </button>
               </footer>
-          </>
-          }
+            }
 
-          {authState.userPermissions.includes("create_request" as Permission) &&
-          <footer className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={() => navigate(`/requests/${id}/edit`)}
-              disabled={data.status !== "Changes Needed"}
-              className={`flex-1 py-3 rounded-lg font-semibold transition ${
-                data.status === "Changes Needed"
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-              id="edit-request-button"
-            >
-              Editar
-            </button>
-            <button
-              onClick={cancel}
-              disabled={data.status !== "Pending Review" && data.status !== "Changes Needed"}
-              className={`flex-1 py-3 rounded-lg font-semibold transition ${
-                data.status !== "Pending Review" && data.status !== "Changes Needed"
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-red-600 hover:bg-red-700 text-white"
-              }`}
-              id ="cancel-request-button"
-            >
-              Cancelar
-            </button>
-
-          </footer>}
-
-          {authState.userPermissions.includes("check_budgets" as Permission) && data.status === "Pending Accounting Approval" &&
-            <footer className="flex flex-col sm:flex-row gap-4">
-              <button
-                id="register-spend"
-                onClick={register}
-                disabled={data.status !== "Pending Accounting Approval"}
-                className={`flex-1 py-3 rounded-lg font-semibold transition ${
-                  data.status === "Pending Accounting Approval"
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                Marcar como registrado
-              </button>
-            </footer>
-          }
-          
-          {authState.userPermissions.includes("check_budgets" as Permission) && data.status === "Pending Refund Approval" &&
-            <footer className="flex flex-col sm:flex-row gap-4">
-              <button
-                id="complete-refund-request"
-                onClick={complete}
-                disabled={data.status !== "Pending Refund Approval"}
-                className={`flex-1 py-3 rounded-lg font-semibold transition ${
-                  data.status === "Pending Refund Approval"
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                Marcar viaje como completado
-              </button>
-            </footer>
-          }
-        </div>
-      </main> 
-    </div>
+            {authState.userPermissions.includes("check_budgets" as Permission) && data.status === "Pending Refund Approval" &&
+              <footer className="flex flex-col sm:flex-row gap-4">
+                <button
+                  id="complete-refund-request"
+                  onClick={complete}
+                  disabled={data.status !== "Pending Refund Approval"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition ${data.status === "Pending Refund Approval"
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                  Marcar viaje como completado
+                </button>
+              </footer>
+            }
+          </div>
+        </main>
+      </div>
     </Tutorial>
   );
 };

@@ -44,45 +44,41 @@ vite-env.d.ts → Types of declarations for Vite
 
 ## Requirements
 
-- Node.js (we use NVM to manage versions)
-- npm (Node Package Manager)
-- direnv
-- When you enter the repository, run “direnv allow” if it’s the first time
+- Volta (official Node manager)
+- npm
+- Optional: direnv for local env variables
+- Docker Desktop (required for backend database when running full stack locally)
 
 
 ## How to Install
-In MacOS: brew install direnv
 
+Install Volta:
 
-Add the following hook to your shell/terminal
-If in Bash:
-# Bash
-echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
+Windows (PowerShell):
 
-If in Zsh:
-# Zsh
-echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
-
-
-Enable direnv in this repository by using:
-```
-direnv allow
+```powershell
+winget install Volta.Volta
 ```
 
-## Installing nvm and node.js
-For NVM:
+macOS:
+
+```bash
+curl https://get.volta.sh | bash
 ```
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
-source ~/.bashrc # or ~/.zshrc (depending on your shell)
+Pin and verify versions:
 
-nvm install
+```bash
+volta install node@22.14.0 npm@10.9.2
+node -v
+npm -v
 ```
 
 ## Installing the Project
 In your shell, run:
 ```
 npm install
+npm run setup
 ```
 
 After that we want to activate a local host by doing the following:
@@ -90,9 +86,64 @@ After that we want to activate a local host by doing the following:
 npm run dev
 ```
 
+## Recommended Full Local Flow (Windows/macOS)
+
+1. Start PostgreSQL from backend repository root:
+
+```bash
+cd ../Monarca_Backend
+docker compose up -d
+```
+
+2. Start backend:
+
+```bash
+cd monarca
+npm install
+npm run setup
+npm run dev
+```
+
+3. Start frontend:
+
+```bash
+cd ../../Monarca_Frontend
+npm install
+npm run setup
+npm run dev
+```
+
+4. Open the app:
+
+```text
+http://localhost:5173
+```
+
 ## Environment Variables
 Create an “.env” file with the content specified in the “.env.example” file
 ```
-VITE_API_URL=
+VITE_API_URL=http://localhost:3000
 ```
+
+Or generate it automatically:
+
+```bash
+npm run setup:env
+```
+
+## Optional compatibility tools
+
+- `.nvmrc` is kept for compatibility.
+- `.envrc` is optional for users that already rely on direnv.
+
+## Build and Test
+
+```bash
+npm run build
+npm run test
+```
+
+Note:
+
+- If build/test fails with existing test-suite or typing issues from the base branch, treat those as pre-existing and document them in the PR.
 

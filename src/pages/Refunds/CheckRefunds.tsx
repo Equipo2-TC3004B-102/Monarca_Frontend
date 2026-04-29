@@ -3,7 +3,8 @@
  * Description: Page component that displays trips with pending refunds to be reviewed by authorized personnel.
  * Authors: Original Monarca team
  * Last Modification made:
- * 25/02/2026 [Diego Ortega] Added Specified Format.
+  * 20/04/2026 [Diego de la Vega] Added destination/date fallback mapping for
+  *                             incomplete request destination payloads.
  */
 
 import { useState, useEffect } from "react";
@@ -44,44 +45,44 @@ const renderStatus = (status: string) => {
   let styles = "";
   switch (status) {
     case "Pending Review":
-      statusText = "Under Review";
-      styles = "text-[#55447a] bg-[#bea8ef]";
+      statusText = "En revisión";
+      styles = "text-[#55447a] font-bold bg-[#bea8ef]";
       break;
     case "Denied":
-      statusText = "Denied";
-      styles = "text-[#680909] bg-[#eca6a6]";
+      statusText = "Denegado";
+      styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Cancelled":
-      statusText = "Cancelled";
-      styles = "text-[#680909] bg-[#eca6a6]";
+      statusText = "Cancelado";
+      styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Changes Needed":
-      statusText = "Changes Needed";
-      styles = "text-[#755619] bg-[#f1dbb1]";
+      statusText = "Cambios necesarios";
+      styles = "text-[#755619] font-bold bg-[#f1dbb1]";
       break;
     case "Pending Reservations":
-      statusText = "Pending Reservations";
-      styles = "text-[#8c5308] bg-[#f1c180]";
+      statusText = "Reservas pendientes";
+      styles = "text-[#8c5308] font-bold bg-[#f1c180]";
       break;
     case "Pending Accounting Approval":
-      statusText = "Pending Accounting Approval";
-      styles = "text-[var(--dark-blue)] bg-[#99b5e3]";
+      statusText = "Contabilidad pendiente";
+      styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]";
       break;
     case "Pending Vouchers Approval":
-      statusText = "Pending Vouchers Approval";
-      styles = "text-[var(--dark-blue)] bg-[#c6c4fb]";
+      statusText = "Comprobantes pendientes";
+      styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]";
       break;
     case "In Progress":
-      statusText = "In Progress";
-      styles = "text-[var(--dark-blue)] bg-[#b7f1f1]";
+      statusText = "En progreso";
+      styles = "text-[#138080] font-bold bg-[#b7f1f1]";
       break;
     case "Pending Refund Approval": 
-      statusText = "Pending Refund Approval";
-      styles = "text-[#575107] bg-[#f0eaa5]";
+      statusText = "Reembolso pendiente";
+      styles = "text-[#575107] font-bold bg-[#f0eaa5]";
       break;
     case "Completed": 
-      statusText = "Completed";
-      styles = "text-[#24390d] bg-[#c7e6ab]";
+      statusText = "Completado";
+      styles = "text-[#24390d] font-bold bg-[#c7e6ab]";
       break;
     default:
       statusText = status;
@@ -114,14 +115,26 @@ export const CheckRefunds = () => {
       try {
         setLoading(true);
         const response = await getRequest("/requests/refund-to-approve-SOI");
-        setTrips(response.map((trip: any) => ({
-          ...trip,
-          status: renderStatus(trip.status),
-          date: formatDate(trip.requests_destinations.sort((a: any, b: any) => a.destination_order - b.destination_order)[0].departure_date),
-          advance_money: formatMoney(trip.advance_money),
-          origin: trip.destination.city,
-          createdAt: formatDate(trip.createdAt),
-        })));
+        setTrips(response.map((trip: any) => {
+          const sortedDestinations = [...(trip.requests_destinations || [])].sort(
+            (a: any, b: any) => a.destination_order - b.destination_order
+          );
+          const firstDestination = sortedDestinations[0];
+
+          return {
+            ...trip,
+            status: renderStatus(trip.status),
+            date: firstDestination?.departure_date
+              ? formatDate(firstDestination.departure_date)
+              : "N/A",
+            advance_money: formatMoney(trip.advance_money),
+            origin:
+              trip.destination?.city ||
+              trip.destination?.iata_code ||
+              "Destino no disponible",
+            createdAt: formatDate(trip.createdAt),
+          };
+        }));
       } catch (err) {
         toast.error(
           "Error loading trips. Please try again later."  
@@ -152,12 +165,12 @@ export const CheckRefunds = () => {
     }, []);
 
   const columnsSchemaTrips = [
-    { key: "status", header: "Status" },
-    { key: "title", header: "Trip Name" },
-    { key: "date", header: "Travel Date" },
-    { key: "origin", header: "Departure Location" },
-    { key: "advance_money", header: "Advance" },
-    { key: "createdAt", header: "Request Date" },
+    { key: "status", header: "Estado" },
+    { key: "title", header: "Viaje" },
+    { key: "date", header: "Fecha del viaje" },
+    { key: "origin", header: "Lugar de salida" },
+    { key: "advance_money", header: "Anticipo" },
+    { key: "createdAt", header: "Fecha de solicitud" },
     { key: "action", header: "" },
   ];
   
@@ -174,8 +187,8 @@ export const CheckRefunds = () => {
     action: (
       <Button
         id={`refund-details-${index}`}
-        className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm"
-        label="Register"
+        className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
+        label="Registrar"
         onClickFunction={() => navigate(`/requests/${trip.id}`)}
       />
     ),
@@ -188,7 +201,7 @@ export const CheckRefunds = () => {
         <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-[var(--blue)]">
-                Trips with refunds to review
+                Comprobantes y Reembolsos por registrar
             </h2>
             <RefreshButton />
           </div>

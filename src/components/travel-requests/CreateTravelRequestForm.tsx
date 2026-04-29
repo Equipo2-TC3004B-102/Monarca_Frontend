@@ -3,7 +3,7 @@
  * Description: Travel request creation form component with destination management and Zod validation.
  * Authors: Monarca Original Team
  * Last Modification made:
- * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
+ * 20/04/2026 [Jin Sik Yoon] Implemented form validation with Zod, dynamic destination fields, and API integration for creating travel requests.
  */
 
 import { Button } from "../ui/Button";
@@ -25,6 +25,7 @@ import FieldError from "../ui/FieldError";
 
 import { useCreateTravelRequest } from "../../hooks/requests/useCreateRequest";
 import { useDestinations } from "../../hooks/destinations/useDestinations";
+import { usePersistedForm } from "../../hooks/app/usePersistedForm";
 
 type Option = { id: number | string; name: string };
 
@@ -59,6 +60,7 @@ const formSchema = z.object({
     .number()
     .int()
     .positive({ message: "El dinero adelantado debe ser positivo" }),
+  currency: z.string().optional(),
   destinations: z.array(destinationSchema).min(1, "Al menos un destino"),
 });
 
@@ -88,6 +90,7 @@ function CreateTravelRequestForm() {
       title: "",
       priority: "media",
       advance_money: 0,
+      currency: "",
       requirements: "",
       destinations: [
         {
@@ -104,6 +107,12 @@ function CreateTravelRequestForm() {
   });
 
   const { createTravelRequestMutation, isPending } = useCreateTravelRequest();
+
+  const { clearPersistedForm } = usePersistedForm<RawFormValues>({
+    storageKey: "createTravelRequestForm:legacy",
+    control,
+    reset,
+  });
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -144,8 +153,9 @@ function CreateTravelRequestForm() {
       title: data.motive,
       motive: data.motive,
       requirements: data.requirements || undefined,
-      priority: data.priority,
+      priority: data.priority.toLowerCase() as "alta" | "media" | "baja",
       advance_money: data.advance_money,
+      currency: data.currency ?? "",
       requests_destinations,
     };
 
@@ -158,6 +168,7 @@ function CreateTravelRequestForm() {
         closeOnClick: true,
         pauseOnHover: true,
       });
+      clearPersistedForm();
       reset();
       navigate("/dashboard");
     } catch (error) {
@@ -227,7 +238,7 @@ function CreateTravelRequestForm() {
                         ? destinationOptions.find((o) => o.id === field.value)
                         : null
                     }
-                    onChange={(opt) => field.onChange(opt.id)}
+                    onChange={(opt) => opt && field.onChange(opt.id)}
                     isLoading={isLoadingDestinations}
                     placeholder="Selecciona ciudad de origen"
                   />
@@ -251,7 +262,7 @@ function CreateTravelRequestForm() {
                   <Select
                     options={priorityOptions}
                     value={priorityOptions.find((o) => o.id === field.value)}
-                    onChange={(opt) => field.onChange(opt.id)}
+                    onChange={(opt) => opt && field.onChange(opt.id)}
                   />
                 )}
               />
@@ -269,7 +280,7 @@ function CreateTravelRequestForm() {
               <Input
                 type="number"
                 min={1}
-                {...register(`advance_money` as const, {
+                {...register("advance_money", {
                   valueAsNumber: true,
                 })}
               />
@@ -325,7 +336,7 @@ function CreateTravelRequestForm() {
                                 )
                               : null
                           }
-                          onChange={(opt) => field.onChange(opt.id)}
+                          onChange={(opt) => opt && field.onChange(opt.id)}
                           isLoading={isLoadingDestinations}
                           placeholder="Selecciona destino"
                         />

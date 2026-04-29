@@ -4,7 +4,8 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 16/04/2026 [Rebeca-Davila] Addapted the sidebar within the flex of the layout, and added a 
+ * function to the sidebaroptions when a page is clicked, the sidebar will close.
  */
 
 // ***************** images *****************
@@ -20,15 +21,14 @@ import { AuthState, Permission } from "../hooks/auth/authContext";
  * Input: user - AuthState object containing userName, userLastName, userRole, and userPermissions.
  * Output: JSX aside element with navigation options filtered by user permissions.
  */
-function Sidebar({ user }: { user: AuthState }) {
+function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => void; }) {
   return (
     <aside
       id="logo-sidebar"
-      className="w-[200px] pt-24 bg-[var(--gray)] text-[var(--black)]"
-      aria-label="Sidebar"
+      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--gray)] text-[var(--black)]"      aria-label="Sidebar"
     >
       <div className="h-full px-3 pb-4 overflow-y-auto">
-        <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] mx-auto p-4 rounded-lg">
+        <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] h-[120px] mx-auto p-4 rounded-lg">
             <img src={logo} className="invert mx-auto" alt="Monarca Logo" />
         </div>
         <div className="flex flex-col items-center justify-center mb-6 text-center">
@@ -40,39 +40,40 @@ function Sidebar({ user }: { user: AuthState }) {
               label="Inicio"
               pathIcon="/assets/dashboard.png"
               link="/dashboard"
+              onClick={onNavigate}
             />
             {user.userPermissions.includes("create_request" as Permission) && (
-              <SidebarOption label="Crear solicitud de viaje" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/requests/create"/>
+              <SidebarOption label="Crear solicitud" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/requests/create" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("create_request" as Permission) && (
-              <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes.png" link="/history"/>
+              <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes.png" link="/history" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("upload_vouchers" as Permission) && (
-              <SidebarOption label="Comprobar Gastos" pathIcon="/assets/solicitud_de_reembolso.png" link="/refunds"/>
+              <SidebarOption label="Comprobar Gastos" pathIcon="/assets/solicitud_de_reembolso.png" link="/refunds" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("approve_request" as Permission) && (
-              <SidebarOption label="Viajes por aprobar" pathIcon="/assets/viajes_por_aprobar.png" link="/approvals"/>
+              <SidebarOption label="Viajes por aprobar" pathIcon="/assets/viajes_por_aprobar.png" link="/approvals" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("approve_request" as Permission) && (
-              <SidebarOption label="Historial de viajes aprobados" pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history"/>
+              <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("approve_vouchers" as Permission) && (
-              <SidebarOption label="Comprobantes de gastos por aprobar" pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review"/>
+              <SidebarOption label="Comprobantes y Reembolsos" pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("request_history" as Permission) && (
-              <SidebarOption label="Viajes por registrar" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/history"/>
+              <SidebarOption label="Viajes por registrar" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/history" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("check_budgets" as Permission) && (
-              <SidebarOption label="Reembolsos por registrar" pathIcon="/assets/reembolsos_por_aprobar.png" link="/check-refunds"/>
+              <SidebarOption label="Comprobantes y Reembolsos por registrar" pathIcon="/assets/reembolsos_por_aprobar.png" link="/check-refunds" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("submit_reservations" as Permission) && (
-              <SidebarOption label="Viajes por reservar" pathIcon="/assets/viajes_por_reservar.png" link="/bookings"/>
+              <SidebarOption label="Viajes por reservar" pathIcon="/assets/viajes_por_reservar.png" link="/bookings" onClick={onNavigate}/>
             )}
             {/* {user.userPermissions.includes("submit_reservations" as Permission) && (
               <SidebarOption label="Formulario de ingreso de reservación" pathIcon="/assets/formulario_de_ingreso_de_reservacion.png" link=""/>
             )} */}
             {user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("submit_reservations" as Permission) && (
-              <SidebarOption label="Historial de viajes reservados" pathIcon="/assets/historial_de_viajes_reservados.png" link="/history"/>
+              <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
             )}
         </ul>
       </div>

@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 16/04/2026 [Rebeca-Davila] Change grid to flex to show the links of the pages
  */
 
 import { useEffect } from "react";
@@ -43,7 +43,7 @@ export const Dashboard = ({title}:DashboardProps) => {
 
   return (
     <Tutorial page="dashboard" run={tutorial}>
-      <div className="grid grid-cols-4 gap-y-20 py-10 px-1 ml-0">
+      <div className="flex flex-col lg:flex-row flex-wrap items-center md:justify-center gap-y-20 gap-x-20 py-10 px-1 ml-0">
         {authState.userPermissions.includes("create_request" as Permission) && (
           <Mosaic title="Crear solicitud de viaje" iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create" id="create-request"/>
         )}

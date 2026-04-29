@@ -4,11 +4,12 @@
  *              and a dropdown with user info and logout option.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 16/04/2026 [Rebeca-Davila] Added a button with a toggle function to make the sidebar appear
  */
 
 import { useState } from "react";
 import { useAuth } from "../hooks/auth/authContext";
+import menu from "../assets/menu.svg"
 // import { useApp } from "../hooks/app/appContext";
 
 /**
@@ -16,16 +17,22 @@ import { useAuth } from "../hooks/auth/authContext";
  * Input: none (reads auth state via useAuth hook)
  * Output: JSX nav element containing the brand name and user profile dropdown.
  */
-function Header() {
+function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
   const { handleLogout ,authState } = useAuth();
   // const { pageTitle } = useApp();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 z-50 w-full bg-[var(--dark-blue)] text-[var(--white)]">
+    <nav className="z-50 w-[100%] bg-[var(--dark-blue)] text-[var(--white)]">
       <div className="px-3 py-5 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
+          <div className="block md:hidden">
+            <img src={menu} alt="menu" className="w-10 h-10 ml-4 cursor-pointer" 
+            onClick={toggleSidebar}
+             />
+          </div>
+          
           <div className="flex items-center justify-start rtl:justify-end">
             {/* <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white pl-5">
               {pageTitle}
