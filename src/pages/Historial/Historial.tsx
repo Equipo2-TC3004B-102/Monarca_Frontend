@@ -3,8 +3,8 @@
  * Description: This file contains the Historial component used in the Refunds section of the application.
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
- * Last Modification made: 
- * 20/04/2026 [Diego de la Vega] Added destination/date fallback rendering for incomplete request destination data.
+ * Last Modification made:
+ * 28/04/2026 [Julio Rodriguez] Added explicit approver case in endpoint selector to use approved-history endpoint instead of falling through to view_assigned_requests_readonly.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -100,11 +100,13 @@ export const Historial = () => {
   useEffect(() => {
     const fetchTravelRecords = async () => {
       try {
-        const endpoint = 
+        const endpoint =
           authState.userPermissions.includes("create_request" as Permission)
             ? "/requests/user"
             : authState.userPermissions.includes("check_budgets" as Permission)
             ? "/requests/to-approve-SOI"
+            : authState.userPermissions.includes("view_approved_request_history" as Permission)
+            ? "/requests/approved-history"
             : "/requests/all"
         let response = await getRequest(endpoint);
         if(authState.userPermissions.includes("approve_request" as Permission)) {
