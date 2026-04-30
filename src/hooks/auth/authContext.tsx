@@ -3,7 +3,7 @@
  * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 30/04/2026 [Julio Rodriguez] Added isCompanyAdmin to AuthState; populated from is_company_admin in profile response.
  */
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
@@ -57,6 +57,7 @@ export interface AuthState {
   userPermissions: Permission[];
   userRole: string;
   isSystemAdmin: boolean;
+  isCompanyAdmin: boolean;
 }
 
 /**
@@ -105,6 +106,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     userEmail: "",
     userPermissions: [],
     isSystemAdmin: false,
+    isCompanyAdmin: false,
   });
 
   useEffect(() => {
@@ -132,6 +134,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
               ),
               userEmail: response.user.email,
               isSystemAdmin: response.user.is_system_admin ?? false,
+              isCompanyAdmin: response.user.is_company_admin ?? false,
             });
             setLoadingProfile(false);
           } else {
@@ -172,6 +175,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         userEmail: "",
         userPermissions: [],
         isSystemAdmin: false,
+        isCompanyAdmin: false,
       });
     }
   };

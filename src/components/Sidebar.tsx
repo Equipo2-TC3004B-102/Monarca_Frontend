@@ -5,6 +5,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 28/04/2026 [Julio Rodriguez] Fixed permission checks for requester and approver history links to use semantic permissions instead of view_assigned_requests_readonly workaround.
+ * 30/04/2026 [Julio Rodriguez] Added "Nueva empresa" link for isSystemAdmin.
  */
 
 // ***************** images *****************
@@ -73,6 +74,9 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             )} */}
             {user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("submit_reservations" as Permission) && (
               <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
+            )}
+            {user.isSystemAdmin && (
+              <SidebarOption label="Nueva empresa" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" onClick={onNavigate}/>
             )}
             {user.isSystemAdmin && (
               <SidebarOption label="Lista de usuarios" pathIcon="/assets/viajes_por_aprobar.png" link="/admin/users" onClick={onNavigate}/>
