@@ -3,7 +3,9 @@
  * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 30/04/2026 [Julio Rodriguez] Added isCompanyAdmin to AuthState; populated from is_company_admin in profile response.
+ * 30/04/2026 [Julio Rodriguez] Added isCompanyAdmin to AuthState
+ *                              populated from is_company_admin in profile response
+ *                              added FlagProtectedRoute for admin flag-based route guards.
  */
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
@@ -274,4 +276,29 @@ export const PermissionProtectedRoute: React.FC<
       <Outlet />
     </AuthProvider>
   );
+};
+
+// New interface for protected routes based on user flags (is_system_admin, is_company_admin)
+interface FlagProtectedRouteProps {
+  requireSystemAdmin?: boolean;
+  requireCompanyAdmin?: boolean;
+  children: ReactNode;
+}
+
+/**
+ * FlagProtectedRoute, protects routes by checking isSystemAdmin or isCompanyAdmin flags.
+ * Redirects to /unauthorized when the caller lacks the required admin flag.
+ */
+export const FlagProtectedRoute: React.FC<FlagProtectedRouteProps> = ({
+  requireSystemAdmin,
+  requireCompanyAdmin,
+  children,
+}) => {
+  const { authState } = useAuth();
+
+  if (!authState.isAuthenticated) return <Navigate to="/" replace />;
+  if (requireSystemAdmin && !authState.isSystemAdmin) return <Navigate to="/unauthorized" replace />;
+  if (requireCompanyAdmin && !authState.isCompanyAdmin) return <Navigate to="/unauthorized" replace />;
+
+  return <>{children}</>;
 };

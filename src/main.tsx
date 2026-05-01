@@ -5,6 +5,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 30/04/2026 [Julio Rodriguez] Added new admin route for creating companies; added detailed comments and documentation for clarity and maintainability.
+ * 30/04/2026 [Julio Rodriguez] Wrapped admin routes with FlagProtectedRoute; /admin/users and /admin/companies/new require isSystemAdmin, /admin/rules requires isCompanyAdmin.
  */
 
 import { StrictMode } from "react";
@@ -22,6 +23,7 @@ import AdminNewCompany from "./pages/Admin/AdminNewCompany.tsx";
 import {
   ProtectedRoute,
   PermissionProtectedRoute,
+  FlagProtectedRoute,
 } from "./hooks/auth/authContext";
 import "flowbite";
 
@@ -136,15 +138,15 @@ export const router = createBrowserRouter([
       },
       {
         path: "/admin/users",
-        element: <AdminUsers />,
+        element: <FlagProtectedRoute requireSystemAdmin><AdminUsers /></FlagProtectedRoute>,
       },
       {
         path: "/admin/rules",
-        element: <AdminRules />,
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminRules /></FlagProtectedRoute>,
       },
       {
         path: "/admin/companies/new",
-        element: <AdminNewCompany />,
+        element: <FlagProtectedRoute requireSystemAdmin><AdminNewCompany /></FlagProtectedRoute>,
       },
       /**
        * Permission-protected routes (approvals module).
