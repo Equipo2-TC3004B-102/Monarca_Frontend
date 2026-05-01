@@ -4,8 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 28/04/2026 [Julio Rodriguez] Fixed permission checks for requester and approver history links to use semantic permissions instead of view_assigned_requests_readonly workaround.
- * 30/04/2026 [Julio Rodriguez] Added "Nueva empresa" link for isSystemAdmin.
+ * 30/04/2026 [Julio Rodriguez] Added "Nueva empresa" link for isSystemAdmin; moved "Reglas" to isCompanyAdmin only; "Lista de usuarios" shown for both admin types.
  */
 
 // ***************** images *****************
@@ -78,10 +77,10 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {user.isSystemAdmin && (
               <SidebarOption label="Nueva empresa" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" onClick={onNavigate}/>
             )}
-            {user.isSystemAdmin && (
+            {(user.isSystemAdmin || user.isCompanyAdmin) && (
               <SidebarOption label="Lista de usuarios" pathIcon="/assets/viajes_por_aprobar.png" link="/admin/users" onClick={onNavigate}/>
             )}
-            {user.isSystemAdmin && (
+            {user.isCompanyAdmin && (
               <SidebarOption label="Reglas" pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
             )}
         </ul>
