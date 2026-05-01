@@ -1,5 +1,16 @@
+/**
+ * FileName: AdminUsers.tsx
+ * Description: Admin view for listing all users in the system. System admins see all users
+ *              via GET /admin/users; the JSON import button is hidden for system admins
+ *              because POST /users/import is scoped to the caller's company.
+ * Authors: DebugStudio Team
+ * Last Modification:
+ * 30/04/2026 [Julio Rodriguez] Changed endpoint to /admin/users; hide import button for system admins.
+ */
+
 import React, { useEffect, useRef, useState } from "react";
 import { getRequest, postRequest } from "../../utils/apiService";
+import { useAuth } from "../../hooks/auth/authContext";
 import GoBack from "../../components/GoBack";
 import RefreshButton from "../../components/RefreshButton";
 
@@ -16,6 +27,7 @@ interface User {
 const ITEMS_PER_PAGE = 5;
 
 export default function AdminUsers() {
+  const { authState } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -26,7 +38,7 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const data = await getRequest("/users");
+      const data = await getRequest("/admin/users");
       setUsers(data);
       setCurrentPage(1);
     } catch {
@@ -76,13 +88,15 @@ export default function AdminUsers() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-[var(--blue)]">Lista de usuarios</h2>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={importing}
-              className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
-            >
-              {importing ? "Cargando..." : "Cargar nuevo usuario"}
-            </button>
+            {!authState.isSystemAdmin && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importing}
+                className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
+              >
+                {importing ? "Cargando..." : "Cargar nuevo usuario"}
+              </button>
+            )}
             <RefreshButton />
           </div>
           <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
