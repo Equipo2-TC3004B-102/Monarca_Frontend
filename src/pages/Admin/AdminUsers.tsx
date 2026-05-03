@@ -5,7 +5,7 @@
  *              because POST /users/import is scoped to the caller's company.
  * Authors: DebugStudio Team
  * Last Modification:
- * 30/04/2026 [Julio Rodriguez] Changed endpoint to /admin/users; hide import button for system admins.
+ * 03/05/2026 [Julio Rodriguez] Error messages now read from API response body to match endpoint error standard.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -41,8 +41,9 @@ export default function AdminUsers() {
       const data = await getRequest("/admin/users");
       setUsers(data);
       setCurrentPage(1);
-    } catch {
-      setMessage({ text: "Error al cargar usuarios.", error: true });
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Error al cargar usuarios.";
+      setMessage({ text: msg, error: true });
     } finally {
       setLoading(false);
     }
@@ -77,8 +78,9 @@ export default function AdminUsers() {
         error: result.errors?.length > 0,
       });
       await fetchUsers();
-    } catch {
-      setMessage({ text: "Error al procesar el archivo JSON.", error: true });
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Error al procesar el archivo JSON.";
+      setMessage({ text: msg, error: true });
     } finally {
       setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

@@ -4,7 +4,7 @@
  *              company admin user in one operation. Calls POST /admin/companies/setup.
  * Authors: DebugStudio Team
  * Last Modification:
- * 30/04/2026 [Julio Rodriguez] Created.
+ * 30/04/2026 [Julio Rodriguez] Created view for system admin to generate a company entry in the database.
  */
 
 import React, { useState } from "react";
@@ -66,6 +66,7 @@ export default function AdminNewCompany() {
     }
   };
 
+  // Layout for the created company credentials and the form to create a new company. The credentials section only shows after a successful creation, and the form resets after submission.
   return (
     <>
       <GoBack />
