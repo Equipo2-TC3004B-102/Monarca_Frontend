@@ -68,8 +68,12 @@ export default function AdminUsers() {
       const parsed = JSON.parse(text);
       const payload = Array.isArray(parsed) ? parsed : [parsed];
       const result = await postRequest("/users/import", payload as unknown as Record<string, unknown>);
+      const summary = [ // Show created/updated counts if available, otherwise default to "No changes"
+        result.created > 0 && `${result.created} creado(s)`,
+        result.updated > 0 && `${result.updated} actualizado(s)`,
+      ].filter(Boolean).join(", ") || "Sin cambios";
       setMessage({
-        text: `${result.created} usuario(s) creado(s).${result.errors?.length ? " Errores: " + result.errors.join(", ") : ""}`,
+        text: `${summary}.${result.errors?.length ? " Errores: " + result.errors.join(", ") : ""}`,
         error: result.errors?.length > 0,
       });
       await fetchUsers();
@@ -81,7 +85,7 @@ export default function AdminUsers() {
     }
   };
 
-  return (
+  return ( // Hide the import users button for system admins since the endpoint is only for company admins
     <>
       <GoBack />
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
