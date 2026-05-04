@@ -3,7 +3,7 @@
  * Description: Centralized Axios configuration and HTTP utility functions for handling API requests (GET, POST, PUT, PATCH, DELETE) with global error interception.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 04/05/2026 [Santiago Coronado Hernández] Added enhanced error logging in the response interceptor to provide more insights into API errors, including specific handling for file size validation errors and unauthorized access (401) for potential token refresh logic.
  */
 
 import axios, { AxiosRequestConfig } from "axios";
@@ -38,6 +38,12 @@ api.interceptors.response.use(
         "API ERROR FULL:",
         JSON.stringify(error.response?.data, null, 2)
       );
+      // Log file size errors specifically
+      if (error.response.status === 413 || 
+          (error.response.status === 400 && 
+           error.response.data?.message?.toLowerCase().includes("size"))) {
+        console.error("File size validation error:", error.response.data?.message);
+      }
       if (error.response.status === 401) {
         // Token refresh logic or redirect to login could be implemented here
       }
