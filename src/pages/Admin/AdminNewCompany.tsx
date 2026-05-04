@@ -24,7 +24,6 @@ const emptyForm = {
   adminName: "",
   adminLastName: "",
   adminEmail: "",
-  adminEmployeeNum: "",
 };
 
 const labelClass = "block mb-2 text-sm font-medium text-gray-900";
@@ -53,7 +52,6 @@ export default function AdminNewCompany() {
           name: form.adminName,
           last_name: form.adminLastName || undefined,
           email: form.adminEmail,
-          employee_num: form.adminEmployeeNum || undefined,
         },
       });
       setResult(data);
@@ -101,7 +99,6 @@ export default function AdminNewCompany() {
                     value={form.name}
                     onChange={handleChange}
                     required
-                    placeholder="Ej. Acme Corp"
                   />
                 </div>
                 <div>
@@ -111,7 +108,6 @@ export default function AdminNewCompany() {
                     value={form.local_currency}
                     onChange={handleChange}
                     required
-                    placeholder="Ej. MXN"
                   />
                 </div>
               </div>
@@ -125,7 +121,6 @@ export default function AdminNewCompany() {
                     value={form.adminName}
                     onChange={handleChange}
                     required
-                    placeholder="Ej. María"
                   />
                 </div>
                 <div>
@@ -134,7 +129,6 @@ export default function AdminNewCompany() {
                     name="adminLastName"
                     value={form.adminLastName}
                     onChange={handleChange}
-                    placeholder="Ej. García"
                   />
                 </div>
                 <div>
@@ -145,16 +139,6 @@ export default function AdminNewCompany() {
                     value={form.adminEmail}
                     onChange={handleChange}
                     required
-                    placeholder="admin@empresa.com"
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Número de empleado <span className="text-gray-400 font-normal">(opcional)</span></label>
-                  <Input
-                    name="adminEmployeeNum"
-                    value={form.adminEmployeeNum}
-                    onChange={handleChange}
-                    placeholder="Ej. EMP-ADMIN-01"
                   />
                 </div>
               </div>

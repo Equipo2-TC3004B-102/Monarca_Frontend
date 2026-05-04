@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 28/04/2026 [Julio Rodriguez] Fixed permission checks for requester and approver history mosaics to use semantic permissions instead of view_assigned_requests_readonly workaround.
+ * 04/05/2026 [Julio Rodriguez] Replaced create_company/user_list permission checks with isSystemAdmin/isCompanyAdmin flag checks for admin mosaics.
  */
 
 import { useEffect } from "react";
@@ -79,6 +79,15 @@ export const Dashboard = ({title}:DashboardProps) => {
         )} */}
         {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("submit_reservations" as Permission) && (
           <Mosaic title="Historial de viajes reservados" iconPath="/assets/historial_de_viajes_reservados.png" link="/history" id="reserved_requests"/>
+        )}
+        {authState.isSystemAdmin && (
+          <Mosaic title="Crear empresa" iconPath="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" id="create_company"/>
+        )}
+        {(authState.isSystemAdmin || authState.isCompanyAdmin) && (
+          <Mosaic title="Lista de usuarios" iconPath="/assets/viajes_por_aprobar.png" link="/admin/users" id="user_list"/>
+        )}
+        {authState.isCompanyAdmin && (
+          <Mosaic title="Reglas" iconPath="/assets/historial_de_viajes.png" link="/admin/rules" id="rules"/>
         )}
       </div>
     </Tutorial>

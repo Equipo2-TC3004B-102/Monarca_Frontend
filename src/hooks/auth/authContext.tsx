@@ -3,7 +3,7 @@
  * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 03/05/2026 [Julio Rodriguez] FlagProtectedRoute: requireCompanyAdmin now also passes for system admins, mirroring CompanyAdminGuard.
+ * 04/05/2026 [Julio Rodriguez] Removed create_company/user_list from Permission type; admin visibility now uses isSystemAdmin/isCompanyAdmin flags.
  */
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
