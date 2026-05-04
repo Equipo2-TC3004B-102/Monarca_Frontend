@@ -945,7 +945,7 @@ const RequestInfo: React.FC = () => {
               </>
             }
 
-            {authState.userPermissions.includes("create_request" as Permission) &&
+            {authState.userPermissions.includes("create_request" as Permission) && data.id_admin !== authState.userId &&
               <footer className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => navigate(`/requests/${id}/edit`)}

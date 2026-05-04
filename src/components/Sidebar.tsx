@@ -4,8 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 16/04/2026 [Rebeca-Davila] Addapted the sidebar within the flex of the layout, and added a 
- * function to the sidebaroptions when a page is clicked, the sidebar will close.
+ * 04/05/2026 [Julio Rodriguez] Fixed approver history label and replaced requester permission with check_budgets for SOI "Viajes por registrar" link.
  */
 
 // ***************** images *****************
@@ -33,7 +32,6 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
         </div>
         <div className="flex flex-col items-center justify-center mb-6 text-center">
           <p className="text-[var(--blue)] font-bold">{user.userName} {user.userLastName} </p>
-          <p className="text-[var(--blue)] text-sm">{user.userRole}</p>
         </div>
         <ul className="space-y-2 font-medium">
             <SidebarOption 
@@ -45,7 +43,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {user.userPermissions.includes("create_request" as Permission) && (
               <SidebarOption label="Crear solicitud" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/requests/create" onClick={onNavigate}/>
             )}
-            {user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("create_request" as Permission) && (
+            {user.userPermissions.includes("request_history" as Permission) && (
               <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes.png" link="/history" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("upload_vouchers" as Permission) && (
@@ -54,13 +52,13 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {user.userPermissions.includes("approve_request" as Permission) && (
               <SidebarOption label="Viajes por aprobar" pathIcon="/assets/viajes_por_aprobar.png" link="/approvals" onClick={onNavigate}/>
             )}
-            {user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("approve_request" as Permission) && (
-              <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history" onClick={onNavigate}/>
+            {user.userPermissions.includes("view_approved_request_history" as Permission) && (
+              <SidebarOption label="Historial de aprobaciones" pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("approve_vouchers" as Permission) && (
               <SidebarOption label="Comprobantes y Reembolsos" pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>
             )}
-            {user.userPermissions.includes("request_history" as Permission) && (
+            {user.userPermissions.includes("check_budgets" as Permission) && (
               <SidebarOption label="Viajes por registrar" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/history" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("check_budgets" as Permission) && (
@@ -76,9 +74,12 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
             )}
             {user.isSystemAdmin && (
+              <SidebarOption label="Nueva empresa" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" onClick={onNavigate}/>
+            )}
+            {(user.isSystemAdmin || user.isCompanyAdmin) && (
               <SidebarOption label="Lista de usuarios" pathIcon="/assets/viajes_por_aprobar.png" link="/admin/users" onClick={onNavigate}/>
             )}
-            {user.isSystemAdmin && (
+            {user.isCompanyAdmin && (
               <SidebarOption label="Reglas" pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
             )}
         </ul>

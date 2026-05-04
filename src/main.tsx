@@ -4,7 +4,7 @@
  * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 03/05/2026 [Julio Rodriguez] Changed /admin/users to requireCompanyAdmin so both admins can access.
  */
 
 import { StrictMode } from "react";
@@ -17,10 +17,12 @@ import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
 import EditTravelRequest from "./pages/EditTravelRequest.tsx";
 import AdminUsers from "./pages/Admin/AdminUsers.tsx";
 import AdminRules from "./pages/Admin/AdminRules.tsx";
+import AdminNewCompany from "./pages/Admin/AdminNewCompany.tsx";
 
 import {
   ProtectedRoute,
   PermissionProtectedRoute,
+  FlagProtectedRoute,
 } from "./hooks/auth/authContext";
 import "flowbite";
 
@@ -135,13 +137,16 @@ export const router = createBrowserRouter([
       },
       {
         path: "/admin/users",
-        element: <AdminUsers />,
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminUsers /></FlagProtectedRoute>,
       },
       {
         path: "/admin/rules",
-        element: <AdminRules />,
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminRules /></FlagProtectedRoute>,
       },
-
+      {
+        path: "/admin/companies/new",
+        element: <FlagProtectedRoute requireSystemAdmin><AdminNewCompany /></FlagProtectedRoute>,
+      },
       /**
        * Permission-protected routes (approvals module).
        * Requires "approve_trip" permission to access "/approval".

@@ -3,7 +3,7 @@
  * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 04/05/2026 [Julio Rodriguez] Removed create_company/user_list from Permission type; admin visibility now uses isSystemAdmin/isCompanyAdmin flags.
  */
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
@@ -57,6 +57,7 @@ export interface AuthState {
   userPermissions: Permission[];
   userRole: string;
   isSystemAdmin: boolean;
+  isCompanyAdmin: boolean;
 }
 
 /**
@@ -105,6 +106,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     userEmail: "",
     userPermissions: [],
     isSystemAdmin: false,
+    isCompanyAdmin: false,
   });
 
   useEffect(() => {
@@ -132,6 +134,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
               ),
               userEmail: response.user.email,
               isSystemAdmin: response.user.is_system_admin ?? false,
+              isCompanyAdmin: response.user.is_company_admin ?? false,
             });
             setLoadingProfile(false);
           } else {
@@ -172,6 +175,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         userEmail: "",
         userPermissions: [],
         isSystemAdmin: false,
+        isCompanyAdmin: false,
       });
     }
   };
@@ -270,4 +274,29 @@ export const PermissionProtectedRoute: React.FC<
       <Outlet />
     </AuthProvider>
   );
+};
+
+// New interface for protected routes based on user flags (is_system_admin, is_company_admin)
+interface FlagProtectedRouteProps {
+  requireSystemAdmin?: boolean;
+  requireCompanyAdmin?: boolean;
+  children: ReactNode;
+}
+
+/**
+ * FlagProtectedRoute, protects routes by checking isSystemAdmin or isCompanyAdmin flags.
+ * Redirects to /unauthorized when the caller lacks the required admin flag.
+ */
+export const FlagProtectedRoute: React.FC<FlagProtectedRouteProps> = ({
+  requireSystemAdmin,
+  requireCompanyAdmin,
+  children,
+}) => {
+  const { authState } = useAuth();
+
+  if (!authState.isAuthenticated) return <Navigate to="/" replace />;
+  if (requireSystemAdmin && !authState.isSystemAdmin) return <Navigate to="/unauthorized" replace />;
+  if (requireCompanyAdmin && !authState.isCompanyAdmin && !authState.isSystemAdmin) return <Navigate to="/unauthorized" replace />;
+
+  return <>{children}</>;
 };

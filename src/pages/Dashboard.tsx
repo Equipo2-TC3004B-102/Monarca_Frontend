@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 16/04/2026 [Rebeca-Davila] Change grid to flex to show the links of the pages
+ * 04/05/2026 [Julio Rodriguez] Replaced create_company/user_list permission checks with isSystemAdmin/isCompanyAdmin flag checks for admin mosaics.
  */
 
 import { useEffect } from "react";
@@ -47,7 +47,7 @@ export const Dashboard = ({title}:DashboardProps) => {
         {authState.userPermissions.includes("create_request" as Permission) && (
           <Mosaic title="Crear solicitud de viaje" iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create" id="create-request"/>
         )}
-        {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("create_request" as Permission) && (
+        {authState.userPermissions.includes("request_history" as Permission) && (
           <Mosaic title="Historial de viajes" iconPath="/assets/historial_de_viajes.png" link="/history" id="history"/>
         )}
         {authState.userPermissions.includes("upload_vouchers" as Permission) && (
@@ -56,7 +56,7 @@ export const Dashboard = ({title}:DashboardProps) => {
         {authState.userPermissions.includes("approve_request" as Permission) && (
           <Mosaic title="Viajes por aprobar" iconPath="/assets/viajes_por_aprobar.png" link="/approvals" id="approve_request"/>
         )}
-        {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("approve_request" as Permission) && (
+        {authState.userPermissions.includes("view_approved_request_history" as Permission) && (
           <Mosaic title="Historial de viajes aprobados" iconPath="/assets/historial_de_viajes_aprobados.png" link="/history" id="approved_requests"/>
         )}
         {authState.userPermissions.includes("approve_vouchers" as Permission) && (
@@ -79,6 +79,15 @@ export const Dashboard = ({title}:DashboardProps) => {
         )} */}
         {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("submit_reservations" as Permission) && (
           <Mosaic title="Historial de viajes reservados" iconPath="/assets/historial_de_viajes_reservados.png" link="/history" id="reserved_requests"/>
+        )}
+        {authState.isSystemAdmin && (
+          <Mosaic title="Crear empresa" iconPath="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" id="create_company"/>
+        )}
+        {(authState.isSystemAdmin || authState.isCompanyAdmin) && (
+          <Mosaic title="Lista de usuarios" iconPath="/assets/viajes_por_aprobar.png" link="/admin/users" id="user_list"/>
+        )}
+        {authState.isCompanyAdmin && (
+          <Mosaic title="Reglas" iconPath="/assets/historial_de_viajes.png" link="/admin/rules" id="rules"/>
         )}
       </div>
     </Tutorial>
