@@ -8,6 +8,7 @@
  * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
  * 20/04/2026 [Diego de la Vega] Enabled searchable origin/destination selectors with incremental filtering while typing.
  * 23/04/2026 [Santiago Coronado Hernández] Use PersistedForm hook to save form state in localStorage for better UX on accidental refreshes or navigation.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import { Button } from "../ui/Button";
@@ -141,9 +142,9 @@ function DestinationFields({
   const destinationErrors = errors?.[idx];
 
   return (
-    <div className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm">
+    <div className="rounded-md p-4 mb-6 space-y-4 dark:bg-[var(--color-page-bg)] shadow-sm">
       <div className="flex justify-between items-center">
-        <span className="font-medium">Destino #{idx + 1}</span>
+        <span className="font-medium text-[var(--color-page-text)]">Destino #{idx + 1}</span>
         {idx > 0 && (
           <Button type="button" onClick={() => remove(idx)}>
             Quitar
@@ -155,7 +156,7 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`destination-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
             Destino
           </label>
@@ -183,7 +184,7 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`details-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
             Detalles
           </label>
@@ -197,7 +198,7 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`departure-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
             Fecha salida
           </label>
@@ -219,7 +220,7 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`arrival-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
             Fecha llegada
           </label>
@@ -241,7 +242,7 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`stay-days-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
             No. días estancia
           </label>
@@ -256,7 +257,7 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`hotel-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
             ¿Necesita hotel?
           </label>
@@ -276,7 +277,7 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`plane-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
             ¿Necesita vuelo?
           </label>
@@ -484,9 +485,9 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   return (
     <div className="max-w-5xl mx-auto">
       <GoBack />
-      <section className="bg-gray-200 rounded-md mb-10">
+      <section className="bg-[var(--color-card-bg)] rounded-md mb-10">
         <div className="p-10 mx-auto">
-          <h2 className="text-2xl font-bold text-[var(--blue)] mt-0 mb-4">
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mt-0 mb-4">
             {isEditing ? "Editar Viaje" : "Datos del Viaje"}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -494,7 +495,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div className="sm:col-span-2">
                 <label
                   htmlFor="motive"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
                   Motivo
                 </label>
@@ -509,7 +510,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div>
                 <label
                   htmlFor="title"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
                   Título
                 </label>
@@ -524,7 +525,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div>
                 <label
                   htmlFor="id_origin_city"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
                   Ciudad Origen
                 </label>
@@ -552,7 +553,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div>
                 <label
                   htmlFor="priority"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
                   Prioridad
                 </label>
@@ -576,7 +577,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 <div className="w-full sm:w-1/3">
                   <label
                     htmlFor="advance_money"
-                    className="block mb-2 text-sm font-medium text-gray-900"
+                    className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                   >
                     Dinero adelantado
                   </label>
@@ -628,7 +629,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 <div className="flex-1">
                   <label
                     htmlFor="currency"
-                    className="block mb-2 text-sm font-medium text-gray-900"
+                    className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                   >
                     Moneda
                   </label>
@@ -652,7 +653,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div className="sm:col-span-2">
                 <label
                   htmlFor="requirements"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
                   Requisitos adicionales
                 </label>
@@ -665,7 +666,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
             </div>
 
             <div id="destination_info">
-              <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
+              <h3 className="mt-8 mb-4 text-lg font-semibold text-[var(--color-page-text)]">Destinos</h3>
               {fields.map((field, idx) => (
                 <DestinationFields
                   key={field.id}

@@ -4,8 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 16/04/2026 [Rebeca-Davila] Addapted the sidebar within the flex of the layout, and added a 
- * function to the sidebaroptions when a page is clicked, the sidebar will close.
+ * 04/05/2026 [Rebeca-Davila] Changed colors and included switch for dark mode
  */
 
 // ***************** images *****************
@@ -15,6 +14,7 @@ import logo from "../assets/logo.png";
 import SidebarOption from "./SiderbarOption";
 
 import { AuthState, Permission } from "../hooks/auth/authContext";
+import DarkModeButton from "../components/DarkLightButton";
 
 /**
  * FunctionName: Sidebar, renders the aside navigation panel with logo, user details, and role-gated menu links.
@@ -25,15 +25,15 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
   return (
     <aside
       id="logo-sidebar"
-      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--gray)] text-[var(--black)]"      aria-label="Sidebar"
+      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--black)]"      aria-label="Sidebar"
     >
       <div className="h-full px-3 pb-4 overflow-y-auto">
         <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] h-[120px] mx-auto p-4 rounded-lg">
             <img src={logo} className="invert mx-auto" alt="Monarca Logo" />
         </div>
         <div className="flex flex-col items-center justify-center mb-6 text-center">
-          <p className="text-[var(--blue)] font-bold">{user.userName} {user.userLastName} </p>
-          <p className="text-[var(--blue)] text-sm">{user.userRole}</p>
+          <p className="text-[var(--color-page-text-title)] font-bold">{user.userName} {user.userLastName} </p>
+          <p className="text-[var(--color-page-text-title)] text-sm">{user.userRole}</p>
         </div>
         <ul className="space-y-2 font-medium">
             <SidebarOption 
@@ -76,6 +76,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
             )}
         </ul>
+        <DarkModeButton></DarkModeButton>
       </div>
     </aside>
   );

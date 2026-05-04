@@ -3,7 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added provider support status display and destination/date fallbacks for partial responses.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import React, { useState, useEffect } from 'react';
@@ -496,8 +496,8 @@ const RequestInfo: React.FC = () => {
             <div className="w-fit bg-[var(--blue)] text-white text-xs lg:text-base px-4 py-2 rounded-full mb-6">
               Información de Solicitud: <span>{id}</span>
             </div>
-            <p className="mb-6 text-gray-700 font-medium">
-              Solicitante: <span className="text-[var(--blue)]">{data?.user?.name} {data?.user?.last_name}</span>
+            <p className="mb-6 text-gray-500 font-medium">
+              Solicitante: <span className="text-[var(--color-page-text-title)]">{data?.user?.name} {data?.user?.last_name}</span>
             </p>
 
             <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
@@ -514,7 +514,7 @@ const RequestInfo: React.FC = () => {
                     type="text"
                     readOnly
                     value={String(data[key])}
-                    className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                   />
                 </div>
               ))}
@@ -522,7 +522,7 @@ const RequestInfo: React.FC = () => {
 
             <section id="destinations-info">
               <p
-                className="block text-sm font-medium text-gray-700 mb-4"
+                className="block text-sm font-bold text-gray-500 mb-4"
               >
                 Detalles de los destinos
               </p>
@@ -543,7 +543,7 @@ const RequestInfo: React.FC = () => {
                         dest.destination?.iata_code ||
                         'Destino no disponible'
                       }
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div>
@@ -557,7 +557,7 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={dest.arrival_date ? formatDate(dest.arrival_date) : 'Sin fecha'}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div>
@@ -571,7 +571,7 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={dest.departure_date ? formatDate(dest.departure_date) : 'Sin fecha'}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div>
@@ -585,7 +585,7 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={dest.details || 'Sin detalles'}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1 mt-2"
@@ -597,7 +597,7 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={renderProviderSupportStatus(dest.provider_support_status)}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div className="flex items-center justify-start gap-1">
@@ -716,7 +716,7 @@ const RequestInfo: React.FC = () => {
                         value={formatMoney(data?.reservations?.reduce((acc: number, file: { price: number }) => {
                           return acc + +file.price;
                         }, 0) ?? 0)}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                   </section>
@@ -795,7 +795,7 @@ const RequestInfo: React.FC = () => {
                         type="text"
                         readOnly
                         value={formatMoney(approvedVoucherTotal)}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                     <div className="my-5">
@@ -810,7 +810,7 @@ const RequestInfo: React.FC = () => {
                         type="text"
                         readOnly
                         value={formatMoney(previewAdvanceMoney, "MXN")}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                     <div className="my-5">
@@ -825,7 +825,7 @@ const RequestInfo: React.FC = () => {
                         type="text"
                         readOnly
                         value={formatMoney(Math.abs(previewBalance), "MXN")}
-                        className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
+                        className={`w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2
                       ${previewBalance > 0 ? "text-red-500" : "text-green-600"
                           }`}
                       />
@@ -837,14 +837,14 @@ const RequestInfo: React.FC = () => {
             {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10" id="travel-agency">
               <label
                 htmlFor="agency"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-bold text-gray-500 mb-1"
               >
                 {data.status !== "Pending Review" ? "Agencia de viaje" : "Agencias de viaje"}
               </label>
               {data.status === "Pending Review" ? (
                 <select
                   id="agency"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={selectedAgency}
                   disabled={data.status !== "Pending Review"}
                   onChange={(e) => setSelectedAgency(e.target.value)}
@@ -861,7 +861,7 @@ const RequestInfo: React.FC = () => {
                   type="text"
                   readOnly
                   value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                  className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                 />
               )}
             </section>}
@@ -870,14 +870,14 @@ const RequestInfo: React.FC = () => {
             {authState.userPermissions.includes("approve_request" as Permission) && data.status === "Pending Review" && <section className="mb-8" id="comment-section">
               <label
                 htmlFor="comment"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-bold text-gray-500 mb-1"
               >
                 Comentarios
               </label>
               <textarea
                 id="comment"
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Escribe tus comentarios aquí..."

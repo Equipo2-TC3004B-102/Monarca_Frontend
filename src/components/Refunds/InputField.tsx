@@ -6,6 +6,7 @@
  * Last Modification made: 
  * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
  * clarity and maintainability.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 import React, { ChangeEvent, useState } from "react";
 
@@ -138,7 +139,7 @@ const InputField: React.FC<InputFieldProps> = ({
     required && isEmptyValue(type === "file" ? undefined : value) && (isTouched || wasChanged);
 
   // Base styles for the input - adjusted for different input types
-  const baseClass = `p-2 border rounded-md focus:outline-none focus:ring-2 ${
+  const baseClass = `p-2 bg-[var(--color-card-bg)] border rounded-md focus:outline-none focus:ring-2 ${
     type === "checkbox" || type === "radio"
       ? "w-auto hover:cursor-pointer" // Checkbox and radio shouldn't be full width
       : type === "file"
@@ -156,10 +157,10 @@ const InputField: React.FC<InputFieldProps> = ({
   const borderClass =
     isInvalid || errorMessage
       ? "border-red-500 focus:ring-blue-500"
-      : "border-gray-300 focus:ring-blue-500";
+      : "border-[var(--color-border)] focus:ring-blue-500";
 
   // Text color
-  const textClass = "text-[#0a2c6d]";
+  const textClass = "text-[var(--color-page-text)]";
 
   /**
    * validateInput, validates an input field based on required status and custom validation rules.
@@ -317,7 +318,7 @@ const InputField: React.FC<InputFieldProps> = ({
         {label && (
           <label
             htmlFor={id || name}
-            className="mb-1 text-sm font-medium text-[#0a2c6d]"
+            className="mb-1 text-sm font-medium text-[var(--color-page-text)]"
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}

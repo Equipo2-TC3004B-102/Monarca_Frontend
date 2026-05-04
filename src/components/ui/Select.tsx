@@ -4,7 +4,7 @@
  * loading/disabled states.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 import {
   Listbox,
@@ -68,8 +68,8 @@ export default function Select({
       <div className="relative">
         <ListboxButton
           id={id}
-          className={`relative w-full cursor-default rounded-md p-2.5 pr-10 text-left text-gray-900 ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
-            isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+          className={`relative w-full cursor-default rounded-md p-2.5 pr-10 text-left text-[var(--color-page-text)] ring-1 ring-inset ring-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
+            isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-[var(--color-card-bg)]"
           }`}
         >
           <span className="block truncate">

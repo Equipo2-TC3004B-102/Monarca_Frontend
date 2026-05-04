@@ -179,9 +179,9 @@ const Bookings = () => {
     <>
     <Tutorial page="bookings" run={tutorial}>
       <GoBack />
-      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[#0a2c6d]">
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
             Viajes por Reservar
           </h2>
           <RefreshButton />

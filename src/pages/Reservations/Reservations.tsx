@@ -377,9 +377,9 @@ export const Reservations = () => {
 
   return (
     <Tutorial page="reservations" run={tutorial}>
-      <div className="bg-gray-200 rounded-md mb-10 max-w-5xl mx-auto">
+      <div className="bg-[var(--color-card-bg)] rounded-md mb-10 max-w-5xl mx-auto">
         <div className="p-10 mx-auto">
-          <h2 className="text-2xl font-bold text-[var(--blue)] mb-4">
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-4">
             Asignar reservaciones
           </h2>
           <form 
@@ -390,9 +390,9 @@ export const Reservations = () => {
               {request?.requests_destinations?.map((destination: any) => (
                 <div 
                   key={destination.id}
-                  className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
+                  className="rounded-md p-4 mb-6 space-y-4 bg-[var(--color-page-bg)] shadow-sm"
                 >
-                  <h3>Destino #{destination.destination_order}</h3>
+                  <h3 className="font-bold text-gray-500">Destino #{destination.destination_order}</h3>
                   <div>
 
                   </div>
@@ -410,7 +410,7 @@ export const Reservations = () => {
                           type="text"
                           readOnly
                           value={destination[key] || ""}
-                          className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                          className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                         />
                       </div>
                     ))}
@@ -421,7 +421,7 @@ export const Reservations = () => {
                         <h3 className="text-[var(--blue)] mb-4 font-bold">Información del hotel</h3>
                         <div>
                           <label 
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_title_${destination.id}`}
                           >
                             Título
@@ -432,12 +432,13 @@ export const Reservations = () => {
                             onChange={(e) => handleChange(e, destination.id)}
                             name="hotel_title"
                             id={`hotel_title_${destination.id}`}
+                            className="bg-[var(--color-card-bg)]"
                           />
                         </div>
 
                         <div>
                           <label 
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_comments_${destination.id}`}
                           >
                             Comentarios
@@ -453,13 +454,13 @@ export const Reservations = () => {
 
                         <div>
                           <label 
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_price_${destination.id}`}
                           >
                             Precio
                           </label>
                           <input
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                            className="w-full rounded-lg bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] px-3 py-2"
                             placeholder="Ingresa el precio del hotel"
                             value={formData[destination.id]?.hotel_price ?? "0.00"}
                             onChange={(e) => {
@@ -487,7 +488,7 @@ export const Reservations = () => {
 
                         <div>
                           <label 
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_file_${destination.id}`}
                           >
                             Subir archivos de hotel
@@ -524,7 +525,7 @@ export const Reservations = () => {
                         <h3 className="text-[var(--blue)] mb-4 font-bold">Información del vuelo</h3>
                         <div>
                           <label 
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_title_${destination.id}`}
                           >
                             Título
@@ -540,7 +541,7 @@ export const Reservations = () => {
 
                         <div>
                           <label 
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_comments_${destination.id}`}
                           >
                             Comentarios
@@ -556,7 +557,7 @@ export const Reservations = () => {
 
                         <div>
                           <label 
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_price_${destination.id}`}
                           >
                             Precio
@@ -596,7 +597,7 @@ export const Reservations = () => {
 
                         <div>
                           <label 
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_file_${destination.id}`}
                           >
                             Subir archivos de avión

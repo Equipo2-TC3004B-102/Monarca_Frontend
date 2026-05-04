@@ -4,7 +4,7 @@
  * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 04/05/2026 [Rebeca-Davila] Added local storage for the dark mode
  */
 
 import { StrictMode } from "react";
@@ -200,6 +200,12 @@ export const router = createBrowserRouter([
  * request deduplication, and server-state synchronization.
  */
 const queryClient = new QueryClient();
+
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+  document.documentElement.classList.add("dark");
+}
 
 /**
  * Application render guard:

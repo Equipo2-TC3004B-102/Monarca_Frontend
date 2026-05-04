@@ -3,7 +3,7 @@
  * Description: Detailed view for reviewing, approving, or denying individual expense vouchers associated with a trip request.
  * Authors: Original Monarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added fallback rendering for origin/destination values when destination data is partial.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -284,7 +284,7 @@ const RefundsAcceptance: React.FC = () => {
                     type="text"
                     readOnly
                     value={data[key] !== undefined ? String(renderStatus(data.status ?? '')) : ""}
-                    className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    className="w-full bg-[var(--color-card-bg)] text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                   />
                   
                 ) : (

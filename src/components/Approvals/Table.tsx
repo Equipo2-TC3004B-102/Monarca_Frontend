@@ -165,7 +165,7 @@ const Table: React.FC<TableProps> = ({
                   <tr>
                     <td
                       colSpan={columns.length + 2}
-                      className="bg-white text-black p-4 rounded-b-lg"
+                      className="bg-[var(--color-page-bg)] text-[var(--color-page-text)] p-4 rounded-b-lg"
                     >
                       <div className="grid grid-cols-3 gap-6">
                         <div>
