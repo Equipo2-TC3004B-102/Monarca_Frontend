@@ -3,10 +3,7 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added destination fallback display to avoid
- *                             null access when destination data is missing.
- * 22/04/2026 [Sebastián Borjas] Added multi-currency support, compact upload buttons, and fixed table cell alignment.
- * 23/04/2026 [Jin Sik Yoon] - Implemented form submission to handle multiple vouchers, added validation for amount field, and enhanced user experience with file upload previews and error handling.
+ * 04/05/2026 [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -25,6 +22,7 @@ import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
 import { currencyOptions } from "../../utils/currencies";
+import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
 
 /**
  * FormDataRow
@@ -140,7 +138,7 @@ export const Vouchers = () => {
         "Error submitting refund request. Please try again later."
       );
     }
-  };
+  }; 
 
   /**
    * Schema definition for the DynamicTable.
@@ -315,6 +313,13 @@ export const Vouchers = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  // Validate file size
+                  if (!isFileSizeValid(file)) {
+                    toast.error(getFileSizeErrorMessage(file.name, file.size));
+                    e.target.value = "";
+                    return;
+                  }
+                  
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
@@ -370,6 +375,13 @@ export const Vouchers = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  // Validate file size
+                  if (!isFileSizeValid(file)) {
+                    toast.error(getFileSizeErrorMessage(file.name, file.size));
+                    e.target.value = "";
+                    return;
+                  }
+                  
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
