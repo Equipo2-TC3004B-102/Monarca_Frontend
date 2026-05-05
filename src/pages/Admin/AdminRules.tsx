@@ -1,4 +1,14 @@
+/*
+ * FileName: AdminRules.tsx
+ * Description: Admin page for managing approval rules. Displays existing rules in a paginated table and provides a form to create new rules with fields for 
+ *              code, name, description, applicability, order, amount thresholds, required approvals, and company association. 
+ *              Includes navigation to notification settings and handles API interactions for fetching and creating rules.
+ * Authors: Original Monarca team
+ * Last Modification made:
+ * 05/05/2026 [Santiago Coronado Hernández] Added useNavigate to make button in rules section that points to notifications settings.
+ */
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getRequest, postRequest } from "../../utils/apiService";
 import GoBack from "../../components/GoBack";
 import RefreshButton from "../../components/RefreshButton";
@@ -42,6 +52,7 @@ export default function AdminRules() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
   const fetchRules = async () => {
     setLoading(true);
@@ -100,6 +111,12 @@ export default function AdminRules() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-[var(--blue)]">Reglas</h2>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/admin/notifications')}
+              className="px-3 py-2 bg-[#f0f4ff] text-[#0a2c6d] text-sm rounded-md hover:bg-[#ebf0ff] transition-colors"
+            >
+              Notificaciones
+            </button>
             <button
               onClick={() => { setShowForm(!showForm); setMessage(null); }}
               className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors"

@@ -4,7 +4,7 @@
  * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 03/05/2026 [Julio Rodriguez] Changed /admin/users to requireCompanyAdmin so both admins can access.
+ * 05/05/2026 [Santiago Coronado Hernández] Added new admin notifications page and related routes, and ensured it is protected by company admin flag.
  */
 
 import { StrictMode } from "react";
@@ -18,6 +18,7 @@ import EditTravelRequest from "./pages/EditTravelRequest.tsx";
 import AdminUsers from "./pages/Admin/AdminUsers.tsx";
 import AdminRules from "./pages/Admin/AdminRules.tsx";
 import AdminNewCompany from "./pages/Admin/AdminNewCompany.tsx";
+import AdminNotifications from "./pages/Admin/AdminNotifications.tsx";
 
 import {
   ProtectedRoute,
@@ -142,6 +143,10 @@ export const router = createBrowserRouter([
       {
         path: "/admin/rules",
         element: <FlagProtectedRoute requireCompanyAdmin><AdminRules /></FlagProtectedRoute>,
+      },
+      {
+        path: "/admin/notifications",
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminNotifications /></FlagProtectedRoute>,
       },
       {
         path: "/admin/companies/new",
