@@ -3,7 +3,7 @@
  * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Julio Rodriguez] Removed create_company/user_list from Permission type; admin visibility now uses isSystemAdmin/isCompanyAdmin flags.
+ * 05/05/2026 [Santiago Coronado Hernández] Added company id to auth state and included it in the profile fetch logic to support company-scoped features and permissions in the frontend.
  */
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
@@ -56,6 +56,7 @@ export interface AuthState {
   userEmail: string;
   userPermissions: Permission[];
   userRole: string;
+  companyId: string | null;
   isSystemAdmin: boolean;
   isCompanyAdmin: boolean;
 }
@@ -107,6 +108,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     userPermissions: [],
     isSystemAdmin: false,
     isCompanyAdmin: false,
+    companyId: null,
   });
 
   useEffect(() => {
@@ -133,6 +135,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                 (permission: { name: string }) => permission.name
               ),
               userEmail: response.user.email,
+              companyId:
+                response.user.id_company ?? response.user.company_id ?? response.user.company?.id ?? null,
               isSystemAdmin: response.user.is_system_admin ?? false,
               isCompanyAdmin: response.user.is_company_admin ?? false,
             });
@@ -176,6 +180,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         userPermissions: [],
         isSystemAdmin: false,
         isCompanyAdmin: false,
+        companyId: null,
       });
     }
   };

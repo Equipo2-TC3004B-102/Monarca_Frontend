@@ -3,12 +3,7 @@
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 14/04/2026 - (JinSik Yoon) Added file upload functionality and preview for reservations.
- * to the form
- * 20/04/2026 [Diego de la Vega] Added fallback mapping for origin/destination
- *                             values and defensive handling of empty destination arrays.
- * 22/04/2026 [Sebastián Borjas] Added MXN currency indicator next to hotel and flight price fields.
- * 23/04/2026 - [Jin Sik Yoon] Updated form submission to handle multiple reservations and added validation for required fields.
+ * 04/05/2026 - [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits. Also implemented localStorage persistence for form data to prevent data loss on page refreshes or accidental navigations away from the page.
  */
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -20,6 +15,7 @@ import formatDate from "../../utils/formatDate";
 import { postRequest } from "../../utils/apiService";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
+import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
 
 /**
  * FunctionName: Reservations
@@ -179,6 +175,16 @@ export const Reservations = () => {
     const file = files ? files[0] : null;
 
     if (!file) return;
+
+    // Validate file size first
+    if (!isFileSizeValid(file)) {
+      setFileErrors((prev) => ({
+        ...prev,
+        [`${id}_${name}`]: getFileSizeErrorMessage(file.name, file.size),
+      }));
+      e.target.value = "";
+      return;
+    }
 
     const allowedMimeTypes = [
       "application/pdf",
