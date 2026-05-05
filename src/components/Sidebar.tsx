@@ -4,7 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Julio Rodriguez] Fixed approver history label and replaced requester permission with check_budgets for SOI "Viajes por registrar" link.
+ * 05/05/2026 [Santiago Coronado Hernández] Added notifications section
  */
 
 // ***************** images *****************
@@ -81,6 +81,9 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             )}
             {user.isCompanyAdmin && (
               <SidebarOption label="Reglas" pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
+            )}
+            {(user.isCompanyAdmin || user.isSystemAdmin) && (
+              <SidebarOption label="Notificaciones" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
         </ul>
       </div>
