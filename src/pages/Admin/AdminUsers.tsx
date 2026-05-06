@@ -5,7 +5,7 @@
  *              because POST /users/import is scoped to the caller's company.
  * Authors: DebugStudio Team
  * Last Modification:
- * 03/05/2026 [Julio Rodriguez] Error messages now read from API response body to match endpoint error standard.
+ * 05/05/2026 [Julio Rodriguez] Added companyId guard and company indicator using authState.companyId pattern.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -28,6 +28,9 @@ const ITEMS_PER_PAGE = 5;
 
 export default function AdminUsers() {
   const { authState } = useAuth();
+  const companyId = authState.companyId;
+  const canLoad = Boolean(companyId);
+
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -93,11 +96,14 @@ export default function AdminUsers() {
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-[var(--blue)]">Lista de usuarios</h2>
+          <p className="text-sm text-gray-600">
+            {companyId ? `Empresa activa: ${companyId}` : "Empresa no disponible"}
+          </p>
           <div className="flex items-center gap-3">
             {!authState.isSystemAdmin && (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={importing}
+                disabled={importing || !canLoad}
                 className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
               >
                 {importing ? "Cargando..." : "Cargar nuevo usuario"}
