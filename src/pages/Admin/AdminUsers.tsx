@@ -4,7 +4,7 @@
  *              via GET /admin/users; the JSON import button is hidden for system admins
  *              because POST /users/import is scoped to the caller's company.
  * Authors: DebugStudio Team
- * Last Modification:
+ * Last Modification made:
  * 05/05/2026 [Julio Rodriguez] Added companyId guard and company indicator using authState.companyId pattern.
  */
 

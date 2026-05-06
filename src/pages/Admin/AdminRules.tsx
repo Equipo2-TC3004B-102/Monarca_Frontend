@@ -1,4 +1,4 @@
-/*
+/**
  * FileName: AdminRules.tsx
  * Description: Admin page for managing approval rules (ApprovalLevels). Displays existing levels
  *              in a paginated table and provides a form to create new levels with optional inline actor.
