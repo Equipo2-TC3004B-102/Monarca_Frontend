@@ -48,7 +48,7 @@ export const Dashboard = ({title}:DashboardProps) => {
         {!isAdmin && authState.userPermissions.includes("create_request" as Permission) && (
           <Mosaic title="Crear solicitud de viaje" iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create" id="create-request"/>
         )}
-        {!isAdmin && authState.userPermissions.includes("request_history" as Permission) && (
+        {authState.userPermissions.includes("view_own_requests" as Permission) && (
           <Mosaic title="Historial de viajes" iconPath="/assets/historial_de_viajes.png" link="/history" id="history"/>
         )}
         {!isAdmin && authState.userPermissions.includes("upload_vouchers" as Permission) && (

@@ -45,7 +45,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {!isAdmin && user.userPermissions.includes("create_request" as Permission) && (
               <SidebarOption label="Crear solicitud" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/requests/create" onClick={onNavigate}/>
             )}
-            {!isAdmin && user.userPermissions.includes("request_history" as Permission) && (
+            {user.userPermissions.includes("view_own_requests" as Permission) && (
               <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes.png" link="/history" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("upload_vouchers" as Permission) && (
