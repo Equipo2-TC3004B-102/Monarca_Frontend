@@ -4,11 +4,10 @@
  * It provides a customizable input field with proper validation and styling.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
- * clarity and maintainability.
  * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 import React, { ChangeEvent, useState } from "react";
+import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
 
 /*
  * InputFieldProps interface to define the structure of the props for the InputField component.
@@ -206,6 +205,16 @@ const InputField: React.FC<InputFieldProps> = ({
    * Output: void
    */
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    // Validate file size for file inputs
+    if (type === "file" && e.target.files?.[0]) {
+      const file = e.target.files[0];
+      if (!isFileSizeValid(file)) {
+        setLocalError(getFileSizeErrorMessage(file.name, file.size));
+        e.target.value = "";
+        return;
+      }
+    }
+
     // Call original onChange handler
     onChange(e);
 
@@ -337,6 +346,11 @@ const InputField: React.FC<InputFieldProps> = ({
             onChange={handleChange}
             onBlur={handleBlur}
             onFocus={handleFocus}
+            onWheel={onWheel}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onKeyDown={onKeyDown}
+            inputMode={inputMode}
             aria-invalid={!!errorMessage}
             aria-required={required}
             role={type === "date" ? "spinbutton" : undefined}

@@ -5,6 +5,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 04/05/2026 [Rebeca-Davila] Added local storage for the dark mode
+ * 05/05/2026 [Santiago Coronado Hernández] Added new admin notifications page and related routes, and ensured it is protected by company admin flag.
  */
 
 import { StrictMode } from "react";
@@ -15,10 +16,15 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
 import EditTravelRequest from "./pages/EditTravelRequest.tsx";
+import AdminUsers from "./pages/Admin/AdminUsers.tsx";
+import AdminRules from "./pages/Admin/AdminRules.tsx";
+import AdminNewCompany from "./pages/Admin/AdminNewCompany.tsx";
+import AdminNotifications from "./pages/Admin/AdminNotifications.tsx";
 
 import {
   ProtectedRoute,
   PermissionProtectedRoute,
+  FlagProtectedRoute,
 } from "./hooks/auth/authContext";
 import "flowbite";
 
@@ -131,7 +137,22 @@ export const router = createBrowserRouter([
         path: "/refunds-review/:id",
         element: <RefundsAcceptance />,
       },
-
+      {
+        path: "/admin/users",
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminUsers /></FlagProtectedRoute>,
+      },
+      {
+        path: "/admin/rules",
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminRules /></FlagProtectedRoute>,
+      },
+      {
+        path: "/admin/notifications",
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminNotifications /></FlagProtectedRoute>,
+      },
+      {
+        path: "/admin/companies/new",
+        element: <FlagProtectedRoute requireSystemAdmin><AdminNewCompany /></FlagProtectedRoute>,
+      },
       /**
        * Permission-protected routes (approvals module).
        * Requires "approve_trip" permission to access "/approval".

@@ -5,6 +5,7 @@
  * Authors: Original Moncarca team
  * Last Modification made: 
  * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
+ * 06/05/2026 [Julio Rodriguez] Fixed permission check — use view_own_requests instead of create_request to guard requester history view.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -100,11 +101,13 @@ export const Historial = () => {
   useEffect(() => {
     const fetchTravelRecords = async () => {
       try {
-        const endpoint = 
-          authState.userPermissions.includes("create_request" as Permission)
+        const endpoint =
+          authState.userPermissions.includes("view_own_requests" as Permission)
             ? "/requests/user"
             : authState.userPermissions.includes("check_budgets" as Permission)
             ? "/requests/to-approve-SOI"
+            : authState.userPermissions.includes("view_approved_request_history" as Permission)
+            ? "/requests/approved-history"
             : "/requests/all"
         let response = await getRequest(endpoint);
         if(authState.userPermissions.includes("approve_request" as Permission)) {
