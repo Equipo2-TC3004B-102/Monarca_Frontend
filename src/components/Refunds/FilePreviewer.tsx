@@ -10,6 +10,7 @@
  */
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
+import { useTranslation } from "react-i18next";
 
 
 interface FilePreviewerProps {
@@ -33,6 +34,7 @@ interface FilePreviewerProps {
  * Output: JSX element - a preview panel with iframe and file information with download buttons
  */
 const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
+    const { t } = useTranslation();
     return (
         <>
             <div className="grid grid-cols-3 w-full h-96 mb-4">
@@ -45,27 +47,27 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
                 />
 
                 <div className="flex flex-col bg-white p-6 gap-3 col-span-1">
-                  <p id={`class-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Clase: </span>{file.class}</p>
+                  <p id={`class-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.voucherClass')}: </span>{file.class}</p>
                   <p id={`amount-file-${fileIndex}`}>
-                    <span className="font-semibold text-[var(--blue)]">Cantidad (MXN): </span>
+                    <span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.amountMxn')}: </span>
                     <span className="text-green-700">{formatMoney(file.amount)}</span>
                   </p>
                   {file.unconverted_amount != null && file.currency && file.currency !== "MXN" && (
                     <>
                       <p id={`unconverted-amount-file-${fileIndex}`}>
-                        <span className="font-semibold text-[var(--blue)]">Cantidad original: </span>
+                        <span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.originalAmount')}: </span>
                         <span className="text-amber-700">{file.unconverted_amount} {file.currency}</span>
                       </p>
                       {file.exchange_rate != null && (
                         <p id={`exchange-rate-file-${fileIndex}`}>
-                          <span className="font-semibold text-[var(--blue)]">Tipo de cambio: </span>
+                          <span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.exchangeRate')}: </span>
                           {Number(file.exchange_rate).toFixed(4)} MXN/{file.currency}
                         </p>
                       )}
                     </>
                   )}
-                  <p id={`date-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Fecha: </span>{formatDate(file.date)}</p>
-                  <p id={`status-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Estado: </span>{file.status}</p>
+                  <p id={`date-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.date')}: </span>{formatDate(file.date)}</p>
+                  <p id={`status-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.voucherStatus')}: </span>{file.status}</p>
                 </div>
               </div>
 
@@ -77,7 +79,7 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
                     download={`comprobante${fileIndex + 1}.xml`}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:cursor-pointer"
                   >
-                    Descargar XML
+                    {t('refundAcceptance.downloadXml')}
                   </a>
                   <a
                     id={`download-file-pdf-${fileIndex}`}
@@ -85,7 +87,7 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
                     download={`comprobante${fileIndex + 1}.pdf`}
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer"
                   >
-                    Descargar PDF
+                    {t('refundAcceptance.downloadPdf')}
                   </a>
                 </div>
               </div>

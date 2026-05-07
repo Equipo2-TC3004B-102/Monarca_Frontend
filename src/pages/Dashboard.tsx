@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Julio Rodriguez] Replaced create_company/user_list permission checks with isSystemAdmin/isCompanyAdmin flag checks for admin mosaics.
+ * 06/05/2026 [Sergio Jiawei Xuan] Adjusted mosaic row gap to compensate for updated Mosaic wrapper padding.
  */
 
 import { useEffect } from "react";
@@ -45,7 +45,7 @@ export const Dashboard = ({title}:DashboardProps) => {
 
   return (
     <Tutorial page="dashboard" run={tutorial}>
-      <div className="flex flex-col lg:flex-row flex-wrap items-center md:justify-center gap-y-20 gap-x-20 py-10 px-1 ml-0">
+      <div className="flex flex-col lg:flex-row flex-wrap items-center md:justify-center gap-y-12 gap-x-20 py-10 px-1 ml-0">
         {authState.userPermissions.includes("create_request" as Permission) && (
           <Mosaic title={t('dashboard.createRequest')} iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create" id="create-request"/>
         )}
@@ -83,13 +83,13 @@ export const Dashboard = ({title}:DashboardProps) => {
           <Mosaic title={t('dashboard.reservedHistory')} iconPath="/assets/historial_de_viajes_reservados.png" link="/history" id="reserved_requests"/>
         )}
         {authState.isSystemAdmin && (
-          <Mosaic title="Crear empresa" iconPath="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" id="create_company"/>
+          <Mosaic title={t('dashboard.newCompany')} iconPath="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" id="create_company"/>
         )}
         {(authState.isSystemAdmin || authState.isCompanyAdmin) && (
-          <Mosaic title="Lista de usuarios" iconPath="/assets/viajes_por_aprobar.png" link="/admin/users" id="user_list"/>
+          <Mosaic title={t('dashboard.userList')} iconPath="/assets/viajes_por_aprobar.png" link="/admin/users" id="user_list"/>
         )}
         {authState.isCompanyAdmin && (
-          <Mosaic title="Reglas" iconPath="/assets/historial_de_viajes.png" link="/admin/rules" id="rules"/>
+          <Mosaic title={t('dashboard.rules')} iconPath="/assets/historial_de_viajes.png" link="/admin/rules" id="rules"/>
         )}
       </div>
     </Tutorial>

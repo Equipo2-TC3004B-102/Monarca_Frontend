@@ -76,16 +76,16 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label={t('sidebar.travelHistory')} pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
             )}
             {user.isSystemAdmin && (
-              <SidebarOption label="Nueva empresa" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.newCompany')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" onClick={onNavigate}/>
             )}
             {(user.isSystemAdmin || user.isCompanyAdmin) && (
-              <SidebarOption label="Lista de usuarios" pathIcon="/assets/viajes_por_aprobar.png" link="/admin/users" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.userList')} pathIcon="/assets/viajes_por_aprobar.png" link="/admin/users" onClick={onNavigate}/>
             )}
             {user.isCompanyAdmin && (
-              <SidebarOption label="Reglas" pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.rules')} pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
             )}
             {(user.isCompanyAdmin || user.isSystemAdmin) && (
-              <SidebarOption label="Notificaciones" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
         </ul>
       </div>

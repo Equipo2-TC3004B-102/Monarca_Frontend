@@ -150,6 +150,7 @@ export const Vouchers = () => {
     {
       key: "spentClass",
       header: t('vouchers.colSpentClass'),
+      className: "w-40",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -170,6 +171,7 @@ export const Vouchers = () => {
     {
       key: "amount",
       header: t('vouchers.colAmount'),
+      className: "w-24",
       defaultValue: "0.00",
       renderCell: (
         value: CellValueType,
@@ -235,7 +237,7 @@ export const Vouchers = () => {
       key: "currency",
       header: t('vouchers.colCurrency'),
       defaultValue: "",
-      className: "w-32",
+      className: "w-20",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -256,7 +258,7 @@ export const Vouchers = () => {
       key: "taxIndicator",
       header: t('vouchers.colTaxIndicator'),
       defaultValue: "",
-      className: "w-34",
+      className: "w-40",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -276,6 +278,7 @@ export const Vouchers = () => {
     {
       key: "date",
       header: t('vouchers.colDate'),
+      className: "w-24",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -296,6 +299,7 @@ export const Vouchers = () => {
     {
       key: "XMLFile",
       header: t('vouchers.colXML'),
+      className: "w-20",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
@@ -358,6 +362,7 @@ export const Vouchers = () => {
     {
       key: "PDFFile",
       header: t('vouchers.colPDF'),
+      className: "w-20",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,

@@ -14,6 +14,7 @@ import {
   ComboboxOptions,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { useTranslation } from "react-i18next";
 
 type Option = {
   id: number | string;
@@ -38,9 +39,11 @@ export default function SearchableSelect({
   onChange,
   isLoading = false,
   isDisabled = false,
-  placeholder = "Busca o selecciona una opción",
+  placeholder,
   id,
 }: SearchableSelectProps) {
+  const { t } = useTranslation();
+  const effectivePlaceholder = placeholder ?? t('common.searchOption');
   const [query, setQuery] = useState("");
 
   const normalizedQuery = useMemo(
@@ -81,10 +84,10 @@ export default function SearchableSelect({
                 isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-gray-50"
               }`}
               displayValue={(option: Option | null) =>
-                isLoading ? "Cargando..." : option?.name ?? ""
+                isLoading ? t('common.loading') : option?.name ?? ""
               }
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={placeholder}
+              placeholder={effectivePlaceholder}
             />
             <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -95,11 +98,11 @@ export default function SearchableSelect({
             <ComboboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
               {isLoading ? (
                 <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                  Cargando...
+                  {t('common.loading')}
                 </div>
               ) : filteredOptions.length === 0 && query !== "" ? (
                 <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                  No se encontraron resultados para "{query}".
+                  {t('common.noResults', { query })}
                 </div>
               ) : (
                 <>
@@ -133,12 +136,12 @@ export default function SearchableSelect({
                   ))}
                   {query === "" && options.length > MAX_VISIBLE_OPTIONS && (
                     <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500">
-                      Mostrando los primeros {MAX_VISIBLE_OPTIONS} resultados. Escribe para filtrar.
+                      {t('common.showingFirst', { count: MAX_VISIBLE_OPTIONS })}
                     </div>
                   )}
                   {query !== "" && filteredOptions.length >= MAX_VISIBLE_OPTIONS && (
                     <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500">
-                      Mostrando los primeros {MAX_VISIBLE_OPTIONS} resultados. Refina tu búsqueda.
+                      {t('common.moreResults')}
                     </div>
                   )}
                 </>

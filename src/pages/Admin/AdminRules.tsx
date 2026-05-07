@@ -1,7 +1,7 @@
 /*
  * FileName: AdminRules.tsx
- * Description: Admin page for managing approval rules. Displays existing rules in a paginated table and provides a form to create new rules with fields for 
- *              code, name, description, applicability, order, amount thresholds, required approvals, and company association. 
+ * Description: Admin page for managing approval rules. Displays existing rules in a paginated table and provides a form to create new rules with fields for
+ *              code, name, description, applicability, order, amount thresholds, required approvals, and company association.
  *              Includes navigation to notification settings and handles API interactions for fetching and creating rules.
  * Authors: Original Monarca team
  * Last Modification made:
@@ -14,6 +14,7 @@ import GoBack from "../../components/GoBack";
 import RefreshButton from "../../components/RefreshButton";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
+import { useTranslation } from "react-i18next";
 
 interface ApprovalRule {
   id: string;
@@ -45,6 +46,7 @@ const labelClass = "block mb-2 text-sm font-medium text-gray-900";
 const selectClass = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
 
 export default function AdminRules() {
+  const { t } = useTranslation();
   const [rules, setRules] = useState<ApprovalRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -61,7 +63,7 @@ export default function AdminRules() {
       setRules(data);
       setCurrentPage(1);
     } catch {
-      setMessage({ text: "Error al cargar reglas.", error: true });
+      setMessage({ text: t('admin.rules.errorLoading'), error: true });
     } finally {
       setLoading(false);
     }
@@ -93,12 +95,12 @@ export default function AdminRules() {
         min_amount_mon: form.min_amount_mon !== "" ? Number(form.min_amount_mon) : null,
         max_amount_mon: form.max_amount_mon !== "" ? Number(form.max_amount_mon) : null,
       });
-      setMessage({ text: "Regla creada exitosamente.", error: false });
+      setMessage({ text: t('admin.rules.successCreate'), error: false });
       setForm(emptyForm);
       setShowForm(false);
       await fetchRules();
     } catch {
-      setMessage({ text: "Error al crear la regla.", error: true });
+      setMessage({ text: t('admin.rules.errorCreate'), error: true });
     } finally {
       setSaving(false);
     }
@@ -109,19 +111,19 @@ export default function AdminRules() {
       <GoBack />
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[var(--blue)]">Reglas</h2>
+          <h2 className="text-2xl font-bold text-[var(--blue)]">{t('admin.rules.title')}</h2>
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/admin/notifications')}
               className="px-3 py-2 bg-[#f0f4ff] text-[#0a2c6d] text-sm rounded-md hover:bg-[#ebf0ff] transition-colors"
             >
-              Notificaciones
+              {t('admin.rules.notifications')}
             </button>
             <button
               onClick={() => { setShowForm(!showForm); setMessage(null); }}
               className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors"
             >
-              {showForm ? "Cancelar" : "Crear nueva regla"}
+              {showForm ? t('common.cancel') : t('admin.rules.createRule')}
             </button>
             <RefreshButton />
           </div>
@@ -136,52 +138,52 @@ export default function AdminRules() {
         {showForm && (
           <section className="bg-gray-200 rounded-md mb-6">
             <div className="p-10">
-              <h3 className="text-2xl font-bold text-[var(--blue)] mt-0 mb-4">Nueva regla de aprobación</h3>
+              <h3 className="text-2xl font-bold text-[var(--blue)] mt-0 mb-4">{t('admin.rules.newRule')}</h3>
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                   <div>
-                    <label className={labelClass}>Código</label>
-                    <Input name="code" value={form.code} onChange={handleChange} required placeholder="Ej. NIVEL-1" />
+                    <label className={labelClass}>{t('admin.rules.code')}</label>
+                    <Input name="code" value={form.code} onChange={handleChange} required placeholder={t('admin.rules.codePlaceholder')} />
                   </div>
                   <div>
-                    <label className={labelClass}>Nombre del nivel</label>
-                    <Input name="name" value={form.name} onChange={handleChange} required placeholder="Ej. Aprobación gerencial" />
+                    <label className={labelClass}>{t('admin.rules.levelName')}</label>
+                    <Input name="name" value={form.name} onChange={handleChange} required placeholder={t('admin.rules.levelNamePlaceholder')} />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className={labelClass}>Descripción de nivel</label>
-                    <Input name="description" value={form.description} onChange={handleChange} placeholder="Descripción del nivel de aprobación" />
+                    <label className={labelClass}>{t('admin.rules.levelDescription')}</label>
+                    <Input name="description" value={form.description} onChange={handleChange} placeholder={t('admin.rules.levelDescriptionPlaceholder')} />
                   </div>
                   <div>
-                    <label className={labelClass}>A quién aplica</label>
+                    <label className={labelClass}>{t('admin.rules.appliesTo')}</label>
                     <select name="applies_to" value={form.applies_to} onChange={handleChange} className={selectClass}>
-                      <option value="travel">Viajes</option>
-                      <option value="refund">Reembolsos</option>
-                      <option value="all">Todos</option>
+                      <option value="travel">{t('admin.rules.travel')}</option>
+                      <option value="refund">{t('admin.rules.refund')}</option>
+                      <option value="all">{t('admin.rules.all')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>Orden del nivel</label>
+                    <label className={labelClass}>{t('admin.rules.levelOrder')}</label>
                     <Input name="level_order" type="number" min={1} value={form.level_order} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className={labelClass}>Cantidad mínima de solicitud</label>
-                    <Input name="min_amount_mon" type="number" min={0} value={form.min_amount_mon} onChange={handleChange} placeholder="Sin mínimo" />
+                    <label className={labelClass}>{t('admin.rules.minAmount')}</label>
+                    <Input name="min_amount_mon" type="number" min={0} value={form.min_amount_mon} onChange={handleChange} placeholder={t('admin.rules.noMinimum')} />
                   </div>
                   <div>
-                    <label className={labelClass}>Cantidad máxima de solicitud</label>
-                    <Input name="max_amount_mon" type="number" min={0} value={form.max_amount_mon} onChange={handleChange} placeholder="Sin máximo" />
+                    <label className={labelClass}>{t('admin.rules.maxAmount')}</label>
+                    <Input name="max_amount_mon" type="number" min={0} value={form.max_amount_mon} onChange={handleChange} placeholder={t('admin.rules.noMaximum')} />
                   </div>
                   <div>
-                    <label className={labelClass}>Aprobaciones requeridas en este nivel</label>
+                    <label className={labelClass}>{t('admin.rules.requiredApprovals')}</label>
                     <Input name="required_approvals" type="number" min={1} value={form.required_approvals} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className={labelClass}>ID de empresa</label>
-                    <Input name="company_id" value={form.company_id} onChange={handleChange} required placeholder="UUID de la empresa" />
+                    <label className={labelClass}>{t('admin.rules.companyId')}</label>
+                    <Input name="company_id" value={form.company_id} onChange={handleChange} required placeholder={t('admin.rules.companyIdPlaceholder')} />
                   </div>
                 </div>
                 <Button type="submit" disabled={saving} className="mt-6">
-                  {saving ? "Guardando..." : "Guardar regla"}
+                  {saving ? t('common.saving') : t('admin.rules.saveRule')}
                 </Button>
               </form>
             </div>
@@ -189,28 +191,28 @@ export default function AdminRules() {
         )}
 
         <div className="overflow-x-auto mb-4">
-          <table className="w-full text-sm text-left text-gray-500 border-separate border-spacing-y-2">
+          <table className="w-full table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
-                <th className="px-4 py-2 text-center rounded-l-lg">Código</th>
-                <th className="px-4 py-2 text-center">Nombre</th>
-                <th className="px-4 py-2 text-center">Descripción</th>
-                <th className="px-4 py-2 text-center">Aplica a</th>
-                <th className="px-4 py-2 text-center">Orden</th>
-                <th className="px-4 py-2 text-center">Monto mín.</th>
-                <th className="px-4 py-2 text-center">Monto máx.</th>
-                <th className="px-4 py-2 text-center">Aprobaciones</th>
-                <th className="px-4 py-2 text-center rounded-r-lg">Estado</th>
+                <th className="px-4 py-2 text-center rounded-l-lg">{t('admin.rules.code')}</th>
+                <th className="px-4 py-2 text-center">{t('admin.rules.levelName')}</th>
+                <th className="px-4 py-2 text-center">{t('admin.rules.description')}</th>
+                <th className="px-4 py-2 text-center">{t('admin.rules.appliesTo')}</th>
+                <th className="px-4 py-2 text-center">{t('admin.rules.order')}</th>
+                <th className="px-4 py-2 text-center">{t('admin.rules.minAmountShort')}</th>
+                <th className="px-4 py-2 text-center">{t('admin.rules.maxAmountShort')}</th>
+                <th className="px-4 py-2 text-center">{t('admin.rules.approvals')}</th>
+                <th className="px-4 py-2 text-center rounded-r-lg">{t('admin.users.status')}</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="text-center pt-10 text-gray-500">Cargando...</td>
+                  <td colSpan={9} className="text-center pt-10 text-gray-500">{t('common.loading')}</td>
                 </tr>
               ) : paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center pt-10">No hay datos disponibles</td>
+                  <td colSpan={9} className="text-center pt-10">{t('common.noData')}</td>
                 </tr>
               ) : paginated.map((r) => (
                 <tr key={r.id} className="bg-[#4C6997] text-white text-center">
@@ -224,7 +226,7 @@ export default function AdminRules() {
                   <td className="px-4 py-3">{r.required_approvals}</td>
                   <td className="px-4 py-3 rounded-r-lg">
                     <span className={`text-xs p-1 rounded-sm font-bold ${r.is_active ? "bg-[#c7e6ab] text-[#24390d]" : "bg-[#eca6a6] text-[#680909]"}`}>
-                      {r.is_active ? "Activa" : "Inactiva"}
+                      {r.is_active ? t('admin.rules.active') : t('admin.rules.inactive')}
                     </span>
                   </td>
                 </tr>

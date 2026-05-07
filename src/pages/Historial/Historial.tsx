@@ -4,7 +4,7 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 28/04/2026 [Julio Rodriguez] Added explicit approver case in endpoint selector to use approved-history endpoint instead of falling through to view_assigned_requests_readonly.
+ * 06/05/2026 [Sergio Jiawei Xuan] Changed status badge style to adapt to text width; corrected arrival date translation key.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -75,7 +75,7 @@ const renderStatus = (status: string, t: TFunction) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs p-1 rounded-sm ${styles}`}>
+      <span className={`text-xs p-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>
         {statusText}
       </span>
     )

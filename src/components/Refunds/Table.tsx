@@ -8,6 +8,7 @@
  * clarity and maintainability.
  */
 import React, { ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 /*
  * Column interface SCHEMA to define the structure of each column in the table.
@@ -18,6 +19,7 @@ import React, { ReactNode, useState } from "react";
 interface Column {
   key: string;
   header: string;
+  width?: string;
   render?: (value: any) => ReactNode;
 }
 
@@ -53,9 +55,7 @@ interface TableProps {
  * Output: JSX element - a complete table component with pagination controls
  */
 const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
-  /*
-   * State to manage the current page of the table.
-   */
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
 
   /*
@@ -108,14 +108,11 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className={`px-4 py-2 text-center ${
+                  className={`py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
-                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""}
-                    ${column.key === "status" ? "min-w-[150px]" : ""
-                  } ${column.key === "action" ? "min-w-[110px]" : ""
-                  } ${
-                    column.key === "status" ? "px-0" : "px-4"
-                  }`}
+                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""
+                  } ${column.key === "status" ? "px-1" : "px-4"
+                  } ${column.width ?? ""}`}
                 >
                   {column.header}
                 </th>
@@ -136,7 +133,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
             {currentItems.length <= 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center pt-10">
-                  No hay datos disponibles
+                  {t('common.noData')}
                 </td>
               </tr>
             ) : currentItems.map((row, rowIndex) => (
@@ -158,7 +155,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
                       cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
                     } ${
                       column.key === "status" ? "px-1" : "px-4"
-                    }`}
+                    } ${column.width ?? ""}`}
                   >
                     {/*
                      * Access to data by colum.key in the row data, to display in the correct place

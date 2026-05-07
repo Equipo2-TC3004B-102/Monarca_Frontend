@@ -405,7 +405,7 @@ export const Reservations = () => {
                   key={destination.id}
                   className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
                 >
-                  <h3>Destino #{destination.destination_order}</h3>
+                  <h3>{t('reservations.destination')} #{destination.destination_order}</h3>
                   <div>
 
                   </div>

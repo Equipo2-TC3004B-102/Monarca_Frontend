@@ -3,7 +3,7 @@
  * Description: Reusable table component with pagination, row expansion for details, and custom action links.
  * Authors: Original Monarca team
  * Last Modification made:
- * 17/04/2026 [Rebeca-Davila] Change the text of the button of see details to "Ver detalles"
+ * 06/05/2026 [Sergio Jiawei Xuan] Replaced hardcoded aria-label strings with i18n t() calls.
  */
 
 import { Link } from "react-router-dom";
@@ -159,7 +159,7 @@ const Table: React.FC<TableProps> = ({
                     <button
                       onClick={() => toggleExpand(row.id)}
                       className="text-xl hover:text-gray-700"
-                      aria-label="Expandir detalles"
+                      aria-label={t('common.expandDetails')}
                     >
                       {expandedRowId === row.id ? "▲" : "▼"}
                     </button>
@@ -227,7 +227,7 @@ const Table: React.FC<TableProps> = ({
             onClick={() => changePage(currentPage - 1)}
             disabled={currentPage === 1}
             className="px-3 py-1 rounded-lg bg-[#0a2c6d] text-white disabled:opacity-50"
-            aria-label="Página anterior"
+            aria-label={t('common.previousPage')}
           >
             &lt;
           </button>
@@ -240,7 +240,7 @@ const Table: React.FC<TableProps> = ({
             onClick={() => changePage(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="px-3 py-1 rounded-lg bg-[#0a2c6d] text-white disabled:opacity-50"
-            aria-label="Página siguiente"
+            aria-label={t('common.nextPage')}
           >
             &gt;
           </button>

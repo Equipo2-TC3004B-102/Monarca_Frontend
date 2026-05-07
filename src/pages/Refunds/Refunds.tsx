@@ -3,8 +3,7 @@
  * Description: Component displaying a list of active trips where users can submit expense vouchers.
  * Authors: Original Monarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added resilient destination/date fallback mapping
- *                             for request list rendering.
+ * 06/05/2026 [Sergio Jiawei Xuan] Adjusted table column widths; replaced hardcoded strings with i18n t() calls.
  */
 
 import { useState, useEffect } from "react";
@@ -57,7 +56,7 @@ const renderStatus = (status: string, t: TFunction) => {
     case "Completed":           statusText = t('status.completed');           styles = "text-[#24390d] font-bold bg-[#c7e6ab]"; break;
     default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
-  return <span className={`text-xs p-1 rounded-sm ${styles}`}>{statusText}</span>;
+  return <span className={`text-xs px-2 py-1 rounded-sm inline-block w-44 text-center leading-tight ${styles}`}>{statusText}</span>;
 }
 
 /**
@@ -130,19 +129,19 @@ export const Refunds = () => {
     }, []);
 
   const columnsSchemaTrips = [
-    { key: "status", header: t('refunds.status'), render: (value: string) => renderStatus(value, t) },
-    { key: "title", header: t('refunds.trip') },
-    { key: "date", header: t('refunds.tripDate') },
-    { key: "origin", header: t('refunds.departurePlace') },
-    { key: "advance_money", header: t('refunds.advance') },
-    { key: "createdAt", header: t('refunds.requestDate') },
-    { key: "action", header: "" },
+    { key: "status",        header: t('refunds.status'),         width: "w-[28%]", render: (value: string) => renderStatus(value, t) },
+    { key: "title",         header: t('refunds.trip'),           width: "w-[13%]" },
+    { key: "date",          header: t('refunds.tripDate'),       width: "w-[12%]" },
+    { key: "origin",        header: t('refunds.departurePlace'), width: "w-[10%]" },
+    { key: "advance_money", header: t('refunds.advance'),        width: "w-[5%]" },
+    { key: "createdAt",     header: t('refunds.requestDate'),    width: "w-[21%]" },
+    { key: "action",        header: "",                          width: "w-[11%]" },
   ];
   
   if (loading) {
     return (
       <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-        <p className="text-center">Loading trip data...</p>
+        <p className="text-center">{t('refunds.loading')}</p>
       </div>
     );
   }

@@ -23,6 +23,7 @@ import {
   FieldErrors,
   UseFormRegister,
   UseFormSetValue,
+  Resolver,
 } from "react-hook-form";
 import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -37,7 +38,7 @@ import { useUpdateTravelRequest } from "../../hooks/requests/useUpdateRequest";
 import { useDestinations } from "../../hooks/destinations/useDestinations";
 import { CreateRequest } from "../../types/requests";
 import GoBack from "../GoBack";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { makeCurrencyOptions } from "../../utils/currencies";
 import { usePersistedForm } from "../../hooks/app/usePersistedForm";
 
@@ -319,7 +320,16 @@ function DestinationFields({
 
 function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const tRef = useRef(t);
+  tRef.current = t;
+
+  const resolver = useCallback<Resolver<FormValues, unknown, SubmitValues>>(
+    (values, context, options) =>
+      zodResolver(makeFormSchema(tRef.current))(values, context, options),
+    [],
+  );
 
   const priorityOptions: Option[] = useMemo(() => [
     { id: "alta", name: t('priority.high') },
@@ -328,8 +338,6 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   ], [t]);
 
   const currencyOptions = useMemo(() => makeCurrencyOptions(t), [t]);
-
-  const formSchema = useMemo(() => makeFormSchema(t), [t]);
 
   const { destinationOptions, isLoading: isLoadingDestinations } =
     useDestinations();
@@ -379,8 +387,9 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     formState: { errors },
     reset,
     setValue,
+    trigger,
   } = useForm<FormValues, unknown, SubmitValues>({
-    resolver: zodResolver(formSchema),
+    resolver,
     defaultValues: initialFormValues || {
       id_origin_city: null,
       motive: "",
@@ -402,6 +411,11 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       ],
     },
   });
+
+  useEffect(() => {
+    const hasErrors = Object.keys(errors).length > 0;
+    if (hasErrors) trigger();
+  }, [i18n.language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const persistStorageKey =
     isEditing && requestId
