@@ -4,7 +4,7 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 28/04/2026 [Julio Rodriguez] Added explicit approver case in endpoint selector to use approved-history endpoint instead of falling through to view_assigned_requests_readonly.
+ * 06/05/2026 [Julio Rodriguez] Fixed permission check — use view_own_requests instead of create_request to guard requester history view.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -101,7 +101,7 @@ export const Historial = () => {
     const fetchTravelRecords = async () => {
       try {
         const endpoint =
-          authState.userPermissions.includes("create_request" as Permission)
+          authState.userPermissions.includes("view_own_requests" as Permission)
             ? "/requests/user"
             : authState.userPermissions.includes("check_budgets" as Permission)
             ? "/requests/to-approve-SOI"

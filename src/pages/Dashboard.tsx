@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Julio Rodriguez] Replaced create_company/user_list permission checks with isSystemAdmin/isCompanyAdmin flag checks for admin mosaics.
+ * 05/05/2026 [Julio Rodriguez] Hide business-role mosaics for pure admin users (is_system_admin or is_company_admin).
  */
 
 import { useEffect } from "react";
@@ -20,6 +20,7 @@ export const Dashboard = ({title}:DashboardProps) => {
   const { setPageTitle } = useApp();
   const { authState } = useAuth();
   const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const isAdmin = authState.isSystemAdmin || authState.isCompanyAdmin;
 
   // Set the page title when the component mounts
   useEffect(() => {
@@ -44,40 +45,40 @@ export const Dashboard = ({title}:DashboardProps) => {
   return (
     <Tutorial page="dashboard" run={tutorial}>
       <div className="flex flex-col lg:flex-row flex-wrap items-center md:justify-center gap-y-20 gap-x-20 py-10 px-1 ml-0">
-        {authState.userPermissions.includes("create_request" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("create_request" as Permission) && (
           <Mosaic title="Crear solicitud de viaje" iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create" id="create-request"/>
         )}
         {authState.userPermissions.includes("view_own_requests" as Permission) && (
           <Mosaic title="Historial de viajes" iconPath="/assets/historial_de_viajes.png" link="/history" id="history"/>
         )}
-        {authState.userPermissions.includes("upload_vouchers" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("upload_vouchers" as Permission) && (
           <Mosaic title="Comprobar Gastos" iconPath="/assets/solicitud_de_reembolso.png" link="/refunds" id="upload_vouchers"/>
         )}
-        {authState.userPermissions.includes("approve_request" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("approve_request" as Permission) && (
           <Mosaic title="Viajes por aprobar" iconPath="/assets/viajes_por_aprobar.png" link="/approvals" id="approve_request"/>
         )}
-        {authState.userPermissions.includes("view_approved_request_history" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("view_approved_request_history" as Permission) && (
           <Mosaic title="Historial de viajes aprobados" iconPath="/assets/historial_de_viajes_aprobados.png" link="/history" id="approved_requests"/>
         )}
-        {authState.userPermissions.includes("approve_vouchers" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("approve_vouchers" as Permission) && (
           <Mosaic title="Comprobantes de gastos por aprobar" iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" id="approve_vouchers"/>
         )}
         {/* {authState.userPermissions.includes("approve_vouchers" as Permission) && (
           <Mosaic title="Reembolsos por aprobar" iconPath="/assets/reembolsos_por_aprobar.png" link=""/>
         )} */}
-        {authState.userPermissions.includes("check_budgets" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
           <Mosaic title="Viajes por registrar" iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/history" id="check_budgets"/>
         )}
-        {authState.userPermissions.includes("check_budgets" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
           <Mosaic title="Reembolsos por registrar" iconPath="/assets/reembolsos_por_aprobar.png" link="/check-refunds" id="check_refunds"/>
         )}
-        {authState.userPermissions.includes("submit_reservations" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("submit_reservations" as Permission) && (
           <Mosaic title="Viajes por reservar" iconPath="/assets/viajes_por_reservar.png" link="/bookings" id="bookings"/>
         )}
         {/* {authState.userPermissions.includes("submit_reservations" as Permission) && (
           <Mosaic title="Formulario de ingreso de reservación" iconPath="/assets/formulario_de_ingreso_de_reservacion.png" link=""/>
         )} */}
-        {authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("submit_reservations" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("submit_reservations" as Permission) && (
           <Mosaic title="Historial de viajes reservados" iconPath="/assets/historial_de_viajes_reservados.png" link="/history" id="reserved_requests"/>
         )}
         {authState.isSystemAdmin && (
