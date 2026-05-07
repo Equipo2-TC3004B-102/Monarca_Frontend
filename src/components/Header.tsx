@@ -9,7 +9,8 @@
 
 import { useState } from "react";
 import { useAuth } from "../hooks/auth/authContext";
-import menu from "../assets/menu.svg"
+import menu from "../assets/menu.svg";
+import { useTranslation } from "react-i18next";
 // import { useApp } from "../hooks/app/appContext";
 
 /**
@@ -19,9 +20,16 @@ import menu from "../assets/menu.svg"
  */
 function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
   const { handleLogout ,authState } = useAuth();
+  const { t, i18n } = useTranslation();
   // const { pageTitle } = useApp();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const toggleLanguage = () => {
+    const next = i18n.language === 'es' ? 'en' : 'es';
+    i18n.changeLanguage(next);
+    localStorage.setItem('language', next);
+  };
 
   return (
     <nav className="z-50 w-[100%] bg-[var(--dark-blue)] text-[var(--white)]">
@@ -40,10 +48,18 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
           </div>
           <div className="flex items-center">
             <div className="flex items-center ms-3 relative">
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-4">
                 <h2 className="uppercase text-3xl">
                   <span className="text-[var(--ultra-light-blue)]">M</span>onarca
                 </h2>
+                <button
+                  type="button"
+                  title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+                  onClick={toggleLanguage}
+                  className="text-xl leading-none hover:scale-110 transition-transform"
+                >
+                  {i18n.language === 'es' ? '🇲🇽' : '🇺🇸'}
+                </button>
                 <button
                   type="button"
                   className="flex text-sm bg-[var(--ultra-light-blue)] p-2 rounded-full"
@@ -76,7 +92,7 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
                         className="block px-4 py-2 text-sm w-full text-[var(--white)] hover:bg-[var(--gray)] hover:text-[var(--blue)]"
                         onClick={handleLogout}
                       >
-                        Cerrar Sesión
+                        {t('header.logout')}
                       </button>
                     </li>
                   </ul>

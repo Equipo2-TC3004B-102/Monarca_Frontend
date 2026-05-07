@@ -14,14 +14,10 @@ import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
 import { useLocation } from "react-router-dom";
 import { useApp } from "../../hooks/app/appContext";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
-const columns = [
-  { key: "status", header: "Estado" },
-  { key: "motive", header: "Viaje" },
-  { key: "title", header: "Motivo" },
-  { key: "departureDate", header: "Fecha Salida" },
-  { key: "country", header: "Lugar de Salida" },
-];
+// columns are built inside the component so they react to language changes
 /**
  * FunctionName: renderStatus
  * Purpose of the function: to render the status of the approval.
@@ -30,48 +26,48 @@ const columns = [
  * Author: Original Moncarca team
  * Last Modification made: original Moncarca team
  */
-const renderStatus = (status: string) => {
+const renderStatus = (status: string, t: TFunction) => {
   let statusText = "";
   let styles = "";
   switch (status) {
     case "Pending Review":
-      statusText = "En revisión";
+      statusText = t('status.pendingReview');
       styles = "text-[#55447a] font-bold bg-[#bea8ef]";
       break;
     case "Denied":
-      statusText = "Denegado";
+      statusText = t('status.denied');
       styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Cancelled":
-      statusText = "Cancelado";
+      statusText = t('status.cancelled');
       styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Changes Needed":
-      statusText = "Cambios necesarios";
+      statusText = t('status.changesNeeded');
       styles = "text-[#755619] font-bold bg-[#f1dbb1]";
       break;
     case "Pending Reservations":
-      statusText = "Reservas pendientes";
+      statusText = t('status.pendingReservations');
       styles = "text-[#8c5308] font-bold bg-[#f1c180]";
       break;
     case "Pending Accounting Approval":
-      statusText = "Contabilidad pendiente";
+      statusText = t('status.pendingAccountingApproval');
       styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]";
       break;
     case "Pending Vouchers Approval":
-      statusText = "Comprobantes pendientes";
+      statusText = t('status.pendingVouchersApproval');
       styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]";
       break;
     case "In Progress":
-      statusText = "En progreso";
+      statusText = t('status.inProgress');
       styles = "text-[#138080] font-bold bg-[#b7f1f1]";
       break;
-    case "Pending Refund Approval": 
-      statusText = "Reembolso pendiente";
+    case "Pending Refund Approval":
+      statusText = t('status.pendingRefundApproval');
       styles = "text-[#575107] font-bold bg-[#f0eaa5]";
       break;
-    case "Completed": 
-      statusText = "Completado";
+    case "Completed":
+      statusText = t('status.completed');
       styles = "text-[#24390d] font-bold bg-[#c7e6ab]";
       break;
     default:
@@ -97,6 +93,15 @@ export const Approvals: React.FC = () => {
   const [dataWithActions, setDataWithActions] = useState([]);
   const location = useLocation();
   const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const { t } = useTranslation();
+
+  const columns = [
+    { key: "status", header: t('approvals.status'), render: (value: string) => renderStatus(value, t) },
+    { key: "motive", header: t('approvals.trip') },
+    { key: "title", header: t('approvals.motive') },
+    { key: "departureDate", header: t('approvals.departureDate') },
+    { key: "country", header: t('approvals.departurePlace') },
+  ];
 
   // Fetch travel records data from API
   useEffect(() => {
@@ -112,14 +117,14 @@ export const Approvals: React.FC = () => {
 
             return {
               ...trip,
-              status: renderStatus(trip.status),
+              status: trip.status,
               country:
                 trip.destination?.city ||
                 trip.destination?.iata_code ||
-                "Destino no disponible",
+                t('historial.noDestination'),
               departureDate: firstDestination?.departure_date
                 ? formatDate(firstDestination.departure_date)
-                : "Sin fecha",
+                : t('historial.noDate'),
             };
           })
         );
@@ -153,7 +158,7 @@ export const Approvals: React.FC = () => {
         <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-[var(--blue)]">
-              Viajes por Aprobar
+              {t('approvals.title')}
             </h2>
             <RefreshButton />
           </div>

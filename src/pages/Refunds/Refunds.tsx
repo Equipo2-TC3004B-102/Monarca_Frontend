@@ -19,6 +19,8 @@ import GoBack from "../../components/GoBack";
 import { useNavigate } from "react-router-dom";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
 /**
  * Trip
@@ -39,59 +41,23 @@ interface Trip {
  * Input: status (string) - The raw status string from the database.
  * Output: JSX.Element - A styled span component.
  */
-const renderStatus = (status: string) => {
+const renderStatus = (status: string, t: TFunction) => {
   let statusText = "";
   let styles = "";
   switch (status) {
-    case "Pending Review":
-      statusText = "En revisión";
-      styles = "text-[#55447a] font-bold bg-[#bea8ef]";
-      break;
-    case "Denied":
-      statusText = "Denegado";
-      styles = "text-[#680909] font-bold bg-[#eca6a6]";
-      break;
-    case "Cancelled":
-      statusText = "Cancelado";
-      styles = "text-[#680909] font-bold bg-[#eca6a6]";
-      break;
-    case "Changes Needed":
-      statusText = "Cambios necesarios";
-      styles = "text-[#755619] font-bold bg-[#f1dbb1]";
-      break;
-    case "Pending Reservations":
-      statusText = "Reservas pendientes";
-      styles = "text-[#8c5308] font-bold bg-[#f1c180]";
-      break;
-    case "Pending Accounting Approval":
-      statusText = "Contabilidad pendiente";
-      styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]";
-      break;
-    case "Pending Vouchers Approval":
-      statusText = "Comprobantes pendientes";
-      styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]";
-      break;
-    case "In Progress":
-      statusText = "En progreso";
-      styles = "text-[#138080] font-bold bg-[#b7f1f1]";
-      break;
-    case "Pending Refund Approval": 
-      statusText = "Reembolso pendiente";
-      styles = "text-[#575107] font-bold bg-[#f0eaa5]";
-      break;
-    case "Completed": 
-      statusText = "Completado";
-      styles = "text-[#24390d] font-bold bg-[#c7e6ab]";
-      break;
-    default:
-      statusText = status;
-      styles = "text-white bg-[#6c757d]";
-    }
-    return (
-      <span className={`text-xs p-1 rounded-sm ${styles}`}>
-        {statusText}
-      </span>
-    )
+    case "Pending Review":      statusText = t('status.pendingReview');      styles = "text-[#55447a] font-bold bg-[#bea8ef]"; break;
+    case "Denied":              statusText = t('status.denied');              styles = "text-[#680909] font-bold bg-[#eca6a6]"; break;
+    case "Cancelled":           statusText = t('status.cancelled');           styles = "text-[#680909] font-bold bg-[#eca6a6]"; break;
+    case "Changes Needed":      statusText = t('status.changesNeeded');       styles = "text-[#755619] font-bold bg-[#f1dbb1]"; break;
+    case "Pending Reservations":statusText = t('status.pendingReservations'); styles = "text-[#8c5308] font-bold bg-[#f1c180]"; break;
+    case "Pending Accounting Approval": statusText = t('status.pendingAccountingApproval'); styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]"; break;
+    case "Pending Vouchers Approval":   statusText = t('status.pendingVouchersApproval');   styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]"; break;
+    case "In Progress":         statusText = t('status.inProgress');          styles = "text-[#138080] font-bold bg-[#b7f1f1]"; break;
+    case "Pending Refund Approval": statusText = t('status.pendingRefundApproval'); styles = "text-[#575107] font-bold bg-[#f0eaa5]"; break;
+    case "Completed":           statusText = t('status.completed');           styles = "text-[#24390d] font-bold bg-[#c7e6ab]"; break;
+    default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
+  }
+  return <span className={`text-xs p-1 rounded-sm ${styles}`}>{statusText}</span>;
 }
 
 /**
@@ -104,6 +70,7 @@ export const Refunds = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const { t } = useTranslation();
 
   /**
    * Fetches all trips from the API and filters those with "In Progress" status.
@@ -123,7 +90,7 @@ export const Refunds = () => {
 
           return {
             ...trip,
-            status: renderStatus(trip.status),
+            status: trip.status,
             date: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
               : "N/A",
@@ -131,14 +98,12 @@ export const Refunds = () => {
             origin:
               trip.destination?.city ||
               trip.destination?.iata_code ||
-              "Destino no disponible",
+              t('historial.noDestination'),
             createdAt: formatDate(trip.createdAt),
           };
         }));
       } catch (err) {
-        toast.error(
-          "Error loading trips. Please try again later."  
-        );
+        toast.error(t('refunds.errorLoading'));
     
         console.error(
           "Error loading trips: ",
@@ -165,12 +130,12 @@ export const Refunds = () => {
     }, []);
 
   const columnsSchemaTrips = [
-    { key: "status", header: "Estado" },
-    { key: "title", header: "Viaje" },
-    { key: "date", header: "Fecha del viaje" },
-    { key: "origin", header: "Lugar de salida" },
-    { key: "advance_money", header: "Anticipo" },
-    { key: "createdAt", header: "Fecha de solicitud" },
+    { key: "status", header: t('refunds.status'), render: (value: string) => renderStatus(value, t) },
+    { key: "title", header: t('refunds.trip') },
+    { key: "date", header: t('refunds.tripDate') },
+    { key: "origin", header: t('refunds.departurePlace') },
+    { key: "advance_money", header: t('refunds.advance') },
+    { key: "createdAt", header: t('refunds.requestDate') },
     { key: "action", header: "" },
   ];
   
@@ -188,7 +153,7 @@ export const Refunds = () => {
       <Button
         id={`verify-${index}`}
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
-        label="Verificar"
+        label={t('refunds.verify')}
         onClickFunction={() => navigate(`/refunds/${trip.id}`)}
       />
     ),
@@ -201,7 +166,7 @@ export const Refunds = () => {
           <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-[var(--blue)]">
-                  Comprobar gastos
+                  {t('refunds.checkExpenses')}
               </h2>
               <RefreshButton />
             </div>

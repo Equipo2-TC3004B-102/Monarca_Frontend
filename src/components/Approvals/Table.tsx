@@ -8,6 +8,7 @@
 
 import { Link } from "react-router-dom";
 import React, { ReactNode, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Column
@@ -16,6 +17,7 @@ import React, { ReactNode, useState, useEffect } from "react";
 interface Column {
   key: string;
   header: string;
+  render?: (value: any) => ReactNode;
 }
 
 /**
@@ -53,6 +55,7 @@ const Table: React.FC<TableProps> = ({
   itemsPerPage = 5,
   link,
 }) => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
   const [localData, setLocalData] = useState(data);
@@ -90,7 +93,7 @@ const Table: React.FC<TableProps> = ({
   return (
     <div className="relative">
       <div className="overflow-x-auto mb-4">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {columns.map((column, index) => (
@@ -106,11 +109,11 @@ const Table: React.FC<TableProps> = ({
                 </th>
               ))}
 
-              <th className="px-4 py-2 text-center border-r border-[#0a2c6d]">
-                Detalles
+              <th className="px-4 py-2 text-center border-r border-[#0a2c6d] w-[120px]">
+                {t('approvals.details')}
               </th>
 
-              <th className="px-4 py-2 text-center rounded-r-lg">Datos</th>
+              <th className="px-4 py-2 text-center rounded-r-lg w-[80px]">{t('approvals.data')}</th>
             </tr>
           </thead>
 
@@ -118,7 +121,7 @@ const Table: React.FC<TableProps> = ({
             {currentItems.length <= 0 ? (
               <tr>
                 <td colSpan={columns.length + 2} className="text-center pt-10">
-                  No hay datos disponibles
+                  {t('approvals.noData')}
                 </td>
               </tr>
             ) : currentItems.map((row: any) => (
@@ -136,7 +139,9 @@ const Table: React.FC<TableProps> = ({
                     }`}
                     >
                       {row[column.key] !== undefined && row[column.key] !== null
-                        ? row[column.key]
+                        ? column.render
+                          ? column.render(row[column.key])
+                          : row[column.key]
                         : "N/A"}
                     </td>
                   ))}
@@ -146,7 +151,7 @@ const Table: React.FC<TableProps> = ({
                       to={`${link}/${row.id}`}
                       className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
                     >
-                      Ver detalles
+                      {t('historial.viewDetails')}
                     </Link>
                   </td>
 
@@ -169,31 +174,42 @@ const Table: React.FC<TableProps> = ({
                     >
                       <div className="grid grid-cols-3 gap-6">
                         <div>
-                          <strong>Solicitante:</strong>{" "}
+                          <strong>{t('approvals.requester')}:</strong>{" "}
                           {`${row?.user?.name} ${row?.user?.last_name}`}
                         </div>
                         <div>
-                          <strong>Correo:</strong>{" "}
+                          <strong>{t('approvals.email')}:</strong>{" "}
                           {row?.user?.email}
                         </div>
                         <div>
-                          <strong>Aprobador:</strong>{" "}
+                          <strong>{t('approvals.approver')}:</strong>{" "}
                           {`${row?.admin?.name} ${row?.admin?.last_name}`}
                         </div>
                         <div>
-                          <strong>Estado:</strong> {row?.status}
+                          <strong>{t('approvals.status')}:</strong> {{
+                            "Pending Review": t('status.pendingReview'),
+                            "Denied": t('status.denied'),
+                            "Cancelled": t('status.cancelled'),
+                            "Changes Needed": t('status.changesNeeded'),
+                            "Pending Reservations": t('status.pendingReservations'),
+                            "Pending Accounting Approval": t('status.pendingAccountingApproval'),
+                            "Pending Vouchers Approval": t('status.pendingVouchersApproval'),
+                            "In Progress": t('status.inProgress'),
+                            "Pending Refund Approval": t('status.pendingRefundApproval'),
+                            "Completed": t('status.completed'),
+                          }[row?.status] ?? row?.status}
                         </div>
                         <div>
-                          <strong>Motivo:</strong> {row?.motive}
+                          <strong>{t('approvals.motive')}:</strong> {row?.motive}
                         </div>
                         <div>
-                          <strong>Fecha de salida:</strong> {row?.departureDate}
+                          <strong>{t('approvals.departureDate')}:</strong> {row?.departureDate}
                         </div>
                         <div>
-                          <strong>Departamento:</strong> {row?.user?.department?.name ?? "N/A"}
+                          <strong>{t('approvals.department')}:</strong> {row?.user?.department?.name ?? "N/A"}
                         </div>
                         <div>
-                          <strong>Centro de costos:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
+                          <strong>{t('approvals.costCenter')}:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
                         </div>
                       </div>
                     </td>
