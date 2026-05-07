@@ -4,6 +4,7 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
+ * 06/05/2026 [Julio Rodriguez] Fixed permission check — use view_own_requests instead of create_request to guard requester history view.
  * 06/05/2026 [Sergio Jiawei Xuan] Changed status badge style to adapt to text width; corrected arrival date translation key.
  */
 
@@ -104,7 +105,7 @@ export const Historial = () => {
     const fetchTravelRecords = async () => {
       try {
         const endpoint =
-          authState.userPermissions.includes("create_request" as Permission)
+          authState.userPermissions.includes("view_own_requests" as Permission)
             ? "/requests/user"
             : authState.userPermissions.includes("check_budgets" as Permission)
             ? "/requests/to-approve-SOI"

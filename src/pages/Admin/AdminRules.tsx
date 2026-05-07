@@ -1,15 +1,16 @@
-/*
+/**
  * FileName: AdminRules.tsx
- * Description: Admin page for managing approval rules. Displays existing rules in a paginated table and provides a form to create new rules with fields for
- *              code, name, description, applicability, order, amount thresholds, required approvals, and company association.
- *              Includes navigation to notification settings and handles API interactions for fetching and creating rules.
+ * Description: Admin page for managing approval rules (ApprovalLevels). Displays existing levels
+ *              in a paginated table and provides a form to create new levels with optional inline actor.
+ *              Uses GET/POST /approval-engine/levels. company_id is derived server-side from JWT.
  * Authors: Original Monarca team
  * Last Modification made:
- * 05/05/2026 [Santiago Coronado Hernández] Added useNavigate to make button in rules section that points to notifications settings.
+ * 05/05/2026 [Julio Rodriguez] Migrated to /approval-engine/levels; removed company_id from form; added actor inline + companyId guard.
  */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRequest, postRequest } from "../../utils/apiService";
+import { useAuth } from "../../hooks/auth/authContext";
 import GoBack from "../../components/GoBack";
 import RefreshButton from "../../components/RefreshButton";
 import { Input } from "../../components/ui/Input";
@@ -38,7 +39,8 @@ const emptyForm = {
   min_amount_mon: "",
   max_amount_mon: "",
   required_approvals: 1,
-  company_id: "",
+  actor_type: "",
+  selection_mode: "any",
 };
 
 const ITEMS_PER_PAGE = 5;
@@ -46,7 +48,11 @@ const labelClass = "block mb-2 text-sm font-medium text-gray-900";
 const selectClass = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
 
 export default function AdminRules() {
+  const { authState } = useAuth();
   const { t } = useTranslation();
+  const companyId = authState.companyId;
+  const canLoad = Boolean(companyId);
+
   const [rules, setRules] = useState<ApprovalRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -59,7 +65,7 @@ export default function AdminRules() {
   const fetchRules = async () => {
     setLoading(true);
     try {
-      const data = await getRequest("/rules");
+      const data = await getRequest("/approval-engine/levels");
       setRules(data);
       setCurrentPage(1);
     } catch {
@@ -85,22 +91,38 @@ export default function AdminRules() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canLoad) {
+      setMessage({ text: "No se pudo identificar la empresa actual.", error: true });
+      return;
+    }
     setSaving(true);
     setMessage(null);
     try {
-      await postRequest("/rules", {
-        ...form,
+      const payload: Record<string, unknown> = {
+        code: form.code,
+        name: form.name,
         level_order: Number(form.level_order),
         required_approvals: Number(form.required_approvals),
-        min_amount_mon: form.min_amount_mon !== "" ? Number(form.min_amount_mon) : null,
-        max_amount_mon: form.max_amount_mon !== "" ? Number(form.max_amount_mon) : null,
-      });
+        ...(form.description && { description: form.description }),
+        ...(form.applies_to && { applies_to: form.applies_to }),
+        ...(form.min_amount_mon !== "" && { min_amount_mon: Number(form.min_amount_mon) }),
+        ...(form.max_amount_mon !== "" && { max_amount_mon: Number(form.max_amount_mon) }),
+        ...(form.actor_type && {
+          actor: {
+            actor_type: form.actor_type,
+            selection_mode: form.selection_mode,
+            is_required: true,
+          },
+        }),
+      };
+      await postRequest("/approval-engine/levels", payload);
       setMessage({ text: t('admin.rules.successCreate'), error: false });
       setForm(emptyForm);
       setShowForm(false);
       await fetchRules();
-    } catch {
-      setMessage({ text: t('admin.rules.errorCreate'), error: true });
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.rules.errorCreate');
+      setMessage({ text: msg, error: true });
     } finally {
       setSaving(false);
     }
@@ -112,6 +134,9 @@ export default function AdminRules() {
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-[var(--blue)]">{t('admin.rules.title')}</h2>
+          <p className="text-sm text-gray-600">
+            {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
+          </p>
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/admin/notifications')}
@@ -121,7 +146,8 @@ export default function AdminRules() {
             </button>
             <button
               onClick={() => { setShowForm(!showForm); setMessage(null); }}
-              className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors"
+              disabled={!canLoad}
+              className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
             >
               {showForm ? t('common.cancel') : t('admin.rules.createRule')}
             </button>
@@ -178,9 +204,22 @@ export default function AdminRules() {
                     <Input name="required_approvals" type="number" min={1} value={form.required_approvals} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className={labelClass}>{t('admin.rules.companyId')}</label>
-                    <Input name="company_id" value={form.company_id} onChange={handleChange} required placeholder={t('admin.rules.companyIdPlaceholder')} />
+                    <label className={labelClass}>Tipo de aprobador (opcional)</label>
+                    <select name="actor_type" value={form.actor_type} onChange={handleChange} className={selectClass}>
+                      <option value="">Sin aprobador definido</option>
+                      <option value="MANAGER">Gerente directo</option>
+                      <option value="USER">Usuario específico</option>
+                    </select>
                   </div>
+                  {form.actor_type && (
+                    <div>
+                      <label className={labelClass}>Modo de selección</label>
+                      <select name="selection_mode" value={form.selection_mode} onChange={handleChange} className={selectClass}>
+                        <option value="any">Cualquiera</option>
+                        <option value="all">Todos</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
                 <Button type="submit" disabled={saving} className="mt-6">
                   {saving ? t('common.saving') : t('admin.rules.saveRule')}
