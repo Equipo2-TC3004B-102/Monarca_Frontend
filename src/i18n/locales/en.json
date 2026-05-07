@@ -316,6 +316,7 @@
     "unavailable": "Destination not available"
   },
   "common": {
+    "goBack": "Go back",
     "chooseFile": "Choose file",
     "noFileChosen": "No file chosen",
     "fieldRequired": "This field is required",

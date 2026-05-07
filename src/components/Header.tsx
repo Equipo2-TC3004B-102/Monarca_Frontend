@@ -42,23 +42,24 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
           </div>
           
           <div className="flex items-center justify-start rtl:justify-end">
-            {/* <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white pl-5">
-              {pageTitle}
-            </span> */}
+            <h2 className="uppercase text-3xl pl-10">
+              <span className="text-[var(--ultra-light-blue)]">M</span>onarca
+            </h2>
           </div>
           <div className="flex items-center">
             <div className="flex items-center ms-3 relative">
               <div className="flex items-center gap-4">
-                <h2 className="uppercase text-3xl">
-                  <span className="text-[var(--ultra-light-blue)]">M</span>onarca
-                </h2>
                 <button
                   type="button"
                   title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
                   onClick={toggleLanguage}
-                  className="text-xl leading-none hover:scale-110 transition-transform"
+                  className="hover:scale-110 transition-transform"
                 >
-                  {i18n.language === 'es' ? '🇲🇽' : '🇺🇸'}
+                  <img
+                    src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+                    alt={i18n.language === 'es' ? 'Español' : 'English'}
+                    className="w-12 h-8 rounded-sm object-cover shadow-sm"
+                  />
                 </button>
                 <button
                   type="button"
