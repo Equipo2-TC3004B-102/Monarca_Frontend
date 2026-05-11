@@ -22,7 +22,10 @@ import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
 import { currencyOptions } from "../../utils/currencies";
-import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
+import {
+  isFileSizeValid,
+  getFileSizeErrorMessage,
+} from "../../utils/fileValidation";
 
 /**
  * FormDataRow
@@ -81,7 +84,7 @@ export const Vouchers = () => {
       } catch (err) {
         console.error(
           "Error loading trip: ",
-          err instanceof Error ? err.message : err
+          err instanceof Error ? err.message : err,
         );
       }
     };
@@ -90,7 +93,7 @@ export const Vouchers = () => {
 
   /**
    * handleSubmitRefund
-   * Processes the form data, uploads each voucher as a multipart/form-data request, 
+   * Processes the form data, uploads each voucher as a multipart/form-data request,
    * and finalizes the request status.
    * Input: None
    * Output: Promise<void>
@@ -105,10 +108,7 @@ export const Vouchers = () => {
       for (const rowData of formData) {
         formDataToSend = new FormData();
 
-        formDataToSend.append(
-          "id_request",
-          trip.id.toString()
-        );
+        formDataToSend.append("id_request", trip.id.toString());
         formDataToSend.append("date", new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
@@ -116,11 +116,11 @@ export const Vouchers = () => {
         formDataToSend.append("status", "pending_voucher");
         formDataToSend.append("currency", rowData.currency || "MXN");
         if (rowData.XMLFile) {
-          formDataToSend.append("file_url_xml", rowData.XMLFile);
+          formDataToSend.append("xml", rowData.XMLFile);
         }
 
         if (rowData.PDFFile) {
-          formDataToSend.append("file_url_pdf", rowData.PDFFile);
+          formDataToSend.append("pdf", rowData.PDFFile);
         }
 
         await postRequest("/vouchers/upload", formDataToSend);
@@ -132,13 +132,11 @@ export const Vouchers = () => {
     } catch (err) {
       console.error(
         "Error sending refund request: ",
-        err instanceof Error ? err.message : err
+        err instanceof Error ? err.message : err,
       );
-      toast.error(
-        "Error submitting refund request. Please try again later."
-      );
+      toast.error("Error submitting refund request. Please try again later.");
     }
-  }; 
+  };
 
   /**
    * Schema definition for the DynamicTable.
@@ -153,7 +151,7 @@ export const Vouchers = () => {
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         _rowIndex?: number,
-        _cellIndex?: number
+        _cellIndex?: number,
       ) => (
         <Dropdown
           id={`spend_class-${_rowIndex}-${_cellIndex}`}
@@ -173,7 +171,7 @@ export const Vouchers = () => {
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         _rowIndex?: number,
-        _cellIndex?: number
+        _cellIndex?: number,
       ) => (
         <div>
           <div
@@ -238,7 +236,7 @@ export const Vouchers = () => {
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         _rowIndex?: number,
-        _cellIndex?: number
+        _cellIndex?: number,
       ) => (
         <Dropdown
           id={`currency-${_rowIndex}-${_cellIndex}`}
@@ -259,7 +257,7 @@ export const Vouchers = () => {
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         _rowIndex?: number,
-        _cellIndex?: number
+        _cellIndex?: number,
       ) => (
         <Dropdown
           id={`tax_indicator-${_rowIndex}-${_cellIndex}`}
@@ -279,7 +277,7 @@ export const Vouchers = () => {
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         _rowIndex?: number,
-        _cellIndex?: number
+        _cellIndex?: number,
       ) => (
         <div>
           <InputField
@@ -299,7 +297,7 @@ export const Vouchers = () => {
         _value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         rowIndex?: number,
-        _cellIndex?: number
+        _cellIndex?: number,
       ) => {
         const xmlName = formData[rowIndex || 0]?.XMLFile?.name || "";
         const inputId = `xml_file-${rowIndex}-${_cellIndex}`;
@@ -319,7 +317,7 @@ export const Vouchers = () => {
                     e.target.value = "";
                     return;
                   }
-                  
+
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
@@ -334,18 +332,31 @@ export const Vouchers = () => {
             <label
               htmlFor={inputId}
               className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-colors whitespace-nowrap
-                ${xmlName
-                  ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
-                  : "bg-white/20 text-white border border-white/50 hover:bg-white/30"
+                ${
+                  xmlName
+                    ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
+                    : "bg-white/20 text-white border border-white/50 hover:bg-white/30"
                 }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-3 h-3"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
               </svg>
               {xmlName ? "Cambiar" : "XML"}
             </label>
             {xmlName && (
-              <span className="text-xs text-green-200 truncate max-w-[80px]" title={xmlName}>
+              <span
+                className="text-xs text-green-200 truncate max-w-[80px]"
+                title={xmlName}
+              >
                 {xmlName}
               </span>
             )}
@@ -361,7 +372,7 @@ export const Vouchers = () => {
         _value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
         rowIndex?: number,
-        _cellIndex?: number
+        _cellIndex?: number,
       ) => {
         const pdfName = formData[rowIndex || 0]?.PDFFile?.name || "";
         const inputId = `pdf_file-${rowIndex}-${_cellIndex}`;
@@ -381,7 +392,7 @@ export const Vouchers = () => {
                     e.target.value = "";
                     return;
                   }
-                  
+
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
@@ -396,18 +407,31 @@ export const Vouchers = () => {
             <label
               htmlFor={inputId}
               className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-colors whitespace-nowrap
-                ${pdfName
-                  ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
-                  : "bg-white/20 text-white border border-white/50 hover:bg-white/30"
+                ${
+                  pdfName
+                    ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
+                    : "bg-white/20 text-white border border-white/50 hover:bg-white/30"
                 }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-3 h-3"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
               </svg>
               {pdfName ? "Cambiar" : "PDF"}
             </label>
             {pdfName && (
-              <span className="text-xs text-green-200 truncate max-w-[80px]" title={pdfName}>
+              <span
+                className="text-xs text-green-200 truncate max-w-[80px]"
+                title={pdfName}
+              >
                 {pdfName}
               </span>
             )}
@@ -439,8 +463,8 @@ export const Vouchers = () => {
           </h2>
           <div className="mb-4">
             {/*
-          * Display general information about the trip, such as ID, name, destination,
-          */}
+             * Display general information about the trip, such as ID, name, destination,
+             */}
             <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
               Información del viaje
             </h3>
@@ -451,20 +475,23 @@ export const Vouchers = () => {
               <strong>Nombre de viaje:</strong> {trip.title}
             </p>
             <p>
-              <strong>Destino:</strong> {trip.destination?.city || trip.destination?.iata_code || "Destino no disponible"}
+              <strong>Destino:</strong>{" "}
+              {trip.destination?.city ||
+                trip.destination?.iata_code ||
+                "Destino no disponible"}
             </p>
             <p>
               <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
             </p>
           </div>
           {/*
-        * which contains the schema of the table.
-        * The table is created initially with initially empty data,
-        * and the user can add new rows to the table.
-        * The formData array is updated with the handleFormDataChange function,
-        * which is passed as a prop to the DynamicTable component.
-        * The handleFormDataChange function updates the formData state with the new data.
-        */}
+           * which contains the schema of the table.
+           * The table is created initially with initially empty data,
+           * and the user can add new rows to the table.
+           * The formData array is updated with the handleFormDataChange function,
+           * which is passed as a prop to the DynamicTable component.
+           * The handleFormDataChange function updates the formData state with the new data.
+           */}
           <div id="vouchers">
             <DynamicTable
               columns={columnsSchemaVauchers}
@@ -473,11 +500,13 @@ export const Vouchers = () => {
             />
           </div>
           {/*
-        * Display a field to add a comment to the refund request.
-        * The comment is stored in the commentDescriptionOfSpend state,
-        * and is updated with the setCommentDescriptionOfSpend function.
-        */}
-          <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentarios</h3>
+           * Display a field to add a comment to the refund request.
+           * The comment is stored in the commentDescriptionOfSpend state,
+           * and is updated with the setCommentDescriptionOfSpend function.
+           */}
+          <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">
+            Comentarios
+          </h3>
           <InputField
             id="comment-refund"
             type="text"

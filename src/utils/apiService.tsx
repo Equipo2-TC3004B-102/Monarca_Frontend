@@ -36,13 +36,23 @@ api.interceptors.response.use(
     if (error.response) {
       console.error(
         "API ERROR FULL:",
-        JSON.stringify(error.response?.data, null, 2)
+        JSON.stringify(error.response?.data, null, 2),
       );
+
+      const rawMessage = error.response.data?.message;
+      const messageStr = Array.isArray(rawMessage)
+        ? rawMessage.join(" ")
+        : rawMessage || "";
       // Log file size errors specifically
-      if (error.response.status === 413 || 
-          (error.response.status === 400 && 
-           error.response.data?.message?.toLowerCase().includes("size"))) {
-        console.error("File size validation error:", error.response.data?.message);
+      if (
+        error.response.status === 413 ||
+        (error.response.status === 400 &&
+          messageStr.toLowerCase().includes("size"))
+      ) {
+        console.error(
+          "File size validation error:",
+          error.response.data?.message,
+        );
       }
       if (error.response.status === 401) {
         // Token refresh logic or redirect to login could be implemented here
@@ -53,7 +63,7 @@ api.interceptors.response.use(
       console.error("Error al configurar la petición:", error.message);
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 /**
@@ -68,7 +78,7 @@ api.interceptors.response.use(
 export const getRequest = async (
   url: string,
   params = {},
-  config: AxiosRequestConfig = {}
+  config: AxiosRequestConfig = {},
 ) => {
   const response = await api.get(url, { params, ...config });
   return response.data;
@@ -86,16 +96,13 @@ export const getRequest = async (
 export const postRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
-  config: AxiosRequestConfig = {}
+  config: AxiosRequestConfig = {},
 ) => {
   try {
-    const isForm = data instanceof FormData;
-    const headers = {
-      ...config.headers,
-      ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
-    };
+    // ELIMINADO: La lógica manual de headers para FormData.
+    // Axios detecta FormData nativamente y asigna el boundary correcto.
     console.log("DATA", data);
-    const response = await api.post(url, data, { ...config, headers });
+    const response = await api.post(url, data, config);
     return response.data;
   } catch (error) {
     throw error;
@@ -114,15 +121,10 @@ export const postRequest = async (
 export const putRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
-  config: AxiosRequestConfig = {}
+  config: AxiosRequestConfig = {},
 ) => {
   try {
-    const isForm = data instanceof FormData;
-    const headers = {
-      ...config.headers,
-      ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
-    };
-    const response = await api.put(url, data, { ...config, headers });
+    const response = await api.put(url, data, config);
     return response.data;
   } catch (error) {
     throw error;
@@ -141,15 +143,10 @@ export const putRequest = async (
 export const patchRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
-  config: AxiosRequestConfig = {}
+  config: AxiosRequestConfig = {},
 ) => {
   try {
-    const isForm = data instanceof FormData;
-    const headers = {
-      ...config.headers,
-      ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
-    };
-    const response = await api.patch(url, data, { ...config, headers });
+    const response = await api.patch(url, data, config);
     return response.data;
   } catch (error) {
     throw error;
