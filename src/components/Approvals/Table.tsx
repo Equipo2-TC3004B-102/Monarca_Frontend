@@ -197,7 +197,7 @@ const Table: React.FC<TableProps> = ({
                             "In Progress": t('status.inProgress'),
                             "Pending Refund Approval": t('status.pendingRefundApproval'),
                             "Completed": t('status.completed'),
-                          }[row?.status] ?? row?.status}
+                          }[row?.status as string] ?? row?.status}
                         </div>
                         <div>
                           <strong>{t('approvals.motive')}:</strong> {row?.motive}
