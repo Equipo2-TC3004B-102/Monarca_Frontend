@@ -359,7 +359,7 @@ const RefundsAcceptance: React.FC = () => {
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700"
                     }`}
-                    onClick={() => approveVoucher(data?.vouchers?.[currentIndex]?.id)}
+                    onClick={() => approveVoucher(data?.vouchers?.[currentIndex]?.id ?? "")}
                     id="approve-button"
                   >
                     {t('refundAcceptance.approve')}
@@ -371,7 +371,7 @@ const RefundsAcceptance: React.FC = () => {
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-red-600 hover:bg-red-700"
                     }`}
-                    onClick={() => denyVoucher(data?.vouchers?.[currentIndex]?.id)}
+                    onClick={() => denyVoucher(data?.vouchers?.[currentIndex]?.id ?? "")}
                     id="deny-button"
                   >
                     {t('refundAcceptance.deny')}
