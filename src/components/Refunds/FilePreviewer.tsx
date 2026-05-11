@@ -26,6 +26,7 @@ interface FilePreviewerProps {
         status: string;
     };
     fileIndex: number;
+    showDownload?: boolean;
 }
 
 /**
@@ -33,17 +34,17 @@ interface FilePreviewerProps {
  * Input: file (object with file_url_pdf, file_url_xml, class, amount, date, status), fileIndex (number)
  * Output: JSX element - a preview panel with iframe and file information with download buttons
  */
-const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
+const FilePreviewer = ({ file, fileIndex, showDownload = true }: FilePreviewerProps) => {
     const { t } = useTranslation();
     return (
         <>
-            <div className="grid grid-cols-3 w-full h-96 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 w-full mb-4">
                 <iframe
                   src={`${file.file_url_pdf}#navpanes=0&view=FitH`}
                   width="100%"
                   height="100%"
                   title={`Comprobante de Solicitud ${fileIndex + 1}`}
-                  className="border-0 col-span-2"
+                  className="border-0 col-span-1 md:col-span-2 h-64 md:h-96"
                 />
 
                 <div className="flex flex-col bg-white p-6 gap-3 col-span-1">
@@ -71,26 +72,28 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
                 </div>
               </div>
 
-              <div className="mt-4 flex justify-between items-center">
-                <div className="flex space-x-4">
-                  <a
-                    id={`download-file-xml-${fileIndex}`}
-                    href={file.file_url_xml}
-                    download={`comprobante${fileIndex + 1}.xml`}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:cursor-pointer"
-                  >
-                    {t('refundAcceptance.downloadXml')}
-                  </a>
-                  <a
-                    id={`download-file-pdf-${fileIndex}`}
-                    href={file.file_url_pdf}
-                    download={`comprobante${fileIndex + 1}.pdf`}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer"
-                  >
-                    {t('refundAcceptance.downloadPdf')}
-                  </a>
+              {showDownload && (
+                <div className="mt-4 flex justify-between items-center">
+                  <div className="flex space-x-4">
+                    <a
+                      id={`download-file-xml-${fileIndex}`}
+                      href={file.file_url_xml}
+                      download={`comprobante${fileIndex + 1}.xml`}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:cursor-pointer"
+                    >
+                      {t('refundAcceptance.downloadXml')}
+                    </a>
+                    <a
+                      id={`download-file-pdf-${fileIndex}`}
+                      href={file.file_url_pdf}
+                      download={`comprobante${fileIndex + 1}.pdf`}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer"
+                    >
+                      {t('refundAcceptance.downloadPdf')}
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
         </>
     )
 }

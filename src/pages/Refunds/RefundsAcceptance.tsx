@@ -285,7 +285,7 @@ const RefundsAcceptance: React.FC = () => {
 
 
             <div className="mb-4">
-              <div className="bg-white p-4 rounded-lg shadow-md relative" id="vouchers">
+              <div className="bg-white p-4 rounded-lg shadow-md" id="vouchers">
                 <section className="mb-10">
                   <h1 className="text-2xl font-bold text-gray-800 mb-4">
                     {t('refundAcceptance.importantInfo')}
@@ -317,63 +317,78 @@ const RefundsAcceptance: React.FC = () => {
                 >
                   {data?.vouchers?.map((file, index) => (
                     <SwiperSlide key={index}>
-                      <FilePreviewer 
-                          file={file} 
+                      <FilePreviewer
+                          file={file}
                           fileIndex={index}
+                          showDownload={false}
                       />
-                      <div className="flex space-x-4 justify-end mt-6 absolute z-50 bottom-0 right-4">
-                          <button 
-                            disabled={file?.status !== "pending_voucher"}
-                            className={`px-4 py-2 text-white rounded-md  hover:cursor-pointer 
-                              ${file?.status !== "pending_voucher" 
-                                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                : "bg-red-600 hover:bg-red-700"
-                              }`}
-                              onClick={() => denyVoucher(file?.id)}
-                            id="deny-button"
-                          >
-                              {t('refundAcceptance.deny')}
-                          </button>
-                          <button
-                              disabled={file?.status !== "pending_voucher"}
-                              className={`px-4 py-2  text-white rounded-md  hover:cursor-pointer
-                                ${file?.status !== "pending_voucher"
-                                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                  : "bg-green-600 hover:bg-green-700"
-                                }`}
-                              onClick={() => approveVoucher(file?.id)}
-                              id="approve-button"
-                            >
-                              {t('refundAcceptance.approve')}
-                          </button>
-                      </div>
                     </SwiperSlide>
                   ))}
                 </Swiper>
-                <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
-                    <button
-                      ref={prevRef}
-                      disabled={currentIndex === 0}
-                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                        currentIndex === 0
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
-                    >
-                      {t('refundAcceptance.previous')}
-                    </button>
-                    <button
-                      disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
-                      ref={nextRef}
-                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                        currentIndex === (data?.vouchers?.length ?? 0) - 1
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
-                      id="next-voucher"
-                    >
-                      {t('refundAcceptance.next')}
-                    </button>
+                <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+                <button
+                  ref={prevRef}
+                  disabled={currentIndex === 0}
+                  className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                    currentIndex === 0
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                  }`}
+                >
+                  {t('refundAcceptance.previous')}
+                </button>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href={data?.vouchers?.[currentIndex]?.file_url_xml}
+                    download={`comprobante${currentIndex + 1}.xml`}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    {t('refundAcceptance.downloadXml')}
+                  </a>
+                  <a
+                    href={data?.vouchers?.[currentIndex]?.file_url_pdf}
+                    download={`comprobante${currentIndex + 1}.pdf`}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
+                    {t('refundAcceptance.downloadPdf')}
+                  </a>
+                  <button
+                    disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
+                    className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${
+                      data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
+                    }`}
+                    onClick={() => approveVoucher(data?.vouchers?.[currentIndex]?.id)}
+                    id="approve-button"
+                  >
+                    {t('refundAcceptance.approve')}
+                  </button>
+                  <button
+                    disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
+                    className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${
+                      data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-red-600 hover:bg-red-700"
+                    }`}
+                    onClick={() => denyVoucher(data?.vouchers?.[currentIndex]?.id)}
+                    id="deny-button"
+                  >
+                    {t('refundAcceptance.deny')}
+                  </button>
+                </div>
+                <button
+                  disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
+                  ref={nextRef}
+                  className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                    currentIndex === (data?.vouchers?.length ?? 0) - 1
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                  }`}
+                  id="next-voucher"
+                >
+                  {t('refundAcceptance.next')}
+                </button>
                 </div>
               </div>
               <section className="grid grid-cols-3 gap-5" id="refund-review">
