@@ -20,6 +20,7 @@ interface Column {
   key: string;
   header: string;
   width?: string;
+  mobileHidden?: boolean;
   render?: (value: any) => ReactNode;
 }
 
@@ -98,7 +99,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
     <div className="relative">
       {/* Table component */}
       <div className="overflow-x-auto mb-4">
-        <table className="w-full table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full min-w-[900px] text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {/*
@@ -112,7 +113,8 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
                     index === 0 ? "rounded-l-lg" : ""
                   } ${index === columns.length - 1 ? "rounded-r-lg" : ""
                   } ${column.key === "status" ? "px-1" : "px-4"
-                  } ${column.width ?? ""}`}
+                  } ${column.width ?? ""
+                  } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                 >
                   {column.header}
                 </th>
@@ -155,7 +157,8 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
                       cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
                     } ${
                       column.key === "status" ? "px-1" : "px-4"
-                    } ${column.width ?? ""}`}
+                    } ${column.width ?? ""
+                    } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                   >
                     {/*
                      * Access to data by colum.key in the row data, to display in the correct place
