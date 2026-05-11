@@ -71,7 +71,7 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
               </div>
               {dropdownOpen &&
                 <div
-                  className="z-50 absolute top-[80%] left-[20%] min-w-[180px] my-4 text-base list-none bg-[var(--blue)] divide-y divide-[var(--white)] rounded-sm shadow-sm"
+                  className="z-50 absolute top-[80%] right-0 min-w-[180px] my-4 text-base list-none bg-[var(--blue)] divide-y divide-[var(--white)] rounded-sm shadow-sm"
                 >
                   <div className="px-4 py-3">
                     <p className="text-sm text-[var(--gray)] font-bold whitespace-nowrap overflow-hidden [mask-image:linear-gradient(to_right,black_80%,transparent)] w-[130px]">
