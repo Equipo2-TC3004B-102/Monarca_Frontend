@@ -56,7 +56,7 @@ const renderStatus = (status: string, t: TFunction) => {
     case "Completed":           statusText = t('status.completed');           styles = "text-[#24390d] font-bold bg-[#c7e6ab]"; break;
     default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
-  return <span className={`text-xs px-2 py-1 rounded-sm inline-block w-44 text-center leading-tight ${styles}`}>{statusText}</span>;
+  return <span className={`text-xs px-2 py-1 rounded-sm inline-block leading-tight ${styles}`}>{statusText}</span>;
 }
 
 /**
