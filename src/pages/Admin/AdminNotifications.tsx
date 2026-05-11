@@ -77,8 +77,8 @@ const settingRows: Array<{
   },
 ];
 
-const sectionClass = "bg-gray-200 rounded-md";
-const labelClass = "block text-sm font-medium text-gray-900";
+const sectionClass = "bg-[var(--color-page-bg)] rounded-md";
+const labelClass = "block text-sm font-medium text-[var(--color-page-text)]";
 
 export default function AdminNotifications() {
   const { authState } = useAuth();
@@ -158,9 +158,9 @@ export default function AdminNotifications() {
   return (
     <>
       <GoBack />
-      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[var(--blue)]">Notificaciones</h2>
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">Notificaciones</h2>
           <p className="text-sm text-gray-600">
             {companyId ? `Empresa activa: ${companyId}` : "Empresa no disponible"}
           </p>
@@ -181,7 +181,7 @@ export default function AdminNotifications() {
             <form onSubmit={handleSubmit}>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-[var(--blue)]">Preferencias por empresa</h3>
+                  <h3 className="text-lg font-bold text-[var(--color-page-text-title)]">Preferencias por empresa</h3>
                   <p className="text-sm text-gray-600">Controla qué eventos generan notificaciones.</p>
                 </div>
                 <Button type="submit" disabled={!canLoad || loading || saving}>
@@ -197,7 +197,7 @@ export default function AdminNotifications() {
                     const checked = settings[row.key] ?? false;
 
                     return (
-                      <div key={row.key} className="flex items-start justify-between gap-4 rounded-lg bg-white p-4 shadow-sm">
+                      <div key={row.key} className="flex items-start justify-between gap-4 rounded-lg bg-[var(--color-card-bg)] p-4 shadow-sm">
                         <div>
                           <label className={labelClass}>{row.title}</label>
                           <p className="mt-1 text-sm text-gray-600">{row.description}</p>

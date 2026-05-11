@@ -25,7 +25,7 @@ export default function LoginPage() {
     >
       <div className="w-[90%] lg:w-[45%] bg-[url('/imageLogin.png')] bg-center bg-cover bg-no-repeat rounded-[15px] h-[10%] lg:h-[95%] m-[2vh]"></div>
       <div className="w-[100%] lg:w-[55%] flex flex-col justify-center items-center p-12 relative">
-        <DarkModeButton className="absolute top-7 lg:top-8 right-60 lg:right-75 z-50"></DarkModeButton>
+        <DarkModeButton className="items-center absolute top-7 lg:top-8 right-60 lg:right-75 z-50"></DarkModeButton>
         <p
           className="text-[2rem] lg:text-[2.5rem] absolute top-8 right-12 dark:text-[var(--color-page-text)]"
           style={{ fontWeight: 700 }}

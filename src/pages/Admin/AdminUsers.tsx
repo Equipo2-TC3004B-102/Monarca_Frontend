@@ -93,9 +93,9 @@ export default function AdminUsers() {
   return ( // Hide the import users button for system admins since the endpoint is only for company admins
     <>
       <GoBack />
-      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[var(--blue)]">Lista de usuarios</h2>
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">Lista de usuarios</h2>
           <p className="text-sm text-gray-600">
             {companyId ? `Empresa activa: ${companyId}` : "Empresa no disponible"}
           </p>

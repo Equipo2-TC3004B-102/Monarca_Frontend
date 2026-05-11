@@ -23,7 +23,7 @@ export default function DarkModeButton({ className = "" }: Props) {
   };
 
   return (
-    <div className={`flex flex-col items-center gap-1 ${className}`}>
+    <div className={`flex flex-col gap-1 ${className}`}>
       <span className="text-[var(--color-page-text)]">{isDark ? "Modo oscuro" : "Modo claro"}</span>
       <Switch 
       checked={isDark}

@@ -36,7 +36,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             <img src={logo} className="invert mx-auto" alt="Monarca Logo" />
         </div>
         <div className="flex flex-col items-center justify-center mb-6 text-center">
-          <p className="text-[var(--color-page-text-title) font-bold">{user.userName} {user.userLastName} </p>
+          <p className="text-[var(--color-page-text-title)] font-bold">{user.userName} {user.userLastName} </p>
         </div>
         <ul className="space-y-2 font-medium">
             <SidebarOption
@@ -91,7 +91,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label="Notificaciones" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
         </ul>
-        <DarkModeButton></DarkModeButton>
+        <DarkModeButton className="p-2 mt-10"></DarkModeButton>
       </div>
     </aside>
   );
