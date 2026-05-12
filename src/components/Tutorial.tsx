@@ -2,101 +2,104 @@
  * FileName: Tutorial.tsx
  * Description: Tutorial component for the application.
  * Authors: Original Moncarca team
- * Last Modification made: 25/02/2026 Sebastian Borjas
+ * Last Modification made:
+ * 06/05/2026 [Sergio Jiawei Xuan] Converted tutorial step arrays to use i18n t() calls; translated driver.js navigation button labels.
  */
 
 import { driver } from "driver.js";
 import { useEffect } from "react";
 import { useApp } from "../hooks/app/appContext";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
-const dashboardSteps = [
+const getDashboardSteps = (t: TFunction) => [
   {
     element: "#create-request",
     popover: {
-      title: "Crear solicitud de viaje",
-      description: "En esta sección, puedes crear una solicitud de viaje.",
+      title: t('tutorial.dashboard.createRequest'),
+      description: t('tutorial.dashboard.createRequestDesc'),
       position: "bottom",
     },
   },
   {
     element: "#history",
     popover: {
-      title: "Historial de viajes",
-      description: "Aquí puedes consultar tu historial de solicitudes de viaje.",
+      title: t('tutorial.dashboard.travelHistory'),
+      description: t('tutorial.dashboard.travelHistoryDesc'),
       position: "bottom",
     },
   },
   {
     element: "#upload_vouchers",
     popover: {
-      title: "Comprobar Gastos",
-      description: " Carga los archivos que contienen tus facturas del viaje.",
+      title: t('tutorial.dashboard.checkExpenses'),
+      description: t('tutorial.dashboard.checkExpensesDesc'),
       position: "bottom",
     },
   },
   {
     element: "#approve_request",
     popover: {
-      title: "Viajes por aprobar",
-      description: "En esta sección puedes aprobar las solicitudes de viaje que envían los solicitantes.",
+      title: t('tutorial.dashboard.tripsToApprove'),
+      description: t('tutorial.dashboard.tripsToApproveDesc'),
       position: "bottom",
     },
   },
   {
     element: "#approved_requests",
     popover: {
-      title: "Historial de viajes aprobados",
-      description: "Consulta todas las aprobaciones de viajes que has realizado.",
+      title: t('tutorial.dashboard.approvedHistory'),
+      description: t('tutorial.dashboard.approvedHistoryDesc'),
       position: "bottom",
     },
   },
   {
     element: "#approve_vouchers",
     popover: {
-      title: "Comprobantes de gastos por aprobar",
-      description: "Aquí puedes aprobar las facturas que han cargado los viajeros.",
+      title: t('tutorial.dashboard.vouchersToApprove'),
+      description: t('tutorial.dashboard.vouchersToApproveDesc'),
       position: "bottom",
     },
   },
   {
     element: "#check_budgets",
     popover: {
-      title: "Viajes por registrar",
-      description: "Registra los anticipos de cada viaje.",
+      title: t('tutorial.dashboard.tripsToRegister'),
+      description: t('tutorial.dashboard.tripsToRegisterDesc'),
       position: "bottom",
     },
   },
   {
     element: "#check_refunds",
     popover: {
-      title: "Reembolsos por registrar",
-      description: "Registra los reembolsos de cada viaje.",
+      title: t('tutorial.dashboard.refundsToRegister'),
+      description: t('tutorial.dashboard.refundsToRegisterDesc'),
       position: "bottom",
     },
   },
   {
     element: "#bookings",
     popover: {
-      title: "Viajes por reservar",
-      description: "Aquí puedes reservar los viajes para cada solicitud",
+      title: t('tutorial.dashboard.tripsToBook'),
+      description: t('tutorial.dashboard.tripsToBookDesc'),
       position: "bottom",
     },
   },
   {
     element: "#reserved_requests",
     popover: {
-      title: "Historial de viajes reservados",
-      description: "Monitorea cada uno de los viajes que has reservado",
+      title: t('tutorial.dashboard.reservedHistory'),
+      description: t('tutorial.dashboard.reservedHistoryDesc'),
       position: "bottom",
     },
   },
 ];
 
-const createRequestSteps = [
+const getCreateRequestSteps = (t: TFunction) => [
   {
     element: "#travel_request_info",
     popover: {
-      title: "Datos Generales del Viaje",
+      title: t('tutorial.createRequest.generalInfo'),
       description: "",
       position: "bottom",
     },
@@ -104,7 +107,7 @@ const createRequestSteps = [
   {
     element: "#destination_info",
     popover: {
-      title: "Información del Destino",
+      title: t('tutorial.createRequest.destinationInfo'),
       description: "",
       position: "bottom",
     },
@@ -112,306 +115,290 @@ const createRequestSteps = [
   {
     element: "#new_destination",
     popover: {
-      title: "Agrega más destinos",
+      title: t('tutorial.createRequest.addDestinations'),
       description: "",
       position: "bottom",
     },
   },
-   {
+  {
     element: "#create_travel_request",
     popover: {
-      title: "Crear Viaje",
+      title: t('tutorial.createRequest.createTrip'),
       description: "",
       position: "bottom",
     },
-}
-]
+  },
+];
 
-const historySteps = [
+const getHistorySteps = (t: TFunction) => [
   {
     element: "#list_requests",
     popover: {
-      title: "Lista de Solicitudes",
-      description: "Lista del historial de solicitudes que se han realizado",
+      title: t('tutorial.history.requestList'),
+      description: t('tutorial.history.requestListDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const refundsSteps = [
+const getRefundsSteps = (t: TFunction) => [
   {
     element: "#list_requests",
     popover: {
-      title: "Lista de Solicitudes",
-      description: "Lista de solicitudes para reembolso",
+      title: t('tutorial.refunds.requestList'),
+      description: t('tutorial.refunds.requestListDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const approvalsSteps = [
+const getApprovalsSteps = (t: TFunction) => [
   {
     element: "#list_requests",
     popover: {
-      title: "Lista de Solicitudes",
-      description: "Lista de solicitudes pendientes de aprobación.",
+      title: t('tutorial.approvals.requestList'),
+      description: t('tutorial.approvals.requestListDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const refundsReviewSteps = [
+const getRefundsReviewSteps = (t: TFunction) => [
   {
     element: "#list_requests",
     popover: {
-      title: "Lista de Solicitudes",
-      description: "Lista de reembolsos que faltan por revisar.",
+      title: t('tutorial.refundsReview.requestList'),
+      description: t('tutorial.refundsReview.requestListDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const bookingsSteps = [
+const getBookingsSteps = (t: TFunction) => [
   {
     element: "#list_requests",
     popover: {
-      title: "Lista de Solicitudes",
-      description: "Lista de solicitudes pendientes de reservar.",
+      title: t('tutorial.bookings.requestList'),
+      description: t('tutorial.bookings.requestListDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const checkRefundsSteps = [
+const getCheckRefundsSteps = (t: TFunction) => [
   {
     element: "#list_requests",
     popover: {
-      title: "Lista de Solicitudes",
-      description: "Lista de reembolsos pendientes por registrar.",
+      title: t('tutorial.checkRefunds.requestList'),
+      description: t('tutorial.checkRefunds.requestListDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const vouchersSteps = [
+const getVouchersSteps = (t: TFunction) => [
   {
     element: "#vouchers",
     popover: {
-      title: "Comprobantes de Gastos",
-      description: "Aquí puedes agregar los comprobantes que sean necesarios.",
+      title: t('tutorial.vouchers.expenses'),
+      description: t('tutorial.vouchers.expensesDesc'),
       position: "bottom",
     },
   },
   {
     element: "#submit-refund",
     popover: {
-      title: "Envía los Comprobantes",
-      description: "Una vez que hayas agregado todos los comprobantes, envíalos para su revisión.",
+      title: t('tutorial.vouchers.submit'),
+      description: t('tutorial.vouchers.submitDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const assignReservationSteps = [
+const getAssignReservationSteps = (t: TFunction) => [
   {
     element: "#reservation-info",
     popover: {
-      title: "Información del Destino",
-      description: "En esta sección puedes ver la información del destino de la solicitud.",
+      title: t('tutorial.reservations.destinationInfo'),
+      description: t('tutorial.reservations.destinationInfoDesc'),
       position: "bottom",
     },
   },
   {
     element: "#hotel-reservation",
     popover: {
-      title: "Reserva de Hotel",
-      description: "Aquí puedes reservar el hotel para la solicitud.",
+      title: t('tutorial.reservations.hotelReservation'),
+      description: t('tutorial.reservations.hotelReservationDesc'),
       position: "bottom",
     },
   },
   {
     element: "#plane-reservation",
     popover: {
-      title: "Reserva de Vuelo",
-      description: "Aquí puedes reservar el vuelo para la solicitud.",
+      title: t('tutorial.reservations.flightReservation'),
+      description: t('tutorial.reservations.flightReservationDesc'),
       position: "bottom",
     },
   },
   {
     element: "#assign-reservations",
     popover: {
-      title: "Asignar Reservas",
-      description: "Una vez que hayas reservado el hotel y el vuelo, puedes asignar las reservas a la solicitud.",
+      title: t('tutorial.reservations.assignReservations'),
+      description: t('tutorial.reservations.assignReservationsDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const refundReviewSteps = [
+const getRefundReviewSteps = (t: TFunction) => [
   {
     element: "#request-info",
     popover: {
-      title: "Información de la Solicitud",
-      description: "En esta sección puedes ver la información de la solicitud de reembolso.",
+      title: t('tutorial.refundReview.requestInfo'),
+      description: t('tutorial.refundReview.requestInfoDesc'),
       position: "bottom",
     },
-  },  
+  },
   {
     element: "#vouchers",
     popover: {
-      title: "Información de los Comprobantes",
-      description: "Aquí puedes ver los comprobantes que se han cargado para la solicitud de reembolso.",
+      title: t('tutorial.refundReview.vouchersInfo'),
+      description: t('tutorial.refundReview.vouchersInfoDesc'),
       position: "bottom",
     },
-  },  
+  },
   {
     element: "#next-voucher",
     popover: {
-      title: "Ir al siguiente comprobante",
-      description: "Puedes navegar entre los comprobantes cargados.",
+      title: t('tutorial.refundReview.nextVoucher'),
+      description: t('tutorial.refundReview.nextVoucherDesc'),
       position: "bottom",
     },
-  },  
+  },
   {
     element: "#deny-button",
     popover: {
-      title: "Rechazar Comprobante",
-      description: "Si consideras que un comprobante no es válido, puedes rechazarlo.",
+      title: t('tutorial.refundReview.denyVoucher'),
+      description: t('tutorial.refundReview.denyVoucherDesc'),
       position: "bottom",
     },
-  },  
+  },
   {
     element: "#approve-button",
     popover: {
-      title: "Aprobar Comprobante",
-      description: "Si consideras que un comprobante es válido, puedes aprobarlo.",
+      title: t('tutorial.refundReview.approveVoucher'),
+      description: t('tutorial.refundReview.approveVoucherDesc'),
       position: "bottom",
     },
   },
   {
     element: "#refund-review",
     popover: {
-      title: "Revisión de Reembolso",
-      description: "Aquí puedes revisar el resumen de reembolso.",
+      title: t('tutorial.refundReview.refundSummary'),
+      description: t('tutorial.refundReview.refundSummaryDesc'),
       position: "bottom",
     },
   },
   {
     element: "#complete-refund",
     popover: {
-      title: "Completar Reembolso",
-      description: "Una vez que hayas revisado todos los comprobantes, puedes completar el reembolso.",
+      title: t('tutorial.refundReview.complete'),
+      description: t('tutorial.refundReview.completeDesc'),
       position: "bottom",
     },
   },
-]
+];
 
-const requestInfoSteps = [
-    {
+const getRequestInfoSteps = (t: TFunction) => [
+  {
     element: "#request-info",
     popover: {
-      title: "Información de la Solicitud",
-      description: "Aquí puedes ver la información de la solicitud de viaje.",
+      title: t('tutorial.requestInfo.requestInfo'),
+      description: t('tutorial.requestInfo.requestInfoDesc'),
       position: "bottom",
     },
   },
-   {
+  {
     element: "#destinations-info",
     popover: {
-      title: "Información de los destinos",
-      description: "Aquí puedes ver los destinos de la solicitud de viaje.",
+      title: t('tutorial.requestInfo.destinationsInfo'),
+      description: t('tutorial.requestInfo.destinationsInfoDesc'),
       position: "bottom",
     },
   },
-  
-   {
+  {
     element: "#revisions-info",
     popover: {
-      title: "Información de las revisiones",
-      description: "Aquí puedes ver las revisiones de la solicitud de viaje.",
+      title: t('tutorial.requestInfo.revisionsInfo'),
+      description: t('tutorial.requestInfo.revisionsInfoDesc'),
       position: "bottom",
     },
   },
   {
     element: "#vouchers-info",
     popover: {
-      title: "Información de los comprobantes",
-      description: "Aquí puedes ver los comprobantes de la solicitud de viaje.",
+      title: t('tutorial.requestInfo.vouchersInfo'),
+      description: t('tutorial.requestInfo.vouchersInfoDesc'),
       position: "bottom",
     },
   },
-    {
+  {
     element: "#travel-agency",
     popover: {
-      title: "Agencia de Viajes",
-      description: "Aquí puedes ver o asignar la agencia de viajes a la solicitud.",
+      title: t('tutorial.requestInfo.travelAgency'),
+      description: t('tutorial.requestInfo.travelAgencyDesc'),
       position: "bottom",
     },
   },
   {
     element: "#comment-section",
     popover: {
-      title: "Comentarios de la Solicitud",
-      description: "Aquí puedes ver o escribir comentarios a la solicitud de viaje.",
+      title: t('tutorial.requestInfo.comments'),
+      description: t('tutorial.requestInfo.commentsDesc'),
       position: "bottom",
     },
   },
   {
     element: "#edit-request-button",
     popover: {
-      title: "Editar Solicitud",
-      description: "Aquí puedes editar la solicitud de viaje.",
+      title: t('tutorial.requestInfo.edit'),
+      description: t('tutorial.requestInfo.editDesc'),
       position: "bottom",
     },
   },
   {
     element: "#cancel-request-button",
     popover: {
-      title: "Cancelar Solicitud",
-      description: "Aquí puedes cancelar la solicitud de viaje.",
+      title: t('tutorial.requestInfo.cancel'),
+      description: t('tutorial.requestInfo.cancelDesc'),
       position: "bottom",
     },
   },
   {
     element: "#approve-request-button",
     popover: {
-      title: "Aprobar Solicitud",
-      description: " Aquí puedes aprobar la solicitud de viaje. Recuerda que debes tener una agencia de viajes asignada.",
+      title: t('tutorial.requestInfo.approve'),
+      description: t('tutorial.requestInfo.approveDesc'),
       position: "bottom",
     },
   },
-    {
+  {
     element: "#changes-request-button",
     popover: {
-      title: "Solicitar Cambios a la Solicitud",
-      description: "Aquí puedes solicitar cambios a la solicitud de viaje. Recuerda que debes poner una justificación en los comentarios.",
+      title: t('tutorial.requestInfo.requestChanges'),
+      description: t('tutorial.requestInfo.requestChangesDesc'),
       position: "bottom",
     },
   },
-    {
+  {
     element: "#deny-request-button",
     popover: {
-      title: "Denegar Solicitud",
-      description: "Aquí puedes denegar la solicitud de viaje.",
+      title: t('tutorial.requestInfo.deny'),
+      description: t('tutorial.requestInfo.denyDesc'),
       position: "bottom",
     },
-  }
-]
-
-const stepsMap: Record<string, typeof dashboardSteps> = {
-  dashboard: dashboardSteps,
-  createRequest: createRequestSteps,
-  history: historySteps,
-  refunds: refundsSteps,
-  vouchers: vouchersSteps,
-  approvals: approvalsSteps,
-  refundsReview: refundsReviewSteps,
-  bookings: bookingsSteps,
-  reservations: assignReservationSteps,
-  checkRefunds: checkRefundsSteps,
-  refundReview: refundReviewSteps,
-  requestInfo: requestInfoSteps,
-};
+  },
+];
 
 interface TutorialProps {
    children: React.ReactNode;
@@ -427,13 +414,29 @@ interface TutorialProps {
  * Author: Original Moncarca team
  * Last Modification made: original Moncarca team
  */
-export const Tutorial = ({ children,page, run = false }: TutorialProps) => {
+export const Tutorial = ({ children, page, run = false }: TutorialProps) => {
   const { setTutorial } = useApp();
+  const { t } = useTranslation();
+
   useEffect(() => {
-    if (!run) return; // Exit early if run is false
-    // Wait for DOM to be fully loaded and elements to be present
+    if (!run) return;
     const timeout = setTimeout(() => {
-      const steps = stepsMap[page] || dashboardSteps;
+      const stepsMap: Record<string, ReturnType<typeof getDashboardSteps>> = {
+        dashboard: getDashboardSteps(t),
+        createRequest: getCreateRequestSteps(t),
+        history: getHistorySteps(t),
+        refunds: getRefundsSteps(t),
+        vouchers: getVouchersSteps(t),
+        approvals: getApprovalsSteps(t),
+        refundsReview: getRefundsReviewSteps(t),
+        bookings: getBookingsSteps(t),
+        reservations: getAssignReservationSteps(t),
+        checkRefunds: getCheckRefundsSteps(t),
+        refundReview: getRefundReviewSteps(t),
+        requestInfo: getRequestInfoSteps(t),
+      };
+
+      const steps = stepsMap[page] || getDashboardSteps(t);
       const filteredSteps = steps.filter(step => {
         if (!step.element) return false;
         const el = document.querySelector(step.element);
@@ -443,24 +446,20 @@ export const Tutorial = ({ children,page, run = false }: TutorialProps) => {
         console.warn("No valid steps found for the tutorial.");
         return;
       }
-      // Initialize the driver with the filtered steps
       const drv = driver({
-          doneBtnText: "Finalizar",
-          nextBtnText: "Siguiente",
-          prevBtnText: "Anterior",
+          doneBtnText: t('tutorial.done'),
+          nextBtnText: t('tutorial.next'),
+          prevBtnText: t('tutorial.previous'),
           animate: true,
           allowClose: true,
       });
       drv.setSteps(filteredSteps);
       drv.drive();
-      setTutorial(false); // Set tutorial to false after running
+      setTutorial(false);
     }, 500);
-    
-    // Cleanup to prevent duplicate driver instances
+
     return () => {
       clearTimeout(timeout);
-      // Optionally destroy any existing driver instance if API allows
-      // drv?.destroy?.();
     };
   }, [run]);
   return children;

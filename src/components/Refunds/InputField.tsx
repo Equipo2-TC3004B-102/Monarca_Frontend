@@ -7,6 +7,7 @@
  * 04/05/2026 [Santiago Coronado Hernández] Added file size validation for file inputs and enhanced error handling to provide user-friendly messages when file size exceeds limits.
  */
 import React, { ChangeEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
 
 /*
@@ -63,7 +64,7 @@ const InputField: React.FC<InputFieldProps> = ({
   id,
   name,
   type = "text",
-  accept, // Para inputs de tipo file, especifica los tipos de archivos aceptados
+  accept,
   value,
   placeholder = "",
   className = "",
@@ -82,6 +83,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onKeyDown,
   inputMode,
 }) => {
+  const { t } = useTranslation();
   // Set default placeholder for date inputs
   const effectivePlaceholder =
     type === "date" && !placeholder ? "DD/MM/YYYY" : placeholder;
@@ -169,7 +171,7 @@ const InputField: React.FC<InputFieldProps> = ({
   const validateInput = (inputValue: string | undefined, touched: boolean = isTouched) => {
     // Check if field is required and empty
     if (required && isEmptyValue(inputValue) && touched) {
-      setLocalError("Este campo es obligatorio");
+      setLocalError(t('common.fieldRequired'));
       return false;
     }
     // Run custom validation if provided
@@ -295,12 +297,23 @@ const InputField: React.FC<InputFieldProps> = ({
             </label>
           )}
           <div className="relative">
+            <label
+              htmlFor={id || name}
+              className={`inline-flex items-center gap-3 p-2 border rounded-md cursor-pointer hover:cursor-pointer ${borderClass} bg-white`}
+            >
+              <span className="px-4 py-2 bg-[#0a2c6d] hover:bg-[#0d3d94] text-white rounded text-base whitespace-nowrap shrink-0">
+                {t('common.chooseFile')}
+              </span>
+              <span className="text-sm text-gray-500 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                {selectedFileName || t('common.noFileChosen')}
+              </span>
+            </label>
             <input
               accept={accept || "image/*"}
               id={id || name}
               name={name}
               type={type}
-              className={`${baseClass} ${borderClass} ${textClass} ${className}`}
+              className="hidden"
               disabled={disabled}
               required={required}
               onChange={handleChange}
@@ -309,13 +322,6 @@ const InputField: React.FC<InputFieldProps> = ({
               aria-invalid={!!errorMessage}
               aria-required={required}
             />
-            {selectedFileName && (
-              <div className="mt-2 text-sm text-gray-600">
-                <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800">
-                  📁 {selectedFileName}
-                </span>
-              </div>
-            )}
           </div>
         </>
       );

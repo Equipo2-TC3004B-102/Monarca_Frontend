@@ -7,6 +7,7 @@
  * 23/04/2026 Rebeca Davila Added an X button to delete vouchers spaces
  */
 import React, { useState, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 // Define a type for all possible cell values including File objects
 export type CellValueType =
@@ -65,6 +66,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   expandedRows = [],
   renderExpandedRow,
 }) => {
+  const { t } = useTranslation();
   /*
    * State to manage the table data.
    * The initial data is set to the initialData prop, or an empty array if not provided.
@@ -150,7 +152,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   return (
     <div className="relative">
       <div className="overflow-x-auto mb-4">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full min-w-[1100px] text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {columns.map((column, index) => (
@@ -231,7 +233,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           onClick={addItem}
           className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
         >
-          + Añadir comprobante de gasto
+          {t('common.addVoucher')}
         </button>
       </div>
     </div>

@@ -28,7 +28,7 @@ const SidebarOption = ({ label, pathIcon, link, onClick  }: SidebarOptionProps) 
             <Link
               to={link}
               onClick={onClick}
-              className="group flex items-center p-2 text-[var(--dark-blue)] text-sm rounded-lg hover:bg-[var(--blue)] hover:text-[var(--white)] gap-2"
+              className="group flex items-center p-2 text-[var(--dark-blue)] text-sm rounded-lg hover:bg-[var(--blue)] hover:text-[var(--white)] gap-2 h-[44px]"
             >
               <img
                 src={pathIcon}

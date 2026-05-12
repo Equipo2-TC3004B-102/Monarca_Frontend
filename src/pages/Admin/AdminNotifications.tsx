@@ -1,6 +1,6 @@
 /*
  * FileName: AdminNotifications.tsx
- * Description: Admin page for managing notification settings. Allows toggling email and in-app notifications for various events at the company level. 
+ * Description: Admin page for managing notification settings. Allows toggling email and in-app notifications for various events at the company level.
  *              Fetches current settings on load and provides a form to update preferences with feedback messages on success or error.
  * Authors: Original Monarca team
  * Last Modification made:
@@ -12,6 +12,7 @@ import GoBack from "../../components/GoBack";
 import { Button } from "../../components/ui/Button";
 import Switch from "../../components/ui/Switch";
 import { useAuth } from "../../hooks/auth/authContext";
+import { useTranslation } from "react-i18next";
 import {
   getCompanyNotificationSettings,
   updateCompanyNotificationSettings,
@@ -35,53 +36,12 @@ const defaultSettings: CompanyNotificationSettings = {
   email_admin_alerts: true,
 };
 
-const settingRows: Array<{
-  key: keyof CompanyNotificationSettingsUpdate;
-  title: string;
-  description: string;
-}> = [
-  {
-    key: "email_enabled",
-    title: "Habilitar correo",
-    description: "Permite enviar notificaciones por email para la empresa.",
-  },
-  {
-    key: "in_app_enabled",
-    title: "Habilitar notificaciones internas",
-    description: "Muestra notificaciones dentro de la aplicación.",
-  },
-  {
-    key: "email_requests_created",
-    title: "Solicitud creada",
-    description: "Notifica por email cuando se crea una solicitud.",
-  },
-  {
-    key: "email_requests_status",
-    title: "Cambio de estado de solicitud",
-    description: "Notifica por email cuando una solicitud cambia de estado.",
-  },
-  {
-    key: "email_revisions",
-    title: "Revisión creada",
-    description: "Notifica por email cuando se genera una revisión.",
-  },
-  {
-    key: "email_reservations",
-    title: "Reservación creada",
-    description: "Notifica por email cuando se crea una reservación.",
-  },
-  {
-    key: "email_admin_alerts",
-    title: "Alertas administrativas",
-    description: "Notifica por email eventos administrativos relevantes.",
-  },
-];
-
 const sectionClass = "bg-gray-200 rounded-md";
 const labelClass = "block text-sm font-medium text-gray-900";
 
 export default function AdminNotifications() {
   const { authState } = useAuth();
+  const { t } = useTranslation();
   const companyId = authState.companyId;
 
   const [loading, setLoading] = useState(true);
@@ -91,19 +51,25 @@ export default function AdminNotifications() {
 
   const canLoad = Boolean(companyId);
 
-  const visibleRows = useMemo(
-    () => settingRows,
-    [],
-  );
+  const settingRows: Array<{
+    key: keyof CompanyNotificationSettingsUpdate;
+    title: string;
+    description: string;
+  }> = useMemo(() => [
+    { key: "email_enabled",          title: t('admin.notifications.emailEnabled'),       description: t('admin.notifications.emailEnabledDesc') },
+    { key: "in_app_enabled",         title: t('admin.notifications.inAppEnabled'),        description: t('admin.notifications.inAppEnabledDesc') },
+    { key: "email_requests_created", title: t('admin.notifications.requestsCreated'),     description: t('admin.notifications.requestsCreatedDesc') },
+    { key: "email_requests_status",  title: t('admin.notifications.requestsStatus'),      description: t('admin.notifications.requestsStatusDesc') },
+    { key: "email_revisions",        title: t('admin.notifications.revisions'),           description: t('admin.notifications.revisionsDesc') },
+    { key: "email_reservations",     title: t('admin.notifications.reservations'),        description: t('admin.notifications.reservationsDesc') },
+    { key: "email_admin_alerts",     title: t('admin.notifications.adminAlerts'),         description: t('admin.notifications.adminAlertsDesc') },
+  ], [t]);
 
   useEffect(() => {
     const loadSettings = async () => {
       if (!companyId) {
         setLoading(false);
-        setMessage({
-          text: "No se pudo identificar la empresa actual.",
-          error: true,
-        });
+        setMessage({ text: t('admin.notifications.errorNoCompany'), error: true });
         return;
       }
 
@@ -114,7 +80,7 @@ export default function AdminNotifications() {
         const data = await getCompanyNotificationSettings(companyId);
         setSettings(data);
       } catch {
-        setMessage({ text: "Error al cargar las notificaciones.", error: true });
+        setMessage({ text: t('admin.notifications.errorLoading'), error: true });
       } finally {
         setLoading(false);
       }
@@ -147,9 +113,9 @@ export default function AdminNotifications() {
     try {
       const updated = await updateCompanyNotificationSettings(companyId, payload);
       setSettings(updated);
-      setMessage({ text: "Configuración de notificaciones guardada.", error: false });
+      setMessage({ text: t('admin.notifications.successSaving'), error: false });
     } catch {
-      setMessage({ text: "Error al guardar la configuración.", error: true });
+      setMessage({ text: t('admin.notifications.errorSaving'), error: true });
     } finally {
       setSaving(false);
     }
@@ -159,19 +125,15 @@ export default function AdminNotifications() {
     <>
       <GoBack />
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[var(--blue)]">Notificaciones</h2>
+        <div className="flex flex-col gap-2 mb-4">
+          <h2 className="text-2xl font-bold text-[var(--blue)]">{t('admin.notifications.title')}</h2>
           <p className="text-sm text-gray-600">
-            {companyId ? `Empresa activa: ${companyId}` : "Empresa no disponible"}
+            {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
         </div>
 
         {message && (
-          <div
-            className={`mb-4 p-3 rounded-md text-sm ${
-              message.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
-            }`}
-          >
+          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
             {message.text}
           </div>
         )}
@@ -181,23 +143,22 @@ export default function AdminNotifications() {
             <form onSubmit={handleSubmit}>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-[var(--blue)]">Preferencias por empresa</h3>
-                  <p className="text-sm text-gray-600">Controla qué eventos generan notificaciones.</p>
+                  <h3 className="text-lg font-bold text-[var(--blue)]">{t('admin.notifications.preferences')}</h3>
+                  <p className="text-sm text-gray-600">{t('admin.notifications.preferencesDescription')}</p>
                 </div>
                 <Button type="submit" disabled={!canLoad || loading || saving}>
-                  {saving ? "Guardando..." : "Guardar cambios"}
+                  {saving ? t('common.saving') : t('admin.notifications.saveChanges')}
                 </Button>
               </div>
 
               {loading ? (
-                <div className="py-10 text-center text-gray-500">Cargando configuración...</div>
+                <div className="py-10 text-center text-gray-500">{t('admin.notifications.loadingSettings')}</div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-                  {visibleRows.map((row) => {
+                  {settingRows.map((row) => {
                     const checked = settings[row.key] ?? false;
-
                     return (
-                      <div key={row.key} className="flex items-start justify-between gap-4 rounded-lg bg-white p-4 shadow-sm">
+                      <div key={row.key} className="flex items-center justify-between gap-4 rounded-lg bg-white p-4 shadow-sm">
                         <div>
                           <label className={labelClass}>{row.title}</label>
                           <p className="mt-1 text-sm text-gray-600">{row.description}</p>
@@ -208,6 +169,7 @@ export default function AdminNotifications() {
                           onChange={(value) => updateField(row.key, value)}
                           disabled={saving}
                           srLabel={row.title}
+                          className="flex-shrink-0"
                         />
                       </div>
                     );

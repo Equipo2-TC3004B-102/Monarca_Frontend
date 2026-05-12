@@ -8,6 +8,7 @@
  * clarity and maintainability.
  */
 import React, { ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 /*
  * Column interface SCHEMA to define the structure of each column in the table.
@@ -18,6 +19,9 @@ import React, { ReactNode, useState } from "react";
 interface Column {
   key: string;
   header: string;
+  width?: string;
+  mobileHidden?: boolean;
+  render?: (value: any) => ReactNode;
 }
 
 /*
@@ -52,9 +56,7 @@ interface TableProps {
  * Output: JSX element - a complete table component with pagination controls
  */
 const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
-  /*
-   * State to manage the current page of the table.
-   */
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
 
   /*
@@ -97,7 +99,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
     <div className="relative">
       {/* Table component */}
       <div className="overflow-x-auto mb-4">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full min-w-[900px] table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {/*
@@ -107,13 +109,12 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className={`px-4 py-2 text-center ${
+                  className={`py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
-                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""}
-                    ${column.key === "status" ? "min-w-[150px]" : ""
-                  } ${
-                    column.key === "status" ? "px-0" : "px-4"
-                  }`}
+                  } ${index === columns.length - 1 ? "rounded-r-lg" : ""
+                  } ${column.key === "status" ? "px-1" : "px-4"
+                  } ${column.width ?? ""
+                  } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                 >
                   {column.header}
                 </th>
@@ -134,7 +135,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
             {currentItems.length <= 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center pt-10">
-                  No hay datos disponibles
+                  {t('common.noData')}
                 </td>
               </tr>
             ) : currentItems.map((row, rowIndex) => (
@@ -156,20 +157,17 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
                       cellIndex === columns.length - 1 ? "rounded-r-lg" : ""
                     } ${
                       column.key === "status" ? "px-1" : "px-4"
-                    }`}
+                    } ${column.width ?? ""
+                    } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                   >
                     {/*
                      * Access to data by colum.key in the row data, to display in the correct place
                      * Check if the data for this cell is defined, if not show N/A.
                      */}
                     {row[column.key] !== undefined && row[column.key] !== null
-                      ? /*
-                         * Render the data, that might be number, string, boolean or ReactNode.
-                         * Note here access the data through the key property of the column object
-                         * to get the value from the row object. This is important because we are
-                         * using the key property to access the data dynamically in our object data.
-                         */
-                        row[column.key]
+                      ? column.render
+                        ? column.render(row[column.key])
+                        : row[column.key]
                       : "N/A"}
                   </td>
                 ))}
