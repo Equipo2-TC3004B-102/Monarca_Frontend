@@ -123,7 +123,7 @@ export default function AdminUsers() {
         )}
 
         <div className="overflow-x-auto mb-4">
-          <table className="w-full table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
+          <table className="w-full min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
                 <th className="px-4 py-2 text-center rounded-l-lg">{t('admin.users.name')}</th>

@@ -158,7 +158,7 @@ export default function AdminNotifications() {
                   {settingRows.map((row) => {
                     const checked = settings[row.key] ?? false;
                     return (
-                      <div key={row.key} className="flex items-start justify-between gap-4 rounded-lg bg-white p-4 shadow-sm">
+                      <div key={row.key} className="flex items-center justify-between gap-4 rounded-lg bg-white p-4 shadow-sm">
                         <div>
                           <label className={labelClass}>{row.title}</label>
                           <p className="mt-1 text-sm text-gray-600">{row.description}</p>
@@ -169,6 +169,7 @@ export default function AdminNotifications() {
                           onChange={(value) => updateField(row.key, value)}
                           disabled={saving}
                           srLabel={row.title}
+                          className="flex-shrink-0"
                         />
                       </div>
                     );
