@@ -84,7 +84,7 @@ a {
 .dark {
   --color-page-bg: #121212;
   --color-page-text: #f9fafb;
-  --color-page-text-title: var(--light-blue);
+  --color-page-text-title: var(--ultra-light-blue);
   --color-card-bg: #1d1d1d;
   --color-border: #3b3b3b;
 }

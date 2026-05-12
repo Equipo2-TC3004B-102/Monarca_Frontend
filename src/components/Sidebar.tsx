@@ -91,7 +91,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label="Notificaciones" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
         </ul>
-        <DarkModeButton className="p-2 mt-10"></DarkModeButton>
+        <DarkModeButton className="p-2 mt-10 block md:hidden"></DarkModeButton>
       </div>
     </aside>
   );
