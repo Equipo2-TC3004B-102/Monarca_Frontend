@@ -99,7 +99,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
     <div className="relative">
       {/* Table component */}
       <div className="overflow-x-auto mb-4">
-        <table className="w-full min-w-[900px] text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full min-w-[900px] table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {/*
