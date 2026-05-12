@@ -96,23 +96,25 @@ export default function AdminUsers() {
     <>
       <GoBack />
       <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[var(--blue)]">{t('admin.users.title')}</h2>
+        <div className="flex flex-col gap-2 mb-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-[var(--blue)]">{t('admin.users.title')}</h2>
+            <div className="flex items-center gap-3">
+              {!authState.isSystemAdmin && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={importing || !canLoad}
+                  className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
+                >
+                  {importing ? t('admin.users.importing') : t('admin.users.loadUser')}
+                </button>
+              )}
+              <RefreshButton />
+            </div>
+          </div>
           <p className="text-sm text-gray-600">
             {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
-          <div className="flex items-center gap-3">
-            {!authState.isSystemAdmin && (
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={importing || !canLoad}
-                className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
-              >
-                {importing ? t('admin.users.importing') : t('admin.users.loadUser')}
-              </button>
-            )}
-            <RefreshButton />
-          </div>
           <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
         </div>
 
