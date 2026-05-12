@@ -95,6 +95,7 @@
     "noDestination": "Sin destino"
   },
   "bookings": {
+    "title": "Viajes por reservar",
     "trip": "Solicitud",
     "departureDate": "Fecha de salida",
     "departurePlace": "Destino",

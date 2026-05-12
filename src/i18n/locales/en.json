@@ -95,6 +95,7 @@
     "noDestination": "No destination"
   },
   "bookings": {
+    "title": "Trips to book",
     "trip": "Request",
     "departureDate": "Departure date",
     "departurePlace": "Destination",
