@@ -6,6 +6,7 @@
  * Last Modification made: 
  * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  * 06/05/2026 [Julio Rodriguez] Fixed permission check — use view_own_requests instead of create_request to guard requester history view.
+ * 06/05/2026 [Sergio Jiawei Xuan] Changed status badge style to adapt to text width; corrected arrival date translation key.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -19,54 +20,56 @@ import Button from "../../components/Refunds/Button";
 import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
 /**
  * renderStatus, converts API status strings to localized display text with appropriate styling.
  * Input: status (string)
  * Output: JSX element - styled status badge
  */
-const renderStatus = (status: string) => {
+const renderStatus = (status: string, t: TFunction) => {
   let statusText = "";
   let styles = "";
   switch (status) {
     case "Pending Review":
-      statusText = "En revisión";
+      statusText = t('status.pendingReview');
       styles = "text-[#55447a] font-bold bg-[#bea8ef]";
       break;
     case "Denied":
-      statusText = "Denegado";
+      statusText = t('status.denied');
       styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Cancelled":
-      statusText = "Cancelado";
+      statusText = t('status.cancelled');
       styles = "text-[#680909] font-bold bg-[#eca6a6]";
       break;
     case "Changes Needed":
-      statusText = "Cambios necesarios";
+      statusText = t('status.changesNeeded');
       styles = "text-[#755619] font-bold bg-[#f1dbb1]";
       break;
     case "Pending Reservations":
-      statusText = "Reservas pendientes";
+      statusText = t('status.pendingReservations');
       styles = "text-[#8c5308] font-bold bg-[#f1c180]";
       break;
     case "Pending Accounting Approval":
-      statusText = "Contabilidad pendiente";
+      statusText = t('status.pendingAccountingApproval');
       styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]";
       break;
     case "Pending Vouchers Approval":
-      statusText = "Comprobantes pendientes";
+      statusText = t('status.pendingVouchersApproval');
       styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]";
       break;
     case "In Progress":
-      statusText = "En progreso";
+      statusText = t('status.inProgress');
       styles = "text-[#138080] font-bold bg-[#b7f1f1]";
       break;
-    case "Pending Refund Approval": 
-      statusText = "Reembolso pendiente";
+    case "Pending Refund Approval":
+      statusText = t('status.pendingRefundApproval');
       styles = "text-[#575107] font-bold bg-[#f0eaa5]";
       break;
-    case "Completed": 
-      statusText = "Completado";
+    case "Completed":
+      statusText = t('status.completed');
       styles = "text-[#24390d] font-bold bg-[#c7e6ab]";
       break;
     default:
@@ -74,7 +77,7 @@ const renderStatus = (status: string) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs p-1 rounded-sm ${styles}`}>
+      <span className={`text-xs p-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>
         {statusText}
       </span>
     )
@@ -91,6 +94,7 @@ export const Historial = () => {
   const { authState } = useAuth();
   const navigate = useNavigate();
   const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const { t } = useTranslation();
 
   /**
    * Fetches travel records from API with permission-based filtering and formats data for display.
@@ -129,27 +133,17 @@ export const Historial = () => {
 
           return {
             ...record,
-            status: renderStatus(record.status),
+            status: record.status,
             createdAt: formatDate(record.createdAt),
             country:
               record.destination?.city ||
               record.destination?.iata_code ||
-              "Destino no disponible",
+              t('historial.noDestination'),
             departureDate: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
-              : "Sin fecha",
+              : t('historial.noDate'),
             index,
-            action: (
-              <Button
-                className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor pointer"
-                label="Ver detalles"
-                id={`details-${index}`}
-                driver-id="details"
-                onClickFunction={() => {
-                  navigate(`/requests/${record.id}`);
-                }}
-              />
-            ),
+            action: record.id,
           };
         }));
         //   action: record.status == "Changes Needed" && (
@@ -185,13 +179,19 @@ export const Historial = () => {
 
   // Columns schema for travel history table
   const columnsSchema = [
-    { key: "status", header: "Estado" },
-    { key: "title", header: "Viaje" },
-    { key: "motive", header: "Motivo" },
-    { key: "departureDate", header: "Fecha del viaje" },
-    { key: "country", header: "Lugar de Salida" },
-    { key: "createdAt", header: "Fecha de solicitud" },
-    { key: "action", header: "Detalles" },
+    { key: "status", header: t('historial.status'), render: (value: string) => renderStatus(value, t) },
+    { key: "title", header: t('historial.trip') },
+    { key: "motive", header: t('historial.motive') },
+    { key: "departureDate", header: t('historial.departureDate') },
+    { key: "country", header: t('historial.departurePlace') },
+    { key: "createdAt", header: t('historial.requestDate') },
+    { key: "action", header: t('historial.details'), render: (id: string) => (
+      <Button
+        className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
+        label={t('historial.viewDetails')}
+        onClickFunction={() => navigate(`/requests/${id}`)}
+      />
+    )},
   ];
 
   return (
@@ -201,7 +201,7 @@ export const Historial = () => {
         <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
-                Historial de viajes
+                {t('historial.title')}
               </h2>
               <RefreshButton />
           </div>

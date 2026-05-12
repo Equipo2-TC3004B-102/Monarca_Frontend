@@ -13,6 +13,7 @@ import {
   ListboxOptions,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { useTranslation } from "react-i18next";
 
 /**
  * Option, represents a selectable item in the Select component.
@@ -60,9 +61,11 @@ export default function Select({
   direction = "down",
   isLoading = false,
   isDisabled = false,
-  placeholder = "Selecciona una opción",
+  placeholder,
   id,
 }: SelectProps) {
+  const { t } = useTranslation();
+  const effectivePlaceholder = placeholder ?? t('common.selectOption');
   return (
     <Listbox value={value || null} onChange={onChange} disabled={isDisabled}>
       <div className="relative">
@@ -73,7 +76,7 @@ export default function Select({
           }`}
         >
           <span className="block truncate">
-            {isLoading ? "Cargando..." : value?.name || placeholder}
+            {isLoading ? t('common.loading') : value?.name || effectivePlaceholder}
           </span>
           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
             <ChevronUpDownIcon
@@ -91,11 +94,11 @@ export default function Select({
         >
           {isLoading ? (
             <div className="cursor-default select-none py-2 px-4 text-gray-700">
-              Cargando...
+              {t('common.loading')}
             </div>
           ) : options.length === 0 ? (
             <div className="cursor-default select-none py-2 px-4 text-gray-700">
-              No hay opciones disponibles.
+              {t('common.noOptions')}
             </div>
           ) : (
             options.map((option) => (

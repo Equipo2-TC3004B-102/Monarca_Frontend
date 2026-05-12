@@ -16,6 +16,7 @@ import logo from "../assets/logo.png";
 import SidebarOption from "./SiderbarOption";
 
 import { AuthState, Permission } from "../hooks/auth/authContext";
+import { useTranslation } from "react-i18next";
 
 import DarkModeButton from "../components/DarkLightButton";
 
@@ -25,6 +26,7 @@ import DarkModeButton from "../components/DarkLightButton";
  * Output: JSX aside element with navigation options filtered by user permissions.
  */
 function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => void; }) {
+  const { t } = useTranslation();
   const isAdmin = user.isSystemAdmin || user.isCompanyAdmin;
   return (
     <aside
@@ -40,55 +42,55 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
         </div>
         <ul className="space-y-2 font-medium">
             <SidebarOption
-              label="Inicio"
+              label={t('sidebar.home')}
               pathIcon="/assets/dashboard.png"
               link="/dashboard"
               onClick={onNavigate}
             />
             {!isAdmin && user.userPermissions.includes("create_request" as Permission) && (
-              <SidebarOption label="Crear solicitud" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/requests/create" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.createRequest')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/requests/create" onClick={onNavigate}/>
             )}
             {user.userPermissions.includes("view_own_requests" as Permission) && (
-              <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes.png" link="/history" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.travelHistory')} pathIcon="/assets/historial_de_viajes.png" link="/history" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("upload_vouchers" as Permission) && (
-              <SidebarOption label="Comprobar Gastos" pathIcon="/assets/solicitud_de_reembolso.png" link="/refunds" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.checkExpenses')} pathIcon="/assets/solicitud_de_reembolso.png" link="/refunds" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("approve_request" as Permission) && (
-              <SidebarOption label="Viajes por aprobar" pathIcon="/assets/viajes_por_aprobar.png" link="/approvals" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.tripsToApprove')} pathIcon="/assets/viajes_por_aprobar.png" link="/approvals" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("view_approved_request_history" as Permission) && (
-              <SidebarOption label="Historial de aprobaciones" pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.approvalHistory')} pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("approve_vouchers" as Permission) && (
-              <SidebarOption label="Comprobantes y Reembolsos" pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.vouchersAndRefunds')} pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
-              <SidebarOption label="Viajes por registrar" pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/history" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.tripsToRegister')} pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/history" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
-              <SidebarOption label="Comprobantes y Reembolsos por registrar" pathIcon="/assets/reembolsos_por_aprobar.png" link="/check-refunds" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.vouchersToRegister')} pathIcon="/assets/reembolsos_por_aprobar.png" link="/check-refunds" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("submit_reservations" as Permission) && (
-              <SidebarOption label="Viajes por reservar" pathIcon="/assets/viajes_por_reservar.png" link="/bookings" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.tripsToBook')} pathIcon="/assets/viajes_por_reservar.png" link="/bookings" onClick={onNavigate}/>
             )}
             {/* {user.userPermissions.includes("submit_reservations" as Permission) && (
               <SidebarOption label="Formulario de ingreso de reservación" pathIcon="/assets/formulario_de_ingreso_de_reservacion.png" link=""/>
             )} */}
             {!isAdmin && user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("submit_reservations" as Permission) && (
-              <SidebarOption label="Historial de viajes" pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.travelHistory')} pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
             )}
             {user.isSystemAdmin && (
-              <SidebarOption label="Nueva empresa" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.newCompany')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" onClick={onNavigate}/>
             )}
             {(user.isSystemAdmin || user.isCompanyAdmin) && (
-              <SidebarOption label="Lista de usuarios" pathIcon="/assets/viajes_por_aprobar.png" link="/admin/users" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.userList')} pathIcon="/assets/viajes_por_aprobar.png" link="/admin/users" onClick={onNavigate}/>
             )}
             {user.isCompanyAdmin && (
-              <SidebarOption label="Reglas" pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.rules')} pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
             )}
             {(user.isCompanyAdmin || user.isSystemAdmin) && (
-              <SidebarOption label="Notificaciones" pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
         </ul>
         <DarkModeButton className="p-2 mt-10 block md:hidden"></DarkModeButton>

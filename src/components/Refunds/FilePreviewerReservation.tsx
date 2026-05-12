@@ -8,6 +8,7 @@
  * 17/04/2026 [Rebeca-Davila] Made the container for the pdf previews smaller for mobil screens
  */
 import formatMoney from "../../utils/formatMoney";
+import { useTranslation } from "react-i18next";
 
 
 interface FilePreviewerProps {
@@ -26,11 +27,12 @@ interface FilePreviewerProps {
  */
 
 const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
+    const { t } = useTranslation();
     return (
         <>
           <div className="flex flex-col">
             <div className="flex flex-col bg-white p-6 gap-3 col-span-1 ml-14">
-              <p id={`price-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">Cantidad: </span><span className="text-green-700">{formatMoney(file.price)}</span></p>
+              <p id={`price-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.quantity')}: </span><span className="text-green-700">{formatMoney(file.price)}</span></p>
             </div>
             <div className="w-[100%] max-w-4xl h-[70vh] lg:h-[90vh] relative self-center">
               <iframe
@@ -62,7 +64,7 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
                     }}
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 cursor-pointer"
                   >
-                    Descargar PDF
+                    {t('refundAcceptance.downloadPdf')}
                   </button>
                 </div>
               </div>

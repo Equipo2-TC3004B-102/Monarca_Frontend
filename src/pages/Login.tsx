@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { postRequest } from "../utils/apiService";
 import { ToastContainer, toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import DarkModeButton from "../components/DarkLightButton";
 
 /**
@@ -37,6 +38,7 @@ interface User {
  */
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState<User>({
     email: "",
     password: "",
@@ -51,7 +53,7 @@ export default function LoginPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user.email || !user.password) {
-      toast.error("Por favor, completa todos los campos", {
+      toast.error(t('toast.fillAllFields'), {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -69,7 +71,7 @@ export default function LoginPage() {
         navigate("/dashboard");
       } else {
         console.log(result);
-        toast.error("Credenciales incorrectas", {
+        toast.error(t('toast.incorrectCredentials'), {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -81,7 +83,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Error al iniciar sesión", {
+      toast.error(t('toast.loginError'), {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -125,7 +127,7 @@ export default function LoginPage() {
           className="text-[2.5rem] lg:text-[3.5rem] text-[var(--color-page-text-title)] dark:text-[var(--color-page-text-title)] text-center mb-8 mt-20"
           style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 700 }}
         >
-          INICIO DE SESIÓN
+          {t('login.title')}
         </h1>
         <form
           onSubmit={handleSubmit}
@@ -135,7 +137,7 @@ export default function LoginPage() {
             onChange={handleChange}
             name="email"
             type="email"
-            placeholder="Correo"
+            placeholder={t('login.email')}
             required
             className="p-4 w-[100%] bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1rem] lg:text-[1.2rem] mb-8"
           />
@@ -143,7 +145,7 @@ export default function LoginPage() {
             onChange={handleChange}
             name="password"
             type="password"
-            placeholder="Contraseña"
+            placeholder={t('login.password')}
             required
             className="p-4 w-[100%] bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1rem] lg:text-[1.2rem] mb-4"
           />
@@ -151,13 +153,13 @@ export default function LoginPage() {
             href="/register"
             className="text-[1rem] lg:text-[1.2rem] text-center text-[var(--color-page-text-title)] dark:text-[var(--color-page-text-title)] mb-[50px] underline-offset-2 hover:!underline"
           >
-            ¿Olvidaste tu contraseña?
+            {t('login.forgotPassword')}
           </a>
           <button
             type="submit"
             className="bg-[#00296B] text-white py-4 px-6 rounded-[0.5rem] font-semibold cursor-pointer text-[0.8rem] lg:text-[1rem] text-center w-[70%] lg:w-[30%] hover:bg-[#00509D]"
           >
-            Continuar
+            {t('login.continue')}
           </button>
         </form>
       </div>

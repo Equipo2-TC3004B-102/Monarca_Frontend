@@ -18,6 +18,8 @@ import GoBack from "../../components/GoBack";
 import { useNavigate } from "react-router-dom";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
 /**
  * Trip
@@ -39,59 +41,23 @@ interface Trip {
  * Output: JSX.Element
  */
 
-const renderStatus = (status: string) => {
+const renderStatus = (status: string, t: TFunction) => {
   let statusText = "";
   let styles = "";
   switch (status) {
-    case "Pending Review":
-      statusText = "En revisión";
-      styles = "text-[#55447a] font-bold bg-[#bea8ef]";
-      break;
-    case "Denied":
-      statusText = "Denegado";
-      styles = "text-[#680909] font-bold bg-[#eca6a6]";
-      break;
-    case "Cancelled":
-      statusText = "Cancelado";
-      styles = "text-[#680909] font-bold bg-[#eca6a6]";
-      break;
-    case "Changes Needed":
-      statusText = "Cambios necesarios";
-      styles = "text-[#755619] font-bold bg-[#f1dbb1]";
-      break;
-    case "Pending Reservations":
-      statusText = "Reservas pendientes";
-      styles = "text-[#8c5308] font-bold bg-[#f1c180]";
-      break;
-    case "Pending Accounting Approval":
-      statusText = "Contabilidad pendiente";
-      styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]";
-      break;
-    case "Pending Vouchers Approval":
-      statusText = "Comprobantes pendientes";
-      styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]";
-      break;
-    case "In Progress":
-      statusText = "En progreso";
-      styles = "text-[#138080] font-bold bg-[#b7f1f1]";
-      break;
-    case "Pending Refund Approval": 
-      statusText = "Reembolso pendiente";
-      styles = "text-[#575107] font-bold bg-[#f0eaa5]";
-      break;
-    case "Completed": 
-      statusText = "Completado";
-      styles = "text-[#24390d] font-bold bg-[#c7e6ab]";
-      break;
-    default:
-      statusText = status;
-      styles = "text-white bg-[#6c757d]";
-    }
-    return (
-      <span className={`text-xs p-1 rounded-sm ${styles}`}>
-        {statusText}
-      </span>
-    )
+    case "Pending Review":      statusText = t('status.pendingReview');      styles = "text-[#55447a] font-bold bg-[#bea8ef]"; break;
+    case "Denied":              statusText = t('status.denied');              styles = "text-[#680909] font-bold bg-[#eca6a6]"; break;
+    case "Cancelled":           statusText = t('status.cancelled');           styles = "text-[#680909] font-bold bg-[#eca6a6]"; break;
+    case "Changes Needed":      statusText = t('status.changesNeeded');       styles = "text-[#755619] font-bold bg-[#f1dbb1]"; break;
+    case "Pending Reservations":statusText = t('status.pendingReservations'); styles = "text-[#8c5308] font-bold bg-[#f1c180]"; break;
+    case "Pending Accounting Approval": statusText = t('status.pendingAccountingApproval'); styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]"; break;
+    case "Pending Vouchers Approval":   statusText = t('status.pendingVouchersApproval');   styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]"; break;
+    case "In Progress":         statusText = t('status.inProgress');          styles = "text-[#138080] font-bold bg-[#b7f1f1]"; break;
+    case "Pending Refund Approval": statusText = t('status.pendingRefundApproval'); styles = "text-[#575107] font-bold bg-[#f0eaa5]"; break;
+    case "Completed":           statusText = t('status.completed');           styles = "text-[#24390d] font-bold bg-[#c7e6ab]"; break;
+    default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
+  }
+  return <span className={`text-xs px-2 py-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>{statusText}</span>;
 }
 
 /**
@@ -104,6 +70,7 @@ export const CheckRefunds = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const { t } = useTranslation();
 
   /**
    * useEffect hook to fetch trip data from the API on component mount.
@@ -122,7 +89,7 @@ export const CheckRefunds = () => {
 
           return {
             ...trip,
-            status: renderStatus(trip.status),
+            status: trip.status,
             date: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
               : "N/A",
@@ -130,14 +97,12 @@ export const CheckRefunds = () => {
             origin:
               trip.destination?.city ||
               trip.destination?.iata_code ||
-              "Destino no disponible",
+              t('historial.noDestination'),
             createdAt: formatDate(trip.createdAt),
           };
         }));
       } catch (err) {
-        toast.error(
-          "Error loading trips. Please try again later."  
-        );
+        toast.error(t('refunds.errorLoading'));
     
         console.error(
           "Error loading trips: ",
@@ -164,19 +129,19 @@ export const CheckRefunds = () => {
     }, []);
 
   const columnsSchemaTrips = [
-    { key: "status", header: "Estado" },
-    { key: "title", header: "Viaje" },
-    { key: "date", header: "Fecha del viaje" },
-    { key: "origin", header: "Lugar de salida" },
-    { key: "advance_money", header: "Anticipo" },
-    { key: "createdAt", header: "Fecha de solicitud" },
-    { key: "action", header: "" },
+    { key: "status",        header: t('refunds.status'),         width: "w-[22%]", render: (value: string) => renderStatus(value, t) },
+    { key: "title",         header: t('refunds.trip'),           width: "w-[16%]" },
+    { key: "date",          header: t('refunds.tripDate'),       width: "w-[12%]" },
+    { key: "origin",        header: t('refunds.departurePlace'), width: "w-[13%]" },
+    { key: "advance_money", header: t('refunds.advance'),        width: "w-[5%]" },
+    { key: "createdAt",     header: t('refunds.requestDate'),    width: "w-[21%]" },
+    { key: "action",        header: "",                          width: "w-[11%]" },
   ];
   
   if (loading) {
     return (
       <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
-        <p className="text-center">Loading trip data...</p>
+        <p className="text-center">{t('refunds.loading')}</p>
       </div>
     );
   }
@@ -187,7 +152,7 @@ export const CheckRefunds = () => {
       <Button
         id={`refund-details-${index}`}
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
-        label="Registrar"
+        label={t('refunds.register')}
         onClickFunction={() => navigate(`/requests/${trip.id}`)}
       />
     ),
@@ -200,7 +165,7 @@ export const CheckRefunds = () => {
         <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
-                Comprobantes y Reembolsos por registrar
+                {t('refunds.vouchersToRegister')}
             </h2>
             <RefreshButton />
           </div>

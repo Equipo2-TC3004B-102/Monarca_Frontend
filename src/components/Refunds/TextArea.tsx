@@ -7,6 +7,7 @@
  * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 import React, { ChangeEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 /*
  * TextAreaFieldProps interface to define the structure of the props for the TextAreaField component.
@@ -72,6 +73,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   onFocus,
   validateField,
 }) => {
+  const { t } = useTranslation();
   // Set default placeholder for date textAreas
   const effectivePlaceholder =
     type === "date" && !placeholder ? "DD/MM/YYYY" : placeholder;
@@ -159,7 +161,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   const validateTextArea = (textAreaValue: string) => {
     // Check if field is required and empty
     if (required && isEmptyValue(textAreaValue)) {
-      setLocalError("Este campo es obligatorio");
+      setLocalError(t('common.fieldRequired'));
       return false;
     }
     // Run custom validation if provided

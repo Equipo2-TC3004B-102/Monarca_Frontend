@@ -19,6 +19,8 @@ import { Navigation, Pagination } from 'swiper/modules';
 import FilePreviewer from "../../components/Refunds/FilePreviewer";
 import { patchRequest } from "../../utils/apiService";
 import { Tutorial } from "../../components/Tutorial";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -83,45 +85,20 @@ interface Dest {
  * Input: status (string) - Raw status from backend.
  * Output: string - Formatted status text.
  */
-export const renderStatus = (status: string) => {
-  let statusText = "";
+export const renderStatus = (status: string, t: TFunction) => {
   switch (status) {
-    case "Pending Review":
-      statusText = "En revisión";
-      break;
-    case "Denied":
-      statusText = "Denegado";
-      break;
-    case "Cancelled":
-      statusText = "Cancelado";
-      break;
-    case "Changes Needed":
-      statusText = "Cambios necesarios";
-      break;
-    case "Pending Reservations":
-      statusText = "Reservas pendientes";
-      break;
-    case "Pending Accounting Approval":
-      statusText = "Contabilidad pendiente";
-      break;
-    case "Pending Vouchers Approval":
-      statusText = "Comprobantes pendientes";
-      break;
-    case "In Progress":
-      statusText = "En progreso";
-      break;
-    case "Pending Refund Approval": 
-      statusText = "Reembolso pendiente";
-      break;
-    case "Completed": 
-      statusText = "Completado";
-      break;
-    default:
-      statusText = status;
-    }
-    return (
-      statusText
-    )
+    case "Pending Review": return t('status.pendingReview');
+    case "Denied": return t('status.denied');
+    case "Cancelled": return t('status.cancelled');
+    case "Changes Needed": return t('status.changesNeeded');
+    case "Pending Reservations": return t('status.pendingReservations');
+    case "Pending Accounting Approval": return t('status.pendingAccountingApproval');
+    case "Pending Vouchers Approval": return t('status.pendingVouchersApproval');
+    case "In Progress": return t('status.inProgress');
+    case "Pending Refund Approval": return t('status.pendingRefundApproval');
+    case "Completed": return t('status.completed');
+    default: return status;
+  }
 }
 
 /**
@@ -130,6 +107,7 @@ export const renderStatus = (status: string) => {
  * Output: JSX.Element - The rendered component.
  */
 const RefundsAcceptance: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [data, setData] = useState<RequestData>({});
@@ -161,13 +139,13 @@ const RefundsAcceptance: React.FC = () => {
           id_origin_city:
             response.destination?.city ||
             response.destination?.iata_code ||
-            "Origen no disponible",
+            t('refundAcceptance.originCity'),
           destinations: (response.requests_destinations || [])
             .map(
               (dest: Dest) =>
                 dest.destination?.city ||
                 dest.destination?.iata_code ||
-                "Destino no disponible",
+                t('refundAcceptance.destinations'),
             )
             .join(", "),
         });
@@ -195,16 +173,16 @@ const RefundsAcceptance: React.FC = () => {
     }, []);
 
   const labels: { key: keyof RequestData; label: string }[] = [
-    { key: "id", label: 'ID solicitud' },
-    { key: "admin", label: 'Aprobador' },
-    { key: "id_origin_city", label: 'Ciudad de Origen' },
-    { key: "destinations", label: 'Destinos' },
-    { key: "motive", label: 'Motivo' },
-    { key: "advance_money_str", label: 'Anticipo' },
-    { key: "status", label: "Estado" },
-    { key: "requirements", label: "Requerimientos" },
-    { key: "priority", label: "Prioridad" },
-    { key: "createdAt", label: "Fecha de creación" },
+    { key: "id", label: t('refundAcceptance.requestId') },
+    { key: "admin", label: t('refundAcceptance.approver') },
+    { key: "id_origin_city", label: t('refundAcceptance.originCity') },
+    { key: "destinations", label: t('refundAcceptance.destinations') },
+    { key: "motive", label: t('refundAcceptance.motive') },
+    { key: "advance_money_str", label: t('refundAcceptance.advance') },
+    { key: "status", label: t('refundAcceptance.status') },
+    { key: "requirements", label: t('refundAcceptance.requirements') },
+    { key: "priority", label: t('refundAcceptance.priority') },
+    { key: "createdAt", label: t('refundAcceptance.createdAt') },
   ];
 
   /**
@@ -256,10 +234,11 @@ const RefundsAcceptance: React.FC = () => {
   const completeRequest = async () => {
     try {
       await patchRequest(`/requests/finished-approving-vouchers/${id}`, {});
-      toast.success("Verification of Application Completed");
+      toast.success(t('refundAcceptance.verificationComplete'));
       navigate("/dashboard");
     } catch (error) {
       console.error("Error completing request:", error);
+      toast.error(t('refundAcceptance.errorCompleting'));
     }
   };
 
@@ -270,7 +249,7 @@ const RefundsAcceptance: React.FC = () => {
         <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
             <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
-              Información de Solicitud: <span>{id}</span>
+              {t('refundAcceptance.requestInfoLabel')} <span>{id}</span>
             </div>
 
             <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
@@ -288,7 +267,7 @@ const RefundsAcceptance: React.FC = () => {
                     id={key}
                     type="text"
                     readOnly
-                    value={data[key] !== undefined ? String(renderStatus(data.status ?? '')) : ""}
+                    value={data[key] !== undefined ? String(renderStatus(data.status ?? '', t)) : ""}
                     className="w-full bg-[var(--color-card-bg)] text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
                   />
                   
@@ -307,20 +286,20 @@ const RefundsAcceptance: React.FC = () => {
 
 
             <div className="mb-4">
-              <div className="bg-white p-4 rounded-lg shadow-md relative" id="vouchers">
+              <div className="bg-white p-4 rounded-lg shadow-md" id="vouchers">
                 <section className="mb-10">
                   <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                    Información Importante                  
+                    {t('refundAcceptance.importantInfo')}
                   </h1>
                   <p className="text-sm text-gray-600">
-                    - Cada comprobante debe ser aprobado o negado individualmente.
+                    - {t('refundAcceptance.instruction1')}
                   </p>
                   <p className="text-sm text-gray-600">
-                    - Despues de completar el proceso de aprobación de comprobante, haz click en el boton de "Terminar Verificación".
+                    - {t('refundAcceptance.instruction2')}
                   </p>
                 </section>
                 <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                  Comprobante {currentIndex + 1} of{" "}
+                  {t('refundAcceptance.voucher')} {currentIndex + 1} {t('refundAcceptance.of')}{" "}
                   {data?.vouchers?.length}
                 </h2>
                 {/* Display the existing PDF using an iframe */}
@@ -339,63 +318,78 @@ const RefundsAcceptance: React.FC = () => {
                 >
                   {data?.vouchers?.map((file, index) => (
                     <SwiperSlide key={index}>
-                      <FilePreviewer 
-                          file={file} 
+                      <FilePreviewer
+                          file={file}
                           fileIndex={index}
+                          showDownload={false}
                       />
-                      <div className="flex space-x-4 justify-end mt-6 absolute z-50 bottom-0 right-4">
-                          <button 
-                            disabled={file?.status !== "pending_voucher"}
-                            className={`px-4 py-2 text-white rounded-md  hover:cursor-pointer 
-                              ${file?.status !== "pending_voucher" 
-                                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                : "bg-red-600 hover:bg-red-700"
-                              }`}
-                              onClick={() => denyVoucher(file?.id)}
-                            id="deny-button"
-                          >
-                              Rechazar
-                          </button>
-                          <button 
-                              disabled={file?.status !== "pending_voucher"}
-                              className={`px-4 py-2  text-white rounded-md  hover:cursor-pointer
-                                ${file?.status !== "pending_voucher"
-                                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                  : "bg-green-600 hover:bg-green-700"
-                                }`}
-                              onClick={() => approveVoucher(file?.id)}
-                              id="approve-button"
-                            >
-                              Aprobar
-                          </button>
-                      </div>
                     </SwiperSlide>
                   ))}
                 </Swiper>
-                <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
-                    <button
-                      ref={prevRef}
-                      disabled={currentIndex === 0}
-                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                        currentIndex === 0
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
-                    >
-                      Previous
-                    </button>
-                    <button
-                      disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
-                      ref={nextRef} 
-                      className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                        currentIndex === (data?.vouchers?.length ?? 0) - 1
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
-                      id="next-voucher"
-                    >
-                      Incoming
-                    </button>
+                <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+                <button
+                  ref={prevRef}
+                  disabled={currentIndex === 0}
+                  className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                    currentIndex === 0
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                  }`}
+                >
+                  {t('refundAcceptance.previous')}
+                </button>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href={data?.vouchers?.[currentIndex]?.file_url_xml}
+                    download={`comprobante${currentIndex + 1}.xml`}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    {t('refundAcceptance.downloadXml')}
+                  </a>
+                  <a
+                    href={data?.vouchers?.[currentIndex]?.file_url_pdf}
+                    download={`comprobante${currentIndex + 1}.pdf`}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
+                    {t('refundAcceptance.downloadPdf')}
+                  </a>
+                  <button
+                    disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
+                    className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${
+                      data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
+                    }`}
+                    onClick={() => approveVoucher(data?.vouchers?.[currentIndex]?.id ?? "")}
+                    id="approve-button"
+                  >
+                    {t('refundAcceptance.approve')}
+                  </button>
+                  <button
+                    disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
+                    className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${
+                      data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-red-600 hover:bg-red-700"
+                    }`}
+                    onClick={() => denyVoucher(data?.vouchers?.[currentIndex]?.id ?? "")}
+                    id="deny-button"
+                  >
+                    {t('refundAcceptance.deny')}
+                  </button>
+                </div>
+                <button
+                  disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
+                  ref={nextRef}
+                  className={`px-4 py-2 rounded-md hover:cursor-pointer ${
+                    currentIndex === (data?.vouchers?.length ?? 0) - 1
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                  }`}
+                  id="next-voucher"
+                >
+                  {t('refundAcceptance.next')}
+                </button>
                 </div>
               </div>
               <section className="grid grid-cols-3 gap-5" id="refund-review">
@@ -404,7 +398,7 @@ const RefundsAcceptance: React.FC = () => {
                   htmlFor={"total"}
                   className="block text-xs font-semibold text-gray-500 mb-1"
                 >
-                  Total de comprobantes
+                  {t('refundAcceptance.totalVouchers')}
                 </label>
                 <input
                   id={"total"}
@@ -424,7 +418,7 @@ const RefundsAcceptance: React.FC = () => {
                   htmlFor={"advance_money"}
                   className="block text-xs font-semibold text-gray-500 mb-1"
                 >
-                  Anticipo
+                  {t('refundAcceptance.advance')}
                 </label>
                 <input
                   id={"advance_money"}
@@ -439,7 +433,7 @@ const RefundsAcceptance: React.FC = () => {
                   htmlFor={"total"}
                   className="block text-xs font-semibold text-gray-500 mb-1"
                 >
-                  Total
+                  {t('refundAcceptance.total')}
                 </label>
                 <input
                   id={"total"}
@@ -470,7 +464,7 @@ const RefundsAcceptance: React.FC = () => {
                     onClick={completeRequest}
                     id="complete-refund"
                   >
-                      Terminar Verificación
+                      {t('refundAcceptance.finishVerification')}
                   </button>
               </div>
             </div>

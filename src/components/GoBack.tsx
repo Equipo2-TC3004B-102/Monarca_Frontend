@@ -8,6 +8,7 @@
 
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 
 /**
  * FunctionName: GoBack, renders a back-navigation button that routes the user to /dashboard.
@@ -16,16 +17,17 @@ import { FaArrowLeft } from "react-icons/fa6";
  */
 const GoBack = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     return (
         <button
             onClick={() => navigate("/dashboard")}
-            aria-label="Regresar"
+            aria-label={t('common.goBack')}
             type="button"
             className="mb-6 text-sm w-fit text-[var(--color-page-text)] hover:text-[var(--color-page-text-title)] flex items-center gap-2 justify-center"
 
         >
-            <FaArrowLeft /> Regresar
+            <FaArrowLeft /> {t('common.goBack')}
         </button>
     )
 }
