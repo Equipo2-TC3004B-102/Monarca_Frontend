@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 
 interface Props {
   className?: string;
+  classNameText?: string;
 }
 
-export default function DarkModeButton({ className = "" }: Props) {
+export default function DarkModeButton({ className = "", classNameText = ""}: Props) {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -24,12 +25,12 @@ export default function DarkModeButton({ className = "" }: Props) {
 
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-[var(--color-page-text)]" style={{fontSize: '13px'}}>{isDark ? "Modo oscuro" : "Modo claro"}</span>
+      <span className={`${classNameText || "text-[var(--color-page-text)]"}`} style={{fontSize: '13px', fontWeight: 'bold'}}>{isDark ? "Modo oscuro" : "Modo claro"}</span>
       <Switch 
       checked={isDark}
       onChange={handleThemeChange}
       srLabel="Cambiar modo oscuro"
-      className={`bg-gray-300 data-[checked]:bg-[var(--blue)]`}
+      className={`bg-gray-300 data-[checked]:bg-[#121212]`}
       />
     </div>
   );

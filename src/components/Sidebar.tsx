@@ -26,7 +26,13 @@ import DarkModeButton from "../components/DarkLightButton";
  * Output: JSX aside element with navigation options filtered by user permissions.
  */
 function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => void; }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const toggleLanguage = () => {
+    const next = i18n.language === 'es' ? 'en' : 'es';
+    i18n.changeLanguage(next);
+    localStorage.setItem('language', next);
+  };
+
   const isAdmin = user.isSystemAdmin || user.isCompanyAdmin;
   return (
     <aside
@@ -93,7 +99,21 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
         </ul>
-        <DarkModeButton className="p-2 mt-10 block md:hidden"></DarkModeButton>
+        <div className="flex gap-7 items-center p-2 mt-10">
+            <DarkModeButton className="block md:hidden"></DarkModeButton>
+            <button
+              type="button"
+              title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+              onClick={toggleLanguage}
+              className="block md:hidden hover:scale-110 transition-transform"
+            >
+              <img
+                src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+                alt={i18n.language === 'es' ? 'Español' : 'English'}
+                className="w-12 h-8 rounded-sm object-cover shadow-sm"
+              />
+            </button>
+        </div>
       </div>
     </aside>
   );
