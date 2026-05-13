@@ -571,7 +571,20 @@
       "successDelete": "Regla eliminada exitosamente.",
       "errorDelete": "Error al eliminar la regla.",
       "errorNoPendingSubstitute": "No se puede eliminar: hay solicitudes pendientes en este nivel y no existe una regla sustituta del mismo orden.",
-      "deleting": "Eliminando..."
+      "deleting": "Eliminando...",
+      "manageActors": "Actores",
+      "actorsTitle": "Actores de \"{{name}}\"",
+      "addActor": "Agregar actor",
+      "actorType": "Tipo de actor",
+      "selectionMode": "Modo de selección",
+      "isRequired": "Requerido",
+      "noActors": "No hay actores definidos para este nivel.",
+      "successAddActor": "Actor agregado exitosamente.",
+      "errorAddActor": "Error al agregar el actor.",
+      "successEditActor": "Actor actualizado exitosamente.",
+      "errorEditActor": "Error al actualizar el actor.",
+      "successDeleteActor": "Actor eliminado exitosamente.",
+      "errorDeleteActor": "Error al eliminar el actor."
     },
     "notifications": {
       "title": "Notificaciones",
