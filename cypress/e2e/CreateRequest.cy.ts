@@ -3,7 +3,7 @@
  * Description: End-to-end tests for creating a travel request in the Monarca application.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 11/05/2026 [Diego de la Vega] Updated CreateRequest tests for login flow reliability
  */
 
 /**
