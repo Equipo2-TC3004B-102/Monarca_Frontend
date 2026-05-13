@@ -85,7 +85,7 @@ export const getRequest = async (
  */
 export const postRequest = async (
   url: string,
-  data: Record<string, unknown> | FormData,
+  data: unknown,
   config: AxiosRequestConfig = {}
 ) => {
   try {
@@ -113,7 +113,7 @@ export const postRequest = async (
  */
 export const putRequest = async (
   url: string,
-  data: Record<string, unknown> | FormData,
+  data: unknown,
   config: AxiosRequestConfig = {}
 ) => {
   try {
@@ -140,7 +140,7 @@ export const putRequest = async (
  */
 export const patchRequest = async (
   url: string,
-  data: Record<string, unknown> | FormData,
+  data: unknown,
   config: AxiosRequestConfig = {}
 ) => {
   try {
