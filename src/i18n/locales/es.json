@@ -559,7 +559,19 @@
       "maxAmountShort": "Monto máx.",
       "approvals": "Aprobaciones",
       "active": "Activa",
-      "inactive": "Inactiva"
+      "inactive": "Inactiva",
+      "actions": "Acciones",
+      "editRule": "Editar",
+      "deleteRule": "Eliminar",
+      "editTitle": "Editar regla de aprobación",
+      "confirmDelete": "¿Seguro que deseas eliminar \"{{name}}\"?",
+      "confirmDeleteWarning": "Las solicitudes pendientes en este nivel serán reasignadas a una regla sustituta del mismo orden.",
+      "successEdit": "Regla actualizada exitosamente.",
+      "errorEdit": "Error al actualizar la regla.",
+      "successDelete": "Regla eliminada exitosamente.",
+      "errorDelete": "Error al eliminar la regla.",
+      "errorNoPendingSubstitute": "No se puede eliminar: hay solicitudes pendientes en este nivel y no existe una regla sustituta del mismo orden.",
+      "deleting": "Eliminando..."
     },
     "notifications": {
       "title": "Notificaciones",

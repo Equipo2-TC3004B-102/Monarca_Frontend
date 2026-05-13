@@ -559,7 +559,19 @@
       "maxAmountShort": "Max. amount",
       "approvals": "Approvals",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "actions": "Actions",
+      "editRule": "Edit",
+      "deleteRule": "Delete",
+      "editTitle": "Edit approval rule",
+      "confirmDelete": "Are you sure you want to delete \"{{name}}\"?",
+      "confirmDeleteWarning": "Pending requests at this level will be reassigned to a substitute rule at the same order.",
+      "successEdit": "Rule updated successfully.",
+      "errorEdit": "Error updating rule.",
+      "successDelete": "Rule deleted successfully.",
+      "errorDelete": "Error deleting rule.",
+      "errorNoPendingSubstitute": "Cannot delete: there are pending requests at this level and no substitute rule exists at the same order.",
+      "deleting": "Deleting..."
     },
     "notifications": {
       "title": "Notifications",
