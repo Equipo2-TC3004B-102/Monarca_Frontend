@@ -14,10 +14,22 @@
 describe("Create Travel Request as Requester", () => {
     // Before all tests, log in as a requester to ensure we have the necessary permissions to create a travel request
     before("Login as a requester", () => {
+        cy.clearCookies();
+        cy.clearLocalStorage();
+        cy.window().then((win) => {
+            win.localStorage.removeItem("visitedPages");
+        });
+
+        // Intercept API calls with full URL to match cross-domain requests
+        cy.intercept("POST", "http://localhost:3002/login").as("loginRequest");
+        cy.intercept("GET", "http://localhost:3002/login/profile").as("profileRequest");
+
         cy.visit("/");
         cy.get('input[name="email"]').type("requester1@monarca.com");
         cy.get('input[name="password"]').type("password");
         cy.contains("Continuar").click();
+        cy.wait("@loginRequest");
+        cy.wait("@profileRequest");
         cy.url().should("include", "/dashboard");
     });
     // Test case to create a new travel request and verify that it was created successfully
