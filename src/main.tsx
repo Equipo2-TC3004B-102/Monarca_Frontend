@@ -48,6 +48,7 @@ import RequestInfo from "./pages/RequestInfo.tsx";
 import { Approvals } from "./pages/Approvals/Approvals.tsx";
 import { RefundsReview } from "./pages/Refunds/RefundsReview.tsx";
 import { CheckRefunds } from "./pages/Refunds/CheckRefunds.tsx";
+import FlightSearch from "./pages/FlightSearch.tsx";
 
 /**
  * router, defines the application's route tree.
@@ -88,6 +89,10 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard title="Inicio" />,
+      },
+      {
+        path: "/flights",
+        element: <FlightSearch />,
       },
       {
         path: "/approvals",
