@@ -299,7 +299,7 @@ const InputField: React.FC<InputFieldProps> = ({
           <div className="relative">
             <label
               htmlFor={id || name}
-              className={`inline-flex items-center gap-3 p-2 border rounded-md cursor-pointer hover:cursor-pointer ${borderClass} bg-white`}
+              className={`inline-flex items-center gap-3 p-2 border rounded-md cursor-pointer hover:cursor-pointer ${borderClass} bg-[var(--color-card-bg)]`}
             >
               <span className="px-4 py-2 bg-[#0a2c6d] hover:bg-[#0d3d94] text-white rounded text-base whitespace-nowrap shrink-0">
                 {t('common.chooseFile')}

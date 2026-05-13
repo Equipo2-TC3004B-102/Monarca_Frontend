@@ -95,7 +95,7 @@ export default function SearchableSelect({
           </div>
 
           {open && (
-            <ComboboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+            <ComboboxOptions className="bg-[var(--color-card-bg)] border border-[var(--color-border)] absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
               {isLoading ? (
                 <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                   {t('common.loading')}
@@ -112,7 +112,7 @@ export default function SearchableSelect({
                       value={option}
                       className={({ active }) =>
                         `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                          active ? "bg-indigo-600 text-white" : "text-gray-900"
+                          active ? "bg-indigo-600 text-white" : "text-[var(--color-page-text)]"
                         }`
                       }
                     >

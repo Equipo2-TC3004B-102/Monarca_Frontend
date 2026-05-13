@@ -88,7 +88,7 @@ export default function Select({
 
         <ListboxOptions
           transition
-          className={`absolute z-10 max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-gray-300 ring-opacity-5 focus:outline-none sm:text-sm ${
+          className={`absolute z-10 max-h-60 overflow-auto rounded-md bg-[var(--color-card-bg)]  py-1 text-base shadow-lg ring-1 ring-[var(--color-border)] ring-opacity-5 focus:outline-none sm:text-sm ${
             direction === "up" ? "bottom-full mb-1" : "mt-1"
           }`}
         >
@@ -107,7 +107,7 @@ export default function Select({
                 value={option}
                 className={({ active }) =>
                   `relative cursor-default select-none py-2 pl-3 pr-9 ${
-                    active ? "bg-indigo-600 text-white" : "text-gray-900"
+                    active ? "bg-indigo-600 text-white" : "text-[var(--color-page-text)]"
                   }`
                 }
               >

@@ -151,7 +151,7 @@ export const Vouchers = () => {
     {
       key: "spentClass",
       header: t('vouchers.colSpentClass'),
-      className: "w-40",
+      className: "bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] w-40",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -164,7 +164,6 @@ export const Vouchers = () => {
           options={spendOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] w-40"
           placeholder={t('vouchers.classPlaceholder')}
           wrapperClassName="relative flex flex-col"
         />
@@ -239,7 +238,7 @@ export const Vouchers = () => {
       key: "currency",
       header: t('vouchers.colCurrency'),
       defaultValue: "",
-      className: "w-20",
+      className: "w-20 bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -260,7 +259,7 @@ export const Vouchers = () => {
       key: "taxIndicator",
       header: t('vouchers.colTaxIndicator'),
       defaultValue: "",
-      className: "w-40",
+      className: "w-40 bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,

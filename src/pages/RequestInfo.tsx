@@ -874,16 +874,16 @@ const RequestInfo: React.FC = () => {
               <>
                 {data.status === "Pending Review" &&
                   <section className="mb-10">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                    <h1 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-4">
                       {t('requestInfo.importantInfo')}
                     </h1>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       {t('requestInfo.infoApprove')}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       {t('requestInfo.infoChanges')}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       {t('requestInfo.infoDeny')}
                     </p>
                   </section>

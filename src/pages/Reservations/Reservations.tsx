@@ -538,7 +538,7 @@ export const Reservations = () => {
                     )}
                     {destination.is_plane_required && (
                       <div className="flex flex-col gap-y-4" id="plane-reservation">
-                        <h3 className="text-[var(--blue)] mb-4 font-bold">{t('reservations.flightInfo')}</h3>
+                        <h3 className="text-[var(--color-page-text-title)] mb-4 font-bold">{t('reservations.flightInfo')}</h3>
                         <div>
                           <label 
                             className="block mb-2 text-sm font-medium text-gray-500"
@@ -580,7 +580,7 @@ export const Reservations = () => {
                           </label>
                           <div className="flex items-center gap-2">
                             <input
-                              className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                              className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border-[var(--color-border)] rounded-lg px-3 py-2"
                               placeholder={t('reservations.flightPricePlaceholder')}
                               value={formData[destination.id]?.plane_price ?? "0.00"}
                               onChange={(e) => {

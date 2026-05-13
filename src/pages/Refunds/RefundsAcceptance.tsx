@@ -268,7 +268,7 @@ const RefundsAcceptance: React.FC = () => {
                     type="text"
                     readOnly
                     value={data[key] !== undefined ? String(renderStatus(data.status ?? '', t)) : ""}
-                    className="w-full bg-[var(--color-card-bg)] text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
                   />
                   
                 ) : (
@@ -277,7 +277,7 @@ const RefundsAcceptance: React.FC = () => {
                     type="text"
                     readOnly
                     value={data[key] !== undefined ? String(data[key]) : ""}
-                    className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
                   />
                 )}
                 </div>
@@ -286,19 +286,19 @@ const RefundsAcceptance: React.FC = () => {
 
 
             <div className="mb-4">
-              <div className="bg-white p-4 rounded-lg shadow-md" id="vouchers">
+              <div className="bg-[var(--color-page-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] p-4 rounded-lg shadow-md" id="vouchers">
                 <section className="mb-10">
-                  <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                  <h1 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-4">
                     {t('refundAcceptance.importantInfo')}
                   </h1>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-500">
                     - {t('refundAcceptance.instruction1')}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-500">
                     - {t('refundAcceptance.instruction2')}
                   </p>
                 </section>
-                <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                <h2 className="text-lg font-semibold text-[var(--color-page-text)] mb-4">
                   {t('refundAcceptance.voucher')} {currentIndex + 1} {t('refundAcceptance.of')}{" "}
                   {data?.vouchers?.length}
                 </h2>
@@ -410,7 +410,7 @@ const RefundsAcceptance: React.FC = () => {
                     }
                     return acc;
                   }, 0) ?? 0)}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                  className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
                 />
               </div>
               <div className="my-5">
@@ -425,7 +425,7 @@ const RefundsAcceptance: React.FC = () => {
                   type="text"
                   readOnly
                   value={formatMoney(Number(data?.advance_money) || 0)}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                  className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
                 />
               </div>
               <div className="my-5">
@@ -447,7 +447,7 @@ const RefundsAcceptance: React.FC = () => {
                       return acc;
                     }, 0) ?? 0) + (typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0)
                   )}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                  className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
                 />
               </div>
 
