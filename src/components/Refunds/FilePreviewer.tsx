@@ -47,7 +47,7 @@ const FilePreviewer = ({ file, fileIndex, showDownload = true }: FilePreviewerPr
                   className="border-0 col-span-1 md:col-span-2 h-64 md:h-96"
                 />
 
-                <div className="flex flex-col bg-white p-6 gap-3 col-span-1">
+                <div className="flex flex-col bg-[var(--color-page-bg)] p-6 gap-3 col-span-1">
                   <p id={`class-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.voucherClass')}: </span>{file.class}</p>
                   <p id={`amount-file-${fileIndex}`}>
                     <span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.amountMxn')}: </span>

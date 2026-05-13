@@ -151,7 +151,7 @@ export const Vouchers = () => {
     {
       key: "spentClass",
       header: t('vouchers.colSpentClass'),
-      className: "bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] w-40",
+      className: "w-40",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -165,6 +165,7 @@ export const Vouchers = () => {
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder={t('vouchers.classPlaceholder')}
+          className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]"
           wrapperClassName="relative flex flex-col"
         />
       ),
@@ -238,7 +239,7 @@ export const Vouchers = () => {
       key: "currency",
       header: t('vouchers.colCurrency'),
       defaultValue: "",
-      className: "w-20 bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]",
+      className: "w-20",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -251,6 +252,7 @@ export const Vouchers = () => {
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder={t('vouchers.currencyPlaceholder')}
+          className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]"
           wrapperClassName="relative flex flex-col"
         />
       ),
@@ -259,7 +261,7 @@ export const Vouchers = () => {
       key: "taxIndicator",
       header: t('vouchers.colTaxIndicator'),
       defaultValue: "",
-      className: "w-40 bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]",
+      className: "w-40",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -272,6 +274,7 @@ export const Vouchers = () => {
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder={t('vouchers.indicatorPlaceholder')}
+          className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]"
           wrapperClassName="relative flex flex-col"
         />
       ),

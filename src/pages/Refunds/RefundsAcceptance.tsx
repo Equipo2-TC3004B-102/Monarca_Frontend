@@ -246,7 +246,7 @@ const RefundsAcceptance: React.FC = () => {
     <Tutorial page="refundReview" run={tutorial}>
       <div className="pb-10">
         <GoBack />
-        <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
+        <main className="max-w-6xl bg-[var(--color-card-bg)] mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
             <div className="w-fit bg-[var(--blue)] text-white px-4 py-2 rounded-full mb-6">
               {t('refundAcceptance.requestInfoLabel')} <span>{id}</span>

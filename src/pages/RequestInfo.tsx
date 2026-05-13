@@ -478,7 +478,7 @@ const RequestInfo: React.FC = () => {
     <Tutorial page="requestInfo" run={tutorial}>
       <div className="pb-10">
         <GoBack />
-        <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
+        <main className="max-w-6xl bg-[var(--color-card-bg)] mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
             <div className="w-fit bg-[var(--blue)] text-white text-xs lg:text-base px-4 py-2 rounded-full mb-6">
               {t('requestInfo.title')} <span>{id}</span>
@@ -637,8 +637,8 @@ const RequestInfo: React.FC = () => {
                   {t('requestInfo.requestReservations')}
                 </p>
                 <div className="mb-4">
-                  <div className="bg-white p-4 relative">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                  <div className="bg-[var(--color-page-bg)] p-4 relative">
+                    <h2 className="text-lg font-semibold text-[var(--color-page-text)]  mb-4">
                       {t('requestInfo.reservationOf', { current: currentIndexRes + 1, total: data?.reservations?.length })}
                     </h2>
                     {/* Display the existing PDF using an iframe */}
@@ -717,8 +717,8 @@ const RequestInfo: React.FC = () => {
                   {t('requestInfo.requestVouchers')}
                 </p>
                 <div className="mb-4">
-                  <div className="bg-white p-4 relative">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                  <div className="bg-[var(--color-card-bg)] p-4 relative">
+                    <h2 className="text-lg font-semibold text-[var(--color-page-text)] mb-4">
                       {t('requestInfo.voucherOf', { current: currentIndex + 1, total: data?.vouchers?.length })}
                     </h2>
                     {/* Display the existing PDF using an iframe */}

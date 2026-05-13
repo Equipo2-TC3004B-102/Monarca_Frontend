@@ -163,7 +163,7 @@ function DestinationFields({
   const destinationErrors = errors?.[idx];
 
   return (
-    <div className="rounded-md p-4 mb-6 space-y-4 dark:bg-[var(--color-page-bg)] shadow-sm">
+    <div className="rounded-md p-4 mb-6 space-y-4 bg-[var(--color-page-bg)] shadow-sm">
       <div className="flex justify-between items-center">
         <span className="font-medium text-[var(--color-page-text)]">{t('form.destinationNum', { num: idx + 1 })}</span>
         {idx > 0 && (

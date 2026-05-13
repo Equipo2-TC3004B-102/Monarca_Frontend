@@ -30,7 +30,7 @@ export default function DarkModeButton({ className = "", classNameText = ""}: Pr
       checked={isDark}
       onChange={handleThemeChange}
       srLabel="Cambiar modo oscuro"
-      className={`bg-gray-300 data-[checked]:bg-[#121212]`}
+      className={`bg-gray-300 data-[checked]:bg-[var(--light-blue)]`}
       />
     </div>
   );

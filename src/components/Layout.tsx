@@ -69,7 +69,7 @@ function Layout({ children }: LayoutProps) {
             <Sidebar user={authState}/>
           </div>
 
-          <div className="dark:bg-[var(--color-page-bg)] w-screen px-10 pt-10 flex-1 pb-10 md:pb-0">{children}</div>
+          <div className="bg-[var(--color-page-bg)] w-screen px-10 pt-10 flex-1 pb-10 md:pb-0">{children}</div>
         </div>
         <button
           className="bg-[var(--blue)] text-white px-4 py-2 rounded hover:bg-[var(--dark-blue)] transition-colors text-sm fixed bottom-15 right-4 z-50 flex items-center"

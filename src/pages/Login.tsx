@@ -110,7 +110,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className="flex flex-col lg:flex-row h-screen w-[100%] dark:bg-[var(--color-page-bg)]"
+      className="flex flex-col lg:flex-row h-screen w-[100%] bg-[var(--color-page-bg)]"
       style={{ fontFamily: "Montserrat, sans-serif" }}
     >
       <div className="w-[90%] lg:w-[45%] bg-[url('/imageLogin.png')] bg-center bg-cover bg-no-repeat rounded-[15px] h-[10%] lg:h-[95%] m-[2vh]"></div>
