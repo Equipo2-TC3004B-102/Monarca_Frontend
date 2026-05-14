@@ -155,7 +155,7 @@
     "destinationNum": "Destination #{{num}}",
     "destinationPlaceholder": "Search a destination",
     "departureDate": "Departure date",
-    "arrivalDate": "Arrival date",
+    "returnDate": "Return date",
     "stayDays": "Stay days",
     "needsFlight": "Needs flight?",
     "needsHotel": "Needs hotel?",
@@ -186,7 +186,7 @@
     "writeMotive": "Please write a motive",
     "atLeastOneDestination": "Add at least one destination",
     "selectDepartureDate": "Select a departure date",
-    "selectArrivalDate": "Select an arrival date",
+    "selectReturnDate": "Select a return date",
     "addDetails": "Add details",
     "advanceMoneyRequired": "Advance is required",
     "nonNegativeAdvanceMoney": "Advance cannot be negative",
@@ -211,7 +211,8 @@
     "errorCreating": "Error creating request",
     "errorUpdating": "Error updating request",
     "selectOrigin": "Select an origin city",
-    "positiveStayDays": "Stay days must be positive"
+    "departureDateOrder": "Departure date for destination #{{num}} must be after the previous destination's",
+    "returnDateAfterLast": "Return date must be after the last departure date"
   },
   "requestInfo": {
     "title": "Request information",

@@ -3,7 +3,7 @@
  * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 05/05/2026 [Santiago Coronado Hernández] Added company id to auth state and included it in the profile fetch logic to support company-scoped features and permissions in the frontend.
+ * 14/05/2026 [Diego de la Vega] Integrated flight search and reservation flow updates.
  */
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
@@ -209,13 +209,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
  * - Layout is applied to provide consistent UI shell (navbar/sidebar/etc.).
  */
 export const ProtectedRoute: React.FC = () => {
-  return (
-    <AuthProvider>
+  const AuthGate: React.FC = () => {
+    const { authState, loadingProfile } = useAuth();
+
+    if (loadingProfile) {
+      return null;
+    }
+
+    if (!authState.isAuthenticated) {
+      return <Navigate to="/" replace />;
+    }
+
+    return (
       <AppProvider>
         <Layout>
           <Outlet />
         </Layout>
       </AppProvider>
+    );
+  };
+
+  return (
+    <AuthProvider>
+      <AuthGate />
     </AuthProvider>
   );
 };

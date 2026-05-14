@@ -3,12 +3,9 @@
  * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
  * Authors: Original Monarca team
  * Last Modification made:
- * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
- * 20/04/2026 [Sebastián Borjas] Fixed currency display on edit.
- * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
- * 20/04/2026 [Diego de la Vega] Enabled searchable origin/destination selectors with incremental filtering while typing.
- * 23/04/2026 [Santiago Coronado Hernández] Use PersistedForm hook to save form state in localStorage for better UX on accidental refreshes or navigation.
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
+ * 14/05/2026 [Diego de la Vega] Redesigned date model: each destination now only asks for departure_date;
+ *                               a single return_date field captures the trip end. arrival_date and stay_days
+ *                               are derived automatically at submit time. Validates sequential date order.
  */
 
 import { Button } from "../ui/Button";
@@ -23,10 +20,9 @@ import {
   Control,
   FieldErrors,
   UseFormRegister,
-  UseFormSetValue,
   Resolver,
 } from "react-hook-form";
-import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TFunction } from "i18next";
@@ -48,7 +44,6 @@ type Option = { id: number | string; name: string };
 // Static schema used only for type inference — messages don't affect types
 const _destinationSchema = z.object({
   id_destination: z.string().nullable(),
-  arrival_date: z.string().nonempty(),
   departure_date: z.string().nonempty(),
   stay_days: z.number().int(),
   is_hotel_required: z.boolean(),
@@ -70,6 +65,7 @@ const _formSchema = z.object({
     .transform((v) => Number(v))
     .refine((v) => v >= 0),
   currency: z.string().nonempty(),
+  return_date: z.string().nonempty(),
   requests_destinations: z.array(_destinationSchema).min(1),
 });
 
@@ -79,7 +75,6 @@ type SubmitValues = z.output<typeof _formSchema>;
 function makeFormSchema(t: TFunction) {
   const destinationSchema = z.object({
     id_destination: z.string().nullable(),
-    arrival_date: z.string().nonempty({ message: t('validation.selectArrivalDate') }),
     departure_date: z.string().nonempty({ message: t('validation.selectDepartureDate') }),
     stay_days: z.number().int(),
     is_hotel_required: z.boolean(),
@@ -105,6 +100,7 @@ function makeFormSchema(t: TFunction) {
         message: t('validation.nonNegativeAdvanceMoney'),
       }),
     currency: z.string().nonempty({ message: t('validation.selectCurrency') }),
+    return_date: z.string().nonempty({ message: t('validation.selectReturnDate') }),
     requests_destinations: z
       .array(destinationSchema)
       .min(1, t('validation.atLeastOneDestination')),
@@ -124,10 +120,14 @@ interface DestinationFieldsProps {
   destinationOptionsById: Map<string, { id: string | number; name: string }>;
   errors: FieldErrors<FormValues>["requests_destinations"];
   remove: (index: number) => void;
-  setValue: UseFormSetValue<FormValues>;
   isLoadingDestinations: boolean;
 }
 
+/**
+ * DestinationFields — renders inputs for a single destination leg.
+ * Only asks for departure_date (when you leave for this destination).
+ * arrival_date and stay_days are derived automatically at submit time.
+ */
 function DestinationFields({
   idx,
   control,
@@ -136,30 +136,9 @@ function DestinationFields({
   destinationOptionsById,
   errors,
   remove,
-  setValue,
   isLoadingDestinations,
 }: DestinationFieldsProps) {
   const { t } = useTranslation();
-
-  const arrivalDate = useWatch({
-    control,
-    name: `requests_destinations.${idx}.arrival_date`,
-  });
-
-  const departureDate = useWatch({
-    control,
-    name: `requests_destinations.${idx}.departure_date`,
-  });
-
-  const stayDays =
-    arrivalDate && departureDate
-      ? dayjs(arrivalDate).diff(dayjs(departureDate), "day")
-      : 0;
-
-  useEffect(() => {
-    setValue(`requests_destinations.${idx}.stay_days`, stayDays);
-  }, [arrivalDate, departureDate, idx, setValue, stayDays]);
-
   const destinationErrors = errors?.[idx];
 
   return (
@@ -236,43 +215,6 @@ function DestinationFields({
             )}
           />
           <FieldError msg={destinationErrors?.departure_date?.message} />
-        </div>
-
-        <div>
-          <label
-            htmlFor={`arrival-${idx}`}
-            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
-          >
-            {t('form.arrivalDate')}
-          </label>
-          <Controller
-            control={control}
-            name={`requests_destinations.${idx}.arrival_date`}
-            render={({ field }) => (
-              <Input
-                id={`arrival-${idx}`}
-                type="date"
-                value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
-                onChange={e => field.onChange(e.target.value)}
-              />
-            )}
-          />
-          <FieldError msg={destinationErrors?.arrival_date?.message} />
-        </div>
-
-        <div>
-          <label
-            htmlFor={`stay-days-${idx}`}
-            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
-          >
-            {t('form.stayDays')}
-          </label>
-          <Input
-            id={`stay-days-${idx}`}
-            type="number"
-            value={stayDays}
-            readOnly
-          />
         </div>
 
         <div>
@@ -363,10 +305,17 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     }
 
     const parsedAdvanceMoney = Number(initialData.advance_money);
+    const dests = initialData.requests_destinations ?? [];
+    // The return date is stored as arrival_date of the last destination
+    const lastDest = dests[dests.length - 1];
+    const returnDate = lastDest?.arrival_date
+      ? dayjs(lastDest.arrival_date).format("YYYY-MM-DD")
+      : "";
 
     return {
       ...initialData,
       id_origin_city: initialData.id_origin_city ?? null,
+      return_date: returnDate,
       advance_money:
         initialData.advance_money !== undefined &&
         initialData.advance_money !== null
@@ -374,8 +323,12 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
             ? parsedAdvanceMoney.toFixed(2)
             : "0.00"
           : "0.00",
-      requests_destinations: initialData.requests_destinations.map((destination) => ({
-        ...destination,
+      requests_destinations: dests.map((destination) => ({
+        id_destination: destination.id_destination,
+        departure_date: destination.departure_date ?? "",
+        stay_days: destination.stay_days ?? 1,
+        is_hotel_required: destination.is_hotel_required,
+        is_plane_required: destination.is_plane_required,
         details: destination.details ?? "",
       })),
     };
@@ -387,7 +340,6 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
     trigger,
   } = useForm<FormValues, unknown, SubmitValues>({
     resolver,
@@ -399,10 +351,10 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       advance_money: "0.00",
       currency: "",
       requirements: "",
+      return_date: "",
       requests_destinations: [
         {
           id_destination: null,
-          arrival_date: "",
           departure_date: "",
           stay_days: 1,
           is_hotel_required: true,
@@ -441,30 +393,51 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       return;
     }
 
-    const hasInvalidStay = data.requests_destinations.some((d) => {
-      const diff = dayjs(d.arrival_date).diff(dayjs(d.departure_date), "day");
-      return diff <= 0;
-    });
+    // Validate sequential departure dates
+    for (let i = 1; i < data.requests_destinations.length; i++) {
+      const prevDest = data.requests_destinations[i - 1];
+      const currDest = data.requests_destinations[i];
+      if (!prevDest || !currDest) continue;
+      const prev = dayjs(prevDest.departure_date);
+      const curr = dayjs(currDest.departure_date);
+      if (!curr.isAfter(prev)) {
+        toast.error(t('toast.departureDateOrder', { num: i + 1 }), {
+          position: "top-right",
+          autoClose: 4000,
+        });
+        return;
+      }
+    }
 
-    if (hasInvalidStay) {
-      toast.error(t('toast.positiveStayDays'), {
+    // Validate return date is after last departure
+    const lastDest = data.requests_destinations[data.requests_destinations.length - 1];
+    const lastDeparture = dayjs(lastDest?.departure_date ?? "");
+    if (!dayjs(data.return_date).isAfter(lastDeparture)) {
+      toast.error(t('toast.returnDateAfterLast'), {
         position: "top-right",
-        autoClose: 3000,
+        autoClose: 4000,
       });
       return;
     }
 
+    // Derive arrival_date and stay_days for each destination
     const requests_destinations = data.requests_destinations.map(
       (d, idx, arr) => {
         if (!d.id_destination) {
           throw new Error(t('form.destinationPlaceholder'));
         }
+        // arrival = next destination's departure, or return_date for the last leg
+        const nextDest = arr[idx + 1];
+        const arrivalIso = idx < arr.length - 1
+          ? dayjs(nextDest?.departure_date).toISOString()
+          : dayjs(data.return_date).toISOString();
+        const stayDays = dayjs(arrivalIso).diff(dayjs(d.departure_date), "day");
 
         return {
           id_destination: d.id_destination,
           destination_order: idx + 1,
-          stay_days: d.stay_days,
-          arrival_date: dayjs(d.arrival_date).toISOString(),
+          stay_days: stayDays,
+          arrival_date: arrivalIso,
           departure_date: dayjs(d.departure_date).toISOString(),
           is_hotel_required: d.is_hotel_required,
           is_plane_required: d.is_plane_required,
@@ -711,10 +684,36 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                   destinationOptionsById={destinationOptionsById}
                   errors={errors.requests_destinations}
                   remove={remove}
-                  setValue={setValue}
                   isLoadingDestinations={isLoadingDestinations}
                 />
               ))}
+
+              {/* Single return date shared across the whole trip */}
+              <div className="rounded-md p-4 mb-6 bg-[var(--color-page-bg)] shadow-sm">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="return_date"
+                      className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
+                    >
+                      {t('form.returnDate')}
+                    </label>
+                    <Controller
+                      control={control}
+                      name="return_date"
+                      render={({ field }) => (
+                        <Input
+                          id="return_date"
+                          type="date"
+                          value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
+                          onChange={e => field.onChange(e.target.value)}
+                        />
+                      )}
+                    />
+                    <FieldError msg={(errors as any).return_date?.message} />
+                  </div>
+                </div>
+              </div>
             </div>
             <Button
               id="new_destination"
@@ -722,7 +721,6 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               onClick={() =>
                 append({
                   id_destination: null,
-                  arrival_date: "",
                   departure_date: "",
                   stay_days: 1,
                   is_hotel_required: false,
