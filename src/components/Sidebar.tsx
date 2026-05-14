@@ -105,7 +105,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               type="button"
               title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
               onClick={toggleLanguage}
-              className="block md:hidden hover:scale-110 transition-transform"
+              className="block md:hidden hover:scale-110 transition-transform mt-3"
             >
               <img
                 src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}

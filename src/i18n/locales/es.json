@@ -588,5 +588,9 @@
       "adminAlerts": "Alertas administrativas",
       "adminAlertsDesc": "Notifica por email eventos administrativos relevantes."
     }
+  },
+  "theme": {
+    "dark": "Modo oscuro",
+    "light": "Modo claro"
   }
 }

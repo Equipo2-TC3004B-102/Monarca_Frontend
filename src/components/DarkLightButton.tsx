@@ -1,5 +1,6 @@
 import Switch from "./ui/Switch";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   className?: string;
@@ -8,6 +9,7 @@ interface Props {
 
 export default function DarkModeButton({ className = "", classNameText = ""}: Props) {
   const [isDark, setIsDark] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -24,9 +26,9 @@ export default function DarkModeButton({ className = "", classNameText = ""}: Pr
   };
 
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
-      <span className={`${classNameText || "text-[var(--color-page-text)]"}`} style={{fontSize: '13px', fontWeight: 'bold'}}>{isDark ? "Modo oscuro" : "Modo claro"}</span>
-      <Switch 
+    <div className={`flex flex-col gap-1 w-[5rem] items-center ${className}`}>
+      <span className={`${classNameText || "text-[var(--color-page-text)]"}`} style={{fontSize: '13px', fontWeight: 'bold'}}>{isDark ? t('theme.dark') : t('theme.light')}</span>
+      <Switch
       checked={isDark}
       onChange={handleThemeChange}
       srLabel="Cambiar modo oscuro"
