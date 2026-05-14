@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
+import FlightReservationOptions from "../../components/flights/FlightReservationOptions";
 
 /**
  * FunctionName: Reservations
@@ -138,6 +139,8 @@ export const Reservations = () => {
             destination_country: destination.destination?.country || "",
             departure_date: formatDate(destination.departure_date),
             arrival_date: formatDate(destination.arrival_date),
+            departure_date_raw: destination.departure_date,
+            arrival_date_raw: destination.arrival_date,
             hotel_required: destination.is_hotel_required ? t('reservations.yes') : t('reservations.no'),
             plane_required: destination.is_plane_required ? t('reservations.yes') : t('reservations.no'),
             stay_days: destination.stay_days,
@@ -280,6 +283,35 @@ export const Reservations = () => {
     }));
   };
 
+  const applyFlightOption = ({
+    destinationId,
+    flight,
+    segmentIndex,
+  }: {
+    destinationId: string;
+    flight: any;
+    segmentIndex: number;
+  }) => {
+    const firstSegment = flight.segments?.[0];
+    const lastSegment = flight.segments?.[flight.segments.length - 1];
+    const routeLabel = firstSegment && lastSegment
+      ? `${firstSegment.origin_airport_code} → ${lastSegment.destination_airport_code}`
+      : 'Vuelo seleccionado';
+
+    setFormData((prev) => ({
+      ...prev,
+      [destinationId]: {
+        ...prev[destinationId],
+        plane_title: `${flight.airline || flight.provider_name} - ${routeLabel}`,
+        plane_comments: `Proveedor: ${flight.provider_name}. Oferta: ${flight.provider_offer_id}. Precio original: ${flight.original_price} ${flight.original_currency}.`,
+        plane_price: Number(flight.total_price_mxn || 0).toFixed(2),
+        plane_link: flight.provider_offer_id,
+      },
+    }));
+
+    toast.success(`Vuelo aplicado al destino ${destinationId} (tramo ${segmentIndex + 1})`);
+  };
+
   const setPageScroll = (enabled: boolean) => {
     document.body.style.overflow = enabled ? "auto" : "hidden";
   };
@@ -312,6 +344,7 @@ export const Reservations = () => {
           title: value.plane_title,
           comments: value.plane_comments,
           price: parseFloat(value.plane_price),
+          link: value.plane_link,
           file: value.plane_file,
           id_request_destination: key,
         };
@@ -332,7 +365,7 @@ export const Reservations = () => {
       // Get the key of the currrent value
       const key = Object.keys(formData)[index];
       const hotelValid = data.hotel_title && data.hotel_comments && data.hotel_file;
-      const planeValid = data.plane_title && data.plane_comments && data.plane_file;
+      const planeValid = data.plane_title && data.plane_comments && data.plane_price && (data.plane_file || data.plane_link);
       const requestDestination = requestDestinations.find((destination: any) => destination.id === key);
       if (!requestDestination) {
         return false;
@@ -359,6 +392,9 @@ export const Reservations = () => {
           formData.append("title", reservation.title);
           formData.append("comments", reservation.comments);
           formData.append("price", reservation.price);
+          if (reservation.link) {
+            formData.append("link", reservation.link);
+          }
           formData.append("file", reservation.file);
           formData.append("id_request_destination", reservation.id_request_destination);
           await postRequest("/reservations", formData);
@@ -394,6 +430,12 @@ export const Reservations = () => {
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-4">
             {t('reservations.title')}
           </h2>
+          {request?.requests_destinations?.length > 0 && (
+            <FlightReservationOptions
+              request={request}
+              onSelectFlight={applyFlightOption}
+            />
+          )}
           <form
             className="space-y-6"
             onSubmit={handleSubmit}
@@ -611,6 +653,23 @@ export const Reservations = () => {
                             />
                             <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
                           </div>
+                        </div>
+
+                        <div>
+                          <label
+                            className="block mb-2 text-sm font-medium text-gray-500"
+                            htmlFor={`plane_link_${destination.id}`}
+                          >
+                            Referencia del vuelo
+                          </label>
+                          <Input
+                            placeholder="Se llena automáticamente al seleccionar un vuelo"
+                            value={formData[destination.id]?.plane_link || ""}
+                            onChange={(e) => handleChange(e, destination.id)}
+                            name="plane_link"
+                            id={`plane_link_${destination.id}`}
+                            className="bg-[var(--color-card-bg)]"
+                          />
                         </div>
 
                         <div>

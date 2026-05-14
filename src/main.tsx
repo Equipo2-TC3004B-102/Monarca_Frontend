@@ -4,8 +4,7 @@
  * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Added local storage for the dark mode
- * 05/05/2026 [Santiago Coronado Hernández] Added new admin notifications page and related routes, and ensured it is protected by company admin flag.
+ * 11/05/2026 [Diego de la Vega] Integration of flight search panel into reservations page and updated last modification comment.
  */
 
 import { StrictMode } from "react";
@@ -49,6 +48,7 @@ import RequestInfo from "./pages/RequestInfo.tsx";
 import { Approvals } from "./pages/Approvals/Approvals.tsx";
 import { RefundsReview } from "./pages/Refunds/RefundsReview.tsx";
 import { CheckRefunds } from "./pages/Refunds/CheckRefunds.tsx";
+import FlightSearch from "./pages/FlightSearch.tsx";
 
 /**
  * router, defines the application's route tree.
@@ -89,6 +89,10 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard title="Inicio" />,
+      },
+      {
+        path: "/flights",
+        element: <FlightSearch />,
       },
       {
         path: "/approvals",
