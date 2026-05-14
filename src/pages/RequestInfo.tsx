@@ -3,7 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
+ * 14/05/2026 [Diego de la Vega] Update destinations display to show origin-to-destination flow and synthesize return legs. Added dark mode for some buttons.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -160,9 +160,48 @@ const RequestInfo: React.FC = () => {
         const reservations = (response.requests_destinations || [])
           .map((dest: any) => dest.reservations)
           .flat();
-        console.log(response);
+          
+        const sortedDests = [...(response.requests_destinations || [])].sort(
+          (a: any, b: any) => a.destination_order - b.destination_order
+        );
+
+        const mappedDests = sortedDests.map((destination: any, idx: number) => {
+          const prevDest = idx > 0 ? sortedDests[idx - 1] : null;
+          const originCity = prevDest
+            ? prevDest.destination?.city || prevDest.destination?.iata_code || t('historial.noDestination')
+            : response.destination?.city || response.destination?.iata_code || t('historial.noDestination');
+            
+          return {
+            ...destination,
+            origin_city: originCity,
+            destination_city: destination.destination?.city || destination.destination?.iata_code || t('historial.noDestination'),
+          };
+        });
+
+        const lastReal = mappedDests[mappedDests.length - 1];
+        if (lastReal?.arrival_date) {
+          const returnOriginCity = lastReal.destination_city;
+          const returnDestCity = response.destination?.city || response.destination?.iata_code || t('historial.noDestination');
+          
+          mappedDests.push({
+            id: lastReal.id + ':return',
+            destination_order: mappedDests.length + 1,
+            is_synthetic_return: true,
+            origin_city: returnOriginCity,
+            destination_city: returnDestCity,
+            departure_date: lastReal.arrival_date,
+            arrival_date: "",
+            is_hotel_required: false,
+            is_plane_required: true,
+            stay_days: 0,
+            details: "",
+            provider_support_status: lastReal.provider_support_status
+          });
+        }
+
         setData({
           ...response,
+          requests_destinations: mappedDests,
           effective_advance_money: effectiveAdvanceMoney,
           reservations: reservations,
           createdAt: formatDate(response.createdAt),
@@ -268,7 +307,18 @@ const RequestInfo: React.FC = () => {
     const fetchAgencies = async () => {
       try {
         const response = await getRequest('/travel-agencies');
-        setAgencies(response);
+        // Deduplicate agencies by normalized name (case-insensitive) so duplicates like
+        // multiple 'Duffel' entries are shown only once in the selector.
+        const seen = new Set<string>();
+        const deduped: any[] = [];
+        for (const ag of response || []) {
+          const key = (ag?.name || '').toString().trim().toLowerCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            deduped.push(ag);
+          }
+        }
+        setAgencies(deduped);
       } catch (error) {
         console.error('Error fetching agencies data:', error);
       }
@@ -525,25 +575,7 @@ const RequestInfo: React.FC = () => {
                       id={`destination-${index}`}
                       type="text"
                       readOnly
-                      value={
-                        dest.destination?.city ||
-                        dest.destination?.iata_code ||
-                        t('historial.noDestination')
-                      }
-                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      className="block text-xs font-semibold text-gray-500 mb-1"
-                    >
-                      {t('requestInfo.arrivalDate')}
-                    </label>
-                    <input
-                      id={`arrival-${index}`}
-                      type="text"
-                      readOnly
-                      value={dest.arrival_date ? formatDate(dest.arrival_date) : t('historial.noDate')}
+                      value={`${dest.origin_city} -> ${dest.destination_city}`}
                       className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
@@ -664,13 +696,13 @@ const RequestInfo: React.FC = () => {
                         </SwiperSlide>
                       ))}
                     </Swiper>
-                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-[var(--color-page-bg)]">
                       <button
                         ref={prevRefRes}
                         disabled={currentIndexRes === 0}
-                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndexRes === 0
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className={`px-4 py-2 rounded-md border border-[var(--color-border)] ${currentIndexRes === 0
+                            ? "bg-[var(--color-card-bg)] text-[var(--color-page-text)] opacity-50 cursor-not-allowed"
+                            : "bg-[var(--color-card-bg)] text-[var(--color-page-text-title)] hover:bg-[var(--color-page-bg)]"
                           }`}
                       >
                         {t('requestInfo.previous')}
@@ -678,9 +710,9 @@ const RequestInfo: React.FC = () => {
                       <button
                         disabled={currentIndexRes === ((data?.reservations?.length ?? 0) - 1)}
                         ref={nextRefRes}
-                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndexRes === (data?.reservations?.length ?? 0) - 1
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className={`px-4 py-2 rounded-md border border-[var(--color-border)] ${currentIndexRes === (data?.reservations?.length ?? 0) - 1
+                            ? "bg-[var(--color-card-bg)] text-[var(--color-page-text)] opacity-50 cursor-not-allowed"
+                            : "bg-[var(--color-card-bg)] text-[var(--color-page-text-title)] hover:bg-[var(--color-page-bg)]"
                           }`}
                       >
                         {t('requestInfo.next')}
@@ -744,13 +776,13 @@ const RequestInfo: React.FC = () => {
                         </SwiperSlide>
                       ))}
                     </Swiper>
-                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-[var(--color-page-bg)]">
                       <button
                         ref={prevRef}
                         disabled={currentIndex === 0}
-                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndex === 0
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className={`px-4 py-2 rounded-md border border-[var(--color-border)] ${currentIndex === 0
+                            ? "bg-[var(--color-card-bg)] text-[var(--color-page-text)] opacity-50 cursor-not-allowed"
+                            : "bg-[var(--color-card-bg)] text-[var(--color-page-text-title)] hover:bg-[var(--color-page-bg)]"
                           }`}
                       >
                         Anterior
@@ -758,9 +790,9 @@ const RequestInfo: React.FC = () => {
                       <button
                         disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
                         ref={nextRef}
-                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndex === (data?.vouchers?.length ?? 0) - 1
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className={`px-4 py-2 rounded-md border border-[var(--color-border)] ${currentIndex === (data?.vouchers?.length ?? 0) - 1
+                            ? "bg-[var(--color-card-bg)] text-[var(--color-page-text)] opacity-50 cursor-not-allowed"
+                            : "bg-[var(--color-card-bg)] text-[var(--color-page-text-title)] hover:bg-[var(--color-page-bg)]"
                           }`}
                       >
                         Siguiente
@@ -845,7 +877,7 @@ const RequestInfo: React.FC = () => {
                 <input
                   type="text"
                   readOnly
-                  value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name}
+                  value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name ?? ''}
                   className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                 />
               )}
