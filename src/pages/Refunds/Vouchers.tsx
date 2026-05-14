@@ -165,7 +165,6 @@ export const Vouchers = () => {
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder={t('vouchers.classPlaceholder')}
-          className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]"
           wrapperClassName="relative flex flex-col"
         />
       ),
@@ -252,7 +251,6 @@ export const Vouchers = () => {
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder={t('vouchers.currencyPlaceholder')}
-          className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]"
           wrapperClassName="relative flex flex-col"
         />
       ),
@@ -274,7 +272,6 @@ export const Vouchers = () => {
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
           placeholder={t('vouchers.indicatorPlaceholder')}
-          className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)]"
           wrapperClassName="relative flex flex-col"
         />
       ),

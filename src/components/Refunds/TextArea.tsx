@@ -130,7 +130,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
     required && isEmptyValue(value) && (isTouched || wasChanged);
 
   // Base styles for the textArea - adjusted for different textArea types
-  const baseClass = `p-2 bg-[var(--color-card-bg)] text-[var(--color-page-text) rounded-md focus:outline-none focus:ring-2 ${
+  const baseClass = `p-2 border bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-md focus:outline-none focus:ring-2 ${
     type === "checkbox" || type === "radio"
       ? "w-auto hover:cursor-pointer" // Checkbox and radio shouldn't be full width
       : type === "file"
