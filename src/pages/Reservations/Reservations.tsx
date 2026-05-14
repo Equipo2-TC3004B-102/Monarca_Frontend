@@ -121,16 +121,24 @@ export const Reservations = () => {
       try {
         // Simulate an API call to fetch data
         const response = await getRequest(`/requests/${requestId}`);
-        setRequest({
-          ...response,
-          requests_destinations: (response.requests_destinations || []).map((destination: any) => ({
+        const sortedDests = [...(response.requests_destinations || [])].sort(
+          (a: any, b: any) => a.destination_order - b.destination_order
+        );
+
+        const mappedDests = sortedDests.map((destination: any, idx: number) => {
+          // Origin of leg #N = destination city of leg #(N-1), or the request's origin city for the first leg
+          const prevDest = idx > 0 ? sortedDests[idx - 1] : null;
+          const originCity = prevDest
+            ? prevDest.destination?.city || prevDest.destination?.iata_code || t('reservations.unavailable')
+            : response.destination?.city || response.destination?.iata_code || t('reservations.unavailable');
+          const originCountry = prevDest
+            ? prevDest.destination?.country || ""
+            : response.destination?.country || "";
+          return {
             ...destination,
-            origin: `${response.destination?.city || response.destination?.iata_code || t('reservations.unavailable')}${response.destination?.country ? `, ${response.destination.country}` : ""}`,
-            origin_city:
-              response.destination?.city ||
-              response.destination?.iata_code ||
-              t('reservations.unavailable'),
-            origin_country: response.destination?.country || "",
+            origin: `${originCity}${originCountry ? `, ${originCountry}` : ""}`,
+            origin_city: originCity,
+            origin_country: originCountry,
             destination_full: `${destination.destination?.city || destination.destination?.iata_code || t('reservations.unavailable')}${destination.destination?.country ? `, ${destination.destination.country}` : ""}`,
             destination_city:
               destination.destination?.city ||
@@ -145,7 +153,51 @@ export const Reservations = () => {
             plane_required: destination.is_plane_required ? t('reservations.yes') : t('reservations.no'),
             stay_days: destination.stay_days,
             details: destination.details,
-          })),
+          };
+        });
+
+        // Synthesize return leg if last destination has a return date
+        const lastReal = mappedDests[mappedDests.length - 1];
+        if (lastReal?.arrival_date_raw) {
+          const returnOriginCity = lastReal.destination_city;
+          const returnOriginCountry = lastReal.destination_country;
+          const returnDestCity = response.destination?.city || response.destination?.iata_code || t('reservations.unavailable');
+          const returnDestCountry = response.destination?.country || "";
+          mappedDests.push({
+            // Synthetic entry — uses real last-destination ID suffixed with ':return'
+            // so we can strip the suffix when submitting to the API
+            id: lastReal.id + ':return',
+            destination_order: mappedDests.length + 1,
+            is_synthetic_return: true,
+            // origin = last real destination's city
+            origin: `${returnOriginCity}${returnOriginCountry ? `, ${returnOriginCountry}` : ""}`,
+            origin_city: returnOriginCity,
+            origin_country: returnOriginCountry,
+            // destination = request origin city (trip starts and ends here)
+            destination: {
+              iata_code: response.destination?.iata_code,
+              city: response.destination?.city,
+              country: response.destination?.country,
+            },
+            destination_full: `${returnDestCity}${returnDestCountry ? `, ${returnDestCountry}` : ""}`,
+            destination_city: returnDestCity,
+            destination_country: returnDestCountry,
+            departure_date: formatDate(lastReal.arrival_date_raw),
+            departure_date_raw: lastReal.arrival_date_raw,
+            arrival_date: "",
+            arrival_date_raw: undefined,
+            is_hotel_required: false,
+            is_plane_required: true,
+            hotel_required: t('reservations.no'),
+            plane_required: t('reservations.yes'),
+            stay_days: 0,
+            details: "",
+          });
+        }
+
+        setRequest({
+          ...response,
+          requests_destinations: mappedDests,
         });
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -306,6 +358,7 @@ export const Reservations = () => {
         plane_comments: `Proveedor: ${flight.provider_name}. Oferta: ${flight.provider_offer_id}. Precio original: ${flight.original_price} ${flight.original_currency}.`,
         plane_price: Number(flight.total_price_mxn || 0).toFixed(2),
         plane_link: flight.provider_offer_id,
+        plane_price_locked: true,  // lock price to prevent accidental edits
       },
     }));
 
@@ -333,20 +386,30 @@ export const Reservations = () => {
     // Format the formData to match the API requirements
     const formattedData = {
       reservations: Object.entries(formData).flatMap(([key, value]) => {
+        // Synthetic return leg: strip ':return' suffix to get the real destination ID
+        const realDestId = key.endsWith(':return') ? key.slice(0, -7) : key;
+
         const hotelReservation = value.hotel_title && {
           title: value.hotel_title,
           comments: value.hotel_comments,
           price: parseFloat(value.hotel_price),
           file: value.hotel_file,
-          id_request_destination: key,
+          id_request_destination: realDestId,
         };
+
+        // Detect whether the flight link comes from Duffel (offer IDs start with 'off_')
+        const isDuffelFlight = typeof value.plane_link === 'string' && value.plane_link.startsWith('off_');
         const planeReservation = value.plane_title && {
           title: value.plane_title,
           comments: value.plane_comments,
           price: parseFloat(value.plane_price),
           link: value.plane_link,
           file: value.plane_file,
-          id_request_destination: key,
+          id_request_destination: realDestId,
+          ...(isDuffelFlight && {
+            provider_id: 'duffel',
+            provider_name: 'Duffel',
+          }),
         };
         return [hotelReservation, planeReservation].filter(Boolean);
       }),
@@ -388,16 +451,24 @@ export const Reservations = () => {
     try {
       await Promise.all(
         formattedData.reservations.map(async (reservation) => {
-          const formData = new FormData();
-          formData.append("title", reservation.title);
-          formData.append("comments", reservation.comments);
-          formData.append("price", reservation.price);
+          const reservationFormData = new FormData();
+          reservationFormData.append("title", reservation.title);
+          reservationFormData.append("comments", reservation.comments);
+          reservationFormData.append("price", reservation.price);
           if (reservation.link) {
-            formData.append("link", reservation.link);
+            reservationFormData.append("link", reservation.link);
           }
-          formData.append("file", reservation.file);
-          formData.append("id_request_destination", reservation.id_request_destination);
-          await postRequest("/reservations", formData);
+          if (reservation.provider_id) {
+            reservationFormData.append("provider_id", reservation.provider_id);
+          }
+          if (reservation.provider_name) {
+            reservationFormData.append("provider_name", reservation.provider_name);
+          }
+          if (reservation.file) {
+            reservationFormData.append("file", reservation.file);
+          }
+          reservationFormData.append("id_request_destination", reservation.id_request_destination);
+          await postRequest("/reservations", reservationFormData);
         })
       );
       toast.success(t('reservations.success'));
@@ -441,7 +512,9 @@ export const Reservations = () => {
             onSubmit={handleSubmit}
           >
             <div className="">
-              {request?.requests_destinations?.map((destination: any) => (
+              {[...(request?.requests_destinations || [])]
+                .sort((a: any, b: any) => a.destination_order - b.destination_order)
+                .map((destination: any) => (
                 <div
                   key={destination.id}
                   className="rounded-md p-4 mb-6 space-y-4 bg-[var(--color-page-bg)] shadow-sm"
@@ -621,24 +694,33 @@ export const Reservations = () => {
                           </label>
                           <div className="flex items-center gap-2">
                             <input
-                              className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border-[var(--color-border)] rounded-lg px-3 py-2"
+                              className={`w-full rounded-lg border px-3 py-2 ${
+                                formData[destination.id]?.plane_price_locked
+                                  ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed opacity-75"
+                                  : "bg-[var(--color-card-bg)] text-[var(--color-page-text)] border-[var(--color-border)]"
+                              }`}
                               placeholder={t('reservations.flightPricePlaceholder')}
                               value={formData[destination.id]?.plane_price ?? "0.00"}
+                              readOnly={!!formData[destination.id]?.plane_price_locked}
                               onChange={(e) => {
+                                if (formData[destination.id]?.plane_price_locked) return;
                                 const value = e.target.value;
-
                                 if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
                                   handleChange(e, destination.id);
                                 }
                               }}
-                              onWheel={(e) => handlePriceWheel(e, destination.id)}
+                              onWheel={(e) => {
+                                if (!formData[destination.id]?.plane_price_locked) handlePriceWheel(e, destination.id);
+                              }}
                               onMouseEnter={() => setPageScroll(false)}
                               onMouseLeave={() => setPageScroll(true)}
                               onFocus={() => setPageScroll(false)}
                               onBlur={(e) => {
-                                const value = e.target.value.trim();
-                                e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
-                                handleChange(e, destination.id);
+                                if (!formData[destination.id]?.plane_price_locked) {
+                                  const value = e.target.value.trim();
+                                  e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
+                                  handleChange(e, destination.id);
+                                }
                                 setPageScroll(true);
                               }}
                               onKeyDown={(e) => {
@@ -653,6 +735,26 @@ export const Reservations = () => {
                             />
                             <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
                           </div>
+                          {formData[destination.id]?.plane_price_locked && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Precio fijado por Duffel.{" "}
+                              <button
+                                type="button"
+                                className="text-blue-600 underline"
+                                onClick={() =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    [destination.id]: {
+                                      ...prev[destination.id],
+                                      plane_price_locked: false,
+                                    },
+                                  }))
+                                }
+                              >
+                                Editar manualmente
+                              </button>
+                            </p>
+                          )}
                         </div>
 
                         <div>
