@@ -25,6 +25,8 @@
   --color-page-text-title: var(--blue);
   --color-card-bg: var(--gray);
   --color-border: #c7c7c7;
+  --color-button: #E4E4E7;
+  --color-text-button: #71717A;
 
   /* Fonts Weights */
   /* --thin: 300;
@@ -87,4 +89,6 @@ a {
   --color-page-text-title: var(--ultra-light-blue);
   --color-card-bg: #1d1d1d;
   --color-border: #3b3b3b;
+  --color-button: #52525B;
+  --color-text-button: #E4E4E7;
 }

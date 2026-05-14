@@ -712,12 +712,12 @@ const RequestInfo: React.FC = () => {
             {data?.vouchers?.length > 0 &&
               <section id="vouchers-info">
                 <p
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-[var(--color-page-text)] mb-2"
                 >
                   {t('requestInfo.requestVouchers')}
                 </p>
                 <div className="mb-4">
-                  <div className="bg-[var(--color-card-bg)] p-4 relative">
+                  <div className="bg-[var(--color-page-bg)] p-4 relative">
                     <h2 className="text-lg font-semibold text-[var(--color-page-text)] mb-4">
                       {t('requestInfo.voucherOf', { current: currentIndex + 1, total: data?.vouchers?.length })}
                     </h2>

@@ -457,7 +457,7 @@ const RefundsAcceptance: React.FC = () => {
                   <button 
                     className={`px-4 py-2 text-white rounded-md hover:cursor-pointer 
                       ${data?.vouchers?.some((file) => file.status === "pending_voucher")
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        ? "bg-[var(--color-button)] text-[var(--color-text-button)] cursor-not-allowed"
                         : "bg-[var(--blue)] hover:bg-[var(--dark-blue)]"
                       }`}
                     disabled={data?.vouchers?.some((file) => file.status === "pending_voucher")}
