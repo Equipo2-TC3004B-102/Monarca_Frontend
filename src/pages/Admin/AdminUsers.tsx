@@ -95,10 +95,10 @@ export default function AdminUsers() {
   return (
     <>
       <GoBack />
-      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex flex-col gap-2 mb-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-[var(--blue)]">{t('admin.users.title')}</h2>
+            <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">{t('admin.users.title')}</h2>
             <div className="flex items-center gap-3">
               {!authState.isSystemAdmin && (
                 <button

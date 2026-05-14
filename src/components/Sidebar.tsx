@@ -4,6 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
+ * 04/05/2026 [Rebeca-Davila] Changed colors and included switch for dark mode
  * 05/05/2026 [Santiago Coronado Hernández] Added notifications section.
  *            [Julio Rodríguez] Hide business-role menu items for pure admin users (is_system_admin or is_company_admin).
  */
@@ -17,25 +18,33 @@ import SidebarOption from "./SiderbarOption";
 import { AuthState, Permission } from "../hooks/auth/authContext";
 import { useTranslation } from "react-i18next";
 
+import DarkModeButton from "../components/DarkLightButton";
+
 /**
  * FunctionName: Sidebar, renders the aside navigation panel with logo, user details, and role-gated menu links.
  * Input: user - AuthState object containing userName, userLastName, userRole, and userPermissions.
  * Output: JSX aside element with navigation options filtered by user permissions.
  */
 function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => void; }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const toggleLanguage = () => {
+    const next = i18n.language === 'es' ? 'en' : 'es';
+    i18n.changeLanguage(next);
+    localStorage.setItem('language', next);
+  };
+
   const isAdmin = user.isSystemAdmin || user.isCompanyAdmin;
   return (
     <aside
       id="logo-sidebar"
-      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--gray)] text-[var(--black)]"      aria-label="Sidebar"
+      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--black)]"      aria-label="Sidebar"
     >
       <div className="h-full px-3 pb-4 overflow-y-auto">
         <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] h-[120px] mx-auto p-4 rounded-lg">
             <img src={logo} className="invert mx-auto" alt="Monarca Logo" />
         </div>
         <div className="flex flex-col items-center justify-center mb-6 text-center">
-          <p className="text-[var(--blue)] font-bold">{user.userName} {user.userLastName} </p>
+          <p className="text-[var(--color-page-text-title)] font-bold">{user.userName} {user.userLastName} </p>
         </div>
         <ul className="space-y-2 font-medium">
             <SidebarOption
@@ -90,6 +99,21 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
         </ul>
+        <div className="flex gap-7 items-center p-2 mt-10">
+            <DarkModeButton className="block md:hidden"></DarkModeButton>
+            <button
+              type="button"
+              title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+              onClick={toggleLanguage}
+              className="block md:hidden hover:scale-110 transition-transform mt-3"
+            >
+              <img
+                src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+                alt={i18n.language === 'es' ? 'Español' : 'English'}
+                className="w-12 h-8 rounded-sm object-cover shadow-sm"
+              />
+            </button>
+        </div>
       </div>
     </aside>
   );

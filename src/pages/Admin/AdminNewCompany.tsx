@@ -27,7 +27,7 @@ const emptyForm = {
   adminEmail: "",
 };
 
-const labelClass = "block mb-2 text-sm font-medium text-gray-900";
+const labelClass = "block mb-2 text-sm font-medium text-[var(--color-page-text)]";
 
 export default function AdminNewCompany() {
   const { t } = useTranslation();
@@ -69,8 +69,8 @@ export default function AdminNewCompany() {
   return (
     <>
       <GoBack />
-      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
-        <h2 className="text-2xl font-bold text-[var(--blue)] mb-6">{t('admin.newCompany.title')}</h2>
+      <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
+        <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-6">{t('admin.newCompany.title')}</h2>
 
         {message && (
           <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
@@ -88,10 +88,10 @@ export default function AdminNewCompany() {
           </div>
         )}
 
-        <section className="bg-gray-200 rounded-md">
+        <section className="bg-[var(--color-page-bg)] rounded-md">
           <div className="p-10">
             <form onSubmit={handleSubmit}>
-              <h3 className="text-lg font-bold text-[var(--blue)] mb-4">{t('admin.newCompany.companyData')}</h3>
+              <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-4">{t('admin.newCompany.companyData')}</h3>
               <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 mb-8">
                 <div>
                   <label className={labelClass}>{t('admin.newCompany.companyName')}</label>
@@ -103,7 +103,7 @@ export default function AdminNewCompany() {
                 </div>
               </div>
 
-              <h3 className="text-lg font-bold text-[var(--blue)] mb-4">{t('admin.newCompany.companyAdmin')}</h3>
+              <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-4">{t('admin.newCompany.companyAdmin')}</h3>
               <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                 <div>
                   <label className={labelClass}>{t('admin.newCompany.firstName')}</label>

@@ -4,8 +4,7 @@
  *              Footer, toast notifications, and a floating Tutorial trigger button around page content.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 16/04/2026 [Rebeca-Davila] Reorganized the header, body, and footer inside a single flex; and added a
- * toggle function to the side bar so that it can open and close with a botton that only appears on movil view
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import React, {useState} from 'react';
@@ -70,7 +69,7 @@ function Layout({ children }: LayoutProps) {
             <Sidebar user={authState}/>
           </div>
 
-          <div className="w-screen px-10 pt-10 flex-1 pb-10 md:pb-0">{children}</div>
+          <div className="bg-[var(--color-page-bg)] w-screen px-10 pt-10 flex-1 pb-10 md:pb-0">{children}</div>
         </div>
         <button
           className="bg-[var(--blue)] text-white px-4 py-2 rounded hover:bg-[var(--dark-blue)] transition-colors text-sm fixed bottom-15 right-4 z-50 flex items-center"

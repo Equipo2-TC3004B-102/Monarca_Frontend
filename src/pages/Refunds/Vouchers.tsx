@@ -3,6 +3,7 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  * 04/05/2026 [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits.
  */
 
@@ -440,27 +441,27 @@ export const Vouchers = () => {
     <>
       <Tutorial page="vouchers">
         <GoBack />
-        <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-          <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
+        <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-1">
             {t('vouchers.title')}
           </h2>
           <div className="mb-4">
             {/*
           * Display general information about the trip, such as ID, name, destination,
           */}
-            <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
+            <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-2">
               {t('vouchers.tripInfo')}
             </h3>
-            <p>
+            <p className="text-[var(--color-page-text)]">
               <strong>{t('vouchers.tripId')}</strong> {trip.id}
             </p>
-            <p>
+            <p className="text-[var(--color-page-text)]">
               <strong>{t('vouchers.tripName')}</strong> {trip.title}
             </p>
-            <p>
+            <p className="text-[var(--color-page-text)]">
               <strong>{t('vouchers.destination')}</strong> {trip.destination?.city || trip.destination?.iata_code || t('historial.noDestination')}
             </p>
-            <p>
+            <p className="text-[var(--color-page-text)]">
               <strong>{t('vouchers.advance')}</strong> {formatMoney(trip.advance_money)}
             </p>
           </div>
@@ -484,7 +485,7 @@ export const Vouchers = () => {
         * The comment is stored in the commentDescriptionOfSpend state,
         * and is updated with the setCommentDescriptionOfSpend function.
         */}
-          <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">{t('vouchers.comments')}</h3>
+          <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mt-4 mb-2">{t('vouchers.comments')}</h3>
           <InputField
             id="comment-refund"
             type="text"

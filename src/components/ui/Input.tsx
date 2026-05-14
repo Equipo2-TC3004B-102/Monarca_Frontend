@@ -6,6 +6,7 @@
  * Last Modification made:
  * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
  * 23/04/2026 [Santiago Coronado Hernández] Added onWheel and onFocus handler for number inputs to allow incrementing/decrementing values with mouse wheel, and ensured proper cleanup of event listeners on blur to prevent memory leaks.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 import React from "react";
 import clsx from "clsx";
@@ -33,7 +34,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
      * baseStyles, provides default Tailwind/CSS classes for consistent input appearance across the UI.
      */
     const baseStyles =
-      "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
+      "bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
     return (
       <input
         ref={ref}

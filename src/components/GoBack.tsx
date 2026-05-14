@@ -3,7 +3,7 @@
  * Description: Provides a reusable back-navigation button that redirects the user to the dashboard.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 06/05/2026 [Sergio Jiawei Xuan] Translated hardcoded "Regresar" string with i18n t().
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,7 @@ const GoBack = () => {
             onClick={() => navigate("/dashboard")}
             aria-label={t('common.goBack')}
             type="button"
-            className="mb-6 text-sm w-fit text-[var(--blue)] hover:text-[var(--dark_blue)] flex items-center gap-2 justify-center"
+            className="mb-6 text-sm w-fit text-[var(--color-page-text)] hover:text-[var(--color-page-text-title)] flex items-center gap-2 justify-center"
 
         >
             <FaArrowLeft /> {t('common.goBack')}

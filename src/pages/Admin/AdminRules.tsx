@@ -81,8 +81,8 @@ const emptyActorForm = {
 };
 
 const ITEMS_PER_PAGE = 5;
-const labelClass = "block mb-2 text-sm font-medium text-gray-900";
-const selectClass = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
+const labelClass = "block mb-2 text-sm font-medium text-[var(--color-page-text)] ";
+const selectClass = "bg-[var(--color-card-bg)] border border-[var(--color-border)] text-gray-500 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
 
 export default function AdminRules() {
   const { authState } = useAuth();
@@ -383,9 +383,9 @@ export default function AdminRules() {
   return (
     <>
       <GoBack />
-      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[var(--blue)]">{t('admin.rules.title')}</h2>
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">{t('admin.rules.title')}</h2>
           <p className="text-sm text-gray-600">
             {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
@@ -414,9 +414,9 @@ export default function AdminRules() {
         )}
 
         {showForm && (
-          <section className="bg-gray-200 rounded-md mb-6">
+          <section className="bg-[var(--color-page-bg)] rounded-md mb-6">
             <div className="p-10">
-              <h3 className="text-2xl font-bold text-[var(--blue)] mt-0 mb-4">{t('admin.rules.newRule')}</h3>
+              <h3 className="text-2xl font-bold text-[var(--color-page-text-title)] mt-0 mb-4">{t('admin.rules.newRule')}</h3>
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                   <div>
