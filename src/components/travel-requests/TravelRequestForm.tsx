@@ -290,6 +290,7 @@ function DestinationFields({
                 id={`hotel-${idx}`}
                 checked={field.value}
                 onChange={field.onChange}
+                className="data-[checked]:bg-[var(--ultra-light-blue)]"
               />
             )}
           />
@@ -310,6 +311,7 @@ function DestinationFields({
                 id={`plane-${idx}`}
                 checked={field.value}
                 onChange={field.onChange}
+                className="data-[checked]:bg-[var(--ultra-light-blue)]"
               />
             )}
           />

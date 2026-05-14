@@ -426,7 +426,7 @@ export const Reservations = () => {
   return (
     <Tutorial page="reservations" run={tutorial}>
       <div className="bg-[var(--color-card-bg)] rounded-md mb-10 max-w-5xl mx-auto">
-        <div className="p-10 mx-auto">
+        <div className="p-5 lg:p-10 mx-auto">
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-4">
             {t('reservations.title')}
           </h2>
