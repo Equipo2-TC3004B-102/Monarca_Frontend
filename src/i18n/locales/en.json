@@ -243,6 +243,7 @@
     "totalVouchers": "Total vouchers:",
     "voucherOf": "Voucher {{current}} of {{total}}",
     "totalReservations": "Total reservations:",
+    "reservationOf": "Reservation {{current}} of {{total}}",
     "previousReviews": "Previous reviews:",
     "commentsLabel": "Comments:",
     "commentsPlaceholder": "Write a comment...",

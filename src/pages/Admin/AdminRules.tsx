@@ -9,6 +9,8 @@
  *                              Added edit and delete functionality with pending-request reassignment error handling.
  *                              Added ApprovalLevelActor management section per level (Tarea E).
  *                              Fixed ceco_id DTO validator: @IsString instead of @IsUUID in approval-level-actor.dto.ts.
+ *                              Show company name (not UUID) in header via GET /admin/companies/:id/info.
+ *                              CECO selector always visible in create form (not hidden behind actor_type).
  */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -101,6 +103,7 @@ export default function AdminRules() {
   const [levelToDelete, setLevelToDelete] = useState<ApprovalRule | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [cecos, setCecos] = useState<CostCenter[]>([]);
+  const [companyName, setCompanyName] = useState<string | null>(null);
 
   // Actors section state
   const [selectedLevelForActors, setSelectedLevelForActors] = useState<ApprovalRule | null>(null);
@@ -133,6 +136,9 @@ export default function AdminRules() {
     if (companyId) {
       getRequest(`/admin/companies/${companyId}/cost-centers`)
         .then((data) => setCecos(data))
+        .catch(() => {});
+      getRequest(`/admin/companies/${companyId}/info`)
+        .then((data) => setCompanyName(data.name ?? null))
         .catch(() => {});
     }
   }, []);
@@ -381,7 +387,7 @@ export default function AdminRules() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-[var(--blue)]">{t('admin.rules.title')}</h2>
           <p className="text-sm text-gray-600">
-            {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
+            {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
           <div className="flex items-center gap-3">
             <button
@@ -466,17 +472,15 @@ export default function AdminRules() {
                       </select>
                     </div>
                   )}
-                  {form.actor_type && (
-                    <div>
-                      <label className={labelClass}>CECO (opcional — vacío aplica a todos)</label>
-                      <select name="actor_ceco_id" value={form.actor_ceco_id} onChange={handleChange} className={selectClass}>
-                        <option value="">Todos los CECOs</option>
-                        {cecos.map((c) => (
-                          <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+                  <div>
+                    <label className={labelClass}>CECO al que aplica</label>
+                    <select name="actor_ceco_id" value={form.actor_ceco_id} onChange={handleChange} className={selectClass}>
+                      <option value="">Todos los CECOs</option>
+                      {cecos.map((c) => (
+                        <option key={c.id} value={c.id}>{c.id}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <Button type="submit" disabled={saving} className="mt-6">
                   {saving ? t('common.saving') : t('admin.rules.saveRule')}

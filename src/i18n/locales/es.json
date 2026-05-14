@@ -243,6 +243,7 @@
     "totalVouchers": "Total de comprobantes:",
     "voucherOf": "Comprobante {{current}} de {{total}}",
     "totalReservations": "Total de reservaciones:",
+    "reservationOf": "Reservación {{current}} de {{total}}",
     "previousReviews": "Revisiones anteriores:",
     "commentsLabel": "Comentarios:",
     "commentsPlaceholder": "Escribe un comentario...",

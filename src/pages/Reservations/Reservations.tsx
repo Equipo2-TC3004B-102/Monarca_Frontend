@@ -4,6 +4,8 @@
  * Authors: Original Moncarca team
  * Last Modification made: 
  * 04/05/2026 - [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits. Also implemented localStorage persistence for form data to prevent data loss on page refreshes or accidental navigations away from the page.
+ * 13/05/2026 - [Julio Rodriguez] Fixed silent failure: reservation creation errors are now propagated so
+ *                                finishedReservations is not called when any reservation POST fails.
  */
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -350,29 +352,26 @@ export const Reservations = () => {
       return;
     }
     // Send the data to the API
-    const responses = await Promise.all(
-      formattedData.reservations.map(async (reservation) => {
-        const formData = new FormData();
-        formData.append("title", reservation.title);
-        formData.append("comments", reservation.comments);
-        formData.append("price", reservation.price);
-        formData.append("file", reservation.file);
-        formData.append("id_request_destination", reservation.id_request_destination);
-        try {
+    try {
+      await Promise.all(
+        formattedData.reservations.map(async (reservation) => {
+          const formData = new FormData();
+          formData.append("title", reservation.title);
+          formData.append("comments", reservation.comments);
+          formData.append("price", reservation.price);
+          formData.append("file", reservation.file);
+          formData.append("id_request_destination", reservation.id_request_destination);
           await postRequest("/reservations", formData);
-        } catch (error) {
-          console.error("Error sending data:", error);
-        }
-      })
-    );
-    if (responses) {
+        })
+      );
       toast.success(t('reservations.success'));
       isPersistenceEnabledRef.current = false;
       setFormData({});
       window.localStorage.removeItem(reservationDraftStorageKey);
       await patchRequest(`/requests/finished-reservations/${requestId}`, {});
       navigate("/dashboard");
-    } else {
+    } catch (error) {
+      console.error("Error sending data:", error);
       toast.error(t('reservations.sendError'));
     }
   }
