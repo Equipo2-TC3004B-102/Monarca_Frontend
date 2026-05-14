@@ -3,7 +3,7 @@
  * Description: Approvals page component, which displays a list of approvals and allows users to approve or reject them.
  * Authors: Original Monarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added destination/date fallback rendering for requests with partial destination payloads.
+ * 04/05/2026 [Rebeca-Davila] Changed colors dark mode
  */
 import React, { useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
@@ -155,9 +155,9 @@ export const Approvals: React.FC = () => {
     <>
       <Tutorial page="approvals" run={tutorial}>
         <GoBack />
-        <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-[var(--blue)]">
+            <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
               {t('approvals.title')}
             </h2>
             <RefreshButton />

@@ -3,7 +3,7 @@
  * Description: Page component that displays trips with pending refunds to be reviewed by authorized personnel.
  * Authors: Original Monarca team
  * Last Modification made:
- * 06/05/2026 [Sergio Jiawei Xuan] Adjusted column widths; changed status badge style to adapt to text width.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import { useState, useEffect } from "react";
@@ -140,7 +140,7 @@ export const CheckRefunds = () => {
   
   if (loading) {
     return (
-      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <p className="text-center">{t('refunds.loading')}</p>
       </div>
     );
@@ -162,9 +162,9 @@ export const CheckRefunds = () => {
       <>
       <Tutorial page="checkRefunds" run={tutorial}>
         <GoBack />
-        <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-[var(--blue)]">
+            <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
                 {t('refunds.vouchersToRegister')}
             </h2>
             <RefreshButton />

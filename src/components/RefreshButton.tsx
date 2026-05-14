@@ -3,7 +3,7 @@
  * Description: Renders a small icon button used to trigger data refresh actions throughout the application.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import { MdRefresh } from "react-icons/md";
@@ -17,9 +17,9 @@ const RefreshButton = () => {
 
     return (
         <button
-            className="p-2 bg-white rounded-md shadow hover:bg-gray-100"
+            className="p-2 bg-[var(--color-page-bg)] rounded-md shadow hover:bg-[var(--color-card-bg)]"
         >
-            <MdRefresh className="h-6 w-6 text-[#0a2c6d]" />
+            <MdRefresh className="h-6 w-6 text-[var(--color-page-text)]" />
         </button>
     )
 

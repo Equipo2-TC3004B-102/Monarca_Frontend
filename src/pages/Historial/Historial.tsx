@@ -3,7 +3,8 @@
  * Description: This file contains the Historial component used in the Refunds section of the application.
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
- * Last Modification made:
+ * Last Modification made: 
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  * 06/05/2026 [Julio Rodriguez] Fixed permission check — use view_own_requests instead of create_request to guard requester history view.
  * 06/05/2026 [Sergio Jiawei Xuan] Changed status badge style to adapt to text width; corrected arrival date translation key.
  */
@@ -197,9 +198,9 @@ export const Historial = () => {
     <>
     <Tutorial page="history" run={tutorial}>
         <GoBack />
-        <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+        <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
           <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-[#0a2c6d]">
+              <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
                 {t('historial.title')}
               </h2>
               <RefreshButton />

@@ -47,28 +47,28 @@ const FilePreviewer = ({ file, fileIndex, showDownload = true }: FilePreviewerPr
                   className="border-0 col-span-1 md:col-span-2 h-64 md:h-96"
                 />
 
-                <div className="flex flex-col bg-white p-6 gap-3 col-span-1">
-                  <p id={`class-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.voucherClass')}: </span>{file.class}</p>
+                <div className="flex flex-col bg-[var(--color-page-bg)] p-6 gap-3 col-span-1">
+                  <p id={`class-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.voucherClass')}: </span>{file.class}</p>
                   <p id={`amount-file-${fileIndex}`}>
-                    <span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.amountMxn')}: </span>
+                    <span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.amountMxn')}: </span>
                     <span className="text-green-700">{formatMoney(file.amount)}</span>
                   </p>
                   {file.unconverted_amount != null && file.currency && file.currency !== "MXN" && (
                     <>
                       <p id={`unconverted-amount-file-${fileIndex}`}>
-                        <span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.originalAmount')}: </span>
+                        <span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.originalAmount')}: </span>
                         <span className="text-amber-700">{file.unconverted_amount} {file.currency}</span>
                       </p>
                       {file.exchange_rate != null && (
-                        <p id={`exchange-rate-file-${fileIndex}`}>
-                          <span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.exchangeRate')}: </span>
+                        <p id={`exchange-rate-file-${fileIndex}`} className="text-[var(--color-page-text)]">
+                          <span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.exchangeRate')}: </span>
                           {Number(file.exchange_rate).toFixed(4)} MXN/{file.currency}
                         </p>
                       )}
                     </>
                   )}
-                  <p id={`date-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.date')}: </span>{formatDate(file.date)}</p>
-                  <p id={`status-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.voucherStatus')}: </span>{file.status}</p>
+                  <p id={`date-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.date')}: </span>{formatDate(file.date)}</p>
+                  <p id={`status-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.voucherStatus')}: </span>{file.status}</p>
                 </div>
               </div>
 

@@ -31,7 +31,7 @@ const FilePreviewer = ({ file, fileIndex }: FilePreviewerProps) => {
     return (
         <>
           <div className="flex flex-col">
-            <div className="flex flex-col bg-white p-6 gap-3 col-span-1 ml-14">
+            <div className="flex flex-col bg-[var(--color-page-bg)] p-6 gap-3 col-span-1 ml-14">
               <p id={`price-file-${fileIndex}`}><span className="font-semibold text-[var(--blue)]">{t('refundAcceptance.quantity')}: </span><span className="text-green-700">{formatMoney(file.price)}</span></p>
             </div>
             <div className="w-[100%] max-w-4xl h-[70vh] lg:h-[90vh] relative self-center">

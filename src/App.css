@@ -16,8 +16,17 @@
   --green: #057505dc;
   --yellow: #eac704;
   --white: #FEFEFE;
-  --gray: #F0F3F4;
+  --gray: #F4F6F8;
   --black: #000000;
+
+  /* Theme tokens */
+  --color-page-bg: var(--white);
+  --color-page-text: var(--black);
+  --color-page-text-title: var(--blue);
+  --color-card-bg: var(--gray);
+  --color-border: #c7c7c7;
+  --color-button: #E4E4E7;
+  --color-text-button: #71717A;
 
   /* Fonts Weights */
   /* --thin: 300;
@@ -72,4 +81,14 @@ a {
   transform: translate(-50%, 0) !important;
   margin: 0 auto;
   z-index: 10;
+}
+
+.dark {
+  --color-page-bg: #121212;
+  --color-page-text: #f9fafb;
+  --color-page-text-title: var(--ultra-light-blue);
+  --color-card-bg: #1d1d1d;
+  --color-border: #3b3b3b;
+  --color-button: #52525B;
+  --color-text-button: #E4E4E7;
 }

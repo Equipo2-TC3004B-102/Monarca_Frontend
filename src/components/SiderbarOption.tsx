@@ -3,8 +3,7 @@
  * Description: Renders a single sidebar navigation item with an icon and label that links to a route.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 16/04/2026 [Rebeca-Davila] Added a prop to addapt to the function of closing the sidebar and made 
- * the titles of the pages get showned fully on the sidebar.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import { Link } from "react-router-dom";
@@ -28,12 +27,12 @@ const SidebarOption = ({ label, pathIcon, link, onClick  }: SidebarOptionProps) 
             <Link
               to={link}
               onClick={onClick}
-              className="group flex items-center p-2 text-[var(--dark-blue)] text-sm rounded-lg hover:bg-[var(--blue)] hover:text-[var(--white)] gap-2 h-[44px]"
+              className="group flex items-center p-2 text-[var(--color-page-text)] text-sm rounded-lg hover:bg-[var(--blue)] hover:text-[var(--white)] gap-2 h-[44px]"
             >
               <img
                 src={pathIcon}
                 alt={label}
-                className="w-6 h-6 group-hover:invert-0 invert"
+                className="w-6 h-6 group-hover:invert-0 invert dark:invert-0"
               />
               <span className="whitespace-normal break-words w-[160px]">{label}</span>
             </Link>
