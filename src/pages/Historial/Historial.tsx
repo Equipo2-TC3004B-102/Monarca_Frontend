@@ -4,8 +4,7 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 13/05/2026 [Julio Rodriguez] Tied history filters to their endpoint instead of user permissions to prevent
- *                              null crash on travel_agency and incorrect filtering for multi-role users.
+ * 14/05/2026 [Diego de la Vega] Now travel agents see all requests except those in early stages
  */
 
 import Table from "../../components/Refunds/Table";
@@ -118,7 +117,10 @@ export const Historial = () => {
         }
         if (endpoint === "/requests/all") {
           const travelAgentsIds = response.flatMap((request: any) => (request.travel_agency?.users ?? []).map((user: any) => user.id));
+          // Travel agents see all requests except those in early stages (before they make reservations)
+          // Status shows only after reservations are completed (In Progress onwards)
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status) && travelAgentsIds.includes(authState.userId));
+
         }
         if (endpoint === "/requests/to-approve-SOI") {
           response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
