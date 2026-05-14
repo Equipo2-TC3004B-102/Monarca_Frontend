@@ -3,7 +3,7 @@
  * Description: Centralized Axios configuration and HTTP utility functions for handling API requests (GET, POST, PUT, PATCH, DELETE) with global error interception.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Santiago Coronado Hernández] Added enhanced error logging in the response interceptor to provide more insights into API errors, including specific handling for file size validation errors and unauthorized access (401) for potential token refresh logic.
+ * 14/05/2026 [Diego de la Vega] Added flight search API endpoints and handlers.
  */
 
 import axios, { AxiosRequestConfig } from "axios";
@@ -34,18 +34,32 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
+      const errorCode = error.response.data?.code;
       console.error(
         "API ERROR FULL:",
         JSON.stringify(error.response?.data, null, 2)
       );
       // Log file size errors specifically
+      const message = Array.isArray(error.response.data?.message)
+        ? error.response.data.message.join(', ')
+        : error.response.data?.message;
       if (error.response.status === 413 || 
           (error.response.status === 400 && 
-           error.response.data?.message?.toLowerCase().includes("size"))) {
-        console.error("File size validation error:", error.response.data?.message);
+           typeof message === 'string' && message.toLowerCase().includes("size"))) {
+        console.error("File size validation error:", message);
       }
       if (error.response.status === 401) {
         // Token refresh logic or redirect to login could be implemented here
+      }
+
+      // If auth context is missing/invalid, send user back to login immediately.
+      if (
+        errorCode === "AUTH_MISSING_TOKEN" ||
+        errorCode === "AUTH_INVALID_TOKEN"
+      ) {
+        if (window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
       }
     } else if (error.request) {
       console.error("se recibió respuesta de la API:", error.request);

@@ -5,7 +5,7 @@
  *              into the reservation form.
  * Authors: Debug Studio (Diego de la Vega)
  * Last Modification made:
- * 12/05/2026 [Diego de la Vega] Added reservation-flow flight search integration.
+ * 12/05/2026 [Diego de la Vega] Added reservation-flow flight search integration and dark mode for some buttons.
  */
 
 import { useMemo } from 'react';
@@ -106,9 +106,9 @@ export default function FlightReservationOptions({
 
   if (!flightSearchQuery) {
     return (
-      <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-        <h3 className="text-lg font-bold text-gray-900 mb-2">Opciones de vuelo</h3>
-        <p className="text-sm text-gray-600">
+      <section className="bg-[var(--color-card-bg)] rounded-lg shadow-sm border border-[var(--color-border)] p-6 mb-8">
+        <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-2">Opciones de vuelo</h3>
+        <p className="text-sm text-[var(--color-page-text)]">
           No hay suficientes códigos IATA para buscar vuelos automáticamente.
         </p>
       </section>
@@ -118,16 +118,16 @@ export default function FlightReservationOptions({
   const data = searchResult.data as FlightSearchMultiSegmentResponse | undefined;
 
   return (
-    <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+    <section className="bg-[var(--color-card-bg)] rounded-lg shadow-sm border border-[var(--color-border)] p-6 mb-8">
       <div className="flex flex-col gap-2 mb-6">
-        <h3 className="text-lg font-bold text-gray-900">Opciones de vuelo</h3>
-        <p className="text-sm text-gray-600">
+        <h3 className="text-lg font-bold text-[var(--color-page-text-title)]">Opciones de vuelo</h3>
+        <p className="text-sm text-[var(--color-page-text)]">
           Se muestran las mejores opciones por tramo para el itinerario cargado.
         </p>
       </div>
 
       {searchResult.isLoading && (
-        <div className="py-8 text-center text-gray-600">Buscando opciones en Duffel...</div>
+        <div className="py-8 text-center text-[var(--color-page-text)]">Buscando opciones en Duffel...</div>
       )}
 
       {searchResult.isError && (
@@ -144,11 +144,11 @@ export default function FlightReservationOptions({
 
             return (
               <div key={segment.segment_index} className="space-y-4">
-                <div className="flex flex-col gap-1 border-b border-gray-200 pb-3">
-                  <h4 className="text-base font-semibold text-gray-900">
+                <div className="flex flex-col gap-1 border-b border-[var(--color-border)] pb-3">
+                  <h4 className="text-base font-semibold text-[var(--color-page-text-title)]">
                     Tramo {segment.segment_index + 1}: {segment.route}
                   </h4>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-[var(--color-page-text)]">
                     Fecha sugerida: {segmentDate ? formatDate(segmentDate) : 'Sin fecha'}
                   </p>
                 </div>
@@ -175,7 +175,7 @@ export default function FlightReservationOptions({
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded bg-gray-50 border border-gray-200 p-4 text-sm text-gray-600">
+                  <div className="rounded bg-[var(--color-page-bg)] border border-[var(--color-border)] p-4 text-sm text-[var(--color-page-text)]">
                     No hay resultados para este tramo.
                   </div>
                 )}
