@@ -2,20 +2,30 @@
  * FileName: AdminRules.tsx
  * Description: Admin page for managing approval rules (ApprovalLevels). Displays existing levels
  *              in a paginated table and provides a form to create new levels with optional inline actor.
- *              Uses GET/POST /approval-engine/levels. company_id is derived server-side from JWT.
+ *              Uses GET/POST/PATCH/DELETE /approval-engine/levels. company_id is derived server-side from JWT.
  * Authors: Original Monarca team
  * Last Modification made:
- * 05/05/2026 [Julio Rodriguez] Migrated to /approval-engine/levels; removed company_id from form; added actor inline + companyId guard.
+ * 13/05/2026 [Julio Rodriguez] Added CECO selector to inline actor form; loads CECOs from /admin/companies/:id/cost-centers.
+ *                              Added edit and delete functionality with pending-request reassignment error handling.
+ *                              Added ApprovalLevelActor management section per level (Tarea E).
+ *                              Fixed ceco_id DTO validator: @IsString instead of @IsUUID in approval-level-actor.dto.ts.
+ *                              Show company name (not UUID) in header via GET /admin/companies/:id/info.
+ *                              CECO selector always visible in create form (not hidden behind actor_type).
  */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getRequest, postRequest } from "../../utils/apiService";
+import { getRequest, postRequest, patchRequest, deleteRequest } from "../../utils/apiService";
 import { useAuth } from "../../hooks/auth/authContext";
 import GoBack from "../../components/GoBack";
 import RefreshButton from "../../components/RefreshButton";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { useTranslation } from "react-i18next";
+
+interface CostCenter {
+  id: string;
+  name: string | null;
+}
 
 interface ApprovalRule {
   id: string;
@@ -30,6 +40,17 @@ interface ApprovalRule {
   is_active: boolean;
 }
 
+interface ApprovalLevelActor {
+  id: string;
+  approval_level_id: string;
+  actor_type: string;
+  target_type: string | null;
+  target_id: string | null;
+  is_required: boolean;
+  selection_mode: string;
+  ceco_id: string | null;
+}
+
 const emptyForm = {
   code: "",
   name: "",
@@ -41,6 +62,22 @@ const emptyForm = {
   required_approvals: 1,
   actor_type: "",
   selection_mode: "any",
+  actor_ceco_id: "",
+};
+
+const emptyEditForm = {
+  name: "",
+  min_amount_mon: "",
+  max_amount_mon: "",
+  required_approvals: 1,
+  is_active: true,
+};
+
+const emptyActorForm = {
+  actor_type: "",
+  selection_mode: "any",
+  ceco_id: "",
+  is_required: true,
 };
 
 const ITEMS_PER_PAGE = 5;
@@ -60,6 +97,25 @@ export default function AdminRules() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [editLevel, setEditLevel] = useState<ApprovalRule | null>(null);
+  const [editForm, setEditForm] = useState(emptyEditForm);
+  const [levelToDelete, setLevelToDelete] = useState<ApprovalRule | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [cecos, setCecos] = useState<CostCenter[]>([]);
+  const [companyName, setCompanyName] = useState<string | null>(null);
+
+  // Actors section state
+  const [selectedLevelForActors, setSelectedLevelForActors] = useState<ApprovalRule | null>(null);
+  const [actors, setActors] = useState<ApprovalLevelActor[]>([]);
+  const [loadingActors, setLoadingActors] = useState(false);
+  const [actorForm, setActorForm] = useState(emptyActorForm);
+  const [showActorForm, setShowActorForm] = useState(false);
+  const [editActor, setEditActor] = useState<ApprovalLevelActor | null>(null);
+  const [actorToDelete, setActorToDelete] = useState<ApprovalLevelActor | null>(null);
+  const [savingActor, setSavingActor] = useState(false);
+  const [deletingActor, setDeletingActor] = useState(false);
+
   const navigate = useNavigate();
 
   const fetchRules = async () => {
@@ -75,7 +131,17 @@ export default function AdminRules() {
     }
   };
 
-  useEffect(() => { fetchRules(); }, []);
+  useEffect(() => {
+    fetchRules();
+    if (companyId) {
+      getRequest(`/admin/companies/${companyId}/cost-centers`)
+        .then((data) => setCecos(data))
+        .catch(() => {});
+      getRequest(`/admin/companies/${companyId}/info`)
+        .then((data) => setCompanyName(data.name ?? null))
+        .catch(() => {});
+    }
+  }, []);
 
   const totalPages = Math.ceil(rules.length / ITEMS_PER_PAGE);
   const paginated = rules.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -89,7 +155,7 @@ export default function AdminRules() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!canLoad) {
       setMessage({ text: "No se pudo identificar la empresa actual.", error: true });
@@ -112,6 +178,7 @@ export default function AdminRules() {
             actor_type: form.actor_type,
             selection_mode: form.selection_mode,
             is_required: true,
+            ...(form.actor_ceco_id && { ceco_id: form.actor_ceco_id }),
           },
         }),
       };
@@ -128,6 +195,191 @@ export default function AdminRules() {
     }
   };
 
+  const handleEditOpen = (level: ApprovalRule) => {
+    setEditLevel(level);
+    setEditForm({
+      name: level.name,
+      min_amount_mon: level.min_amount_mon !== null ? String(level.min_amount_mon) : "",
+      max_amount_mon: level.max_amount_mon !== null ? String(level.max_amount_mon) : "",
+      required_approvals: level.required_approvals,
+      is_active: level.is_active,
+    });
+    setLevelToDelete(null);
+    setSelectedLevelForActors(null);
+    setMessage(null);
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    setEditForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editLevel) return;
+    setSaving(true);
+    setMessage(null);
+    try {
+      const payload: Record<string, unknown> = {
+        name: editForm.name,
+        required_approvals: Number(editForm.required_approvals),
+        is_active: editForm.is_active,
+        ...(editForm.min_amount_mon !== "" && { min_amount_mon: Number(editForm.min_amount_mon) }),
+        ...(editForm.max_amount_mon !== "" && { max_amount_mon: Number(editForm.max_amount_mon) }),
+      };
+      await patchRequest(`/approval-engine/levels/${editLevel.id}`, payload);
+      setMessage({ text: t('admin.rules.successEdit'), error: false });
+      setEditLevel(null);
+      await fetchRules();
+    } catch {
+      setMessage({ text: t('admin.rules.errorEdit'), error: true });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteConfirm = (level: ApprovalRule) => {
+    setLevelToDelete(level);
+    setEditLevel(null);
+    setSelectedLevelForActors(null);
+    setMessage(null);
+  };
+
+  const handleDelete = async () => {
+    if (!levelToDelete) return;
+    setDeleting(true);
+    setMessage(null);
+    try {
+      await deleteRequest(`/approval-engine/levels/${levelToDelete.id}`);
+      setMessage({ text: t('admin.rules.successDelete'), error: false });
+      setLevelToDelete(null);
+      await fetchRules();
+    } catch (err: unknown) {
+      const code = (err as { response?: { data?: { code?: string } } })?.response?.data?.code;
+      if (code === 'APPROVAL_LEVEL_HAS_PENDING_REQUESTS') {
+        setMessage({ text: t('admin.rules.errorNoPendingSubstitute'), error: true });
+      } else {
+        setMessage({ text: t('admin.rules.errorDelete'), error: true });
+      }
+      setLevelToDelete(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // ─── Actors handlers ────────────────────────────────────────────────────────
+
+  const fetchActors = async (levelId: string) => {
+    setLoadingActors(true);
+    try {
+      const data = await getRequest(`/approval-engine/levels/${levelId}/actors`);
+      setActors(data);
+    } catch {
+      setActors([]);
+    } finally {
+      setLoadingActors(false);
+    }
+  };
+
+  const handleOpenActors = (level: ApprovalRule) => {
+    setSelectedLevelForActors(level);
+    setEditLevel(null);
+    setLevelToDelete(null);
+    setShowActorForm(false);
+    setEditActor(null);
+    setActorToDelete(null);
+    setMessage(null);
+    fetchActors(level.id);
+  };
+
+  const handleActorFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    setActorForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+  };
+
+  const handleAddActor = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedLevelForActors) return;
+    setSavingActor(true);
+    try {
+      const payload: Record<string, unknown> = {
+        approval_level_id: selectedLevelForActors.id,
+        actor_type: actorForm.actor_type,
+        selection_mode: actorForm.selection_mode,
+        is_required: actorForm.is_required,
+        ...(actorForm.ceco_id && { ceco_id: actorForm.ceco_id }),
+      };
+      await postRequest("/approval-engine/actors", payload);
+      setMessage({ text: t('admin.rules.successAddActor'), error: false });
+      setActorForm(emptyActorForm);
+      setShowActorForm(false);
+      await fetchActors(selectedLevelForActors.id);
+    } catch {
+      setMessage({ text: t('admin.rules.errorAddActor'), error: true });
+    } finally {
+      setSavingActor(false);
+    }
+  };
+
+  const handleEditActorOpen = (actor: ApprovalLevelActor) => {
+    setEditActor(actor);
+    setActorForm({
+      actor_type: actor.actor_type,
+      selection_mode: actor.selection_mode,
+      ceco_id: actor.ceco_id ?? "",
+      is_required: actor.is_required,
+    });
+    setShowActorForm(false);
+    setActorToDelete(null);
+  };
+
+  const handleEditActorSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editActor || !selectedLevelForActors) return;
+    setSavingActor(true);
+    try {
+      const payload: Record<string, unknown> = {
+        actor_type: actorForm.actor_type,
+        selection_mode: actorForm.selection_mode,
+        is_required: actorForm.is_required,
+        ceco_id: actorForm.ceco_id || null,
+      };
+      await patchRequest(`/approval-engine/actors/${editActor.id}`, payload);
+      setMessage({ text: t('admin.rules.successEditActor'), error: false });
+      setEditActor(null);
+      setActorForm(emptyActorForm);
+      await fetchActors(selectedLevelForActors.id);
+    } catch {
+      setMessage({ text: t('admin.rules.errorEditActor'), error: true });
+    } finally {
+      setSavingActor(false);
+    }
+  };
+
+  const handleDeleteActorConfirm = (actor: ApprovalLevelActor) => {
+    setActorToDelete(actor);
+    setEditActor(null);
+    setShowActorForm(false);
+  };
+
+  const handleDeleteActor = async () => {
+    if (!actorToDelete || !selectedLevelForActors) return;
+    setDeletingActor(true);
+    try {
+      await deleteRequest(`/approval-engine/actors/${actorToDelete.id}`);
+      setMessage({ text: t('admin.rules.successDeleteActor'), error: false });
+      setActorToDelete(null);
+      await fetchActors(selectedLevelForActors.id);
+    } catch {
+      setMessage({ text: t('admin.rules.errorDeleteActor'), error: true });
+      setActorToDelete(null);
+    } finally {
+      setDeletingActor(false);
+    }
+  };
+
   return (
     <>
       <GoBack />
@@ -135,7 +387,7 @@ export default function AdminRules() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">{t('admin.rules.title')}</h2>
           <p className="text-sm text-gray-600">
-            {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
+            {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
           <div className="flex items-center gap-3">
             <button
@@ -220,12 +472,302 @@ export default function AdminRules() {
                       </select>
                     </div>
                   )}
+                  <div>
+                    <label className={labelClass}>CECO al que aplica</label>
+                    <select name="actor_ceco_id" value={form.actor_ceco_id} onChange={handleChange} className={selectClass}>
+                      <option value="">Todos los CECOs</option>
+                      {cecos.map((c) => (
+                        <option key={c.id} value={c.id}>{c.id}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <Button type="submit" disabled={saving} className="mt-6">
                   {saving ? t('common.saving') : t('admin.rules.saveRule')}
                 </Button>
               </form>
             </div>
+          </section>
+        )}
+
+        {editLevel && (
+          <section className="bg-gray-200 rounded-md mb-6">
+            <div className="p-10">
+              <h3 className="text-2xl font-bold text-[var(--blue)] mt-0 mb-4">{t('admin.rules.editTitle')}</h3>
+              <form onSubmit={handleEditSubmit}>
+                <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                  <div className="sm:col-span-2">
+                    <label className={labelClass}>{t('admin.rules.levelName')}</label>
+                    <Input name="name" value={editForm.name} onChange={handleEditChange} required />
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.minAmount')}</label>
+                    <Input name="min_amount_mon" type="number" min={0} value={editForm.min_amount_mon} onChange={handleEditChange} placeholder={t('admin.rules.noMinimum')} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.maxAmount')}</label>
+                    <Input name="max_amount_mon" type="number" min={0} value={editForm.max_amount_mon} onChange={handleEditChange} placeholder={t('admin.rules.noMaximum')} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.requiredApprovals')}</label>
+                    <Input name="required_approvals" type="number" min={1} value={editForm.required_approvals} onChange={handleEditChange} required />
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      id="edit-is-active"
+                      type="checkbox"
+                      name="is_active"
+                      checked={editForm.is_active}
+                      onChange={handleEditChange}
+                      className="w-4 h-4"
+                    />
+                    <label htmlFor="edit-is-active" className="text-sm font-medium text-gray-900">
+                      {t('admin.rules.active')}
+                    </label>
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-6">
+                  <Button type="submit" disabled={saving}>
+                    {saving ? t('common.saving') : t('admin.rules.editRule')}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setEditLevel(null)}
+                    className="px-4 py-2 bg-gray-400 text-white text-sm rounded-md hover:bg-gray-500 transition-colors"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+        )}
+
+        {levelToDelete && (
+          <section className="bg-red-50 border border-red-200 rounded-md mb-6 p-6">
+            <p className="text-sm font-semibold text-red-800 mb-1">
+              {t('admin.rules.confirmDelete', { name: levelToDelete.name })}
+            </p>
+            <p className="text-xs text-red-600 mb-4">{t('admin.rules.confirmDeleteWarning')}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {deleting ? t('admin.rules.deleting') : t('admin.rules.deleteRule')}
+              </button>
+              <button
+                onClick={() => setLevelToDelete(null)}
+                disabled={deleting}
+                className="px-4 py-2 bg-gray-400 text-white text-sm rounded-md hover:bg-gray-500 transition-colors disabled:opacity-50"
+              >
+                {t('common.cancel')}
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* ─── Actors section ────────────────────────────────────────────── */}
+        {selectedLevelForActors && (
+          <section className="bg-blue-50 border border-blue-200 rounded-md mb-6 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-[var(--blue)]">
+                {t('admin.rules.actorsTitle', { name: selectedLevelForActors.name })}
+              </h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowActorForm(!showActorForm); setEditActor(null); setActorForm(emptyActorForm); setActorToDelete(null); }}
+                  className="px-3 py-1.5 bg-[#0a2c6d] text-white text-xs rounded-md hover:bg-[#0d3d94] transition-colors"
+                >
+                  {showActorForm ? t('common.cancel') : t('admin.rules.addActor')}
+                </button>
+                <button
+                  onClick={() => { setSelectedLevelForActors(null); setActors([]); setShowActorForm(false); setEditActor(null); setActorToDelete(null); }}
+                  className="px-3 py-1.5 bg-gray-400 text-white text-xs rounded-md hover:bg-gray-500 transition-colors"
+                >
+                  {t('common.cancel')}
+                </button>
+              </div>
+            </div>
+
+            {/* Add actor form */}
+            {showActorForm && (
+              <form onSubmit={handleAddActor} className="bg-white rounded-md p-4 mb-4 border border-blue-100">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.actorType')}</label>
+                    <select name="actor_type" value={actorForm.actor_type} onChange={handleActorFormChange} className={selectClass} required>
+                      <option value="">—</option>
+                      <option value="MANAGER">Gerente directo</option>
+                      <option value="USER">Usuario específico</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.selectionMode')}</label>
+                    <select name="selection_mode" value={actorForm.selection_mode} onChange={handleActorFormChange} className={selectClass}>
+                      <option value="any">Cualquiera</option>
+                      <option value="all">Todos</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>CECO</label>
+                    <select name="ceco_id" value={actorForm.ceco_id} onChange={handleActorFormChange} className={selectClass}>
+                      <option value="">Todos los CECOs</option>
+                      {cecos.map((c) => (
+                        <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      id="actor-is-required"
+                      type="checkbox"
+                      name="is_required"
+                      checked={actorForm.is_required}
+                      onChange={handleActorFormChange}
+                      className="w-4 h-4"
+                    />
+                    <label htmlFor="actor-is-required" className="text-sm font-medium text-gray-900">
+                      {t('admin.rules.isRequired')}
+                    </label>
+                  </div>
+                </div>
+                <Button type="submit" disabled={savingActor || !actorForm.actor_type} className="mt-3">
+                  {savingActor ? t('common.saving') : t('admin.rules.addActor')}
+                </Button>
+              </form>
+            )}
+
+            {/* Edit actor form */}
+            {editActor && (
+              <form onSubmit={handleEditActorSubmit} className="bg-white rounded-md p-4 mb-4 border border-yellow-200">
+                <p className="text-xs font-semibold text-yellow-700 mb-3">{t('admin.rules.editRule')}: {editActor.actor_type}</p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.actorType')}</label>
+                    <select name="actor_type" value={actorForm.actor_type} onChange={handleActorFormChange} className={selectClass} required>
+                      <option value="">—</option>
+                      <option value="MANAGER">Gerente directo</option>
+                      <option value="USER">Usuario específico</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.selectionMode')}</label>
+                    <select name="selection_mode" value={actorForm.selection_mode} onChange={handleActorFormChange} className={selectClass}>
+                      <option value="any">Cualquiera</option>
+                      <option value="all">Todos</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>CECO</label>
+                    <select name="ceco_id" value={actorForm.ceco_id} onChange={handleActorFormChange} className={selectClass}>
+                      <option value="">Todos los CECOs</option>
+                      {cecos.map((c) => (
+                        <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      id="edit-actor-is-required"
+                      type="checkbox"
+                      name="is_required"
+                      checked={actorForm.is_required}
+                      onChange={handleActorFormChange}
+                      className="w-4 h-4"
+                    />
+                    <label htmlFor="edit-actor-is-required" className="text-sm font-medium text-gray-900">
+                      {t('admin.rules.isRequired')}
+                    </label>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <Button type="submit" disabled={savingActor || !actorForm.actor_type}>
+                    {savingActor ? t('common.saving') : t('admin.rules.editRule')}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => { setEditActor(null); setActorForm(emptyActorForm); }}
+                    className="px-3 py-1.5 bg-gray-400 text-white text-xs rounded-md hover:bg-gray-500 transition-colors"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Delete actor confirmation */}
+            {actorToDelete && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+                <p className="text-sm font-semibold text-red-800 mb-3">
+                  {t('admin.rules.confirmDelete', { name: actorToDelete.actor_type })}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleDeleteActor}
+                    disabled={deletingActor}
+                    className="px-3 py-1.5 bg-red-600 text-white text-xs rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+                  >
+                    {deletingActor ? t('admin.rules.deleting') : t('admin.rules.deleteRule')}
+                  </button>
+                  <button
+                    onClick={() => setActorToDelete(null)}
+                    disabled={deletingActor}
+                    className="px-3 py-1.5 bg-gray-400 text-white text-xs rounded-md hover:bg-gray-500 transition-colors disabled:opacity-50"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Actors mini-table */}
+            {loadingActors ? (
+              <p className="text-sm text-gray-500">{t('common.loading')}</p>
+            ) : actors.length === 0 ? (
+              <p className="text-sm text-gray-500 italic">{t('admin.rules.noActors')}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left text-gray-600 border-separate border-spacing-y-1">
+                  <thead>
+                    <tr className="text-xs text-white uppercase bg-[#4C6997]">
+                      <th className="px-3 py-2 rounded-l-lg">{t('admin.rules.actorType')}</th>
+                      <th className="px-3 py-2">{t('admin.rules.selectionMode')}</th>
+                      <th className="px-3 py-2">CECO</th>
+                      <th className="px-3 py-2">{t('admin.rules.isRequired')}</th>
+                      <th className="px-3 py-2 rounded-r-lg">{t('admin.rules.actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {actors.map((actor) => (
+                      <tr key={actor.id} className="bg-white text-gray-700">
+                        <td className="px-3 py-2 rounded-l-lg">{actor.actor_type}</td>
+                        <td className="px-3 py-2">{actor.selection_mode}</td>
+                        <td className="px-3 py-2">{actor.ceco_id ?? "—"}</td>
+                        <td className="px-3 py-2">{actor.is_required ? "✓" : "—"}</td>
+                        <td className="px-3 py-2 rounded-r-lg">
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleEditActorOpen(actor)}
+                              className="px-2 py-1 bg-[#c7e6ab] text-[#24390d] text-xs rounded hover:bg-[#b0d490] transition-colors font-semibold"
+                            >
+                              {t('admin.rules.editRule')}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteActorConfirm(actor)}
+                              className="px-2 py-1 bg-[#eca6a6] text-[#680909] text-xs rounded hover:bg-[#e08080] transition-colors font-semibold"
+                            >
+                              {t('admin.rules.deleteRule')}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
         )}
 
@@ -241,17 +783,18 @@ export default function AdminRules() {
                 <th className="px-4 py-2 text-center">{t('admin.rules.minAmountShort')}</th>
                 <th className="px-4 py-2 text-center">{t('admin.rules.maxAmountShort')}</th>
                 <th className="px-4 py-2 text-center">{t('admin.rules.approvals')}</th>
-                <th className="px-4 py-2 text-center rounded-r-lg">{t('admin.users.status')}</th>
+                <th className="px-4 py-2 text-center">{t('admin.users.status')}</th>
+                <th className="px-4 py-2 text-center rounded-r-lg">{t('admin.rules.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="text-center pt-10 text-gray-500">{t('common.loading')}</td>
+                  <td colSpan={10} className="text-center pt-10 text-gray-500">{t('common.loading')}</td>
                 </tr>
               ) : paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center pt-10">{t('common.noData')}</td>
+                  <td colSpan={10} className="text-center pt-10">{t('common.noData')}</td>
                 </tr>
               ) : paginated.map((r) => (
                 <tr key={r.id} className="bg-[#4C6997] text-white text-center">
@@ -263,10 +806,32 @@ export default function AdminRules() {
                   <td className="px-4 py-3">{r.min_amount_mon ?? "-"}</td>
                   <td className="px-4 py-3">{r.max_amount_mon ?? "-"}</td>
                   <td className="px-4 py-3">{r.required_approvals}</td>
-                  <td className="px-4 py-3 rounded-r-lg">
+                  <td className="px-4 py-3">
                     <span className={`text-xs p-1 rounded-sm font-bold ${r.is_active ? "bg-[#c7e6ab] text-[#24390d]" : "bg-[#eca6a6] text-[#680909]"}`}>
                       {r.is_active ? t('admin.rules.active') : t('admin.rules.inactive')}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 rounded-r-lg">
+                    <div className="flex justify-center gap-1 flex-wrap">
+                      <button
+                        onClick={() => handleOpenActors(r)}
+                        className="px-2 py-1 bg-[#d0e8ff] text-[#0a2c6d] text-xs rounded hover:bg-[#b8d8f8] transition-colors font-semibold"
+                      >
+                        {t('admin.rules.manageActors')}
+                      </button>
+                      <button
+                        onClick={() => handleEditOpen(r)}
+                        className="px-2 py-1 bg-[#c7e6ab] text-[#24390d] text-xs rounded hover:bg-[#b0d490] transition-colors font-semibold"
+                      >
+                        {t('admin.rules.editRule')}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteConfirm(r)}
+                        className="px-2 py-1 bg-[#eca6a6] text-[#680909] text-xs rounded hover:bg-[#e08080] transition-colors font-semibold"
+                      >
+                        {t('admin.rules.deleteRule')}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

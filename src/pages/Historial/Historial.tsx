@@ -3,10 +3,9 @@
  * Description: This file contains the Historial component used in the Refunds section of the application.
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
- * Last Modification made: 
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
- * 06/05/2026 [Julio Rodriguez] Fixed permission check — use view_own_requests instead of create_request to guard requester history view.
- * 06/05/2026 [Sergio Jiawei Xuan] Changed status badge style to adapt to text width; corrected arrival date translation key.
+ * Last Modification made:
+ * 13/05/2026 [Julio Rodriguez] Tied history filters to their endpoint instead of user permissions to prevent
+ *                              null crash on travel_agency and incorrect filtering for multi-role users.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -114,14 +113,14 @@ export const Historial = () => {
             ? "/requests/approved-history"
             : "/requests/all"
         let response = await getRequest(endpoint);
-        if(authState.userPermissions.includes("approve_request" as Permission)) {
+        if (endpoint === "/requests/approved-history") {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
         }
-        if(authState.userPermissions.includes("submit_reservations" as Permission)) {
-          const travelAgentsIds = response.map((request: any) => request.travel_agency.users.map((user: any) => user.id)).flat();
+        if (endpoint === "/requests/all") {
+          const travelAgentsIds = response.flatMap((request: any) => (request.travel_agency?.users ?? []).map((user: any) => user.id));
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status) && travelAgentsIds.includes(authState.userId));
         }
-        if(authState.userPermissions.includes("check_budgets" as Permission)) {
+        if (endpoint === "/requests/to-approve-SOI") {
           response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
         }
         // Data with actions (edit buttons)
