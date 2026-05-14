@@ -3,7 +3,6 @@
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 04/05/2026 - [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits. Also implemented localStorage persistence for form data to prevent data loss on page refreshes or accidental navigations away from the page.
  * 13/05/2026 - [Julio Rodriguez] Fixed silent failure: reservation creation errors are now propagated so
  *                                finishedReservations is not called when any reservation POST fails.
  */
@@ -395,7 +394,9 @@ export const Reservations = () => {
           if (reservation.link) {
             formData.append("link", reservation.link);
           }
-          formData.append("file", reservation.file);
+          if (reservation.file) {
+            formData.append("file", reservation.file);
+          }
           formData.append("id_request_destination", reservation.id_request_destination);
           await postRequest("/reservations", formData);
         })
