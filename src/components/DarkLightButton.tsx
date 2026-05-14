@@ -26,8 +26,8 @@ export default function DarkModeButton({ className = "", classNameText = ""}: Pr
   };
 
   return (
-    <div className={`flex flex-col gap-1 w-[5rem] items-center ${className}`}>
-      <span className={`${classNameText || "text-[var(--color-page-text)]"}`} style={{fontSize: '13px', fontWeight: 'bold'}}>{isDark ? t('theme.dark') : t('theme.light')}</span>
+    <div className={`flex flex-col gap-1 w-[6.5rem] items-center ${className}`}>
+      <span className={`whitespace-nowrap ${classNameText || "text-[var(--color-page-text)]"}`} style={{fontSize: '13px', fontWeight: 'bold'}}>{isDark ? t('theme.dark') : t('theme.light')}</span>
       <Switch
       checked={isDark}
       onChange={handleThemeChange}
