@@ -120,7 +120,7 @@ export default function LoginPage() {
     >
       <div className="w-[90%] lg:w-[45%] bg-[url('/imageLogin.png')] bg-center bg-cover bg-no-repeat rounded-[15px] h-[10%] lg:h-[95%] m-[2vh]"></div>
       <div className="w-[100%] lg:w-[55%] flex flex-col justify-center items-center p-12 relative">
-      <div className="absolute top-7 lg:top-8 right-12 z-50 flex items-center gap-4">
+      <div className="absolute top-7 lg:top-8 right-6 lg:right-12 z-50 flex items-center gap-4 lg:gap-4">
         <DarkModeButton className="flex items-center -mt-4"></DarkModeButton>
         <button
           type="button"
