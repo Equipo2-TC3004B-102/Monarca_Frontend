@@ -227,6 +227,12 @@ export const router = createBrowserRouter([
  */
 const queryClient = new QueryClient();
 
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+  document.documentElement.classList.add("dark");
+}
+
 /**
  * Application render guard:
  * - Prevents mounting during certain testing environments.

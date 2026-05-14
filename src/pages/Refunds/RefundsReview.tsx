@@ -178,7 +178,7 @@ export const RefundsReview = () => {
 
   if (loading) {
     return (
-      <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <p className="text-center">{t('refunds.loading')}</p>
       </div>
     );
@@ -205,9 +205,9 @@ export const RefundsReview = () => {
     <>
     <Tutorial page="refundsReview" run={tutorial}>
       <GoBack />
-      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[var(--blue)]">
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
             {t('refunds.vouchersAndRefunds')}
           </h2>
           <RefreshButton />

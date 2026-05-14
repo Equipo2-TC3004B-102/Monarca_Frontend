@@ -243,6 +243,7 @@
     "totalVouchers": "Total vouchers:",
     "voucherOf": "Voucher {{current}} of {{total}}",
     "totalReservations": "Total reservations:",
+    "reservationOf": "Reservation {{current}} of {{total}}",
     "previousReviews": "Previous reviews:",
     "commentsLabel": "Comments:",
     "commentsPlaceholder": "Write a comment...",
@@ -559,7 +560,32 @@
       "maxAmountShort": "Max. amount",
       "approvals": "Approvals",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "actions": "Actions",
+      "editRule": "Edit",
+      "deleteRule": "Delete",
+      "editTitle": "Edit approval rule",
+      "confirmDelete": "Are you sure you want to delete \"{{name}}\"?",
+      "confirmDeleteWarning": "Pending requests at this level will be reassigned to a substitute rule at the same order.",
+      "successEdit": "Rule updated successfully.",
+      "errorEdit": "Error updating rule.",
+      "successDelete": "Rule deleted successfully.",
+      "errorDelete": "Error deleting rule.",
+      "errorNoPendingSubstitute": "Cannot delete: there are pending requests at this level and no substitute rule exists at the same order.",
+      "deleting": "Deleting...",
+      "manageActors": "Actors",
+      "actorsTitle": "Actors for \"{{name}}\"",
+      "addActor": "Add actor",
+      "actorType": "Actor type",
+      "selectionMode": "Selection mode",
+      "isRequired": "Required",
+      "noActors": "No actors defined for this level.",
+      "successAddActor": "Actor added successfully.",
+      "errorAddActor": "Error adding actor.",
+      "successEditActor": "Actor updated successfully.",
+      "errorEditActor": "Error updating actor.",
+      "successDeleteActor": "Actor deleted successfully.",
+      "errorDeleteActor": "Error deleting actor."
     },
     "notifications": {
       "title": "Notifications",
@@ -588,5 +614,9 @@
       "adminAlerts": "Administrative alerts",
       "adminAlertsDesc": "Notifies by email about relevant administrative events."
     }
+  },
+  "theme": {
+    "dark": "Dark mode",
+    "light": "Light mode"
   }
 }

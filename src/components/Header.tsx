@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useAuth } from "../hooks/auth/authContext";
 import menu from "../assets/menu.svg";
 import { useTranslation } from "react-i18next";
+import DarkModeButton from "../components/DarkLightButton";
 // import { useApp } from "../hooks/app/appContext";
 
 /**
@@ -49,11 +50,12 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
           <div className="flex items-center">
             <div className="flex items-center ms-3 relative">
               <div className="flex items-center gap-4">
+                <DarkModeButton className="hidden md:flex md:items-center -mt-2" classNameText="#f9fafb"></DarkModeButton>
                 <button
                   type="button"
                   title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
                   onClick={toggleLanguage}
-                  className="hover:scale-110 transition-transform"
+                  className="hidden md:block hover:scale-110 transition-transform mt-1"
                 >
                   <img
                     src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}

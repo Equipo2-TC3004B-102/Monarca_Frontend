@@ -3,7 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added provider support status display and destination/date fallbacks for partial responses.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 
 import React, { useState, useEffect } from 'react';
@@ -478,13 +478,13 @@ const RequestInfo: React.FC = () => {
     <Tutorial page="requestInfo" run={tutorial}>
       <div className="pb-10">
         <GoBack />
-        <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
+        <main className="max-w-6xl bg-[var(--color-card-bg)] mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
             <div className="w-fit bg-[var(--blue)] text-white text-xs lg:text-base px-4 py-2 rounded-full mb-6">
               {t('requestInfo.title')} <span>{id}</span>
             </div>
             <p className="mb-6 text-gray-700 font-medium">
-              {t('requestInfo.requester')} <span className="text-[var(--blue)]">{data?.user?.name} {data?.user?.last_name}</span>
+              {t('requestInfo.requester')} <span className="text-[var(--color-page-text-title)]">{data?.user?.name} {data?.user?.last_name}</span>
             </p>
 
             <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
@@ -501,7 +501,7 @@ const RequestInfo: React.FC = () => {
                     type="text"
                     readOnly
                     value={key === 'status' ? renderStatus(String(data[key]), t) : String(data[key])}
-                    className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                   />
                 </div>
               ))}
@@ -509,7 +509,7 @@ const RequestInfo: React.FC = () => {
 
             <section id="destinations-info">
               <p
-                className="block text-sm font-medium text-gray-700 mb-4"
+                className="block text-sm font-bold text-gray-500 mb-4"
               >
                 {t('requestInfo.destinationDetails')}
               </p>
@@ -530,7 +530,7 @@ const RequestInfo: React.FC = () => {
                         dest.destination?.iata_code ||
                         t('historial.noDestination')
                       }
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div>
@@ -544,7 +544,7 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={dest.arrival_date ? formatDate(dest.arrival_date) : t('historial.noDate')}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div>
@@ -558,7 +558,7 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={dest.departure_date ? formatDate(dest.departure_date) : t('historial.noDate')}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div>
@@ -572,7 +572,7 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={dest.details || '-'}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1 mt-2"
@@ -584,7 +584,7 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={renderProviderSupportStatus(dest.provider_support_status, t)}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div className="flex items-center justify-start gap-1">
@@ -637,8 +637,8 @@ const RequestInfo: React.FC = () => {
                   {t('requestInfo.requestReservations')}
                 </p>
                 <div className="mb-4">
-                  <div className="bg-white p-4 relative">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                  <div className="bg-[var(--color-page-bg)] p-4 relative">
+                    <h2 className="text-lg font-semibold text-[var(--color-page-text)]  mb-4">
                       {t('requestInfo.reservationOf', { current: currentIndexRes + 1, total: data?.reservations?.length })}
                     </h2>
                     {/* Display the existing PDF using an iframe */}
@@ -702,7 +702,7 @@ const RequestInfo: React.FC = () => {
                         value={formatMoney(data?.reservations?.reduce((acc: number, file: { price: number }) => {
                           return acc + +file.price;
                         }, 0) ?? 0)}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                   </section>
@@ -712,13 +712,13 @@ const RequestInfo: React.FC = () => {
             {data?.vouchers?.length > 0 &&
               <section id="vouchers-info">
                 <p
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-[var(--color-page-text)] mb-2"
                 >
                   {t('requestInfo.requestVouchers')}
                 </p>
                 <div className="mb-4">
-                  <div className="bg-white p-4 relative">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                  <div className="bg-[var(--color-page-bg)] p-4 relative">
+                    <h2 className="text-lg font-semibold text-[var(--color-page-text)] mb-4">
                       {t('requestInfo.voucherOf', { current: currentIndex + 1, total: data?.vouchers?.length })}
                     </h2>
                     {/* Display the existing PDF using an iframe */}
@@ -780,7 +780,7 @@ const RequestInfo: React.FC = () => {
                         type="text"
                         readOnly
                         value={formatMoney(approvedVoucherTotal)}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                     <div className="my-5">
@@ -795,7 +795,7 @@ const RequestInfo: React.FC = () => {
                         type="text"
                         readOnly
                         value={formatMoney(previewAdvanceMoney, "MXN")}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                     <div className="my-5">
@@ -810,7 +810,7 @@ const RequestInfo: React.FC = () => {
                         type="text"
                         readOnly
                         value={formatMoney(Math.abs(previewBalance), "MXN")}
-                        className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
+                        className={`w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2
                       ${previewBalance > 0 ? "text-red-500" : "text-green-600"
                           }`}
                       />
@@ -822,14 +822,14 @@ const RequestInfo: React.FC = () => {
             {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10" id="travel-agency">
               <label
                 htmlFor="agency"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-bold text-gray-500 mb-1"
               >
                 {data.status !== "Pending Review" ? t('requestInfo.travelAgency') : t('requestInfo.travelAgencies')}
               </label>
               {data.status === "Pending Review" ? (
                 <select
                   id="agency"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={selectedAgency}
                   disabled={data.status !== "Pending Review"}
                   onChange={(e) => setSelectedAgency(e.target.value)}
@@ -846,7 +846,7 @@ const RequestInfo: React.FC = () => {
                   type="text"
                   readOnly
                   value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                  className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                 />
               )}
             </section>}
@@ -855,14 +855,14 @@ const RequestInfo: React.FC = () => {
             {authState.userPermissions.includes("approve_request" as Permission) && data.status === "Pending Review" && <section className="mb-8" id="comment-section">
               <label
                 htmlFor="comment"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-bold text-gray-500 mb-1"
               >
                 {t('requestInfo.commentsLabel')}
               </label>
               <textarea
                 id="comment"
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder={t('requestInfo.commentsPlaceholder')}
@@ -874,16 +874,16 @@ const RequestInfo: React.FC = () => {
               <>
                 {data.status === "Pending Review" &&
                   <section className="mb-10">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                    <h1 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-4">
                       {t('requestInfo.importantInfo')}
                     </h1>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       {t('requestInfo.infoApprove')}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       {t('requestInfo.infoChanges')}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       {t('requestInfo.infoDeny')}
                     </p>
                   </section>
