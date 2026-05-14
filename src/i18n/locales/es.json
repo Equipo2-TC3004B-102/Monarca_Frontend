@@ -155,7 +155,7 @@
     "destinationNum": "Destino #{{num}}",
     "destinationPlaceholder": "Busca un destino",
     "departureDate": "Fecha de salida",
-    "arrivalDate": "Fecha de llegada",
+    "returnDate": "Fecha de regreso",
     "stayDays": "Días de estadía",
     "needsFlight": "¿Necesita vuelo?",
     "needsHotel": "¿Necesita hotel?",
@@ -186,7 +186,7 @@
     "writeMotive": "Por favor escribe un motivo",
     "atLeastOneDestination": "Agrega al menos un destino",
     "selectDepartureDate": "Selecciona una fecha de salida",
-    "selectArrivalDate": "Selecciona una fecha de llegada",
+    "selectReturnDate": "Selecciona una fecha de regreso",
     "addDetails": "Agrega detalles",
     "advanceMoneyRequired": "El anticipo es requerido",
     "nonNegativeAdvanceMoney": "El anticipo no puede ser negativo",
@@ -211,7 +211,8 @@
     "errorCreating": "Error al crear la solicitud",
     "errorUpdating": "Error al actualizar la solicitud",
     "selectOrigin": "Selecciona una ciudad de origen",
-    "positiveStayDays": "Los días de estadía deben ser positivos"
+    "departureDateOrder": "La fecha de salida del destino #{{num}} debe ser posterior a la del destino anterior",
+    "returnDateAfterLast": "La fecha de regreso debe ser posterior a la última fecha de salida"
   },
   "requestInfo": {
     "title": "Información de la solicitud",
