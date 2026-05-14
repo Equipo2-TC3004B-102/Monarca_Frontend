@@ -38,7 +38,12 @@ interface User {
  */
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const toggleLanguage = () => {
+    const next = i18n.language === 'es' ? 'en' : 'es';
+    i18n.changeLanguage(next);
+    localStorage.setItem('language', next);
+  };
   const [user, setUser] = useState<User>({
     email: "",
     password: "",
@@ -115,13 +120,27 @@ export default function LoginPage() {
     >
       <div className="w-[90%] lg:w-[45%] bg-[url('/imageLogin.png')] bg-center bg-cover bg-no-repeat rounded-[15px] h-[10%] lg:h-[95%] m-[2vh]"></div>
       <div className="w-[100%] lg:w-[55%] flex flex-col justify-center items-center p-12 relative">
-      <DarkModeButton className="items-center absolute top-7 lg:top-8 right-60 lg:right-75 z-50"></DarkModeButton>
+      <div className="absolute top-7 lg:top-8 right-12 z-50 flex items-center gap-4">
+        <DarkModeButton className="flex items-center -mt-4"></DarkModeButton>
+        <button
+          type="button"
+          title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+          onClick={toggleLanguage}
+          className="hover:scale-110 transition-transform mt-1"
+        >
+          <img
+            src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+            alt={i18n.language === 'es' ? 'Español' : 'English'}
+            className="w-12 h-8 rounded-sm object-cover shadow-sm"
+          />
+        </button>
         <p
-          className="text-[2rem] lg:text-[2.5rem] absolute top-8 right-12 dark:text-[var(--color-page-text)]"
+          className="text-[2rem] lg:text-[2.5rem] dark:text-[var(--color-page-text)]"
           style={{ fontWeight: 700 }}
         >
           <span className="text-[#0466CB]">M</span>ONARCA
         </p>
+      </div>
         <ToastContainer />
         <h1
           className="text-[2.5rem] lg:text-[3.5rem] text-[var(--color-page-text-title)] dark:text-[var(--color-page-text-title)] text-center mb-8 mt-20"
