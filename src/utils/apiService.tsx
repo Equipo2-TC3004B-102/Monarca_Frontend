@@ -121,7 +121,7 @@ export const postRequest = async (
 export const putRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
-  config: AxiosRequestConfig = {},
+  config: AxiosRequestConfig = {}
 ) => {
   try {
     const response = await api.put(url, data, config);
@@ -143,7 +143,7 @@ export const putRequest = async (
 export const patchRequest = async (
   url: string,
   data: Record<string, unknown> | FormData,
-  config: AxiosRequestConfig = {},
+  config: AxiosRequestConfig = {}
 ) => {
   try {
     const response = await api.patch(url, data, config);

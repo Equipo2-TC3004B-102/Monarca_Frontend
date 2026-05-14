@@ -3,11 +3,12 @@
  * Description: Reusable table component with pagination, row expansion for details, and custom action links.
  * Authors: Original Monarca team
  * Last Modification made:
- * 17/04/2026 [Rebeca-Davila] Change the text of the button of see details to "Ver detalles"
+ * 06/05/2026 [Sergio Jiawei Xuan] Replaced hardcoded aria-label strings with i18n t() calls.
  */
 
 import { Link } from "react-router-dom";
 import React, { ReactNode, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Column
@@ -16,6 +17,8 @@ import React, { ReactNode, useState, useEffect } from "react";
 interface Column {
   key: string;
   header: string;
+  mobileHidden?: boolean;
+  render?: (value: any) => ReactNode;
 }
 
 /**
@@ -53,6 +56,7 @@ const Table: React.FC<TableProps> = ({
   itemsPerPage = 5,
   link,
 }) => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
   const [localData, setLocalData] = useState(data);
@@ -90,7 +94,7 @@ const Table: React.FC<TableProps> = ({
   return (
     <div className="relative">
       <div className="overflow-x-auto mb-4">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full min-w-[900px] table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {columns.map((column, index) => (
@@ -98,19 +102,17 @@ const Table: React.FC<TableProps> = ({
                   key={index}
                   className={`px-4 py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
-                  } ${
-                    index === columns.length - 1 ? "" : ""
-                  }`}
+                  } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                 >
                   {column.header}
                 </th>
               ))}
 
-              <th className="px-4 py-2 text-center border-r border-[#0a2c6d]">
-                Detalles
+              <th className="px-4 py-2 text-center">
+                {t('approvals.details')}
               </th>
 
-              <th className="px-4 py-2 text-center rounded-r-lg">Datos</th>
+              <th className="px-4 py-2 text-center rounded-r-lg">{t('approvals.data')}</th>
             </tr>
           </thead>
 
@@ -118,7 +120,7 @@ const Table: React.FC<TableProps> = ({
             {currentItems.length <= 0 ? (
               <tr>
                 <td colSpan={columns.length + 2} className="text-center pt-10">
-                  No hay datos disponibles
+                  {t('approvals.noData')}
                 </td>
               </tr>
             ) : currentItems.map((row: any) => (
@@ -130,13 +132,13 @@ const Table: React.FC<TableProps> = ({
                       className={`py-3 ${
                         cidx === 0 ? "rounded-l-lg" : ""
                       } ${
-                        cidx === columns.length - 1 ? "" : ""
-                      } ${
                         column.key === "status" ? "px-0" : "px-4"
-                    }`}
+                      } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                     >
                       {row[column.key] !== undefined && row[column.key] !== null
-                        ? row[column.key]
+                        ? column.render
+                          ? column.render(row[column.key])
+                          : row[column.key]
                         : "N/A"}
                     </td>
                   ))}
@@ -146,7 +148,7 @@ const Table: React.FC<TableProps> = ({
                       to={`${link}/${row.id}`}
                       className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
                     >
-                      Ver detalles
+                      {t('historial.viewDetails')}
                     </Link>
                   </td>
 
@@ -154,7 +156,7 @@ const Table: React.FC<TableProps> = ({
                     <button
                       onClick={() => toggleExpand(row.id)}
                       className="text-xl hover:text-gray-700"
-                      aria-label="Expandir detalles"
+                      aria-label={t('common.expandDetails')}
                     >
                       {expandedRowId === row.id ? "▲" : "▼"}
                     </button>
@@ -165,35 +167,46 @@ const Table: React.FC<TableProps> = ({
                   <tr>
                     <td
                       colSpan={columns.length + 2}
-                      className="bg-white text-black p-4 rounded-b-lg"
+                      className="bg-[var(--color-page-bg)] text-[var(--color-page-text)] p-4 rounded-b-lg"
                     >
-                      <div className="grid grid-cols-3 gap-6">
+                      <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <strong>Solicitante:</strong>{" "}
+                          <strong>{t('approvals.requester')}:</strong>{" "}
                           {`${row?.user?.name} ${row?.user?.last_name}`}
                         </div>
                         <div>
-                          <strong>Correo:</strong>{" "}
+                          <strong>{t('approvals.email')}:</strong>{" "}
                           {row?.user?.email}
                         </div>
                         <div>
-                          <strong>Aprobador:</strong>{" "}
+                          <strong>{t('approvals.approver')}:</strong>{" "}
                           {`${row?.admin?.name} ${row?.admin?.last_name}`}
                         </div>
                         <div>
-                          <strong>Estado:</strong> {row?.status}
+                          <strong>{t('approvals.status')}:</strong> {{
+                            "Pending Review": t('status.pendingReview'),
+                            "Denied": t('status.denied'),
+                            "Cancelled": t('status.cancelled'),
+                            "Changes Needed": t('status.changesNeeded'),
+                            "Pending Reservations": t('status.pendingReservations'),
+                            "Pending Accounting Approval": t('status.pendingAccountingApproval'),
+                            "Pending Vouchers Approval": t('status.pendingVouchersApproval'),
+                            "In Progress": t('status.inProgress'),
+                            "Pending Refund Approval": t('status.pendingRefundApproval'),
+                            "Completed": t('status.completed'),
+                          }[row?.status as string] ?? row?.status}
                         </div>
                         <div>
-                          <strong>Motivo:</strong> {row?.motive}
+                          <strong>{t('approvals.motive')}:</strong> {row?.motive}
                         </div>
                         <div>
-                          <strong>Fecha de salida:</strong> {row?.departureDate}
+                          <strong>{t('approvals.departureDate')}:</strong> {row?.departureDate}
                         </div>
                         <div>
-                          <strong>Departamento:</strong> {row?.user?.department?.name ?? "N/A"}
+                          <strong>{t('approvals.department')}:</strong> {row?.user?.department?.name ?? "N/A"}
                         </div>
                         <div>
-                          <strong>Centro de costos:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
+                          <strong>{t('approvals.costCenter')}:</strong> {row?.user?.department?.cost_center?.name ?? "N/A"}
                         </div>
                       </div>
                     </td>
@@ -211,7 +224,7 @@ const Table: React.FC<TableProps> = ({
             onClick={() => changePage(currentPage - 1)}
             disabled={currentPage === 1}
             className="px-3 py-1 rounded-lg bg-[#0a2c6d] text-white disabled:opacity-50"
-            aria-label="Página anterior"
+            aria-label={t('common.previousPage')}
           >
             &lt;
           </button>
@@ -224,7 +237,7 @@ const Table: React.FC<TableProps> = ({
             onClick={() => changePage(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="px-3 py-1 rounded-lg bg-[#0a2c6d] text-white disabled:opacity-50"
-            aria-label="Página siguiente"
+            aria-label={t('common.nextPage')}
           >
             &gt;
           </button>

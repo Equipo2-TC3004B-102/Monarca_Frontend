@@ -9,7 +9,9 @@
 
 import { useState } from "react";
 import { useAuth } from "../hooks/auth/authContext";
-import menu from "../assets/menu.svg"
+import menu from "../assets/menu.svg";
+import { useTranslation } from "react-i18next";
+import DarkModeButton from "../components/DarkLightButton";
 // import { useApp } from "../hooks/app/appContext";
 
 /**
@@ -19,9 +21,16 @@ import menu from "../assets/menu.svg"
  */
 function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
   const { handleLogout ,authState } = useAuth();
+  const { t, i18n } = useTranslation();
   // const { pageTitle } = useApp();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const toggleLanguage = () => {
+    const next = i18n.language === 'es' ? 'en' : 'es';
+    i18n.changeLanguage(next);
+    localStorage.setItem('language', next);
+  };
 
   return (
     <nav className="z-50 w-[100%] bg-[var(--dark-blue)] text-[var(--white)]">
@@ -34,16 +43,26 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
           </div>
           
           <div className="flex items-center justify-start rtl:justify-end">
-            {/* <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white pl-5">
-              {pageTitle}
-            </span> */}
+            <h2 className="uppercase text-3xl pl-10">
+              <span className="text-[var(--ultra-light-blue)]">M</span>onarca
+            </h2>
           </div>
           <div className="flex items-center">
             <div className="flex items-center ms-3 relative">
-              <div className="flex items-center gap-8">
-                <h2 className="uppercase text-3xl">
-                  <span className="text-[var(--ultra-light-blue)]">M</span>onarca
-                </h2>
+              <div className="flex items-center gap-4">
+                <DarkModeButton className="hidden md:flex md:items-center -mt-2" classNameText="#f9fafb"></DarkModeButton>
+                <button
+                  type="button"
+                  title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+                  onClick={toggleLanguage}
+                  className="hidden md:block hover:scale-110 transition-transform mt-1"
+                >
+                  <img
+                    src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+                    alt={i18n.language === 'es' ? 'Español' : 'English'}
+                    className="w-12 h-8 rounded-sm object-cover shadow-sm"
+                  />
+                </button>
                 <button
                   type="button"
                   className="flex text-sm bg-[var(--ultra-light-blue)] p-2 rounded-full"
@@ -54,7 +73,7 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
               </div>
               {dropdownOpen &&
                 <div
-                  className="z-50 absolute top-[80%] left-[20%] min-w-[180px] my-4 text-base list-none bg-[var(--blue)] divide-y divide-[var(--white)] rounded-sm shadow-sm"
+                  className="z-50 absolute top-[80%] right-0 min-w-[180px] my-4 text-base list-none bg-[var(--blue)] divide-y divide-[var(--white)] rounded-sm shadow-sm"
                 >
                   <div className="px-4 py-3">
                     <p className="text-sm text-[var(--gray)] font-bold whitespace-nowrap overflow-hidden [mask-image:linear-gradient(to_right,black_80%,transparent)] w-[130px]">
@@ -76,7 +95,7 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
                         className="block px-4 py-2 text-sm w-full text-[var(--white)] hover:bg-[var(--gray)] hover:text-[var(--blue)]"
                         onClick={handleLogout}
                       >
-                        Cerrar Sesión
+                        {t('header.logout')}
                       </button>
                     </li>
                   </ul>

@@ -4,9 +4,10 @@
  * It provides a customizable input field with proper validation and styling.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 04/05/2026 [Santiago Coronado Hernández] Added file size validation for file inputs and enhanced error handling to provide user-friendly messages when file size exceeds limits.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 import React, { ChangeEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
 
 /*
@@ -63,7 +64,7 @@ const InputField: React.FC<InputFieldProps> = ({
   id,
   name,
   type = "text",
-  accept, // Para inputs de tipo file, especifica los tipos de archivos aceptados
+  accept,
   value,
   placeholder = "",
   className = "",
@@ -82,6 +83,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onKeyDown,
   inputMode,
 }) => {
+  const { t } = useTranslation();
   // Set default placeholder for date inputs
   const effectivePlaceholder =
     type === "date" && !placeholder ? "DD/MM/YYYY" : placeholder;
@@ -138,7 +140,7 @@ const InputField: React.FC<InputFieldProps> = ({
     required && isEmptyValue(type === "file" ? undefined : value) && (isTouched || wasChanged);
 
   // Base styles for the input - adjusted for different input types
-  const baseClass = `p-2 border rounded-md focus:outline-none focus:ring-2 ${
+  const baseClass = `p-2 bg-[var(--color-card-bg)] border rounded-md focus:outline-none focus:ring-2 ${
     type === "checkbox" || type === "radio"
       ? "w-auto hover:cursor-pointer" // Checkbox and radio shouldn't be full width
       : type === "file"
@@ -156,10 +158,10 @@ const InputField: React.FC<InputFieldProps> = ({
   const borderClass =
     isInvalid || errorMessage
       ? "border-red-500 focus:ring-blue-500"
-      : "border-gray-300 focus:ring-blue-500";
+      : "border-[var(--color-border)] focus:ring-blue-500";
 
   // Text color
-  const textClass = "text-[#0a2c6d]";
+  const textClass = "text-[var(--color-page-text)]";
 
   /**
    * validateInput, validates an input field based on required status and custom validation rules.
@@ -169,7 +171,7 @@ const InputField: React.FC<InputFieldProps> = ({
   const validateInput = (inputValue: string | undefined, touched: boolean = isTouched) => {
     // Check if field is required and empty
     if (required && isEmptyValue(inputValue) && touched) {
-      setLocalError("Este campo es obligatorio");
+      setLocalError(t('common.fieldRequired'));
       return false;
     }
     // Run custom validation if provided
@@ -295,12 +297,23 @@ const InputField: React.FC<InputFieldProps> = ({
             </label>
           )}
           <div className="relative">
+            <label
+              htmlFor={id || name}
+              className={`inline-flex items-center gap-3 p-2 border rounded-md cursor-pointer hover:cursor-pointer ${borderClass} bg-[var(--color-card-bg)]`}
+            >
+              <span className="px-4 py-2 bg-[#0a2c6d] hover:bg-[#0d3d94] text-white rounded text-base whitespace-nowrap shrink-0">
+                {t('common.chooseFile')}
+              </span>
+              <span className="text-sm text-gray-500 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                {selectedFileName || t('common.noFileChosen')}
+              </span>
+            </label>
             <input
               accept={accept || "image/*"}
               id={id || name}
               name={name}
               type={type}
-              className={`${baseClass} ${borderClass} ${textClass} ${className}`}
+              className="hidden"
               disabled={disabled}
               required={required}
               onChange={handleChange}
@@ -309,13 +322,6 @@ const InputField: React.FC<InputFieldProps> = ({
               aria-invalid={!!errorMessage}
               aria-required={required}
             />
-            {selectedFileName && (
-              <div className="mt-2 text-sm text-gray-600">
-                <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800">
-                  📁 {selectedFileName}
-                </span>
-              </div>
-            )}
           </div>
         </>
       );
@@ -327,7 +333,7 @@ const InputField: React.FC<InputFieldProps> = ({
         {label && (
           <label
             htmlFor={id || name}
-            className="mb-1 text-sm font-medium text-[#0a2c6d]"
+            className="mb-1 text-sm font-medium text-[var(--color-page-text)]"
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}

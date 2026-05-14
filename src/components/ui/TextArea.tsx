@@ -33,7 +33,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
      * baseStyles, provides default Tailwind/CSS classes for consistent textarea appearance across the UI.
      */
     const baseStyles =
-      "block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-600 focus:border-primary-600";
+      "block p-2.5 w-full text-sm text-[var(--color-page-text)] bg-[var(--color-card-bg)] rounded-lg border border-[var(--color-border)] focus:ring-primary-600 focus:border-primary-600";
     return (
       <textarea ref={ref} className={clsx(baseStyles, className)} {...props} />
     );

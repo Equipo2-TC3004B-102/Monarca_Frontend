@@ -4,6 +4,8 @@
  * Authors: Original Moncarca team
  * Last Modification made: 
  * 04/05/2026 - [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits. Also implemented localStorage persistence for form data to prevent data loss on page refreshes or accidental navigations away from the page.
+ * 13/05/2026 - [Julio Rodriguez] Fixed silent failure: reservation creation errors are now propagated so
+ *                                finishedReservations is not called when any reservation POST fails.
  */
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -13,9 +15,11 @@ import { toast } from "react-toastify";
 import { getRequest, patchRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { postRequest } from "../../utils/apiService";
+import { useTranslation } from "react-i18next";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
+import FlightReservationOptions from "../../components/flights/FlightReservationOptions";
 
 /**
  * FunctionName: Reservations
@@ -37,6 +41,7 @@ export const Reservations = () => {
   const [request, setRequest] = useState<any>({});
   const [isFormValid, _setIsFormValid] = useState(true);
   const { handleVisitPage, tutorial } = useApp();
+  const { t } = useTranslation();
   const [activePreview, setActivePreview] = useState<string | null>(null);
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
   const isDraftHydratedRef = useRef(false);
@@ -120,29 +125,31 @@ export const Reservations = () => {
           ...response,
           requests_destinations: (response.requests_destinations || []).map((destination: any) => ({
             ...destination,
-            origin: `${response.destination?.city || response.destination?.iata_code || "Origen no disponible"}${response.destination?.country ? `, ${response.destination.country}` : ""}`,
+            origin: `${response.destination?.city || response.destination?.iata_code || t('reservations.unavailable')}${response.destination?.country ? `, ${response.destination.country}` : ""}`,
             origin_city:
               response.destination?.city ||
               response.destination?.iata_code ||
-              "Origen no disponible",
+              t('reservations.unavailable'),
             origin_country: response.destination?.country || "",
-            destination_full: `${destination.destination?.city || destination.destination?.iata_code || "Destino no disponible"}${destination.destination?.country ? `, ${destination.destination.country}` : ""}`,
+            destination_full: `${destination.destination?.city || destination.destination?.iata_code || t('reservations.unavailable')}${destination.destination?.country ? `, ${destination.destination.country}` : ""}`,
             destination_city:
               destination.destination?.city ||
               destination.destination?.iata_code ||
-              "Destino no disponible",
+              t('reservations.unavailable'),
             destination_country: destination.destination?.country || "",
             departure_date: formatDate(destination.departure_date),
             arrival_date: formatDate(destination.arrival_date),
-            hotel_required: destination.is_hotel_required ? "Sí" : "No",
-            plane_required: destination.is_plane_required ? "Sí" : "No",
+            departure_date_raw: destination.departure_date,
+            arrival_date_raw: destination.arrival_date,
+            hotel_required: destination.is_hotel_required ? t('reservations.yes') : t('reservations.no'),
+            plane_required: destination.is_plane_required ? t('reservations.yes') : t('reservations.no'),
             stay_days: destination.stay_days,
             details: destination.details,
           })),
         });
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Error fetching data");
+        toast.error(t('refunds.errorLoading'));
       }
     }
     fetchRequest();
@@ -205,7 +212,7 @@ export const Reservations = () => {
     if (!isValidMimeType || !isValidExtension) {
       setFileErrors((prev) => ({
         ...prev,
-        [errorKey]: "Este formato no es válido. Solo se permiten PDF y XML.",
+        [errorKey]: t('reservations.invalidFormat'),
       }));
       e.target.value = "";
 
@@ -276,6 +283,35 @@ export const Reservations = () => {
     }));
   };
 
+  const applyFlightOption = ({
+    destinationId,
+    flight,
+    segmentIndex,
+  }: {
+    destinationId: string;
+    flight: any;
+    segmentIndex: number;
+  }) => {
+    const firstSegment = flight.segments?.[0];
+    const lastSegment = flight.segments?.[flight.segments.length - 1];
+    const routeLabel = firstSegment && lastSegment
+      ? `${firstSegment.origin_airport_code} → ${lastSegment.destination_airport_code}`
+      : 'Vuelo seleccionado';
+
+    setFormData((prev) => ({
+      ...prev,
+      [destinationId]: {
+        ...prev[destinationId],
+        plane_title: `${flight.airline || flight.provider_name} - ${routeLabel}`,
+        plane_comments: `Proveedor: ${flight.provider_name}. Oferta: ${flight.provider_offer_id}. Precio original: ${flight.original_price} ${flight.original_currency}.`,
+        plane_price: Number(flight.total_price_mxn || 0).toFixed(2),
+        plane_link: flight.provider_offer_id,
+      },
+    }));
+
+    toast.success(`Vuelo aplicado al destino ${destinationId} (tramo ${segmentIndex + 1})`);
+  };
+
   const setPageScroll = (enabled: boolean) => {
     document.body.style.overflow = enabled ? "auto" : "hidden";
   };
@@ -291,7 +327,7 @@ export const Reservations = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData === null || Object.keys(formData).length === 0) {
-      toast.error("Por favor completa todos los campos requeridos.");
+      toast.error(t('reservations.fillRequired'));
       return;
     }
     // Format the formData to match the API requirements
@@ -308,6 +344,7 @@ export const Reservations = () => {
           title: value.plane_title,
           comments: value.plane_comments,
           price: parseFloat(value.plane_price),
+          link: value.plane_link,
           file: value.plane_file,
           id_request_destination: key,
         };
@@ -320,7 +357,7 @@ export const Reservations = () => {
     const planeLength = requestDestinations.filter((destination: any) => destination.is_plane_required).length;
     const totalLength = hotelLength + planeLength;
     if (formattedData.reservations.length !== totalLength) {
-      toast.error("Por favor completa todos los campos requeridos.");
+      toast.error(t('reservations.fillRequired'));
       return;
     }
     // Check if the form is valid
@@ -328,7 +365,7 @@ export const Reservations = () => {
       // Get the key of the currrent value
       const key = Object.keys(formData)[index];
       const hotelValid = data.hotel_title && data.hotel_comments && data.hotel_file;
-      const planeValid = data.plane_title && data.plane_comments && data.plane_file;
+      const planeValid = data.plane_title && data.plane_comments && data.plane_price && (data.plane_file || data.plane_link);
       const requestDestination = requestDestinations.find((destination: any) => destination.id === key);
       if (!requestDestination) {
         return false;
@@ -344,55 +381,61 @@ export const Reservations = () => {
       return true;
     });
     if (!isValid) {
-      toast.error("Por favor completa todos los campos requeridos.");
+      toast.error(t('reservations.fillRequired'));
       return;
     }
     // Send the data to the API
-    const responses = await Promise.all(
-      formattedData.reservations.map(async (reservation) => {
-        const formData = new FormData();
-        formData.append("title", reservation.title);
-        formData.append("comments", reservation.comments);
-        formData.append("price", reservation.price);
-        formData.append("file", reservation.file);
-        formData.append("id_request_destination", reservation.id_request_destination);
-        try {
+    try {
+      await Promise.all(
+        formattedData.reservations.map(async (reservation) => {
+          const formData = new FormData();
+          formData.append("title", reservation.title);
+          formData.append("comments", reservation.comments);
+          formData.append("price", reservation.price);
+          if (reservation.link) {
+            formData.append("link", reservation.link);
+          }
+          formData.append("file", reservation.file);
+          formData.append("id_request_destination", reservation.id_request_destination);
           await postRequest("/reservations", formData);
-        } catch (error) {
-          console.error("Error sending data:", error);
-        }
-      })
-    );
-    if (responses) {
-      toast.success("Reservaciones enviadas correctamente.");
+        })
+      );
+      toast.success(t('reservations.success'));
       isPersistenceEnabledRef.current = false;
       setFormData({});
       window.localStorage.removeItem(reservationDraftStorageKey);
       await patchRequest(`/requests/finished-reservations/${requestId}`, {});
       navigate("/dashboard");
-    } else {
-      toast.error("Error al enviar las reservaciones.");
+    } catch (error) {
+      console.error("Error sending data:", error);
+      toast.error(t('reservations.sendError'));
     }
   }
 
   const labels: { key: keyof typeof request; label: string }[] = [
-    { key: 'origin', label: 'Origen' },
-    { key: 'destination_full', label: 'Destino' },
-    { key: 'departure_date', label: 'Fecha de Salida' },
-    { key: 'arrival_date', label: 'Fecha de Llegada' },
-    { key: 'details', label: 'Detalles' },
-    { key: 'hotel_required', label: '¿Se necesita hotel?' },
-    { key: 'plane_required', label: '¿Se necesita avión?' },
-    { key: 'stay_days', label: 'Días de estancia' },
+    { key: 'origin', label: t('reservations.origin') },
+    { key: 'destination_full', label: t('reservations.destination') },
+    { key: 'departure_date', label: t('reservations.departureDate') },
+    { key: 'arrival_date', label: t('reservations.arrivalDate') },
+    { key: 'details', label: t('reservations.details') },
+    { key: 'hotel_required', label: t('reservations.needsHotel') },
+    { key: 'plane_required', label: t('reservations.needsFlight') },
+    { key: 'stay_days', label: t('reservations.stayDays') },
   ];
 
   return (
     <Tutorial page="reservations" run={tutorial}>
-      <div className="bg-gray-200 rounded-md mb-10 max-w-5xl mx-auto">
+      <div className="bg-[var(--color-card-bg)] rounded-md mb-10 max-w-5xl mx-auto">
         <div className="p-10 mx-auto">
-          <h2 className="text-2xl font-bold text-[var(--blue)] mb-4">
-            Asignar reservaciones
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-4">
+            {t('reservations.title')}
           </h2>
+          {request?.requests_destinations?.length > 0 && (
+            <FlightReservationOptions
+              request={request}
+              onSelectFlight={applyFlightOption}
+            />
+          )}
           <form
             className="space-y-6"
             onSubmit={handleSubmit}
@@ -401,9 +444,9 @@ export const Reservations = () => {
               {request?.requests_destinations?.map((destination: any) => (
                 <div
                   key={destination.id}
-                  className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm"
+                  className="rounded-md p-4 mb-6 space-y-4 bg-[var(--color-page-bg)] shadow-sm"
                 >
-                  <h3>Destino #{destination.destination_order}</h3>
+                  <h3 className="font-bold text-gray-500">{t('reservations.destination')} #{destination.destination_order}</h3>
                   <div>
 
                   </div>
@@ -421,7 +464,7 @@ export const Reservations = () => {
                           type="text"
                           readOnly
                           value={destination[key] || ""}
-                          className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                          className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                         />
                       </div>
                     ))}
@@ -429,32 +472,33 @@ export const Reservations = () => {
                   <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                     {destination.is_hotel_required && (
                       <div className="flex flex-col gap-y-4" id="hotel-reservation">
-                        <h3 className="text-[var(--blue)] mb-4 font-bold">Información del hotel</h3>
+                        <h3 className="text-[var(--blue)] mb-4 font-bold">{t('reservations.hotelInfo')}</h3>
                         <div>
-                          <label
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_title_${destination.id}`}
                           >
-                            Título
+                            {t('reservations.titleField')}
                           </label>
                           <Input
-                            placeholder="Ingresa el título de la reservación"
+                            placeholder={t('reservations.hotelTitlePlaceholder')}
                             value={formData[destination.id]?.hotel_title || ""}
                             onChange={(e) => handleChange(e, destination.id)}
                             name="hotel_title"
                             id={`hotel_title_${destination.id}`}
+                            className="bg-[var(--color-card-bg)]"
                           />
                         </div>
 
                         <div>
-                          <label
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_comments_${destination.id}`}
                           >
-                            Comentarios
+                            {t('reservations.comments')}
                           </label>
                           <TextArea
-                            placeholder="Escribe tus comentarios"
+                            placeholder={t('reservations.commentPlaceholder')}
                             value={formData[destination.id]?.hotel_comments || ""}
                             onChange={(e) => handleChange(e, destination.id)}
                             name="hotel_comments"
@@ -463,16 +507,16 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_price_${destination.id}`}
                           >
-                            Precio
+                            {t('reservations.price')}
                           </label>
                           <div className="flex items-center gap-2">
                             <input
-                              className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                              placeholder="Ingresa el precio del hotel"
+                              className="w-full rounded-lg bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] px-3 py-2"
+                              placeholder={t('reservations.hotelPricePlaceholder')}
                               value={formData[destination.id]?.hotel_price ?? "0.00"}
                               onChange={(e) => {
                                 const value = e.target.value;
@@ -500,11 +544,11 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_file_${destination.id}`}
                           >
-                            Subir archivos de hotel
+                            {t('reservations.uploadHotelFiles')}
                           </label>
 
                           <Input
@@ -526,7 +570,7 @@ export const Reservations = () => {
                               onClick={() => setActivePreview(formData[destination.id].hotel_file_preview)}
                               className="mt-2 text-sm text-blue-600 underline cursor-pointer"
                             >
-                              Vista previa del archivo
+                              {t('reservations.filePreview')}
                             </button>
                           )}
 
@@ -535,16 +579,16 @@ export const Reservations = () => {
                     )}
                     {destination.is_plane_required && (
                       <div className="flex flex-col gap-y-4" id="plane-reservation">
-                        <h3 className="text-[var(--blue)] mb-4 font-bold">Información del vuelo</h3>
+                        <h3 className="text-[var(--color-page-text-title)] mb-4 font-bold">{t('reservations.flightInfo')}</h3>
                         <div>
-                          <label
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_title_${destination.id}`}
                           >
-                            Título
+                            {t('reservations.titleField')}
                           </label>
                           <Input
-                            placeholder="Ingresa el título de la reservación"
+                            placeholder={t('reservations.hotelTitlePlaceholder')}
                             value={formData[destination.id]?.plane_title || ""}
                             onChange={(e) => handleChange(e, destination.id)}
                             name="plane_title"
@@ -553,14 +597,14 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_comments_${destination.id}`}
                           >
-                            Comentarios
+                            {t('reservations.comments')}
                           </label>
                           <TextArea
-                            placeholder="Escribe tus comentarios"
+                            placeholder={t('reservations.commentPlaceholder')}
                             value={formData[destination.id]?.plane_comments || ""}
                             onChange={(e) => handleChange(e, destination.id)}
                             name="plane_comments"
@@ -569,16 +613,16 @@ export const Reservations = () => {
                         </div>
 
                         <div>
-                          <label
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_price_${destination.id}`}
                           >
-                            Precio
+                            {t('reservations.price')}
                           </label>
                           <div className="flex items-center gap-2">
                             <input
-                              className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                              placeholder="Ingresa el precio del vuelo"
+                              className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border-[var(--color-border)] rounded-lg px-3 py-2"
+                              placeholder={t('reservations.flightPricePlaceholder')}
                               value={formData[destination.id]?.plane_price ?? "0.00"}
                               onChange={(e) => {
                                 const value = e.target.value;
@@ -613,10 +657,27 @@ export const Reservations = () => {
 
                         <div>
                           <label
-                            className="block mb-2 text-sm font-medium text-gray-900"
+                            className="block mb-2 text-sm font-medium text-gray-500"
+                            htmlFor={`plane_link_${destination.id}`}
+                          >
+                            Referencia del vuelo
+                          </label>
+                          <Input
+                            placeholder="Se llena automáticamente al seleccionar un vuelo"
+                            value={formData[destination.id]?.plane_link || ""}
+                            onChange={(e) => handleChange(e, destination.id)}
+                            name="plane_link"
+                            id={`plane_link_${destination.id}`}
+                            className="bg-[var(--color-card-bg)]"
+                          />
+                        </div>
+
+                        <div>
+                          <label 
+                            className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_file_${destination.id}`}
                           >
-                            Subir archivos de avión
+                            {t('reservations.uploadFlightFiles')}
                           </label>
                           <Input
                             type="file"
@@ -637,7 +698,7 @@ export const Reservations = () => {
                               onClick={() => setActivePreview(formData[destination.id].plane_file_preview)}
                               className="mt-2 text-sm text-blue-600 underline cursor-pointer"
                             >
-                              Vista previa del archivo
+                              {t('reservations.filePreview')}
                             </button>
                           )}
                         </div>
@@ -658,7 +719,7 @@ export const Reservations = () => {
                         <iframe
                           src={activePreview}
                           className="w-full h-full rounded"
-                          title="Vista previa del archivo"
+                          title={t('reservations.filePreview')}
                         />
                       </div>
                     </div>
@@ -677,7 +738,7 @@ export const Reservations = () => {
                     : "bg-gray-400 text-white cursor-not-allowed"
                   }`}
               >
-                Enviar reservaciones
+                {t('reservations.submit')}
               </button>
             </div>
           </form>

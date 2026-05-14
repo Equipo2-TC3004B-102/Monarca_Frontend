@@ -4,11 +4,14 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 04/05/2026 [Rebeca-Davila] Changed colors and included switch for dark mode
  */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { postRequest } from "../utils/apiService";
 import { ToastContainer, toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import DarkModeButton from "../components/DarkLightButton";
 
 /**
  * User, represents the login form payload.
@@ -35,6 +38,12 @@ interface User {
  */
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const toggleLanguage = () => {
+    const next = i18n.language === 'es' ? 'en' : 'es';
+    i18n.changeLanguage(next);
+    localStorage.setItem('language', next);
+  };
   const [user, setUser] = useState<User>({
     email: "",
     password: "",
@@ -49,7 +58,7 @@ export default function LoginPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user.email || !user.password) {
-      toast.error("Por favor, completa todos los campos", {
+      toast.error(t('toast.fillAllFields'), {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -67,7 +76,7 @@ export default function LoginPage() {
         navigate("/dashboard");
       } else {
         console.log(result);
-        toast.error("Credenciales incorrectas", {
+        toast.error(t('toast.incorrectCredentials'), {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -79,7 +88,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Error al iniciar sesión", {
+      toast.error(t('toast.loginError'), {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -106,23 +115,38 @@ export default function LoginPage() {
 
   return (
     <div
-      className="flex flex-col lg:flex-row h-screen w-[100%]"
+      className="flex flex-col lg:flex-row h-screen w-[100%] bg-[var(--color-page-bg)]"
       style={{ fontFamily: "Montserrat, sans-serif" }}
     >
       <div className="w-[90%] lg:w-[45%] bg-[url('/imageLogin.png')] bg-center bg-cover bg-no-repeat rounded-[15px] h-[10%] lg:h-[95%] m-[2vh]"></div>
       <div className="w-[100%] lg:w-[55%] flex flex-col justify-center items-center p-12 relative">
+      <div className="absolute top-7 lg:top-8 right-6 lg:right-12 z-50 flex items-center gap-4 lg:gap-4">
+        <DarkModeButton className="flex items-center -mt-4"></DarkModeButton>
+        <button
+          type="button"
+          title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+          onClick={toggleLanguage}
+          className="hover:scale-110 transition-transform mt-1"
+        >
+          <img
+            src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+            alt={i18n.language === 'es' ? 'Español' : 'English'}
+            className="w-12 h-8 rounded-sm object-cover shadow-sm"
+          />
+        </button>
         <p
-          className="text-[2rem] lg:text-[2.5rem] absolute top-8 right-12"
+          className="text-[2rem] lg:text-[2.5rem] dark:text-[var(--color-page-text)]"
           style={{ fontWeight: 700 }}
         >
           <span className="text-[#0466CB]">M</span>ONARCA
         </p>
+      </div>
         <ToastContainer />
         <h1
-          className="text-[2.5rem] lg:text-[3.5rem] text-[#001d3d] text-center mb-8 mt-20"
+          className="text-[2.5rem] lg:text-[3.5rem] text-[var(--color-page-text-title)] dark:text-[var(--color-page-text-title)] text-center mb-8 mt-20"
           style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 700 }}
         >
-          INICIO DE SESIÓN
+          {t('login.title')}
         </h1>
         <form
           onSubmit={handleSubmit}
@@ -132,29 +156,29 @@ export default function LoginPage() {
             onChange={handleChange}
             name="email"
             type="email"
-            placeholder="Correo"
+            placeholder={t('login.email')}
             required
-            className="p-4 w-[100%] border border-[#E0E0E0] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1rem] lg:text-[1.2rem] mb-8"
+            className="p-4 w-[100%] bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1rem] lg:text-[1.2rem] mb-8"
           />
           <input
             onChange={handleChange}
             name="password"
             type="password"
-            placeholder="Contraseña"
+            placeholder={t('login.password')}
             required
-            className="p-4 w-[100%] border border-[#E0E0E0] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1rem] lg:text-[1.2rem] mb-4"
+            className="p-4 w-[100%] bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-[0.5rem] bg-[#F0F3F4] shadow-[0_2px_1px_rgba(0,0,0,0.3)] text-[1rem] lg:text-[1.2rem] mb-4"
           />
           <a
             href="/register"
-            className="text-[1rem] lg:text-[1.2rem] text-center mb-[50px] underline-offset-2 hover:!underline"
+            className="text-[1rem] lg:text-[1.2rem] text-center text-[var(--color-page-text-title)] dark:text-[var(--color-page-text-title)] mb-[50px] underline-offset-2 hover:!underline"
           >
-            ¿Olvidaste tu contraseña?
+            {t('login.forgotPassword')}
           </a>
           <button
             type="submit"
             className="bg-[#00296B] text-white py-4 px-6 rounded-[0.5rem] font-semibold cursor-pointer text-[0.8rem] lg:text-[1rem] text-center w-[70%] lg:w-[30%] hover:bg-[#00509D]"
           >
-            Continuar
+            {t('login.continue')}
           </button>
         </form>
       </div>
