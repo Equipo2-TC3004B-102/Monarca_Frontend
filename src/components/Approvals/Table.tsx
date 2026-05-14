@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 interface Column {
   key: string;
   header: string;
+  mobileHidden?: boolean;
   render?: (value: any) => ReactNode;
 }
 
@@ -93,7 +94,7 @@ const Table: React.FC<TableProps> = ({
   return (
     <div className="relative">
       <div className="overflow-x-auto mb-4">
-        <table className="w-full table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full min-w-[900px] table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {columns.map((column, index) => (
@@ -101,19 +102,17 @@ const Table: React.FC<TableProps> = ({
                   key={index}
                   className={`px-4 py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
-                  } ${
-                    index === columns.length - 1 ? "" : ""
-                  }`}
+                  } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                 >
                   {column.header}
                 </th>
               ))}
 
-              <th className="px-4 py-2 text-center border-r border-[#0a2c6d] w-[120px]">
+              <th className="px-4 py-2 text-center">
                 {t('approvals.details')}
               </th>
 
-              <th className="px-4 py-2 text-center rounded-r-lg w-[80px]">{t('approvals.data')}</th>
+              <th className="px-4 py-2 text-center rounded-r-lg">{t('approvals.data')}</th>
             </tr>
           </thead>
 
@@ -133,10 +132,8 @@ const Table: React.FC<TableProps> = ({
                       className={`py-3 ${
                         cidx === 0 ? "rounded-l-lg" : ""
                       } ${
-                        cidx === columns.length - 1 ? "" : ""
-                      } ${
                         column.key === "status" ? "px-0" : "px-4"
-                    }`}
+                      } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                     >
                       {row[column.key] !== undefined && row[column.key] !== null
                         ? column.render
@@ -172,7 +169,7 @@ const Table: React.FC<TableProps> = ({
                       colSpan={columns.length + 2}
                       className="bg-[var(--color-page-bg)] text-[var(--color-page-text)] p-4 rounded-b-lg"
                     >
-                      <div className="grid grid-cols-3 gap-6">
+                      <div className="grid grid-cols-3 gap-4">
                         <div>
                           <strong>{t('approvals.requester')}:</strong>{" "}
                           {`${row?.user?.name} ${row?.user?.last_name}`}
