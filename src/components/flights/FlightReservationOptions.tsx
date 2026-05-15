@@ -106,7 +106,7 @@ export default function FlightReservationOptions({
 
   if (!flightSearchQuery) {
     return (
-      <section className="bg-[var(--color-card-bg)] rounded-lg shadow-sm border border-[var(--color-border)] p-6 mb-8">
+      <section className="bg-[var(--color-page-bg)] rounded-lg shadow-sm border border-[var(--color-border)] p-6 mb-8">
         <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-2">Opciones de vuelo</h3>
         <p className="text-sm text-[var(--color-page-text)]">
           No hay suficientes códigos IATA para buscar vuelos automáticamente.
@@ -118,7 +118,7 @@ export default function FlightReservationOptions({
   const data = searchResult.data as FlightSearchMultiSegmentResponse | undefined;
 
   return (
-    <section className="bg-[var(--color-card-bg)] rounded-lg shadow-sm border border-[var(--color-border)] p-6 mb-8">
+    <section className="bg-[var(--color-page-bg)] rounded-lg shadow-sm p-6 mb-8">
       <div className="flex flex-col gap-2 mb-6">
         <h3 className="text-lg font-bold text-[var(--color-page-text-title)]">Opciones de vuelo</h3>
         <p className="text-sm text-[var(--color-page-text)]">
