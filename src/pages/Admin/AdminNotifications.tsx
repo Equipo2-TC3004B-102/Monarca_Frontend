@@ -139,7 +139,7 @@ export default function AdminNotifications() {
         )}
 
         <section className={sectionClass}>
-          <div className="p-10">
+          <div className="p-5 lg:p-10">
             <form onSubmit={handleSubmit}>
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -169,7 +169,7 @@ export default function AdminNotifications() {
                           onChange={(value) => updateField(row.key, value)}
                           disabled={saving}
                           srLabel={row.title}
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 data-[checked]:bg-[var(--ultra-light-blue)]"
                         />
                       </div>
                     );

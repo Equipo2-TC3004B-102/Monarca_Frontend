@@ -36,7 +36,7 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
   };
 
   return (
-    <div className="bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+    <div className="bg-[var(--color-page-bg)] border border-[var(--color-border)] rounded-lg shadow hover:shadow-lg transition overflow-hidden">
       {/* Header */}
       <div className="p-6 bg-[var(--color-page-bg)] border-b border-[var(--color-border)]">
         <div className="flex justify-between items-start mb-4">
@@ -47,7 +47,7 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
             </p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-[var(--blue)]">{formatPrice(flight.total_price_mxn)}</p>
+            <p className="text-2xl font-bold text-[var(--color-page-text-title)]">{formatPrice(flight.total_price_mxn)}</p>
             <p className="text-xs text-[var(--color-page-text)]">
               {formatPrice(flight.original_price, flight.original_currency)}
             </p>
@@ -76,10 +76,10 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 bg-[var(--color-card-bg)] border-t border-[var(--color-border)] flex gap-3">
+      <div className="px-3 lg:px-6 py-4 bg-[var(--color-page-bg)] border-t border-[var(--color-border)] flex gap-3">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 px-4 py-2 text-[var(--blue)] border border-[var(--blue)] rounded hover:opacity-80 font-semibold transition"
+          className="flex-1 px-4 py-2 text-[var(--color-page-text-title)] bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded hover:opacity-80 font-semibold transition"
         >
           {expanded ? 'Ocultar detalles' : 'Ver detalles'}
         </button>

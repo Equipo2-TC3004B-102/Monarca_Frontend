@@ -384,7 +384,7 @@ export default function AdminRules() {
     <>
       <GoBack />
       <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center flex-wrap gap-2 lg:gap-0 justify-between mb-4">
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">{t('admin.rules.title')}</h2>
           <p className="text-sm text-gray-600">
             {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
@@ -492,8 +492,8 @@ export default function AdminRules() {
 
         {editLevel && (
           <section className="bg-gray-200 rounded-md mb-6">
-            <div className="p-10">
-              <h3 className="text-2xl font-bold text-[var(--blue)] mt-0 mb-4">{t('admin.rules.editTitle')}</h3>
+            <div className="p-10 bg-[var(--color-page-bg)]">
+              <h3 className="text-2xl font-bold text-[var(--color-page-text-title)] mt-0 mb-4">{t('admin.rules.editTitle')}</h3>
               <form onSubmit={handleEditSubmit}>
                 <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                   <div className="sm:col-span-2">
@@ -570,9 +570,9 @@ export default function AdminRules() {
 
         {/* ─── Actors section ────────────────────────────────────────────── */}
         {selectedLevelForActors && (
-          <section className="bg-blue-50 border border-blue-200 rounded-md mb-6 p-6">
+          <section className="bg-[var(--color-page-bg)] border border-[var(--color-border)] rounded-md mb-6 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-[var(--blue)]">
+              <h3 className="text-lg font-bold text-[var(--color-page-text-title)]">
                 {t('admin.rules.actorsTitle', { name: selectedLevelForActors.name })}
               </h3>
               <div className="flex gap-2">
@@ -593,7 +593,7 @@ export default function AdminRules() {
 
             {/* Add actor form */}
             {showActorForm && (
-              <form onSubmit={handleAddActor} className="bg-white rounded-md p-4 mb-4 border border-blue-100">
+              <form onSubmit={handleAddActor} className="bg-[var(--color-page-bg)] rounded-md p-4 mb-4 border border-[var(--color-border)]">
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div>
                     <label className={labelClass}>{t('admin.rules.actorType')}</label>
@@ -772,7 +772,7 @@ export default function AdminRules() {
         )}
 
         <div className="overflow-x-auto mb-4">
-          <table className="w-full table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
+          <table className="w-full min-w-[1300px] lg:min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
                 <th className="px-4 py-2 text-center rounded-l-lg">{t('admin.rules.code')}</th>
