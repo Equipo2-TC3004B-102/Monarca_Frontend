@@ -95,6 +95,7 @@ export default function AdminRules() {
   const canLoad = Boolean(companyId);
 
   const [rules, setRules] = useState<ApprovalRule[]>([]);
+  const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -147,8 +148,9 @@ export default function AdminRules() {
     }
   }, []);
 
-  const totalPages = Math.ceil(rules.length / ITEMS_PER_PAGE);
-  const paginated = rules.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const filteredRules = filterActive === 'all' ? rules : rules.filter((r) => r.is_active === (filterActive === 'active'));
+  const totalPages = Math.ceil(filteredRules.length / ITEMS_PER_PAGE);
+  const paginated = filteredRules.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const changePage = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -398,6 +400,15 @@ export default function AdminRules() {
             {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
           <div className="flex items-center gap-3">
+            <select
+              value={filterActive}
+              onChange={(e) => { setFilterActive(e.target.value as 'all' | 'active' | 'inactive'); setCurrentPage(1); }}
+              className={selectClass}
+            >
+              <option value="all">{t('admin.rules.all')}</option>
+              <option value="active">{t('admin.rules.active')}</option>
+              <option value="inactive">{t('admin.rules.inactive')}</option>
+            </select>
             <button
               onClick={() => navigate('/admin/notifications')}
               className="px-3 py-2 bg-[#f0f4ff] text-[#0a2c6d] text-sm rounded-md hover:bg-[#ebf0ff] transition-colors"
@@ -821,7 +832,7 @@ export default function AdminRules() {
                   <td className="px-4 py-3 rounded-l-lg">{r.code}</td>
                   <td className="px-4 py-3">{r.name}</td>
                   <td className="px-4 py-3">{r.description ?? "-"}</td>
-                  <td className="px-4 py-3">{r.applies_to}</td>
+                  <td className="px-4 py-3">{t(`admin.rules.${r.applies_to}`)}</td>
                   <td className="px-4 py-3">{r.level_order}</td>
                   <td className="px-4 py-3">{r.min_amount_mon ?? "-"}</td>
                   <td className="px-4 py-3">{r.max_amount_mon ?? "-"}</td>
