@@ -80,7 +80,7 @@ export const Refunds = () => {
       try {
         setLoading(true);
 
-        const response = await getRequest("/requests/all");
+        const response = await getRequest("/requests/user");
         setTrips(response.filter((trip: Trip) => trip.status === "In Progress").map((trip: any) => {
           const sortedDestinations = [...(trip.requests_destinations || [])].sort(
             (a: any, b: any) => a.destination_order - b.destination_order
