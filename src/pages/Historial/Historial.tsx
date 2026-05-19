@@ -4,7 +4,7 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Now travel agents see all requests except those in early stages
+ * 17/05/2026 [Santiago Coronado Hernández and Juan Pablo Narchi] Make it so that travel agents can see all reserved requests.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -104,7 +104,10 @@ export const Historial = () => {
     const fetchTravelRecords = async () => {
       try {
         const endpoint =
-          authState.userPermissions.includes("view_own_requests" as Permission)
+          authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
+          authState.userPermissions.includes("submit_reservations" as Permission)
+            ? "/requests/reserved-history"
+            : authState.userPermissions.includes("view_own_requests" as Permission)
             ? "/requests/user"
             : authState.userPermissions.includes("check_budgets" as Permission)
             ? "/requests/to-approve-SOI"
@@ -115,12 +118,8 @@ export const Historial = () => {
         if (endpoint === "/requests/approved-history") {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
         }
-        if (endpoint === "/requests/all") {
-          const travelAgentsIds = response.flatMap((request: any) => (request.travel_agency?.users ?? []).map((user: any) => user.id));
-          // Travel agents see all requests except those in early stages (before they make reservations)
-          // Status shows only after reservations are completed (In Progress onwards)
-          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status) && travelAgentsIds.includes(authState.userId));
-
+        if (endpoint === "/requests/reserved-history") {
+          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status));
         }
         if (endpoint === "/requests/to-approve-SOI") {
           response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
