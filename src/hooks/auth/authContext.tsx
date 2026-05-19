@@ -3,7 +3,7 @@
  * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Integrated flight search and reservation flow updates.
+ * 19/05/2026 [Julio Rodriguez] Added new flags and permissions for travel agent role; updated profile fetching logic to map these permissions.
  */
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
@@ -301,16 +301,20 @@ export const PermissionProtectedRoute: React.FC<
 interface FlagProtectedRouteProps {
   requireSystemAdmin?: boolean;
   requireCompanyAdmin?: boolean;
+  requireCompanyAdminOnly?: boolean;
   children: ReactNode;
 }
 
 /**
  * FlagProtectedRoute, protects routes by checking isSystemAdmin or isCompanyAdmin flags.
+ * requireCompanyAdmin: allows companyAdmin OR systemAdmin.
+ * requireCompanyAdminOnly: allows ONLY companyAdmin — systemAdmin is explicitly blocked.
  * Redirects to /unauthorized when the caller lacks the required admin flag.
  */
 export const FlagProtectedRoute: React.FC<FlagProtectedRouteProps> = ({
   requireSystemAdmin,
   requireCompanyAdmin,
+  requireCompanyAdminOnly,
   children,
 }) => {
   const { authState } = useAuth();
@@ -318,6 +322,7 @@ export const FlagProtectedRoute: React.FC<FlagProtectedRouteProps> = ({
   if (!authState.isAuthenticated) return <Navigate to="/" replace />;
   if (requireSystemAdmin && !authState.isSystemAdmin) return <Navigate to="/unauthorized" replace />;
   if (requireCompanyAdmin && !authState.isCompanyAdmin && !authState.isSystemAdmin) return <Navigate to="/unauthorized" replace />;
+  if (requireCompanyAdminOnly && !authState.isCompanyAdmin) return <Navigate to="/unauthorized" replace />;
 
   return <>{children}</>;
 };

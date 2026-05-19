@@ -11,6 +11,8 @@
  *                              Fixed ceco_id DTO validator: @IsString instead of @IsUUID in approval-level-actor.dto.ts.
  *                              Show company name (not UUID) in header via GET /admin/companies/:id/info.
  *                              CECO selector always visible in create form (not hidden behind actor_type).
+ * 19/05/2026 [Julio Rodriguez] Replaced hardcoded Spanish strings with i18n t() calls; unified CECO display to show id+name;
+ *                              added description and applies_to fields to edit form.
  */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -67,6 +69,8 @@ const emptyForm = {
 
 const emptyEditForm = {
   name: "",
+  description: "",
+  applies_to: "travel",
   min_amount_mon: "",
   max_amount_mon: "",
   required_approvals: 1,
@@ -199,6 +203,8 @@ export default function AdminRules() {
     setEditLevel(level);
     setEditForm({
       name: level.name,
+      description: level.description ?? "",
+      applies_to: level.applies_to ?? "travel",
       min_amount_mon: level.min_amount_mon !== null ? String(level.min_amount_mon) : "",
       max_amount_mon: level.max_amount_mon !== null ? String(level.max_amount_mon) : "",
       required_approvals: level.required_approvals,
@@ -223,8 +229,10 @@ export default function AdminRules() {
     try {
       const payload: Record<string, unknown> = {
         name: editForm.name,
+        applies_to: editForm.applies_to,
         required_approvals: Number(editForm.required_approvals),
         is_active: editForm.is_active,
+        ...(editForm.description !== "" && { description: editForm.description }),
         ...(editForm.min_amount_mon !== "" && { min_amount_mon: Number(editForm.min_amount_mon) }),
         ...(editForm.max_amount_mon !== "" && { max_amount_mon: Number(editForm.max_amount_mon) }),
       };
@@ -456,28 +464,28 @@ export default function AdminRules() {
                     <Input name="required_approvals" type="number" min={1} value={form.required_approvals} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className={labelClass}>Tipo de aprobador (opcional)</label>
+                    <label className={labelClass}>{t('admin.rules.actorTypeOptionalLabel')}</label>
                     <select name="actor_type" value={form.actor_type} onChange={handleChange} className={selectClass}>
-                      <option value="">Sin aprobador definido</option>
-                      <option value="MANAGER">Gerente directo</option>
-                      <option value="USER">Usuario específico</option>
+                      <option value="">{t('admin.rules.actorTypeNone')}</option>
+                      <option value="MANAGER">{t('admin.rules.actorTypeManager')}</option>
+                      <option value="USER">{t('admin.rules.actorTypeUser')}</option>
                     </select>
                   </div>
                   {form.actor_type && (
                     <div>
-                      <label className={labelClass}>Modo de selección</label>
+                      <label className={labelClass}>{t('admin.rules.selectionMode')}</label>
                       <select name="selection_mode" value={form.selection_mode} onChange={handleChange} className={selectClass}>
-                        <option value="any">Cualquiera</option>
-                        <option value="all">Todos</option>
+                        <option value="any">{t('admin.rules.selectionModeAny')}</option>
+                        <option value="all">{t('admin.rules.selectionModeAll')}</option>
                       </select>
                     </div>
                   )}
                   <div>
-                    <label className={labelClass}>CECO al que aplica</label>
+                    <label className={labelClass}>{t('admin.rules.cecoAppliesTo')}</label>
                     <select name="actor_ceco_id" value={form.actor_ceco_id} onChange={handleChange} className={selectClass}>
-                      <option value="">Todos los CECOs</option>
+                      <option value="">{t('admin.rules.cecoAll')}</option>
                       {cecos.map((c) => (
-                        <option key={c.id} value={c.id}>{c.id}</option>
+                        <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
                       ))}
                     </select>
                   </div>
@@ -499,6 +507,18 @@ export default function AdminRules() {
                   <div className="sm:col-span-2">
                     <label className={labelClass}>{t('admin.rules.levelName')}</label>
                     <Input name="name" value={editForm.name} onChange={handleEditChange} required />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={labelClass}>{t('admin.rules.levelDescription')}</label>
+                    <Input name="description" value={editForm.description} onChange={handleEditChange} placeholder={t('admin.rules.levelDescriptionPlaceholder')} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.appliesTo')}</label>
+                    <select name="applies_to" value={editForm.applies_to} onChange={handleEditChange} className={selectClass}>
+                      <option value="travel">{t('admin.rules.travel')}</option>
+                      <option value="refund">{t('admin.rules.refund')}</option>
+                      <option value="all">{t('admin.rules.all')}</option>
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>{t('admin.rules.minAmount')}</label>
@@ -599,21 +619,21 @@ export default function AdminRules() {
                     <label className={labelClass}>{t('admin.rules.actorType')}</label>
                     <select name="actor_type" value={actorForm.actor_type} onChange={handleActorFormChange} className={selectClass} required>
                       <option value="">—</option>
-                      <option value="MANAGER">Gerente directo</option>
-                      <option value="USER">Usuario específico</option>
+                      <option value="MANAGER">{t('admin.rules.actorTypeManager')}</option>
+                      <option value="USER">{t('admin.rules.actorTypeUser')}</option>
                     </select>
                   </div>
                   <div>
                     <label className={labelClass}>{t('admin.rules.selectionMode')}</label>
                     <select name="selection_mode" value={actorForm.selection_mode} onChange={handleActorFormChange} className={selectClass}>
-                      <option value="any">Cualquiera</option>
-                      <option value="all">Todos</option>
+                      <option value="any">{t('admin.rules.selectionModeAny')}</option>
+                      <option value="all">{t('admin.rules.selectionModeAll')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>CECO</label>
+                    <label className={labelClass}>{t('admin.rules.cecoAppliesTo')}</label>
                     <select name="ceco_id" value={actorForm.ceco_id} onChange={handleActorFormChange} className={selectClass}>
-                      <option value="">Todos los CECOs</option>
+                      <option value="">{t('admin.rules.cecoAll')}</option>
                       {cecos.map((c) => (
                         <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
                       ))}
@@ -648,21 +668,21 @@ export default function AdminRules() {
                     <label className={labelClass}>{t('admin.rules.actorType')}</label>
                     <select name="actor_type" value={actorForm.actor_type} onChange={handleActorFormChange} className={selectClass} required>
                       <option value="">—</option>
-                      <option value="MANAGER">Gerente directo</option>
-                      <option value="USER">Usuario específico</option>
+                      <option value="MANAGER">{t('admin.rules.actorTypeManager')}</option>
+                      <option value="USER">{t('admin.rules.actorTypeUser')}</option>
                     </select>
                   </div>
                   <div>
                     <label className={labelClass}>{t('admin.rules.selectionMode')}</label>
                     <select name="selection_mode" value={actorForm.selection_mode} onChange={handleActorFormChange} className={selectClass}>
-                      <option value="any">Cualquiera</option>
-                      <option value="all">Todos</option>
+                      <option value="any">{t('admin.rules.selectionModeAny')}</option>
+                      <option value="all">{t('admin.rules.selectionModeAll')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>CECO</label>
+                    <label className={labelClass}>{t('admin.rules.cecoAppliesTo')}</label>
                     <select name="ceco_id" value={actorForm.ceco_id} onChange={handleActorFormChange} className={selectClass}>
-                      <option value="">Todos los CECOs</option>
+                      <option value="">{t('admin.rules.cecoAll')}</option>
                       {cecos.map((c) => (
                         <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
                       ))}

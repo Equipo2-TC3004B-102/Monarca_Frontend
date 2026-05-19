@@ -13,7 +13,8 @@
     "newCompany": "Nueva empresa",
     "userList": "Lista de usuarios",
     "rules": "Reglas",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "reservedHistory": "Historial de viajes reservados"
   },
   "dashboard": {
     "createRequest": "Crear solicitud de viaje",
@@ -28,7 +29,8 @@
     "reservedHistory": "Historial de viajes reservados",
     "newCompany": "Crear empresa",
     "userList": "Lista de usuarios",
-    "rules": "Reglas"
+    "rules": "Reglas",
+    "notifications": "Notificaciones"
   },
   "header": {
     "logout": "Cerrar sesión"
@@ -586,7 +588,15 @@
       "successEditActor": "Actor actualizado exitosamente.",
       "errorEditActor": "Error al actualizar el actor.",
       "successDeleteActor": "Actor eliminado exitosamente.",
-      "errorDeleteActor": "Error al eliminar el actor."
+      "errorDeleteActor": "Error al eliminar el actor.",
+      "actorTypeOptionalLabel": "Tipo de aprobador (opcional)",
+      "actorTypeNone": "Sin aprobador definido",
+      "actorTypeManager": "Gerente directo",
+      "actorTypeUser": "Usuario específico",
+      "selectionModeAny": "Cualquiera",
+      "selectionModeAll": "Todos",
+      "cecoAppliesTo": "CECO al que aplica",
+      "cecoAll": "Todos los CECOs"
     },
     "notifications": {
       "title": "Notificaciones",

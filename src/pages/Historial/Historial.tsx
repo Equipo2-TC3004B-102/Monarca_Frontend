@@ -4,7 +4,8 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Now travel agents see all requests except those in early stages
+ * 19/05/2026 [Julio Rodriguez] Route travel agents to dedicated /requests/ta-history endpoint;
+ *                              replace endpoint-string filters with permission-based filters.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -110,19 +111,14 @@ export const Historial = () => {
             ? "/requests/to-approve-SOI"
             : authState.userPermissions.includes("view_approved_request_history" as Permission)
             ? "/requests/approved-history"
+            : authState.userPermissions.includes("view_travel_agent_history" as Permission)
+            ? "/requests/ta-history"
             : "/requests/all"
         let response = await getRequest(endpoint);
-        if (endpoint === "/requests/approved-history") {
+        if (authState.userPermissions.includes("view_approved_request_history" as Permission)) {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
         }
-        if (endpoint === "/requests/all") {
-          const travelAgentsIds = response.flatMap((request: any) => (request.travel_agency?.users ?? []).map((user: any) => user.id));
-          // Travel agents see all requests except those in early stages (before they make reservations)
-          // Status shows only after reservations are completed (In Progress onwards)
-          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status) && travelAgentsIds.includes(authState.userId));
-
-        }
-        if (endpoint === "/requests/to-approve-SOI") {
+        if (authState.userPermissions.includes("check_budgets" as Permission)) {
           response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
         }
         // Data with actions (edit buttons)

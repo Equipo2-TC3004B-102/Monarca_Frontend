@@ -4,9 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors and included switch for dark mode
- * 05/05/2026 [Santiago Coronado Hernández] Added notifications section.
- *            [Julio Rodríguez] Hide business-role menu items for pure admin users (is_system_admin or is_company_admin).
+ * 19/05/2026 [Julio Rodriguez]: Hide travel history link for admin users; use view_travel_agent_history for TA history link; fix duplicated label for travel agents.
  */
 
 // ***************** images *****************
@@ -56,7 +54,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {!isAdmin && user.userPermissions.includes("create_request" as Permission) && (
               <SidebarOption label={t('sidebar.createRequest')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/requests/create" onClick={onNavigate}/>
             )}
-            {user.userPermissions.includes("view_own_requests" as Permission) && (
+            {!isAdmin && user.userPermissions.includes("view_own_requests" as Permission) && (
               <SidebarOption label={t('sidebar.travelHistory')} pathIcon="/assets/historial_de_viajes.png" link="/history" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("upload_vouchers" as Permission) && (
@@ -83,8 +81,8 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {/* {user.userPermissions.includes("submit_reservations" as Permission) && (
               <SidebarOption label="Formulario de ingreso de reservación" pathIcon="/assets/formulario_de_ingreso_de_reservacion.png" link=""/>
             )} */}
-            {!isAdmin && user.userPermissions.includes("view_assigned_requests_readonly" as Permission) && user.userPermissions.includes("submit_reservations" as Permission) && (
-              <SidebarOption label={t('sidebar.travelHistory')} pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
+            {!isAdmin && user.userPermissions.includes("view_travel_agent_history" as Permission) && (
+              <SidebarOption label={t('sidebar.reservedHistory')} pathIcon="/assets/historial_de_viajes_reservados.png" link="/history" onClick={onNavigate}/>
             )}
             {user.isSystemAdmin && (
               <SidebarOption label={t('sidebar.newCompany')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/companies/new" onClick={onNavigate}/>
@@ -94,9 +92,6 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             )}
             {user.isCompanyAdmin && (
               <SidebarOption label={t('sidebar.rules')} pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
-            )}
-            {(user.isCompanyAdmin || user.isSystemAdmin) && (
-              <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
         </ul>
         <div className="flex gap-7 items-center p-2 mt-10">

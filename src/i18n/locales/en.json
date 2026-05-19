@@ -13,7 +13,8 @@
     "newCompany": "New company",
     "userList": "User list",
     "rules": "Rules",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "reservedHistory": "Reserved travel history"
   },
   "dashboard": {
     "createRequest": "Create travel request",
@@ -28,7 +29,8 @@
     "reservedHistory": "Reserved travel history",
     "newCompany": "New company",
     "userList": "User list",
-    "rules": "Rules"
+    "rules": "Rules",
+    "notifications": "Notifications"
   },
   "header": {
     "logout": "Log out"
@@ -586,7 +588,15 @@
       "successEditActor": "Actor updated successfully.",
       "errorEditActor": "Error updating actor.",
       "successDeleteActor": "Actor deleted successfully.",
-      "errorDeleteActor": "Error deleting actor."
+      "errorDeleteActor": "Error deleting actor.",
+      "actorTypeOptionalLabel": "Approver type (optional)",
+      "actorTypeNone": "No approver defined",
+      "actorTypeManager": "Direct manager",
+      "actorTypeUser": "Specific user",
+      "selectionModeAny": "Any",
+      "selectionModeAll": "All",
+      "cecoAppliesTo": "Applicable CECO",
+      "cecoAll": "All CECOs"
     },
     "notifications": {
       "title": "Notifications",
