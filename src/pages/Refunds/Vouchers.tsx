@@ -119,11 +119,11 @@ export const Vouchers = () => {
         formDataToSend.append("status", "pending_voucher");
         formDataToSend.append("currency", rowData.currency || "MXN");
         if (rowData.XMLFile) {
-          formDataToSend.append("file_url_xml", rowData.XMLFile);
+          formDataToSend.append("xml", rowData.XMLFile);
         }
 
         if (rowData.PDFFile) {
-          formDataToSend.append("file_url_pdf", rowData.PDFFile);
+          formDataToSend.append("pdf", rowData.PDFFile);
         }
 
         await postRequest("/vouchers/upload", formDataToSend);

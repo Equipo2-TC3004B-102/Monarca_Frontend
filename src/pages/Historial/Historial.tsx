@@ -105,7 +105,10 @@ export const Historial = () => {
     const fetchTravelRecords = async () => {
       try {
         const endpoint =
-          authState.userPermissions.includes("view_own_requests" as Permission)
+          authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
+          authState.userPermissions.includes("submit_reservations" as Permission)
+            ? "/requests/reserved-history"
+            : authState.userPermissions.includes("view_own_requests" as Permission)
             ? "/requests/user"
             : authState.userPermissions.includes("check_budgets" as Permission)
             ? "/requests/to-approve-SOI"
@@ -118,7 +121,10 @@ export const Historial = () => {
         if (authState.userPermissions.includes("view_approved_request_history" as Permission)) {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
         }
-        if (authState.userPermissions.includes("check_budgets" as Permission)) {
+        if (endpoint === "/requests/reserved-history") {
+          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status));
+        }
+        if (endpoint === "/requests/to-approve-SOI") {
           response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
         }
         // Data with actions (edit buttons)
