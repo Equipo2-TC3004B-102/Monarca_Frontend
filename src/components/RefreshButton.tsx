@@ -8,15 +8,20 @@
 
 import { MdRefresh } from "react-icons/md";
 
+interface RefreshButtonProps {
+  onClick?: () => void;
+}
+
 /**
  * FunctionName: RefreshButton, renders a circular refresh icon button with hover styling.
- * Input: none
+ * Input: onClick — optional callback fired when the button is clicked.
  * Output: JSX button element containing a refresh icon.
  */
-const RefreshButton = () => {
+const RefreshButton = ({ onClick }: RefreshButtonProps) => {
 
     return (
         <button
+            onClick={onClick}
             className="p-2 bg-[var(--color-page-bg)] rounded-md shadow hover:bg-[var(--color-card-bg)]"
         >
             <MdRefresh className="h-6 w-6 text-[var(--color-page-text)]" />
