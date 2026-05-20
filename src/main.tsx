@@ -49,6 +49,7 @@ import { Approvals } from "./pages/Approvals/Approvals.tsx";
 import { RefundsReview } from "./pages/Refunds/RefundsReview.tsx";
 import { CheckRefunds } from "./pages/Refunds/CheckRefunds.tsx";
 import FlightSearch from "./pages/FlightSearch.tsx";
+import { AccountingExport } from "./pages/Accounting/AccountingExport.tsx";
 
 /**
  * router, defines the application's route tree.
@@ -125,6 +126,10 @@ export const router = createBrowserRouter([
       {
         path: "/check-refunds",
         element: <CheckRefunds />,
+      },
+      {
+        path: "/accounting/export",
+        element: <AccountingExport />,
       },
       {
         path: "/bookings",

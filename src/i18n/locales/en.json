@@ -14,7 +14,8 @@
     "userList": "User list",
     "rules": "Rules",
     "notifications": "Notifications",
-    "reservedHistory": "Reserved travel history"
+    "reservedHistory": "Reserved travel history",
+    "accountingExport": "Export accounting polizas"
   },
   "dashboard": {
     "createRequest": "Create travel request",
@@ -25,6 +26,7 @@
     "vouchersToApprove": "Expense vouchers to approve",
     "tripsToRegister": "Trips to register",
     "refundsToRegister": "Refunds to register",
+    "accountingExport": "Export accounting polizas",
     "tripsToBook": "Trips to book",
     "reservedHistory": "Reserved travel history",
     "newCompany": "New company",
@@ -663,5 +665,24 @@
   "theme": {
     "dark": "Dark mode",
     "light": "Light mode"
+  },
+  "accounting": {
+    "title": "Export accounting polizas",
+    "subtitle": "Generate and download the SAP poliza JSON for each completed trip.",
+    "loading": "Loading trips...",
+    "noRequests": "No completed trips to export.",
+    "polizaReady": "Poliza generated and downloaded successfully.",
+    "errorLoad": "Error loading completed trips.",
+    "errorGenerate": "Error generating poliza.",
+    "generating": "Generating...",
+    "generateButton": "Generate poliza",
+    "tableHeaders": {
+      "folio": "Folio",
+      "employee": "Employee",
+      "title": "Trip name",
+      "advance": "Advance",
+      "date": "Date",
+      "actions": "Actions"
+    }
   }
 }

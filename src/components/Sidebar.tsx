@@ -75,6 +75,9 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
               <SidebarOption label={t('sidebar.vouchersToRegister')} pathIcon="/assets/reembolsos_por_aprobar.png" link="/check-refunds" onClick={onNavigate}/>
             )}
+            {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
+              <SidebarOption label={t('sidebar.accountingExport')} pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/accounting/export" onClick={onNavigate}/>
+            )}
             {!isAdmin && user.userPermissions.includes("submit_reservations" as Permission) && (
               <SidebarOption label={t('sidebar.tripsToBook')} pathIcon="/assets/viajes_por_reservar.png" link="/bookings" onClick={onNavigate}/>
             )}

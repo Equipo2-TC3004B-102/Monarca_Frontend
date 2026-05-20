@@ -74,6 +74,9 @@ export const Dashboard = ({title}:DashboardProps) => {
         {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
           <Mosaic title={t('dashboard.refundsToRegister')} iconPath="/assets/reembolsos_por_aprobar.png" link="/check-refunds" id="check_refunds"/>
         )}
+        {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
+          <Mosaic title={t('dashboard.accountingExport')} iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/accounting/export" id="accounting_export"/>
+        )}
         {!isAdmin && authState.userPermissions.includes("submit_reservations" as Permission) && (
           <Mosaic title={t('dashboard.tripsToBook')} iconPath="/assets/viajes_por_reservar.png" link="/bookings" id="bookings"/>
         )}

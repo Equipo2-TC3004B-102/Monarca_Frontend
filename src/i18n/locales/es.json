@@ -14,7 +14,8 @@
     "userList": "Lista de usuarios",
     "rules": "Reglas",
     "notifications": "Notificaciones",
-    "reservedHistory": "Historial de viajes reservados"
+    "reservedHistory": "Historial de viajes reservados",
+    "accountingExport": "Exportar pólizas contables"
   },
   "dashboard": {
     "createRequest": "Crear solicitud de viaje",
@@ -25,6 +26,7 @@
     "vouchersToApprove": "Comprobantes de gastos por aprobar",
     "tripsToRegister": "Viajes por registrar",
     "refundsToRegister": "Reembolsos por registrar",
+    "accountingExport": "Exportar pólizas contables",
     "tripsToBook": "Viajes por reservar",
     "reservedHistory": "Historial de viajes reservados",
     "newCompany": "Crear empresa",
@@ -663,5 +665,24 @@
   "theme": {
     "dark": "Modo oscuro",
     "light": "Modo claro"
+  },
+  "accounting": {
+    "title": "Exportar pólizas contables",
+    "subtitle": "Genera y descarga el JSON de póliza SAP para cada viaje completado.",
+    "loading": "Cargando viajes...",
+    "noRequests": "No hay viajes completados por exportar.",
+    "polizaReady": "Póliza generada y descargada correctamente.",
+    "errorLoad": "Error al cargar los viajes completados.",
+    "errorGenerate": "Error al generar la póliza.",
+    "generating": "Generando...",
+    "generateButton": "Generar póliza",
+    "tableHeaders": {
+      "folio": "Folio",
+      "employee": "Empleado",
+      "title": "Nombre del viaje",
+      "advance": "Anticipo",
+      "date": "Fecha",
+      "actions": "Acciones"
+    }
   }
 }
