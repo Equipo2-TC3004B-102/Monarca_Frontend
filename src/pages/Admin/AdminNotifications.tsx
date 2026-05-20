@@ -5,6 +5,7 @@
  * Authors: Original Monarca team
  * Last Modification made:
  * 05/05/2026 [Santiago Coronado Hernández] Created File and implemented notification settings management for admins.
+ * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the notifications settings page
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -21,6 +22,8 @@ import type {
   CompanyNotificationSettings,
   CompanyNotificationSettingsUpdate,
 } from "../../types/notification";
+import { Tutorial } from "../../components/Tutorial";
+import { useApp } from "../../hooks/app/appContext";
 
 type MessageState = { text: string; error: boolean } | null;
 
@@ -43,6 +46,8 @@ export default function AdminNotifications() {
   const { authState } = useAuth();
   const { t } = useTranslation();
   const companyId = authState.companyId;
+
+  const { handleVisitPage, tutorial, setTutorial } = useApp();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -121,8 +126,23 @@ export default function AdminNotifications() {
     }
   };
 
+  useEffect(() => {
+      // Get the visited pages from localStorage
+      const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+      // Check if the current page is already in the visited pages
+      const isPageVisited = visitedPages.includes(location.pathname);
+  
+      // If the page is not visited, set the tutorial to true
+      if (!isPageVisited) {
+        setTutorial(true);
+      }
+      // Add the current page to the visited pages
+      handleVisitPage();
+    }, []);
+
   return (
     <>
+      <Tutorial page="adminNotifications" run={tutorial}>
       <GoBack />
       <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex flex-col gap-2 mb-4">
@@ -133,20 +153,21 @@ export default function AdminNotifications() {
         </div>
 
         {message && (
-          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-[var(--color-incorrect-bg)] text-[var(--color-incorrect-text)]" : 
+            "bg-[var(--color-correct-bg)] text-[var(--color-correct-text)]"}`}>
             {message.text}
           </div>
         )}
 
         <section className={sectionClass}>
-          <div className="p-5 lg:p-10">
+          <div id="preferences" className="p-5 lg:p-10">
             <form onSubmit={handleSubmit}>
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-bold text-[var(--color-page-text-title)]">{t('admin.notifications.preferences')}</h3>
                   <p className="text-sm text-gray-600">{t('admin.notifications.preferencesDescription')}</p>
                 </div>
-                <Button type="submit" disabled={!canLoad || loading || saving}>
+                <Button id="save_changes" type="submit" disabled={!canLoad || loading || saving}>
                   {saving ? t('common.saving') : t('admin.notifications.saveChanges')}
                 </Button>
               </div>
@@ -180,6 +201,7 @@ export default function AdminNotifications() {
           </div>
         </section>
       </div>
+      </Tutorial>
     </>
   );
 }

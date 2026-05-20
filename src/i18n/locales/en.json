@@ -488,6 +488,34 @@
       "requestChangesDesc": "Here you can request changes to the travel request. Remember to add a justification in the comments.",
       "deny": "Deny request",
       "denyDesc": "Here you can deny the travel request."
+    },
+    "adminUsers": {
+      "usersList": "User list",
+      "usersListDesc": "Here you can see all users registered in the system.",
+      "loadUsers": "Load new users",
+      "loadUsersDesc": "Click here to load new users into the system with a json file."
+    },
+    "adminRules": {
+      "rulesList": "Rules list",
+      "rulesListDesc": "Here you can see all rules defined in the system.",
+      "btnNotifications": "Notifications",
+      "btnNotificationsDesc": "Click here to go to the system's notification page.",
+      "btnNewRule": "New Rule",
+      "btnNewRuleDesc": "Click here to create a new rule.",
+      "rulesButtons": "Rule Buttons",
+      "rulesButtonsDesc": "With these buttons you can add actors, edit the rule or delete it."
+    },
+    "adminNotifications": {
+      "preferences": "Preference options",
+      "preferencesDesc": "Here you can choose the notification preferences within the system.",
+      "saveChanges": "Save Changes",
+      "saveChangesDesc": "Click here to save the changes made to your preferences."
+    },
+    "adminNewCompany": {
+      "formCompany": "New company form",
+      "formCompanyDesc": "Here you must fill out the form to create a new company within the system.",
+      "btnNewCompany": "Create company",
+      "btnNewCompanyDesc": "Click here to create the company along with its new admin user."
     }
   },
   "admin": {

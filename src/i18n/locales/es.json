@@ -488,6 +488,34 @@
       "requestChangesDesc": "Aquí puedes solicitar cambios a la solicitud de viaje. Recuerda que debes poner una justificación en los comentarios.",
       "deny": "Denegar Solicitud",
       "denyDesc": "Aquí puedes denegar la solicitud de viaje."
+    },
+    "adminUsers": {
+      "usersList": "Lista de Usuarios",
+      "usersListDesc": "Aquí puedes ver todos los usuarios registrados en el sistema.",
+      "loadUsers": "Cargar nuevos usuarios",
+      "loadUsersDesc": "Haz clic aquí para cargar nuevos usuarios al sistema con un json."
+    },
+    "adminRules": {
+      "rulesList": "Lista de Reglas",
+      "rulesListDesc": "Aquí puedes ver todas las reglas definidas en el sistema.",
+      "btnNotifications": "Notificaciones",
+      "btnNotificationsDesc": "Haz clic aquí para ir a la pagina de notificaciones del sistema.",
+      "btnNewRule": "Nueva Regla",
+      "btnNewRuleDesc": "Haz clic aquí para crear una nueva regla.",
+      "rulesButtons": "Botones de Reglas",
+      "rulesButtonsDesc": "Con estos botones puedes agregar actores, editar la regla o eliminarla."
+    },
+    "adminNotifications": {
+      "preferences": "Opciones de preferencias",
+      "preferencesDesc": "Aquí puedes elegir las preferencias de notificaciones dentro del sistema.",
+      "saveChanges": "Guardar Cambios",
+      "saveChangesDesc": "Haz clic aquí para guardar los cambios realizados a tus preferencias."
+    },
+    "adminNewCompany": {
+      "formCompany": "Fomulario de nueva empresa",
+      "formCompanyDesc": "Aquí debes de llenar el formulario para crear una nueva empresa dentro del sistema.",
+      "btnNewCompany": "Crear empresa",
+      "btnNewCompanyDesc": "Haz clic aquí para crear la empresa junto con su nuevo usuario administrador."
     }
   },
   "admin": {
