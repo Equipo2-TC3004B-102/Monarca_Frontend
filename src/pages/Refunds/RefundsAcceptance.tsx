@@ -247,7 +247,6 @@ const RefundsAcceptance: React.FC = () => {
   }, 0) ?? 0;
 
   const previewAdvanceMoney = Number(data?.advance_money) || 0;
-  const previewBalance = previewAdvanceMoney - approvedVoucherTotal;
 
   return (
     <Tutorial page="refundReview" run={tutorial}>
