@@ -11,6 +11,7 @@
  *                              Fixed ceco_id DTO validator: @IsString instead of @IsUUID in approval-level-actor.dto.ts.
  *                              Show company name (not UUID) in header via GET /admin/companies/:id/info.
  *                              CECO selector always visible in create form (not hidden behind actor_type).
+ * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the list of rules
  */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,8 @@ import RefreshButton from "../../components/RefreshButton";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { useTranslation } from "react-i18next";
+import { Tutorial } from "../../components/Tutorial";
+import { useApp } from "../../hooks/app/appContext";
 
 interface CostCenter {
   id: string;
@@ -89,6 +92,8 @@ export default function AdminRules() {
   const { t } = useTranslation();
   const companyId = authState.companyId;
   const canLoad = Boolean(companyId);
+
+  const { handleVisitPage, tutorial, setTutorial } = useApp();
 
   const [rules, setRules] = useState<ApprovalRule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -380,8 +385,23 @@ export default function AdminRules() {
     }
   };
 
+  useEffect(() => {
+    // Get the visited pages from localStorage
+    const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+    // Check if the current page is already in the visited pages
+    const isPageVisited = visitedPages.includes(location.pathname);
+
+    // If the page is not visited, set the tutorial to true
+    if (!isPageVisited) {
+      setTutorial(true);
+    }
+    // Add the current page to the visited pages
+    handleVisitPage();
+  }, []);
+
   return (
     <>
+      <Tutorial page="adminRules" run={tutorial}>
       <GoBack />
       <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex items-center flex-wrap gap-2 lg:gap-0 justify-between mb-4">
@@ -391,15 +411,17 @@ export default function AdminRules() {
           </p>
           <div className="flex items-center gap-3">
             <button
+              id="btn_notifications"
               onClick={() => navigate('/admin/notifications')}
-              className="px-3 py-2 bg-[#f0f4ff] text-[#0a2c6d] text-sm rounded-md hover:bg-[#ebf0ff] transition-colors"
+              className="px-3 py-2 bg-[var(--color-page-bg)] text-[var(--color-page-text)] text-sm rounded-md cursor-pointer transition-colors"
             >
               {t('admin.rules.notifications')}
             </button>
             <button
+              id="btn_newRule"
               onClick={() => { setShowForm(!showForm); setMessage(null); }}
               disabled={!canLoad}
-              className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md cursor-pointer hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
             >
               {showForm ? t('common.cancel') : t('admin.rules.createRule')}
             </button>
@@ -408,7 +430,8 @@ export default function AdminRules() {
         </div>
 
         {message && (
-          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-[var(--color-incorrect-bg)] text-[var(--color-incorrect-text)]" : 
+            "bg-[var(--color-correct-bg)] text-[var(--color-correct-text)]"}`}>
             {message.text}
           </div>
         )}
@@ -521,7 +544,7 @@ export default function AdminRules() {
                       onChange={handleEditChange}
                       className="w-4 h-4"
                     />
-                    <label htmlFor="edit-is-active" className="text-sm font-medium text-gray-900">
+                    <label htmlFor="edit-is-active" className="text-sm font-medium text-[var(--color-page-text)]">
                       {t('admin.rules.active')}
                     </label>
                   </div>
@@ -628,7 +651,7 @@ export default function AdminRules() {
                       onChange={handleActorFormChange}
                       className="w-4 h-4"
                     />
-                    <label htmlFor="actor-is-required" className="text-sm font-medium text-gray-900">
+                    <label htmlFor="actor-is-required" className="text-sm font-medium text-[var(--color-page-text)]">
                       {t('admin.rules.isRequired')}
                     </label>
                   </div>
@@ -772,7 +795,7 @@ export default function AdminRules() {
         )}
 
         <div className="overflow-x-auto mb-4">
-          <table className="w-full min-w-[1300px] lg:min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
+          <table id="rules_list" className="w-full min-w-[1300px] lg:min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
                 <th className="px-4 py-2 text-center rounded-l-lg">{t('admin.rules.code')}</th>
@@ -812,7 +835,7 @@ export default function AdminRules() {
                     </span>
                   </td>
                   <td className="px-4 py-3 rounded-r-lg">
-                    <div className="flex justify-center gap-1 flex-wrap">
+                    <div id="rules_buttons" className="flex justify-center gap-1 flex-wrap">
                       <button
                         onClick={() => handleOpenActors(r)}
                         className="px-2 py-1 bg-[#d0e8ff] text-[#0a2c6d] text-xs rounded hover:bg-[#b8d8f8] transition-colors font-semibold"
@@ -847,6 +870,7 @@ export default function AdminRules() {
           </div>
         )}
       </div>
+      </Tutorial>
     </>
   );
 }
