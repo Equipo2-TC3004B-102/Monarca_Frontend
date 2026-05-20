@@ -112,7 +112,7 @@ export const Vouchers = () => {
           "id_request",
           trip.id.toString()
         );
-        formDataToSend.append("date", new Date().toISOString());
+        formDataToSend.append("date", rowData.date || new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
         formDataToSend.append("tax_type", rowData.taxIndicator);
@@ -132,14 +132,13 @@ export const Vouchers = () => {
       await patchRequest(`/requests/finished-uploading-vouchers/${id}`, {});
       setFormData([]);
       navigate("/refunds");
-    } catch (err) {
-      console.error(
-        "Error sending refund request: ",
-        err instanceof Error ? err.message : err
-      );
-      toast.error(
-        t('vouchers.submitError')
-      );
+    } catch (err: any) {
+      console.error("Error sending refund request: ", err);
+      const serverMessage = err.response?.data?.message;
+      const displayMessage = Array.isArray(serverMessage)
+        ? serverMessage.join(", ")
+        : serverMessage || t('vouchers.submitError');
+      toast.error(displayMessage);
     }
   }; 
 

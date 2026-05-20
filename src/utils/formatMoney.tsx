@@ -11,11 +11,12 @@
  * Input: a number representing an amount in Mexican Pesos
  * Output: a formatted currency string in the format "$X,XXX.XX" (e.g., "$1,234.56")
  */
-const formatMoney = (value: number, currencyCode: string = 'MXN'): string => {
-    if (typeof value !== 'number' || isNaN(value)) {
+const formatMoney = (value: any, currencyCode: string = 'MXN'): string => {
+    const parsedValue = typeof value === 'number' ? value : parseFloat(value);
+    if (typeof parsedValue !== 'number' || isNaN(parsedValue)) {
         return '$0.00';
     }
-    return value.toLocaleString('es-MX', { style: 'currency', currency: currencyCode });
+    return parsedValue.toLocaleString('es-MX', { style: 'currency', currency: currencyCode });
 }
 
 export default formatMoney;
