@@ -103,7 +103,7 @@ export default function AdminRules() {
   const [deleting, setDeleting] = useState(false);
   const [cecos, setCecos] = useState<CostCenter[]>([]);
   const [companyName, setCompanyName] = useState<string | null>(null);
-  const [voucherDeadlineDays, setVoucherDeadlineDays] = useState<number | null>(null);
+  const [, setVoucherDeadlineDays] = useState<number | null>(null);
   const [deadlineInput, setDeadlineInput] = useState<string>("");
   const [savingDeadline, setSavingDeadline] = useState(false);
 
