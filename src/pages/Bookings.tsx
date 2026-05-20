@@ -16,20 +16,15 @@ import { Link } from "react-router-dom";
 import GoBack from "../components/GoBack";
 import { Tutorial } from "../components/Tutorial";
 import { useApp } from "../hooks/app/appContext";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
 /**
  * columns, defines the table columns used by the Table component on the Bookings page.
  * Input: N/A
  * Output: Array<{ key: string; header: string }> - Configuration for table rendering.
  */
-const columns = [
-  { key: "status", header: "Estado" },
-  { key: "motive", header: "Motivo" },
-  { key: "title", header: "Viaje" },
-  { key: "departureDate", header: "Fecha Salida" },
-  { key: "country", header: "Lugar de Salida" },
-  { key: "action", header: "" },
-];
+// columns defined inside component to react to language changes
 
 /**
  * renderStatus, maps backend status strings to a Spanish label and corresponding UI styles.
@@ -37,53 +32,21 @@ const columns = [
  * - status (string): Status value returned by the backend for a travel request.
  * Output: JSX.Element - A styled <span> badge showing the translated status.
  */
-const renderStatus = (status: string) => {
+const renderStatus = (status: string, t: TFunction) => {
   let statusText = "";
   let styles = "";
   switch (status) {
-    case "Pending Review":
-      statusText = "En revisión";
-      styles = "text-[#55447a] font-bold bg-[#bea8ef]";
-      break;
-    case "Denied":
-      statusText = "Denegado";
-      styles = "text-[#680909] font-bold bg-[#eca6a6]";
-      break;
-    case "Cancelled":
-      statusText = "Cancelado";
-      styles = "text-[#680909] font-bold bg-[#eca6a6]";
-      break;
-    case "Changes Needed":
-      statusText = "Cambios necesarios";
-      styles = "text-[#755619] font-bold bg-[#f1dbb1]";
-      break;
-    case "Pending Reservations":
-      statusText = "Reservas pendientes";
-      styles = "text-[#8c5308] font-bold bg-[#f1c180]";
-      break;
-    case "Pending Accounting Approval":
-      statusText = "Contabilidad pendiente";
-      styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]";
-      break;
-    case "Pending Vouchers Approval":
-      statusText = "Comprobantes pendientes";
-      styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]";
-      break;
-    case "In Progress":
-      statusText = "En progreso";
-      styles = "text-[#138080] font-bold bg-[#b7f1f1]";
-      break;
-    case "Pending Refund Approval":
-      statusText = "Reembolso pendiente";
-      styles = "text-[#575107] font-bold bg-[#f0eaa5]";
-      break;
-    case "Completed":
-      statusText = "Completado";
-      styles = "text-[#24390d] font-bold bg-[#c7e6ab]";
-      break;
-    default:
-      statusText = status;
-      styles = "text-white bg-[#6c757d]";
+    case "Pending Review":      statusText = t('status.pendingReview');      styles = "text-[#55447a] font-bold bg-[#bea8ef]"; break;
+    case "Denied":              statusText = t('status.denied');              styles = "text-[#680909] font-bold bg-[#eca6a6]"; break;
+    case "Cancelled":           statusText = t('status.cancelled');           styles = "text-[#680909] font-bold bg-[#eca6a6]"; break;
+    case "Changes Needed":      statusText = t('status.changesNeeded');       styles = "text-[#755619] font-bold bg-[#f1dbb1]"; break;
+    case "Pending Reservations":statusText = t('status.pendingReservations'); styles = "text-[#8c5308] font-bold bg-[#f1c180]"; break;
+    case "Pending Accounting Approval": statusText = t('status.pendingAccountingApproval'); styles = "text-[var(--dark-blue)] font-bold bg-[#99b5e3]"; break;
+    case "Pending Vouchers Approval":   statusText = t('status.pendingVouchersApproval');   styles = "text-[var(--dark-blue)] font-bold bg-[#c6c4fb]"; break;
+    case "In Progress":         statusText = t('status.inProgress');          styles = "text-[#138080] font-bold bg-[#b7f1f1]"; break;
+    case "Pending Refund Approval": statusText = t('status.pendingRefundApproval'); styles = "text-[#575107] font-bold bg-[#f0eaa5]"; break;
+    case "Completed":           statusText = t('status.completed');           styles = "text-[#24390d] font-bold bg-[#c7e6ab]"; break;
+    default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
   return (
     <span className={`text-xs p-1 rounded-sm ${styles}`}>{statusText}</span>
@@ -107,6 +70,15 @@ const renderStatus = (status: string) => {
 const Bookings = () => {
   const [dataWithActions, setDataWithActions] = useState([]);
   const { handleVisitPage, tutorial, setTutorial } = useApp();
+  const { t } = useTranslation();
+
+  const columns = [
+    { key: "status", header: t('bookings.status'), render: (value: string) => renderStatus(value, t) },
+    { key: "title", header: t('bookings.trip') },
+    { key: "country", header: t('bookings.departurePlace') },
+    { key: "departureDate", header: t('bookings.departureDate') },
+    { key: "action", header: "" },
+  ];
 
   /**
    * Fetch travel records that are pending reservation and transform them to a table-friendly format.
@@ -126,20 +98,20 @@ const Bookings = () => {
 
             return {
               ...trip,
-              status: renderStatus(trip.status),
+              status: trip.status,
               country:
                 trip.destination?.city ||
                 trip.destination?.iata_code ||
-                "Destino no disponible",
+                t('historial.noDestination'),
               departureDate: firstDestination?.departure_date
                 ? formatDate(firstDestination.departure_date)
-                : "Sin fecha",
+                : t('historial.noDate'),
               action: (
                 <Link
                   to={`/bookings/${trip.id}`}
                   className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
                 >
-                  Reservar
+                  {t('bookings.reserve')}
                 </Link>
               ),
             };
@@ -179,10 +151,10 @@ const Bookings = () => {
     <>
     <Tutorial page="bookings" run={tutorial}>
       <GoBack />
-      <div className="flex-1 p-6 bg-[#eaeced] rounded-lg shadow-xl">
+      <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-[#0a2c6d]">
-            Viajes por Reservar
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
+            {t('bookings.title')}
           </h2>
           <RefreshButton />
         </div>

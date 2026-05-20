@@ -3,11 +3,9 @@
  * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
  * Authors: Original Monarca team
  * Last Modification made:
- * 24/02/2026 [Julio César Rodríguez Figueroa] Added detailed comments and documentation for clarity and maintainability.
- * 20/04/2026 [Sebastián Borjas] Fixed currency display on edit.
- * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
- * 20/04/2026 [Diego de la Vega] Enabled searchable origin/destination selectors with incremental filtering while typing.
- * 23/04/2026 [Santiago Coronado Hernández] Use PersistedForm hook to save form state in localStorage for better UX on accidental refreshes or navigation.
+ * 14/05/2026 [Diego de la Vega] Redesigned date model: each destination now only asks for departure_date;
+ *                               a single return_date field captures the trip end. arrival_date and stay_days
+ *                               are derived automatically at submit time. Validates sequential date order.
  */
 
 import { Button } from "../ui/Button";
@@ -22,11 +20,13 @@ import {
   Control,
   FieldErrors,
   UseFormRegister,
-  UseFormSetValue,
+  Resolver,
 } from "react-hook-form";
-import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import Select from "../ui/Select";
 import SearchableSelect from "../ui/SearchableSelect";
 import FieldError from "../ui/FieldError";
@@ -35,56 +35,77 @@ import { useUpdateTravelRequest } from "../../hooks/requests/useUpdateRequest";
 import { useDestinations } from "../../hooks/destinations/useDestinations";
 import { CreateRequest } from "../../types/requests";
 import GoBack from "../GoBack";
-import { useEffect, useMemo } from "react";
-import { currencyOptions } from "../../utils/currencies";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { makeCurrencyOptions } from "../../utils/currencies";
 import { usePersistedForm } from "../../hooks/app/usePersistedForm";
 
 type Option = { id: number | string; name: string };
 
-const priorityOptions: Option[] = [
-  { id: "alta", name: "Alta" },
-  { id: "media", name: "Media" },
-  { id: "baja", name: "Baja" },
-];
-
-const destinationSchema = z.object({
+// Static schema used only for type inference — messages don't affect types
+const _destinationSchema = z.object({
   id_destination: z.string().nullable(),
-  arrival_date: z.string().nonempty({ message: "Selecciona fecha de llegada" }),
-  departure_date: z
-    .string()
-    .nonempty({ message: "Selecciona fecha de salida" }),
+  departure_date: z.string().nonempty(),
   stay_days: z.number().int(),
-  // .positive({ message: "El número de días debe ser positivo" }),
   is_hotel_required: z.boolean(),
   is_plane_required: z.boolean(),
-  details: z.string().nonempty({ message: "Agrega detalles" }),
+  details: z.string().nonempty(),
 });
 
-const formSchema = z.object({
+const _formSchema = z.object({
   id_origin_city: z.string().nullable(),
-  motive: z.string().nonempty({ message: "Escribe el motivo del viaje" }),
-  title: z.string().nonempty({ message: "Escribe el título del viaje" }),
+  motive: z.string().nonempty(),
+  title: z.string().nonempty(),
   priority: z.enum(["alta", "media", "baja"]),
   requirements: z.string().nullable().optional(),
   advance_money: z
     .string()
     .trim()
-    .nonempty({ message: "El dinero adelantado es obligatorio" })
-    .refine((value) => /^\d+(\.\d{1,2})?$/.test(value), {
-      message: "Ingresa un número válido con máximo 2 decimales",
-    })
-    .transform((value) => Number(value))
-    .refine((value) => value >= 0, {
-      message: "El dinero adelantado no puede ser negativo",
-    }),
-  currency: z.string().nonempty({ message: "Selecciona una moneda" }),
-  requests_destinations: z
-    .array(destinationSchema)
-    .min(1, "Al menos un destino"),
+    .nonempty()
+    .refine((v) => /^\d+(\.\d{1,2})?$/.test(v))
+    .transform((v) => Number(v))
+    .refine((v) => v >= 0),
+  currency: z.string().nonempty(),
+  return_date: z.string().nonempty(),
+  requests_destinations: z.array(_destinationSchema).min(1),
 });
 
-type FormValues = z.input<typeof formSchema>;
-type SubmitValues = z.output<typeof formSchema>;
+type FormValues = z.input<typeof _formSchema>;
+type SubmitValues = z.output<typeof _formSchema>;
+
+function makeFormSchema(t: TFunction) {
+  const destinationSchema = z.object({
+    id_destination: z.string().nullable(),
+    departure_date: z.string().nonempty({ message: t('validation.selectDepartureDate') }),
+    stay_days: z.number().int(),
+    is_hotel_required: z.boolean(),
+    is_plane_required: z.boolean(),
+    details: z.string().nonempty({ message: t('validation.addDetails') }),
+  });
+
+  return z.object({
+    id_origin_city: z.string().nullable(),
+    motive: z.string().nonempty({ message: t('validation.writeMotive') }),
+    title: z.string().nonempty({ message: t('validation.writeTitle') }),
+    priority: z.enum(["alta", "media", "baja"]),
+    requirements: z.string().nullable().optional(),
+    advance_money: z
+      .string()
+      .trim()
+      .nonempty({ message: t('validation.advanceMoneyRequired') })
+      .refine((value) => /^\d+(\.\d{1,2})?$/.test(value), {
+        message: t('validation.validNumber'),
+      })
+      .transform((value) => Number(value))
+      .refine((value) => value >= 0, {
+        message: t('validation.nonNegativeAdvanceMoney'),
+      }),
+    currency: z.string().nonempty({ message: t('validation.selectCurrency') }),
+    return_date: z.string().nonempty({ message: t('validation.selectReturnDate') }),
+    requests_destinations: z
+      .array(destinationSchema)
+      .min(1, t('validation.atLeastOneDestination')),
+  });
+}
 
 interface TravelRequestFormProps {
   initialData?: CreateRequest;
@@ -99,14 +120,13 @@ interface DestinationFieldsProps {
   destinationOptionsById: Map<string, { id: string | number; name: string }>;
   errors: FieldErrors<FormValues>["requests_destinations"];
   remove: (index: number) => void;
-  setValue: UseFormSetValue<FormValues>;
   isLoadingDestinations: boolean;
 }
 
 /**
- * DestinationFields, renders one destination block with dates, details, and travel requirements inside the form.
- * Inputs: props: DestinationFieldsProps - Destination index, form controls, options, and handlers.
- * Returns: JSX.Element - Destination section UI.
+ * DestinationFields — renders inputs for a single destination leg.
+ * Only asks for departure_date (when you leave for this destination).
+ * arrival_date and stay_days are derived automatically at submit time.
  */
 function DestinationFields({
   idx,
@@ -116,37 +136,18 @@ function DestinationFields({
   destinationOptionsById,
   errors,
   remove,
-  setValue,
   isLoadingDestinations,
 }: DestinationFieldsProps) {
-  const arrivalDate = useWatch({
-    control,
-    name: `requests_destinations.${idx}.arrival_date`,
-  });
-
-  const departureDate = useWatch({
-    control,
-    name: `requests_destinations.${idx}.departure_date`,
-  });
-
-  const stayDays =
-    arrivalDate && departureDate
-      ? dayjs(arrivalDate).diff(dayjs(departureDate), "day")
-      : 0;
-
-  useEffect(() => {
-    setValue(`requests_destinations.${idx}.stay_days`, stayDays);
-  }, [arrivalDate, departureDate, idx, setValue, stayDays]);
-
+  const { t } = useTranslation();
   const destinationErrors = errors?.[idx];
 
   return (
-    <div className="rounded-md p-4 mb-6 space-y-4 bg-white shadow-sm">
+    <div className="rounded-md p-4 mb-6 space-y-4 bg-[var(--color-page-bg)] shadow-sm">
       <div className="flex justify-between items-center">
-        <span className="font-medium">Destino #{idx + 1}</span>
+        <span className="font-medium text-[var(--color-page-text)]">{t('form.destinationNum', { num: idx + 1 })}</span>
         {idx > 0 && (
           <Button type="button" onClick={() => remove(idx)}>
-            Quitar
+            {t('form.remove')}
           </Button>
         )}
       </div>
@@ -155,9 +156,9 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`destination-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
-            Destino
+            {t('form.destination')}
           </label>
           <Controller
             control={control}
@@ -173,7 +174,7 @@ function DestinationFields({
                 }
                 onChange={(opt) => field.onChange(opt ? opt.id : null)}
                 isLoading={isLoadingDestinations}
-                placeholder="Selecciona destino"
+                placeholder={t('form.destinationPlaceholder')}
               />
             )}
           />
@@ -183,9 +184,9 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`details-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
-            Detalles
+            {t('form.details')}
           </label>
           <Input
             id={`details-${idx}`}
@@ -197,9 +198,9 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`departure-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
-            Fecha salida
+            {t('form.departureDate')}
           </label>
           <Controller
             control={control}
@@ -218,47 +219,10 @@ function DestinationFields({
 
         <div>
           <label
-            htmlFor={`arrival-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Fecha llegada
-          </label>
-          <Controller
-            control={control}
-            name={`requests_destinations.${idx}.arrival_date`}
-            render={({ field }) => (
-              <Input
-                id={`arrival-${idx}`}
-                type="date"
-                value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
-                onChange={e => field.onChange(e.target.value)}
-              />
-            )}
-          />
-          <FieldError msg={destinationErrors?.arrival_date?.message} />
-        </div>
-
-        <div>
-          <label
-            htmlFor={`stay-days-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            No. días estancia
-          </label>
-          <Input
-            id={`stay-days-${idx}`}
-            type="number"
-            value={stayDays}
-            readOnly
-          />
-        </div>
-
-        <div>
-          <label
             htmlFor={`hotel-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
-            ¿Necesita hotel?
+            {t('form.needsHotel')}
           </label>
           <Controller
             control={control}
@@ -268,6 +232,7 @@ function DestinationFields({
                 id={`hotel-${idx}`}
                 checked={field.value}
                 onChange={field.onChange}
+                className="data-[checked]:bg-[var(--ultra-light-blue)]"
               />
             )}
           />
@@ -276,9 +241,9 @@ function DestinationFields({
         <div>
           <label
             htmlFor={`plane-${idx}`}
-            className="block mb-2 text-sm font-medium text-gray-900"
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
-            ¿Necesita vuelo?
+            {t('form.needsFlight')}
           </label>
           <Controller
             control={control}
@@ -288,6 +253,7 @@ function DestinationFields({
                 id={`plane-${idx}`}
                 checked={field.value}
                 onChange={field.onChange}
+                className="data-[checked]:bg-[var(--ultra-light-blue)]"
               />
             )}
           />
@@ -297,15 +263,27 @@ function DestinationFields({
   );
 }
 
-/**
- * TravelRequestForm, renders and manages the full travel request form in create or edit mode.
- * Inputs:
- * - initialData?: CreateRequest - Optional preloaded values for edit mode.
- * - requestId?: string - Optional request identifier used for updates.
- * Returns: JSX.Element - Form UI with submit actions.
- */
 function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const tRef = useRef(t);
+  tRef.current = t;
+
+  const resolver = useCallback<Resolver<FormValues, unknown, SubmitValues>>(
+    (values, context, options) =>
+      zodResolver(makeFormSchema(tRef.current))(values, context, options),
+    [],
+  );
+
+  const priorityOptions: Option[] = useMemo(() => [
+    { id: "alta", name: t('priority.high') },
+    { id: "media", name: t('priority.medium') },
+    { id: "baja", name: t('priority.low') },
+  ], [t]);
+
+  const currencyOptions = useMemo(() => makeCurrencyOptions(t), [t]);
+
   const { destinationOptions, isLoading: isLoadingDestinations } =
     useDestinations();
   const destinationOptionsById = useMemo(
@@ -329,10 +307,17 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     }
 
     const parsedAdvanceMoney = Number(initialData.advance_money);
+    const dests = initialData.requests_destinations ?? [];
+    // The return date is stored as arrival_date of the last destination
+    const lastDest = dests[dests.length - 1];
+    const returnDate = lastDest?.arrival_date
+      ? dayjs(lastDest.arrival_date).format("YYYY-MM-DD")
+      : "";
 
     return {
       ...initialData,
       id_origin_city: initialData.id_origin_city ?? null,
+      return_date: returnDate,
       advance_money:
         initialData.advance_money !== undefined &&
         initialData.advance_money !== null
@@ -340,8 +325,12 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
             ? parsedAdvanceMoney.toFixed(2)
             : "0.00"
           : "0.00",
-      requests_destinations: initialData.requests_destinations.map((destination) => ({
-        ...destination,
+      requests_destinations: dests.map((destination) => ({
+        id_destination: destination.id_destination,
+        departure_date: destination.departure_date ?? "",
+        stay_days: destination.stay_days ?? 1,
+        is_hotel_required: destination.is_hotel_required,
+        is_plane_required: destination.is_plane_required,
         details: destination.details ?? "",
       })),
     };
@@ -353,9 +342,9 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
+    trigger,
   } = useForm<FormValues, unknown, SubmitValues>({
-    resolver: zodResolver(formSchema),
+    resolver,
     defaultValues: initialFormValues || {
       id_origin_city: null,
       motive: "",
@@ -364,10 +353,10 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       advance_money: "0.00",
       currency: "",
       requirements: "",
+      return_date: "",
       requests_destinations: [
         {
           id_destination: null,
-          arrival_date: "",
           departure_date: "",
           stay_days: 1,
           is_hotel_required: true,
@@ -377,6 +366,11 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       ],
     },
   });
+
+  useEffect(() => {
+    const hasErrors = Object.keys(errors).length > 0;
+    if (hasErrors) trigger();
+  }, [i18n.language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const persistStorageKey =
     isEditing && requestId
@@ -395,41 +389,57 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     name: "requests_destinations",
   });
 
-  /**
-   * onSubmit, Validates destination stay rules, builds payload data, and creates or updates a request.
-   * Inputs:data: SubmitValues - Validated form values provided by react-hook-form.
-   * Returns: Promise<void> - Executes mutation requests and navigation side effects.
-   */
   const onSubmit = async (data: SubmitValues) => {
     if (!data.id_origin_city) {
-      toast.error("Selecciona una ciudad de origen");
+      toast.error(t('toast.selectOrigin'));
       return;
     }
 
-    const hasInvalidStay = data.requests_destinations.some((d) => {
-      const diff = dayjs(d.arrival_date).diff(dayjs(d.departure_date), "day");
-      return diff <= 0;
-    });
+    // Validate sequential departure dates
+    for (let i = 1; i < data.requests_destinations.length; i++) {
+      const prevDest = data.requests_destinations[i - 1];
+      const currDest = data.requests_destinations[i];
+      if (!prevDest || !currDest) continue;
+      const prev = dayjs(prevDest.departure_date);
+      const curr = dayjs(currDest.departure_date);
+      if (!curr.isAfter(prev)) {
+        toast.error(t('toast.departureDateOrder', { num: i + 1 }), {
+          position: "top-right",
+          autoClose: 4000,
+        });
+        return;
+      }
+    }
 
-    if (hasInvalidStay) {
-      toast.error("Los días de estancia deben ser positivos", {
+    // Validate return date is after last departure
+    const lastDest = data.requests_destinations[data.requests_destinations.length - 1];
+    const lastDeparture = dayjs(lastDest?.departure_date ?? "");
+    if (!dayjs(data.return_date).isAfter(lastDeparture)) {
+      toast.error(t('toast.returnDateAfterLast'), {
         position: "top-right",
-        autoClose: 3000,
+        autoClose: 4000,
       });
       return;
     }
 
+    // Derive arrival_date and stay_days for each destination
     const requests_destinations = data.requests_destinations.map(
       (d, idx, arr) => {
         if (!d.id_destination) {
-          throw new Error("Selecciona un destino");
+          throw new Error(t('form.destinationPlaceholder'));
         }
+        // arrival = next destination's departure, or return_date for the last leg
+        const nextDest = arr[idx + 1];
+        const arrivalIso = idx < arr.length - 1
+          ? dayjs(nextDest?.departure_date).toISOString()
+          : dayjs(data.return_date).toISOString();
+        const stayDays = dayjs(arrivalIso).diff(dayjs(d.departure_date), "day");
 
         return {
           id_destination: d.id_destination,
           destination_order: idx + 1,
-          stay_days: d.stay_days,
-          arrival_date: dayjs(d.arrival_date).toISOString(),
+          stay_days: stayDays,
+          arrival_date: arrivalIso,
           departure_date: dayjs(d.departure_date).toISOString(),
           is_hotel_required: d.is_hotel_required,
           is_plane_required: d.is_plane_required,
@@ -453,10 +463,10 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     try {
       if (isEditing && requestId) {
         await updateTravelRequestMutation({ requestId, payload });
-        toast.success("¡Solicitud de viaje actualizada exitosamente!");
+        toast.success(t('toast.requestUpdated'));
       } else {
         await createTravelRequestMutation(payload);
-        toast.success("¡Solicitud de viaje creada exitosamente!");
+        toast.success(t('toast.requestCreated'));
       }
 
       clearPersistedForm();
@@ -464,8 +474,8 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       navigate("/dashboard");
     } catch (error) {
       let errorMessage = isEditing
-        ? "Error al actualizar la solicitud de viaje"
-        : "Error al crear la solicitud de viaje";
+        ? t('toast.errorUpdating')
+        : t('toast.errorCreating');
 
       if (error instanceof AxiosError && error.response?.data?.message) {
         errorMessage = error.response.data.message;
@@ -484,24 +494,24 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   return (
     <div className="max-w-5xl mx-auto">
       <GoBack />
-      <section className="bg-gray-200 rounded-md mb-10">
+      <section className="bg-[var(--color-card-bg)] rounded-md mb-10">
         <div className="p-10 mx-auto">
-          <h2 className="text-2xl font-bold text-[var(--blue)] mt-0 mb-4">
-            {isEditing ? "Editar Viaje" : "Datos del Viaje"}
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mt-0 mb-4">
+            {isEditing ? t('form.editTrip') : t('form.travelData')}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid gap-4 sm:grid-cols-2 sm:gap-6" id="travel_request_info">
               <div className="sm:col-span-2">
                 <label
                   htmlFor="motive"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
-                  Motivo
+                  {t('form.motive')}
                 </label>
                 <Input
                   id="motive"
                   {...register("motive")}
-                  placeholder="Viaje de Negocios"
+                  placeholder={t('form.motivePlaceholder')}
                 />
                 <FieldError msg={errors.motive?.message} />
               </div>
@@ -509,14 +519,14 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div>
                 <label
                   htmlFor="title"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
-                  Título
+                  {t('form.title')}
                 </label>
                 <Input
                   id="title"
                   {...register("title")}
-                  placeholder="Viaje a CDMX"
+                  placeholder={t('form.titlePlaceholder')}
                 />
                 <FieldError msg={errors.title?.message} />
               </div>
@@ -524,9 +534,9 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div>
                 <label
                   htmlFor="id_origin_city"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
-                  Ciudad Origen
+                  {t('form.originCity')}
                 </label>
                 <Controller
                   control={control}
@@ -542,7 +552,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                       }
                       onChange={(opt) => opt && field.onChange(opt ? opt.id : null)}
                       isLoading={isLoadingDestinations}
-                      placeholder="Selecciona ciudad de origen"
+                      placeholder={t('form.originCityPlaceholder')}
                     />
                   )}
                 />
@@ -552,9 +562,9 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div>
                 <label
                   htmlFor="priority"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
-                  Prioridad
+                  {t('form.priority')}
                 </label>
                 <Controller
                   control={control}
@@ -565,7 +575,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                       options={priorityOptions}
                       value={priorityOptions.find((o) => o.id === field.value)}
                       onChange={(opt) => opt && field.onChange(opt.id)}
-                      placeholder="Selecciona prioridad"
+                      placeholder={t('form.priorityPlaceholder')}
                     />
                   )}
                 />
@@ -576,9 +586,9 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 <div className="w-full sm:w-1/3">
                   <label
                     htmlFor="advance_money"
-                    className="block mb-2 text-sm font-medium text-gray-900"
+                    className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                   >
-                    Dinero adelantado
+                    {t('form.advanceMoney')}
                   </label>
                   <Controller
                     control={control}
@@ -628,9 +638,9 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 <div className="flex-1">
                   <label
                     htmlFor="currency"
-                    className="block mb-2 text-sm font-medium text-gray-900"
+                    className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                   >
-                    Moneda
+                    {t('form.currency')}
                   </label>
                   <Controller
                     control={control}
@@ -641,7 +651,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                         options={currencyOptions}
                         value={currencyOptions.find((o) => o.id === field.value)}
                           onChange={(opt) => field.onChange(opt ? opt.id : "")}
-                        placeholder="Moneda"
+                        placeholder={t('form.currency')}
                       />
                     )}
                   />
@@ -652,20 +662,20 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               <div className="sm:col-span-2">
                 <label
                   htmlFor="requirements"
-                  className="block mb-2 text-sm font-medium text-gray-900"
+                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
                 >
-                  Requisitos adicionales
+                  {t('form.additionalRequirements')}
                 </label>
                 <TextArea
                   id="requirements"
                   {...register("requirements")}
-                  placeholder="Requisitos adicionales del viaje"
+                  placeholder={t('form.additionalRequirementsPlaceholder')}
                 />
               </div>
             </div>
 
             <div id="destination_info">
-              <h3 className="mt-8 mb-4 text-lg font-semibold">Destinos</h3>
+              <h3 className="mt-8 mb-4 text-lg font-semibold text-[var(--color-page-text)]">{t('form.destinations')}</h3>
               {fields.map((field, idx) => (
                 <DestinationFields
                   key={field.id}
@@ -676,10 +686,36 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                   destinationOptionsById={destinationOptionsById}
                   errors={errors.requests_destinations}
                   remove={remove}
-                  setValue={setValue}
                   isLoadingDestinations={isLoadingDestinations}
                 />
               ))}
+
+              {/* Single return date shared across the whole trip */}
+              <div className="rounded-md p-4 mb-6 bg-[var(--color-page-bg)] shadow-sm">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="return_date"
+                      className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
+                    >
+                      {t('form.returnDate')}
+                    </label>
+                    <Controller
+                      control={control}
+                      name="return_date"
+                      render={({ field }) => (
+                        <Input
+                          id="return_date"
+                          type="date"
+                          value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
+                          onChange={e => field.onChange(e.target.value)}
+                        />
+                      )}
+                    />
+                    <FieldError msg={(errors as any).return_date?.message} />
+                  </div>
+                </div>
+              </div>
             </div>
             <Button
               id="new_destination"
@@ -687,7 +723,6 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
               onClick={() =>
                 append({
                   id_destination: null,
-                  arrival_date: "",
                   departure_date: "",
                   stay_days: 1,
                   is_hotel_required: false,
@@ -696,17 +731,17 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 })
               }
             >
-              + Añadir destino
+              {t('form.addDestination')}
             </Button>
 
             <Button type="submit" className="mt-4 sm:mt-6" disabled={isPending} id={isEditing ? "update_travel_request" : "create_travel_request"}>
               {isPending
                 ? isEditing
-                  ? "Actualizando..."
-                  : "Creando..."
+                  ? t('form.updating')
+                  : t('form.creating')
                 : isEditing
-                  ? "Actualizar viaje"
-                  : "Crear viaje"}
+                  ? t('form.updateTrip')
+                  : t('form.createTrip')}
             </Button>
           </form>
         </div>

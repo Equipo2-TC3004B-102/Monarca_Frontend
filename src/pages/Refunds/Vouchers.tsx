@@ -3,10 +3,8 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added destination fallback display to avoid
- *                             null access when destination data is missing.
- * 22/04/2026 [Sebastián Borjas] Added multi-currency support, compact upload buttons, and fixed table cell alignment.
- * 23/04/2026 [Jin Sik Yoon] - Implemented form submission to handle multiple vouchers, added validation for amount field, and enhanced user experience with file upload previews and error handling.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
+ * 04/05/2026 [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -25,6 +23,8 @@ import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
 import { currencyOptions } from "../../utils/currencies";
+import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
+import { useTranslation } from "react-i18next";
 
 /**
  * FormDataRow
@@ -63,6 +63,7 @@ interface Trip {
 export const Vouchers = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<FormDataRow[]>([]);
   const [trip, setTrip] = useState<Trip>({
     id: 0,
@@ -99,7 +100,7 @@ export const Vouchers = () => {
    */
   const handleSubmitRefund = async () => {
     if (formData.some((row) => !row.currency)) {
-      toast.error("Por favor selecciona una moneda para cada comprobante.");
+      toast.error(t('vouchers.selectCurrencyError'));
       return;
     }
     try {
@@ -118,11 +119,11 @@ export const Vouchers = () => {
         formDataToSend.append("status", "pending_voucher");
         formDataToSend.append("currency", rowData.currency || "MXN");
         if (rowData.XMLFile) {
-          formDataToSend.append("file_url_xml", rowData.XMLFile);
+          formDataToSend.append("xml", rowData.XMLFile);
         }
 
         if (rowData.PDFFile) {
-          formDataToSend.append("file_url_pdf", rowData.PDFFile);
+          formDataToSend.append("pdf", rowData.PDFFile);
         }
 
         await postRequest("/vouchers/upload", formDataToSend);
@@ -137,10 +138,10 @@ export const Vouchers = () => {
         err instanceof Error ? err.message : err
       );
       toast.error(
-        "Error submitting refund request. Please try again later."
+        t('vouchers.submitError')
       );
     }
-  };
+  }; 
 
   /**
    * Schema definition for the DynamicTable.
@@ -149,7 +150,8 @@ export const Vouchers = () => {
   const columnsSchemaVauchers = [
     {
       key: "spentClass",
-      header: "Clase de gasto",
+      header: t('vouchers.colSpentClass'),
+      className: "w-40",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -162,14 +164,15 @@ export const Vouchers = () => {
           options={spendOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Clase"
+          placeholder={t('vouchers.classPlaceholder')}
           wrapperClassName="relative flex flex-col"
         />
       ),
     },
     {
       key: "amount",
-      header: "Importe",
+      header: t('vouchers.colAmount'),
+      className: "w-24",
       defaultValue: "0.00",
       renderCell: (
         value: CellValueType,
@@ -223,7 +226,7 @@ export const Vouchers = () => {
 
                 if (e.key === "Enter" && Number(value || 0) === 0) {
                   e.preventDefault();
-                  toast.error("El importe no puede ser 0.00");
+                  toast.error(t('vouchers.amountError'));
                 }
               }}
             />
@@ -233,9 +236,9 @@ export const Vouchers = () => {
     },
     {
       key: "currency",
-      header: "Moneda",
+      header: t('vouchers.colCurrency'),
       defaultValue: "",
-      className: "w-32",
+      className: "w-20",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -247,16 +250,16 @@ export const Vouchers = () => {
           options={currencyOptions.map((c) => ({ value: c.id, label: c.id }))}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Moneda"
+          placeholder={t('vouchers.currencyPlaceholder')}
           wrapperClassName="relative flex flex-col"
         />
       ),
     },
     {
       key: "taxIndicator",
-      header: "Indicador de Impuestos",
+      header: t('vouchers.colTaxIndicator'),
       defaultValue: "",
-      className: "w-34",
+      className: "w-40",
       renderCell: (
         value: CellValueType,
         onChangeComponentFunction: (newValue: CellValueType) => void,
@@ -268,14 +271,15 @@ export const Vouchers = () => {
           options={taxIndicatorOptions}
           value={value as string}
           onChange={(e) => onChangeComponentFunction(e.target.value)}
-          placeholder="Indicador"
+          placeholder={t('vouchers.indicatorPlaceholder')}
           wrapperClassName="relative flex flex-col"
         />
       ),
     },
     {
       key: "date",
-      header: "Fecha de comprobante",
+      header: t('vouchers.colDate'),
+      className: "w-24",
       defaultValue: "",
       renderCell: (
         value: CellValueType,
@@ -295,7 +299,8 @@ export const Vouchers = () => {
     },
     {
       key: "XMLFile",
-      header: "XML",
+      header: t('vouchers.colXML'),
+      className: "w-20",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
@@ -315,6 +320,13 @@ export const Vouchers = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  // Validate file size
+                  if (!isFileSizeValid(file)) {
+                    toast.error(getFileSizeErrorMessage(file.name, file.size));
+                    e.target.value = "";
+                    return;
+                  }
+                  
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
@@ -337,7 +349,7 @@ export const Vouchers = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
               </svg>
-              {xmlName ? "Cambiar" : "XML"}
+              {xmlName ? t('vouchers.changeFile') : t('vouchers.colXML')}
             </label>
             {xmlName && (
               <span className="text-xs text-green-200 truncate max-w-[80px]" title={xmlName}>
@@ -350,7 +362,8 @@ export const Vouchers = () => {
     },
     {
       key: "PDFFile",
-      header: "PDF",
+      header: t('vouchers.colPDF'),
+      className: "w-20",
       defaultValue: "",
       renderCell: (
         _value: CellValueType,
@@ -370,6 +383,13 @@ export const Vouchers = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  // Validate file size
+                  if (!isFileSizeValid(file)) {
+                    toast.error(getFileSizeErrorMessage(file.name, file.size));
+                    e.target.value = "";
+                    return;
+                  }
+                  
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
@@ -392,7 +412,7 @@ export const Vouchers = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
               </svg>
-              {pdfName ? "Cambiar" : "PDF"}
+              {pdfName ? t('vouchers.changeFile') : t('vouchers.colPDF')}
             </label>
             {pdfName && (
               <span className="text-xs text-green-200 truncate max-w-[80px]" title={pdfName}>
@@ -421,28 +441,28 @@ export const Vouchers = () => {
     <>
       <Tutorial page="vouchers">
         <GoBack />
-        <div className="max-w-full p-6 bg-[#eaeced] rounded-lg shadow-xl">
-          <h2 className="text-2xl font-bold text-[#0a2c6d] mb-1">
-            Solicitud de comprobante
+        <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
+          <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-1">
+            {t('vouchers.title')}
           </h2>
           <div className="mb-4">
             {/*
           * Display general information about the trip, such as ID, name, destination,
           */}
-            <h3 className="text-lg font-bold text-[#0a2c6d] mb-2">
-              Información del viaje
+            <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-2">
+              {t('vouchers.tripInfo')}
             </h3>
-            <p>
-              <strong>Viaje ID:</strong> {trip.id}
+            <p className="text-[var(--color-page-text)]">
+              <strong>{t('vouchers.tripId')}</strong> {trip.id}
             </p>
-            <p>
-              <strong>Nombre de viaje:</strong> {trip.title}
+            <p className="text-[var(--color-page-text)]">
+              <strong>{t('vouchers.tripName')}</strong> {trip.title}
             </p>
-            <p>
-              <strong>Destino:</strong> {trip.destination?.city || trip.destination?.iata_code || "Destino no disponible"}
+            <p className="text-[var(--color-page-text)]">
+              <strong>{t('vouchers.destination')}</strong> {trip.destination?.city || trip.destination?.iata_code || t('historial.noDestination')}
             </p>
-            <p>
-              <strong>Anticipo:</strong> {formatMoney(trip.advance_money)}
+            <p className="text-[var(--color-page-text)]">
+              <strong>{t('vouchers.advance')}</strong> {formatMoney(trip.advance_money)}
             </p>
           </div>
           {/*
@@ -465,12 +485,12 @@ export const Vouchers = () => {
         * The comment is stored in the commentDescriptionOfSpend state,
         * and is updated with the setCommentDescriptionOfSpend function.
         */}
-          <h3 className="text-lg font-bold text-[#0a2c6d] mt-4 mb-2">Comentarios</h3>
+          <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mt-4 mb-2">{t('vouchers.comments')}</h3>
           <InputField
             id="comment-refund"
             type="text"
             value={commentValue}
-            placeholder="Escribe comentarios"
+            placeholder={t('vouchers.commentsPlaceholder')}
             onChange={(e) => setCommentValue(e.target.value)}
           />
           <div className="mt-6 flex justify-between">
@@ -478,7 +498,7 @@ export const Vouchers = () => {
               to="/refunds"
               className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
             >
-              Cancelar
+              {t('vouchers.cancel')}
             </Link>
             <button
               id="submit-refund"
@@ -487,7 +507,7 @@ export const Vouchers = () => {
                 handleSubmitRefund();
               }}
             >
-              Enviar
+              {t('vouchers.submit')}
             </button>
           </div>
         </div>

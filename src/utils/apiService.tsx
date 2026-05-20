@@ -3,7 +3,7 @@
  * Description: Centralized Axios configuration and HTTP utility functions for handling API requests (GET, POST, PUT, PATCH, DELETE) with global error interception.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 14/05/2026 [Diego de la Vega] Added flight search API endpoints and handlers.
  */
 
 import axios, { AxiosRequestConfig } from "axios";
@@ -34,12 +34,32 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
+      const errorCode = error.response.data?.code;
       console.error(
         "API ERROR FULL:",
         JSON.stringify(error.response?.data, null, 2)
       );
+      // Log file size errors specifically
+      const message = Array.isArray(error.response.data?.message)
+        ? error.response.data.message.join(', ')
+        : error.response.data?.message;
+      if (error.response.status === 413 || 
+          (error.response.status === 400 && 
+           typeof message === 'string' && message.toLowerCase().includes("size"))) {
+        console.error("File size validation error:", message);
+      }
       if (error.response.status === 401) {
         // Token refresh logic or redirect to login could be implemented here
+      }
+
+      // If auth context is missing/invalid, send user back to login immediately.
+      if (
+        errorCode === "AUTH_MISSING_TOKEN" ||
+        errorCode === "AUTH_INVALID_TOKEN"
+      ) {
+        if (window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
       }
     } else if (error.request) {
       console.error("se recibió respuesta de la API:", error.request);
@@ -79,7 +99,7 @@ export const getRequest = async (
  */
 export const postRequest = async (
   url: string,
-  data: Record<string, unknown> | FormData,
+  data: unknown,
   config: AxiosRequestConfig = {}
 ) => {
   try {
@@ -107,7 +127,7 @@ export const postRequest = async (
  */
 export const putRequest = async (
   url: string,
-  data: Record<string, unknown> | FormData,
+  data: unknown,
   config: AxiosRequestConfig = {}
 ) => {
   try {
@@ -134,7 +154,7 @@ export const putRequest = async (
  */
 export const patchRequest = async (
   url: string,
-  data: Record<string, unknown> | FormData,
+  data: unknown,
   config: AxiosRequestConfig = {}
 ) => {
   try {

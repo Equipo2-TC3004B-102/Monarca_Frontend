@@ -4,10 +4,10 @@
  * It provides a customizable textArea field with proper validation and styling.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
- * clarity and maintainability.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 import React, { ChangeEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 /*
  * TextAreaFieldProps interface to define the structure of the props for the TextAreaField component.
@@ -73,6 +73,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   onFocus,
   validateField,
 }) => {
+  const { t } = useTranslation();
   // Set default placeholder for date textAreas
   const effectivePlaceholder =
     type === "date" && !placeholder ? "DD/MM/YYYY" : placeholder;
@@ -129,7 +130,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
     required && isEmptyValue(value) && (isTouched || wasChanged);
 
   // Base styles for the textArea - adjusted for different textArea types
-  const baseClass = `p-2 border rounded-md focus:outline-none focus:ring-2 ${
+  const baseClass = `p-2 border bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-md focus:outline-none focus:ring-2 ${
     type === "checkbox" || type === "radio"
       ? "w-auto hover:cursor-pointer" // Checkbox and radio shouldn't be full width
       : type === "file"
@@ -147,10 +148,10 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   const borderClass =
     isInvalid || errorMessage
       ? "border-red-500 focus:ring-blue-500"
-      : "border-gray-300 focus:ring-blue-500";
+      : "border-[var(--color-border)] focus:ring-blue-500";
 
   // Text color
-  const textClass = "text-[#0a2c6d]";
+  const textClass = "text-[var(--color-page-text)]";
 
   /**
    * validateTextArea, validates a textarea field based on required status and custom validation rules.
@@ -160,7 +161,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   const validateTextArea = (textAreaValue: string) => {
     // Check if field is required and empty
     if (required && isEmptyValue(textAreaValue)) {
-      setLocalError("Este campo es obligatorio");
+      setLocalError(t('common.fieldRequired'));
       return false;
     }
     // Run custom validation if provided

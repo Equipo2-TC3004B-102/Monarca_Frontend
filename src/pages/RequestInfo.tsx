@@ -3,7 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added provider support status display and destination/date fallbacks for partial responses.
+ * 14/05/2026 [Diego de la Vega] Update destinations display to show origin-to-destination flow and synthesize return legs. Added dark mode for some buttons.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -28,36 +28,27 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useApp } from '../hooks/app/appContext';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 /**
  * renderStatus, function to convert internal request status codes into user-friendly Spanish labels for display in the UI.
  * Inputs: status (string) - The internal status code of the request.
  * Returns: string - The user-friendly label corresponding to the status code.
  */
-const renderStatus = (status: string) => {
+const renderStatus = (status: string, t: TFunction) => {
   switch (status) {
-    case "Pending Review":
-      return "En revisión";
-    case "Denied":
-      return "Denegado";
-    case "Cancelled":
-      return "Cancelado";
-    case "Changes Needed":
-      return "Cambios necesarios";
-    case "Pending Reservations":
-      return "Reservas pendientes";
-    case "Pending Accounting Approval":
-      return "Contabilidad pendiente";
-    case "Pending Vouchers Approval":
-      return "Comprobantes pendientes";
-    case "In Progress":
-      return "En progreso";
-    case "Pending Refund Approval":
-      return "Reembolso pendiente";
-    case "Completed":
-      return "Completado";
-    default:
-      return status;
+    case "Pending Review":      return t('status.pendingReview');
+    case "Denied":              return t('status.denied');
+    case "Cancelled":           return t('status.cancelled');
+    case "Changes Needed":      return t('status.changesNeeded');
+    case "Pending Reservations":return t('status.pendingReservations');
+    case "Pending Accounting Approval": return t('status.pendingAccountingApproval');
+    case "Pending Vouchers Approval":   return t('status.pendingVouchersApproval');
+    case "In Progress":         return t('status.inProgress');
+    case "Pending Refund Approval": return t('status.pendingRefundApproval');
+    case "Completed":           return t('status.completed');
+    default:                    return status;
   }
 }
 
@@ -67,16 +58,12 @@ const renderStatus = (status: string) => {
  * Inputs: status (string | undefined) - Provider compatibility status code.
  * Returns: string - Human-readable status label.
  */
-const renderProviderSupportStatus = (status?: string) => {
+const renderProviderSupportStatus = (status: string | undefined, t: TFunction) => {
   switch (status) {
-    case 'supported':
-      return 'Compatible';
-    case 'unsupported':
-      return 'No compatible';
+    case 'supported':      return t('providerStatus.supported');
+    case 'unsupported':    return t('providerStatus.unsupported');
     case 'pending_provider':
-      return 'Pendiente de proveedor';
-    default:
-      return 'Pendiente de proveedor';
+    default:               return t('providerStatus.pending');
   }
 };
 
@@ -114,6 +101,7 @@ const RequestInfo: React.FC = () => {
   const nextRefRes = React.useRef(null);
 
   const { handleVisitPage, tutorial } = useApp();
+  const { t } = useTranslation();
 
   const normalizeAmount = (value: unknown): number | undefined => {
     if (value === null || value === undefined) {
@@ -172,12 +160,50 @@ const RequestInfo: React.FC = () => {
         const reservations = (response.requests_destinations || [])
           .map((dest: any) => dest.reservations)
           .flat();
-        console.log(response);
+          
+        const sortedDests = [...(response.requests_destinations || [])].sort(
+          (a: any, b: any) => a.destination_order - b.destination_order
+        );
+
+        const mappedDests = sortedDests.map((destination: any, idx: number) => {
+          const prevDest = idx > 0 ? sortedDests[idx - 1] : null;
+          const originCity = prevDest
+            ? prevDest.destination?.city || prevDest.destination?.iata_code || t('historial.noDestination')
+            : response.destination?.city || response.destination?.iata_code || t('historial.noDestination');
+            
+          return {
+            ...destination,
+            origin_city: originCity,
+            destination_city: destination.destination?.city || destination.destination?.iata_code || t('historial.noDestination'),
+          };
+        });
+
+        const lastReal = mappedDests[mappedDests.length - 1];
+        if (lastReal?.arrival_date) {
+          const returnOriginCity = lastReal.destination_city;
+          const returnDestCity = response.destination?.city || response.destination?.iata_code || t('historial.noDestination');
+          
+          mappedDests.push({
+            id: lastReal.id + ':return',
+            destination_order: mappedDests.length + 1,
+            is_synthetic_return: true,
+            origin_city: returnOriginCity,
+            destination_city: returnDestCity,
+            departure_date: lastReal.arrival_date,
+            arrival_date: "",
+            is_hotel_required: false,
+            is_plane_required: true,
+            stay_days: 0,
+            details: "",
+            provider_support_status: lastReal.provider_support_status
+          });
+        }
+
         setData({
           ...response,
+          requests_destinations: mappedDests,
           effective_advance_money: effectiveAdvanceMoney,
           reservations: reservations,
-          formatted_status: renderStatus(response.status),
           createdAt: formatDate(response.createdAt),
           advance_money_str: formatMoney(
             normalizedAdvanceMoney ?? effectiveAdvanceMoney,
@@ -195,13 +221,13 @@ const RequestInfo: React.FC = () => {
           id_origin_city:
             response.destination?.city ||
             response.destination?.iata_code ||
-            'Origen no disponible',
+            t('historial.noDestination'),
           destinations: (response.requests_destinations || [])
             .map(
               (dest: any) =>
                 dest.destination?.city ||
                 dest.destination?.iata_code ||
-                'Destino no disponible',
+                t('historial.noDestination'),
             )
             .join(', '),
         });
@@ -281,7 +307,18 @@ const RequestInfo: React.FC = () => {
     const fetchAgencies = async () => {
       try {
         const response = await getRequest('/travel-agencies');
-        setAgencies(response);
+        // Deduplicate agencies by normalized name (case-insensitive) so duplicates like
+        // multiple 'Duffel' entries are shown only once in the selector.
+        const seen = new Set<string>();
+        const deduped: any[] = [];
+        for (const ag of response || []) {
+          const key = (ag?.name || '').toString().trim().toLowerCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            deduped.push(ag);
+          }
+        }
+        setAgencies(deduped);
       } catch (error) {
         console.error('Error fetching agencies data:', error);
       }
@@ -291,19 +328,19 @@ const RequestInfo: React.FC = () => {
   }, []);
 
   const labels: { key: string; label: string }[] = [
-    { key: 'id', label: 'ID solicitud' },
-    { key: 'admin', label: 'Aprobador' },
-    { key: 'id_origin_city', label: 'Ciudad de Origen' },
-    { key: 'destinations', label: 'Destinos' },
-    { key: 'motive', label: 'Motivo' },
-    { key: 'currency', label: 'Moneda' },
-    { key: 'unconverted_advance_money_str', label: 'Anticipo (Moneda Origen)' },
-    { key: 'exchange_rate_str', label: 'Tipo de Cambio' },
-    { key: 'advance_money_str', label: 'Anticipo (MXN)' },
-    { key: 'formatted_status', label: 'Estado' },
-    { key: 'requirements', label: 'Requerimientos' },
-    { key: 'priority', label: 'Prioridad' },
-    { key: 'createdAt', label: 'Fecha de creación' },
+    { key: 'id', label: t('requestInfo.labelId') },
+    { key: 'admin', label: t('requestInfo.labelApprover') },
+    { key: 'id_origin_city', label: t('requestInfo.labelOriginCity') },
+    { key: 'destinations', label: t('requestInfo.labelDestinations') },
+    { key: 'motive', label: t('requestInfo.labelMotive') },
+    { key: 'currency', label: t('requestInfo.labelCurrency') },
+    { key: 'unconverted_advance_money_str', label: t('requestInfo.labelAdvanceOrigin') },
+    { key: 'exchange_rate_str', label: t('requestInfo.labelExchangeRate') },
+    { key: 'advance_money_str', label: t('requestInfo.labelAdvanceMXN') },
+    { key: 'status', label: t('requestInfo.labelStatus') },
+    { key: 'requirements', label: t('requestInfo.labelRequirements') },
+    { key: 'priority', label: t('requestInfo.labelPriority') },
+    { key: 'createdAt', label: t('requestInfo.labelCreatedAt') },
   ].filter(label => data[label.key] !== undefined && data[label.key] !== null);
 
   /**
@@ -313,7 +350,7 @@ const RequestInfo: React.FC = () => {
    */
   const approve = async () => {
     if (!selectedAgency) {
-      toast.error('Selecciona una agencia de viaje', {
+      toast.error(t('requestInfo.selectAgencyError'), {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -324,14 +361,14 @@ const RequestInfo: React.FC = () => {
         id_travel_agency: selectedAgency,
       });
       clearRequestInfoDraft();
-      toast.success(`Solicitud aprobada con ${selectedAgency}`, {
+      toast.success(t('requestInfo.approveSuccess', { agency: agencies.find(a => a.id === selectedAgency)?.name ?? selectedAgency }), {
         position: 'top-right',
         autoClose: 3000,
       });
       navigate('/approvals');
     } catch (error) {
       console.error('Error approving request:', error);
-      toast.error('Error al aprobar la solicitud', {
+      toast.error(t('requestInfo.approveError'), {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -348,7 +385,7 @@ const RequestInfo: React.FC = () => {
    */
   const requestChanges = async () => {
     if (!comment.trim()) {
-      toast.error('Escribe un comentario para solicitar cambios', {
+      toast.error(t('requestInfo.changesComment'), {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -360,14 +397,14 @@ const RequestInfo: React.FC = () => {
         comment: comment,
       });
       clearRequestInfoDraft();
-      toast.info('Se han solicitado cambios', {
+      toast.info(t('requestInfo.changesRequested'), {
         position: 'top-right',
         autoClose: 3000,
       });
       navigate('/approvals');
     } catch (error) {
       console.error('Error requesting changes:', error);
-      toast.error('Error al solicitar cambios', {
+      toast.error(t('requestInfo.changesError'), {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -386,14 +423,14 @@ const RequestInfo: React.FC = () => {
     try {
       await patchRequest(`/requests/deny/${id}`, {});
       clearRequestInfoDraft();
-      toast.error('Solicitud denegada', {
+      toast.error(t('requestInfo.denySuccess'), {
         position: 'top-right',
         autoClose: 3000,
       });
       navigate('/approvals');
     } catch (error) {
       console.error('Error denying request:', error);
-      toast.error('Error al denegar la solicitud', {
+      toast.error(t('requestInfo.denyError'), {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -412,14 +449,14 @@ const RequestInfo: React.FC = () => {
     try {
       await patchRequest(`/requests/cancel/${id}`, {});
       clearRequestInfoDraft();
-      toast.error('Solicitud cancelada', {
+      toast.error(t('requestInfo.cancelSuccess'), {
         position: 'top-right',
         autoClose: 3000,
       });
       navigate('/history');
     } catch (error) {
       console.error('Error cancelling request:', error);
-      toast.error('Error al cancelar la solicitud', {
+      toast.error(t('requestInfo.cancelError'), {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -438,14 +475,14 @@ const RequestInfo: React.FC = () => {
     try {
       await patchRequest(`/requests/SOI-approve/${id}`, {});
       clearRequestInfoDraft();
-      toast.success('Solicitud marcada como registrada', {
+      toast.success(t('requestInfo.registerSuccess'), {
         position: 'top-right',
         autoClose: 3000,
       });
       navigate('/history');
     } catch (error) {
       console.error('Error registering request:', error);
-      toast.error('Error al marcar la solicitud como registrada', {
+      toast.error(t('requestInfo.registerError'), {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -462,14 +499,14 @@ const RequestInfo: React.FC = () => {
     try {
       await patchRequest(`/requests/complete-request/${id}`, {});
       clearRequestInfoDraft();
-      toast.success('Solicitud marcada como completada', {
+      toast.success(t('requestInfo.completeSuccess'), {
         position: 'top-right',
         autoClose: 3000,
       });
       navigate('/check-refunds');
     } catch (error) {
       console.error('Error completing request:', error);
-      toast.error('Error al marcar la solicitud como completada', {
+      toast.error(t('requestInfo.completeError'), {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -491,13 +528,13 @@ const RequestInfo: React.FC = () => {
     <Tutorial page="requestInfo" run={tutorial}>
       <div className="pb-10">
         <GoBack />
-        <main className="max-w-6xl mx-auto rounded-lg shadow-lg overflow-hidden">
+        <main className="max-w-6xl bg-[var(--color-card-bg)] mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
             <div className="w-fit bg-[var(--blue)] text-white text-xs lg:text-base px-4 py-2 rounded-full mb-6">
-              Información de Solicitud: <span>{id}</span>
+              {t('requestInfo.title')} <span>{id}</span>
             </div>
             <p className="mb-6 text-gray-700 font-medium">
-              Solicitante: <span className="text-[var(--blue)]">{data?.user?.name} {data?.user?.last_name}</span>
+              {t('requestInfo.requester')} <span className="text-[var(--color-page-text-title)]">{data?.user?.name} {data?.user?.last_name}</span>
             </p>
 
             <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="request-info">
@@ -513,8 +550,8 @@ const RequestInfo: React.FC = () => {
                     id={key as string}
                     type="text"
                     readOnly
-                    value={String(data[key])}
-                    className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                    value={key === 'status' ? renderStatus(String(data[key]), t) : String(data[key])}
+                    className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                   />
                 </div>
               ))}
@@ -522,9 +559,9 @@ const RequestInfo: React.FC = () => {
 
             <section id="destinations-info">
               <p
-                className="block text-sm font-medium text-gray-700 mb-4"
+                className="block text-sm font-bold text-gray-500 mb-4"
               >
-                Detalles de los destinos
+                {t('requestInfo.destinationDetails')}
               </p>
               {data?.requests_destinations?.map((dest: any, index: number) => (
                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-8" key={dest.id}>
@@ -532,72 +569,56 @@ const RequestInfo: React.FC = () => {
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1"
                     >
-                      Lugar
+                      {t('requestInfo.place')}
                     </label>
                     <input
                       id={`destination-${index}`}
                       type="text"
                       readOnly
-                      value={
-                        dest.destination?.city ||
-                        dest.destination?.iata_code ||
-                        'Destino no disponible'
-                      }
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      value={`${dest.origin_city} -> ${dest.destination_city}`}
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div>
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1"
                     >
-                      Fecha de llegada
-                    </label>
-                    <input
-                      id={`arrival-${index}`}
-                      type="text"
-                      readOnly
-                      value={dest.arrival_date ? formatDate(dest.arrival_date) : 'Sin fecha'}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      className="block text-xs font-semibold text-gray-500 mb-1"
-                    >
-                      Fecha de salida
+                      {t('requestInfo.departureDate')}
                     </label>
                     <input
                       id={`departure-${index}`}
                       type="text"
                       readOnly
-                      value={dest.departure_date ? formatDate(dest.departure_date) : 'Sin fecha'}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      value={dest.departure_date ? formatDate(dest.departure_date) : t('historial.noDate')}
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div>
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1"
                     >
-                      Detalles
+                      {t('requestInfo.details')}
                     </label>
                     <input
                       id={`details-${index}`}
                       type="text"
                       readOnly
-                      value={dest.details || 'Sin detalles'}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      value={dest.details || '-'}
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
+                  </div>
+                  <div>
                     <label
-                      className="block text-xs font-semibold text-gray-500 mb-1 mt-2"
+                      className="block text-xs font-semibold text-gray-500 mb-1"
                     >
-                      Estado proveedor
+                      {t('requestInfo.providerStatusLabel')}
                     </label>
                     <input
                       id={`provider-support-status-${index}`}
                       type="text"
                       readOnly
-                      value={renderProviderSupportStatus(dest.provider_support_status)}
-                      className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                      value={renderProviderSupportStatus(dest.provider_support_status, t)}
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
                   <div className="flex items-center justify-start gap-1">
@@ -605,10 +626,10 @@ const RequestInfo: React.FC = () => {
                       <p id={`hotel-${index}`} className='text-sm bg-[var(--yellow)] rounded-full px-2 py-1 w-fit'>Hotel</p>
                     )}
                     {dest.is_plane_required && (
-                      <p id={`plane-${index}`} className='text-sm bg-[var(--blue)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>Avión</p>
+                      <p id={`plane-${index}`} className='text-sm bg-[var(--blue)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{t('requestInfo.flight')}</p>
                     )}
                     {dest.stay_days && (
-                      <p id={`stay-days-${index}`} className='text-sm bg-[var(--green)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{dest.stay_days} días</p>
+                      <p id={`stay-days-${index}`} className='text-sm bg-[var(--green)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{dest.stay_days} {t('requestInfo.days')}</p>
                     )}
 
                   </div>
@@ -620,7 +641,7 @@ const RequestInfo: React.FC = () => {
               <p
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Revisiones anteriores
+                {t('requestInfo.previousReviews')}
               </p>
               <div className="grid grid-cols-1 gap-2 mb-6">
                 {data?.revisions?.map((revision: any, index: number) => (
@@ -628,7 +649,7 @@ const RequestInfo: React.FC = () => {
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1"
                     >
-                      Comentario
+                      {t('requestInfo.comment')}
                     </label>
                     <input
                       id={`revision-comment-${index}`}
@@ -647,13 +668,12 @@ const RequestInfo: React.FC = () => {
                 <p
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Reservaciones de la solicitud
+                  {t('requestInfo.requestReservations')}
                 </p>
                 <div className="mb-4">
-                  <div className="bg-white p-4 relative">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                      Reservaciones {currentIndexRes + 1} de{" "}
-                      {data?.reservations?.length}
+                  <div className="bg-[var(--color-page-bg)] p-4 relative">
+                    <h2 className="text-lg font-semibold text-[var(--color-page-text)]  mb-4">
+                      {t('requestInfo.reservationOf', { current: currentIndexRes + 1, total: data?.reservations?.length })}
                     </h2>
                     {/* Display the existing PDF using an iframe */}
                     <Swiper
@@ -678,26 +698,26 @@ const RequestInfo: React.FC = () => {
                         </SwiperSlide>
                       ))}
                     </Swiper>
-                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-[var(--color-page-bg)]">
                       <button
                         ref={prevRefRes}
                         disabled={currentIndexRes === 0}
-                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndexRes === 0
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className={`px-4 py-2 rounded-md border border-[var(--color-border)] ${currentIndexRes === 0
+                            ? "bg-[var(--color-card-bg)] text-[var(--color-page-text)] opacity-50 cursor-not-allowed"
+                            : "bg-[var(--color-card-bg)] text-[var(--color-page-text-title)] hover:bg-[var(--color-page-bg)]"
                           }`}
                       >
-                        Anterior
+                        {t('requestInfo.previous')}
                       </button>
                       <button
                         disabled={currentIndexRes === ((data?.reservations?.length ?? 0) - 1)}
                         ref={nextRefRes}
-                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndexRes === (data?.reservations?.length ?? 0) - 1
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className={`px-4 py-2 rounded-md border border-[var(--color-border)] ${currentIndexRes === (data?.reservations?.length ?? 0) - 1
+                            ? "bg-[var(--color-card-bg)] text-[var(--color-page-text)] opacity-50 cursor-not-allowed"
+                            : "bg-[var(--color-card-bg)] text-[var(--color-page-text-title)] hover:bg-[var(--color-page-bg)]"
                           }`}
                       >
-                        Siguiente
+                        {t('requestInfo.next')}
                       </button>
                     </div>
                   </div>
@@ -707,7 +727,7 @@ const RequestInfo: React.FC = () => {
                         htmlFor={"total"}
                         className="block text-xs font-semibold text-gray-500 mb-1"
                       >
-                        Total de Reservaciones
+                        {t('requestInfo.totalReservations')}
                       </label>
                       <input
                         id="total_vouchers"
@@ -716,7 +736,7 @@ const RequestInfo: React.FC = () => {
                         value={formatMoney(data?.reservations?.reduce((acc: number, file: { price: number }) => {
                           return acc + +file.price;
                         }, 0) ?? 0)}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                   </section>
@@ -726,15 +746,14 @@ const RequestInfo: React.FC = () => {
             {data?.vouchers?.length > 0 &&
               <section id="vouchers-info">
                 <p
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-[var(--color-page-text)] mb-2"
                 >
-                  Comprobantes de la solicitud
+                  {t('requestInfo.requestVouchers')}
                 </p>
                 <div className="mb-4">
-                  <div className="bg-white p-4 relative">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                      Comprobante {currentIndex + 1} de{" "}
-                      {data?.vouchers?.length}
+                  <div className="bg-[var(--color-page-bg)] p-4 relative">
+                    <h2 className="text-lg font-semibold text-[var(--color-page-text)] mb-4">
+                      {t('requestInfo.voucherOf', { current: currentIndex + 1, total: data?.vouchers?.length })}
                     </h2>
                     {/* Display the existing PDF using an iframe */}
                     <Swiper
@@ -759,13 +778,13 @@ const RequestInfo: React.FC = () => {
                         </SwiperSlide>
                       ))}
                     </Swiper>
-                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-white">
+                    <div className="flex space-x-4 absolute z-10 top-2 right-4 bg-[var(--color-page-bg)]">
                       <button
                         ref={prevRef}
                         disabled={currentIndex === 0}
-                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndex === 0
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className={`px-4 py-2 rounded-md border border-[var(--color-border)] ${currentIndex === 0
+                            ? "bg-[var(--color-card-bg)] text-[var(--color-page-text)] opacity-50 cursor-not-allowed"
+                            : "bg-[var(--color-card-bg)] text-[var(--color-page-text-title)] hover:bg-[var(--color-page-bg)]"
                           }`}
                       >
                         Anterior
@@ -773,9 +792,9 @@ const RequestInfo: React.FC = () => {
                       <button
                         disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
                         ref={nextRef}
-                        className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndex === (data?.vouchers?.length ?? 0) - 1
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className={`px-4 py-2 rounded-md border border-[var(--color-border)] ${currentIndex === (data?.vouchers?.length ?? 0) - 1
+                            ? "bg-[var(--color-card-bg)] text-[var(--color-page-text)] opacity-50 cursor-not-allowed"
+                            : "bg-[var(--color-card-bg)] text-[var(--color-page-text-title)] hover:bg-[var(--color-page-bg)]"
                           }`}
                       >
                         Siguiente
@@ -788,14 +807,14 @@ const RequestInfo: React.FC = () => {
                         htmlFor={"total"}
                         className="block text-xs font-semibold text-gray-500 mb-1"
                       >
-                        Total de Comprobantes
+                        {t('requestInfo.totalVouchers')}
                       </label>
                       <input
                         id="total_vouchers"
                         type="text"
                         readOnly
                         value={formatMoney(approvedVoucherTotal)}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                     <div className="my-5">
@@ -803,14 +822,14 @@ const RequestInfo: React.FC = () => {
                         htmlFor={"advance_money"}
                         className="block text-xs font-semibold text-gray-500 mb-1"
                       >
-                        Anticipo
+                        {t('requestInfo.advance')}
                       </label>
                       <input
                         id="advance_money"
                         type="text"
                         readOnly
                         value={formatMoney(previewAdvanceMoney, "MXN")}
-                        className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                        className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                       />
                     </div>
                     <div className="my-5">
@@ -818,14 +837,14 @@ const RequestInfo: React.FC = () => {
                         htmlFor={"total"}
                         className="block text-xs font-semibold text-gray-500 mb-1"
                       >
-                        Saldo {previewBalance < 0 ? "a favor" : "en contra"}
+                        {previewBalance < 0 ? t('requestInfo.balanceInFavor') : t('requestInfo.balanceAgainst')}
                       </label>
                       <input
                         id="balance"
                         type="text"
                         readOnly
                         value={formatMoney(Math.abs(previewBalance), "MXN")}
-                        className={`w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200
+                        className={`w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2
                       ${previewBalance > 0 ? "text-red-500" : "text-green-600"
                           }`}
                       />
@@ -837,19 +856,19 @@ const RequestInfo: React.FC = () => {
             {authState.userPermissions.includes("approve_request" as Permission) && <section className="mb-10" id="travel-agency">
               <label
                 htmlFor="agency"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-bold text-gray-500 mb-1"
               >
-                {data.status !== "Pending Review" ? "Agencia de viaje" : "Agencias de viaje"}
+                {data.status !== "Pending Review" ? t('requestInfo.travelAgency') : t('requestInfo.travelAgencies')}
               </label>
               {data.status === "Pending Review" ? (
                 <select
                   id="agency"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={selectedAgency}
                   disabled={data.status !== "Pending Review"}
                   onChange={(e) => setSelectedAgency(e.target.value)}
                 >
-                  <option value="">-- Selecciona una agencia --</option>
+                  <option value="">{t('requestInfo.selectAgency')}</option>
                   {agencies.map((agency) => (
                     <option key={agency.id} value={agency.id}>
                       {agency.name}
@@ -860,8 +879,8 @@ const RequestInfo: React.FC = () => {
                 <input
                   type="text"
                   readOnly
-                  value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name}
-                  className="w-full bg-gray-100 text-gray-800 rounded-lg px-3 py-2 border border-gray-200"
+                  value={agencies?.find(agency => agency.id === data.id_travel_agency)?.name ?? ''}
+                  className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
                 />
               )}
             </section>}
@@ -870,17 +889,17 @@ const RequestInfo: React.FC = () => {
             {authState.userPermissions.includes("approve_request" as Permission) && data.status === "Pending Review" && <section className="mb-8" id="comment-section">
               <label
                 htmlFor="comment"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-bold text-gray-500 mb-1"
               >
-                Comentarios
+                {t('requestInfo.commentsLabel')}
               </label>
               <textarea
                 id="comment"
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="Escribe tus comentarios aquí..."
+                placeholder={t('requestInfo.commentsPlaceholder')}
               />
             </section>}
 
@@ -889,17 +908,17 @@ const RequestInfo: React.FC = () => {
               <>
                 {data.status === "Pending Review" &&
                   <section className="mb-10">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                      Información importante
+                    <h1 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-4">
+                      {t('requestInfo.importantInfo')}
                     </h1>
-                    <p className="text-sm text-gray-600">
-                      - Para aprobar esta solicitud, debes seleccionar una agencia de viaje y proporcionar un comentario si es necesario.
+                    <p className="text-sm text-gray-500">
+                      {t('requestInfo.infoApprove')}
                     </p>
-                    <p className="text-sm text-gray-600">
-                      - Si la solicitud requiere cambios, puedes solicitarlo escribiendo un comentario.
+                    <p className="text-sm text-gray-500">
+                      {t('requestInfo.infoChanges')}
                     </p>
-                    <p className="text-sm text-gray-600">
-                      - Si deseas denegar la solicitud, puedes hacerlo directamente.
+                    <p className="text-sm text-gray-500">
+                      {t('requestInfo.infoDeny')}
                     </p>
                   </section>
                 }
@@ -914,7 +933,7 @@ const RequestInfo: React.FC = () => {
                       }`}
                     id="approve-request-button"
                   >
-                    Aprobar
+                    {t('requestInfo.approve')}
                   </button>
                   <button
                     onClick={requestChanges}
@@ -927,7 +946,7 @@ const RequestInfo: React.FC = () => {
 
                     id="changes-request-button"
                   >
-                    Solicitar cambios
+                    {t('requestInfo.requestChanges')}
                   </button>
                   <button
                     onClick={deny}
@@ -939,13 +958,13 @@ const RequestInfo: React.FC = () => {
                       }`}
                     id="deny-request-button"
                   >
-                    Denegar
+                    {t('requestInfo.deny')}
                   </button>
                 </footer>
               </>
             }
 
-            {authState.userPermissions.includes("create_request" as Permission) &&
+            {authState.userPermissions.includes("create_request" as Permission) && data.id_admin !== authState.userId &&
               <footer className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => navigate(`/requests/${id}/edit`)}
@@ -956,7 +975,7 @@ const RequestInfo: React.FC = () => {
                     }`}
                   id="edit-request-button"
                 >
-                  Editar
+                  {t('requestInfo.edit')}
                 </button>
                 <button
                   onClick={cancel}
@@ -967,7 +986,7 @@ const RequestInfo: React.FC = () => {
                     }`}
                   id="cancel-request-button"
                 >
-                  Cancelar
+                  {t('requestInfo.cancel')}
                 </button>
 
               </footer>}
@@ -983,7 +1002,7 @@ const RequestInfo: React.FC = () => {
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                 >
-                  Marcar como registrado
+                  {t('requestInfo.markAsRegistered')}
                 </button>
               </footer>
             }
@@ -999,7 +1018,7 @@ const RequestInfo: React.FC = () => {
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                 >
-                  Marcar viaje como completado
+                  {t('requestInfo.markAsCompleted')}
                 </button>
               </footer>
             }

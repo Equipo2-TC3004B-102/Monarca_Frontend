@@ -6,6 +6,7 @@
  * 25/02/2026 [Jin Sik Yoon] Added expandable row support (expandedRows + renderExpandedRow) and updated documentation for clarity and maintainability.
  */
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Column, schema that defines the structure and rendering behavior of each table column.
@@ -60,6 +61,7 @@ const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
   expandedRows = [],
   renderExpandedRow,
 }) => {
+  const { t } = useTranslation();
   const [tableData, setTableData] = useState<Record<string, any>[]>(initialData as Record<string, any>[]);
 
   /**
@@ -169,7 +171,7 @@ const DynamicTableExpand: React.FC<DynamicTableExpandProps> = ({
           onClick={addItem}
           className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
         >
-          + Añadir comprobante de gasto
+          {t('common.addVoucher')}
         </button>
       </div>
     </div>

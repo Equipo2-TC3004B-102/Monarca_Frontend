@@ -3,7 +3,7 @@
  * Description: Reusable Select component built with Headless UI Combobox for an accessible, searchable dropdown.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Optimized option rendering for large datasets by mounting option items only while the dropdown is open.
+ * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
 import { useMemo, useState } from "react";
 import {
@@ -14,6 +14,7 @@ import {
   ComboboxOptions,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { useTranslation } from "react-i18next";
 
 type Option = {
   id: number | string;
@@ -38,9 +39,11 @@ export default function SearchableSelect({
   onChange,
   isLoading = false,
   isDisabled = false,
-  placeholder = "Busca o selecciona una opción",
+  placeholder,
   id,
 }: SearchableSelectProps) {
+  const { t } = useTranslation();
+  const effectivePlaceholder = placeholder ?? t('common.searchOption');
   const [query, setQuery] = useState("");
 
   const normalizedQuery = useMemo(
@@ -74,17 +77,17 @@ export default function SearchableSelect({
     <Combobox value={value || null} onChange={handleChange} disabled={isDisabled}>
       {({ open }) => (
         <div className="relative">
-          <div className="relative w-full cursor-default rounded-md bg-gray-50 border border-gray-300 text-left text-gray-900 focus-within:ring-2 focus-within:ring-indigo-600 sm:text-sm sm:leading-6">
+          <div className="relative w-full cursor-default rounded-md bg-gray-50 border border-[var(--color-border)] text-left text-gray-900 focus-within:ring-2 focus-within:ring-indigo-600 sm:text-sm sm:leading-6">
             <ComboboxInput
               id={id}
-              className={`w-full border-none py-2.5 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 rounded-md ${
-                isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-gray-50"
+              className={`w-full border-none py-2.5 pl-3 pr-10 text-sm leading-5 text-[var(--color-page-text)] focus:ring-0 rounded-md ${
+                isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-[var(--color-card-bg)]"
               }`}
               displayValue={(option: Option | null) =>
-                isLoading ? "Cargando..." : option?.name ?? ""
+                isLoading ? t('common.loading') : option?.name ?? ""
               }
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={placeholder}
+              placeholder={effectivePlaceholder}
             />
             <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -92,14 +95,14 @@ export default function SearchableSelect({
           </div>
 
           {open && (
-            <ComboboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+            <ComboboxOptions className="bg-[var(--color-card-bg)] border border-[var(--color-border)] absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
               {isLoading ? (
                 <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                  Cargando...
+                  {t('common.loading')}
                 </div>
               ) : filteredOptions.length === 0 && query !== "" ? (
                 <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                  No se encontraron resultados para "{query}".
+                  {t('common.noResults', { query })}
                 </div>
               ) : (
                 <>
@@ -109,7 +112,7 @@ export default function SearchableSelect({
                       value={option}
                       className={({ active }) =>
                         `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                          active ? "bg-indigo-600 text-white" : "text-gray-900"
+                          active ? "bg-indigo-600 text-white" : "text-[var(--color-page-text)]"
                         }`
                       }
                     >
@@ -133,12 +136,12 @@ export default function SearchableSelect({
                   ))}
                   {query === "" && options.length > MAX_VISIBLE_OPTIONS && (
                     <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500">
-                      Mostrando los primeros {MAX_VISIBLE_OPTIONS} resultados. Escribe para filtrar.
+                      {t('common.showingFirst', { count: MAX_VISIBLE_OPTIONS })}
                     </div>
                   )}
                   {query !== "" && filteredOptions.length >= MAX_VISIBLE_OPTIONS && (
                     <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500">
-                      Mostrando los primeros {MAX_VISIBLE_OPTIONS} resultados. Refina tu búsqueda.
+                      {t('common.moreResults')}
                     </div>
                   )}
                 </>

@@ -4,11 +4,12 @@
  * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 11/05/2026 [Diego de la Vega] Integration of flight search panel into reservations page and updated last modification comment.
  */
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import './i18n/i18n';
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -17,10 +18,13 @@ import CreateTravelRequest from "./pages/CreateTravelRequest.tsx";
 import EditTravelRequest from "./pages/EditTravelRequest.tsx";
 import AdminUsers from "./pages/Admin/AdminUsers.tsx";
 import AdminRules from "./pages/Admin/AdminRules.tsx";
+import AdminNewCompany from "./pages/Admin/AdminNewCompany.tsx";
+import AdminNotifications from "./pages/Admin/AdminNotifications.tsx";
 
 import {
   ProtectedRoute,
   PermissionProtectedRoute,
+  FlagProtectedRoute,
 } from "./hooks/auth/authContext";
 import "flowbite";
 
@@ -44,6 +48,7 @@ import RequestInfo from "./pages/RequestInfo.tsx";
 import { Approvals } from "./pages/Approvals/Approvals.tsx";
 import { RefundsReview } from "./pages/Refunds/RefundsReview.tsx";
 import { CheckRefunds } from "./pages/Refunds/CheckRefunds.tsx";
+import FlightSearch from "./pages/FlightSearch.tsx";
 
 /**
  * router, defines the application's route tree.
@@ -84,6 +89,10 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard title="Inicio" />,
+      },
+      {
+        path: "/flights",
+        element: <FlightSearch />,
       },
       {
         path: "/approvals",
@@ -135,13 +144,20 @@ export const router = createBrowserRouter([
       },
       {
         path: "/admin/users",
-        element: <AdminUsers />,
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminUsers /></FlagProtectedRoute>,
       },
       {
         path: "/admin/rules",
-        element: <AdminRules />,
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminRules /></FlagProtectedRoute>,
       },
-
+      {
+        path: "/admin/notifications",
+        element: <FlagProtectedRoute requireCompanyAdmin><AdminNotifications /></FlagProtectedRoute>,
+      },
+      {
+        path: "/admin/companies/new",
+        element: <FlagProtectedRoute requireSystemAdmin><AdminNewCompany /></FlagProtectedRoute>,
+      },
       /**
        * Permission-protected routes (approvals module).
        * Requires "approve_trip" permission to access "/approval".
@@ -210,6 +226,12 @@ export const router = createBrowserRouter([
  * request deduplication, and server-state synchronization.
  */
 const queryClient = new QueryClient();
+
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+  document.documentElement.classList.add("dark");
+}
 
 /**
  * Application render guard:
