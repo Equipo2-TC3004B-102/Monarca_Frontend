@@ -4,6 +4,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 06/05/2026 [Sergio Jiawei Xuan] Converted tutorial step arrays to use i18n t() calls; translated driver.js navigation button labels.
+ * 20/05/2026 [Rebeca Davila] Added new functions to generate tutorial steps for all admin pages
  */
 
 import { driver } from "driver.js";
@@ -400,9 +401,103 @@ const getRequestInfoSteps = (t: TFunction) => [
   },
 ];
 
+const getAdminUsersSteps = (t: TFunction) => [
+  {
+    element: "#users_list",
+    popover: {
+      title: t('tutorial.adminUsers.usersList'),
+      description: t('tutorial.adminUsers.usersListDesc'),
+      position: "left",
+    },
+  },
+  {
+    element: "#btn_loadUsers",
+    popover: {
+      title: t('tutorial.adminUsers.loadUsers'),
+      description: t('tutorial.adminUsers.loadUsersDesc'),
+      position: "bottom",
+    },
+  },
+];
+
+const getAdminRulesSteps = (t: TFunction) => [
+  {
+    element: "#rules_list",
+    popover: {
+      title: t('tutorial.adminRules.rulesList'),
+      description: t('tutorial.adminRules.rulesListDesc'),
+      position: "left",
+    },
+  },
+  {
+    element: "#btn_notifications",
+    popover: {
+      title: t('tutorial.adminRules.btnNotifications'),
+      description: t('tutorial.adminRules.btnNotificationsDesc'),
+      position: "bottom",
+    },
+  },
+  {
+    element: "#btn_newRule",
+    popover: {
+      title: t('tutorial.adminRules.btnNewRule'),
+      description: t('tutorial.adminRules.btnNewRuleDesc'),
+      position: "bottom",
+    },
+  },
+  {
+    element: "#rules_buttons",
+    popover: {
+      title: t('tutorial.adminRules.rulesButtons'),
+      description: t('tutorial.adminRules.rulesButtonsDesc'),
+      position: "bottom",
+    },
+  },
+];
+
+const getAdminNotificationsSteps = (t: TFunction) => [
+  {
+    element: "#preferences",
+    popover: {
+      title: t('tutorial.adminNotifications.preferences'),
+      description: t('tutorial.adminNotifications.preferencesDesc'),
+      position: "left",
+    },
+  },
+  {
+    element: "#save_changes",
+    popover: {
+      title: t('tutorial.adminNotifications.saveChanges'),
+      description: t('tutorial.adminNotifications.saveChangesDesc'),
+      position: "bottom",
+    },
+  },
+];
+
+const getAdminNewCompanySteps = (t: TFunction) => [
+  {
+    element: "#form_company",
+    popover: {
+      title: t('tutorial.adminNewCompany.formCompany'),
+      description: t('tutorial.adminNewCompany.formCompanyDesc'),
+      position: "left",
+    },
+  },
+  {
+    element: "#btn_newCompany",
+    popover: {
+      title: t('tutorial.adminNewCompany.btnNewCompany'),
+      description: t('tutorial.adminNewCompany.btnNewCompanyDesc'),
+      position: "bottom",
+    },
+  },
+];
+
 interface TutorialProps {
    children: React.ReactNode;
-   page: "dashboard" | "createRequest" | "history" | "refunds" | "vouchers" | "approvals" | "refundsReview" | "bookings" | "assignReservation" | "reservations" | "checkRefunds" | "refundReview" | "requestInfo";
+   page: "dashboard" | "createRequest" | "history" | "refunds" | "vouchers" | "approvals" | "refundsReview" | "bookings" | 
+   "assignReservation" | "reservations" | "checkRefunds" | "refundReview" | "requestInfo" | "adminRules" | "adminUsers" | 
+   "adminNewCompany" | "adminNotifications";
    run?: boolean;
   }
 
@@ -434,6 +529,10 @@ export const Tutorial = ({ children, page, run = false }: TutorialProps) => {
         checkRefunds: getCheckRefundsSteps(t),
         refundReview: getRefundReviewSteps(t),
         requestInfo: getRequestInfoSteps(t),
+        adminUsers: getAdminUsersSteps(t),
+        adminRules: getAdminRulesSteps(t),
+        adminNotifications: getAdminNotificationsSteps(t),
+        adminNewCompany: getAdminNewCompanySteps(t),
       };
 
       const steps = stepsMap[page] || getDashboardSteps(t);
@@ -452,6 +551,7 @@ export const Tutorial = ({ children, page, run = false }: TutorialProps) => {
           prevBtnText: t('tutorial.previous'),
           animate: true,
           allowClose: true,
+          popoverClass: "custom-driver-theme",
       });
       drv.setSteps(filteredSteps);
       drv.drive();
