@@ -290,6 +290,10 @@
   "reservations": {
     "title": "Reservations",
     "titleField": "Title",
+    "priceSetByDuffel": "Price set by Duffel.",
+    "editManually": "Edit manually",
+    "flightReference": "Flight reference",
+    "flightReferencePlaceholder": "Automatically filled when selecting a flight",
     "destination": "Destination",
     "origin": "Origin",
     "departureDate": "Departure date",
@@ -647,5 +651,37 @@
   "theme": {
     "dark": "Dark mode",
     "light": "Light mode"
+  },
+  "flightReservationOptions": {
+    "flightOptions": "Flight options",
+    "notEnoughIata": "There are not enough IATA codes to search flights automatically.",
+    "bestOptions": "The best options per segment are displayed for the loaded itinerary.",
+    "searchingDuffel": "Searching options in Duffel...",
+    "loadError": "Could not load flight options.",
+    "segment": "Segment",
+    "suggestedDate": "Suggested date",
+    "noDate": "No date",
+    "useForDestination": "Use for destination #{{number}}",
+    "useOption": "Use option",
+    "noResults": "No results for this segment."
+  },
+  "flightCard": {
+    "directFlight": "Direct flight",
+    "stops_one": "{{count}} stop",
+    "stops_other": "{{count}} stops",
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "to": "to",
+    "hideDetails": "Hide details",
+    "showDetails": "View details",
+    "select": "Select",
+    "flightInformation": "Flight Information",
+    "provider": "Provider",
+    "offerId": "Offer ID",
+    "priceBreakdown": "Price Breakdown",
+    "originalPrice": "Original price",
+    "exchangeRate": "Exchange rate",
+    "priceInMXN": "Price in MXN",
+    "fullItinerary": "Full itinerary"
   }
 }
