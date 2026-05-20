@@ -346,7 +346,7 @@ export const Reservations = () => {
     const lastSegment = flight.segments?.[flight.segments.length - 1];
     const routeLabel = firstSegment && lastSegment
       ? `${firstSegment.origin_airport_code} → ${lastSegment.destination_airport_code}`
-      : 'Vuelo seleccionado';
+      : t('reservations.selectedFlight');
 
     setFormData((prev) => ({
       ...prev,
@@ -360,7 +360,21 @@ export const Reservations = () => {
       },
     }));
 
-    toast.success(`Vuelo aplicado al destino ${destinationId} (tramo ${segmentIndex + 1})`);
+    const selectedDestination = request.requests_destinations?.find(
+      (destination: any) => destination.id === destinationId
+    );
+
+    const destinationName =
+      selectedDestination?.destination_city ||
+      selectedDestination?.destination?.city ||
+      t('reservations.destination');
+
+    toast.success(
+      t('reservations.flightAppliedSuccess', {
+        destination: destinationName,
+        segment: segmentIndex + 1,
+      })
+    );
   };
 
   const setPageScroll = (enabled: boolean) => {

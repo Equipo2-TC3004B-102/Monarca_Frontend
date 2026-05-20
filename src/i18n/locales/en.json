@@ -290,6 +290,8 @@
   "reservations": {
     "title": "Reservations",
     "titleField": "Title",
+    "selectedFlight": "Selected flight",
+    "flightAppliedSuccess": "Flight applied to {{destination}} (segment {{segment}})",
     "priceSetByDuffel": "Price set by Duffel.",
     "editManually": "Edit manually",
     "flightReference": "Flight reference",
