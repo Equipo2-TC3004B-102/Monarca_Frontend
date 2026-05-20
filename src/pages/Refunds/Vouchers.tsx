@@ -65,6 +65,7 @@ export const Vouchers = () => {
   const { id } = useParams();
   const { t } = useTranslation();
   const [formData, setFormData] = useState<FormDataRow[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [trip, setTrip] = useState<Trip>({
     id: 0,
     title: "",
@@ -103,6 +104,8 @@ export const Vouchers = () => {
       toast.error(t('vouchers.selectCurrencyError'));
       return;
     }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       let formDataToSend = null;
       for (const rowData of formData) {
@@ -112,7 +115,7 @@ export const Vouchers = () => {
           "id_request",
           trip.id.toString()
         );
-        formDataToSend.append("date", new Date().toISOString());
+        formDataToSend.append("date", rowData.date ? new Date(rowData.date).toISOString() : new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
         formDataToSend.append("tax_type", rowData.taxIndicator);
@@ -137,9 +140,13 @@ export const Vouchers = () => {
         "Error sending refund request: ",
         err instanceof Error ? err.message : err
       );
-      toast.error(
-        t('vouchers.submitError')
-      );
+      const rawMsg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message;
+      const apiMessage = typeof rawMsg === 'string' ? rawMsg
+        : Array.isArray(rawMsg) ? (rawMsg as string[]).join(', ')
+        : null;
+      toast.error(apiMessage ?? t('vouchers.submitError'));
+    } finally {
+      setIsSubmitting(false);
     }
   }; 
 
@@ -502,12 +509,13 @@ export const Vouchers = () => {
             </Link>
             <button
               id="submit-refund"
-              className="px-4 py-2 bg-[#0a2c6d] text-white rounded-md hover:bg-[#0d3d94] transition-colors hover:cursor-pointer"
+              disabled={isSubmitting}
+              className={`px-4 py-2 text-white rounded-md transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#0a2c6d] hover:bg-[#0d3d94] hover:cursor-pointer"}`}
               onClick={() => {
                 handleSubmitRefund();
               }}
             >
-              {t('vouchers.submit')}
+              {isSubmitting ? t('common.loading') : t('vouchers.submit')}
             </button>
           </div>
         </div>

@@ -596,7 +596,13 @@
       "selectionModeAny": "Any",
       "selectionModeAll": "All",
       "cecoAppliesTo": "Applicable CECO",
-      "cecoAll": "All CECOs"
+      "cecoAll": "All CECOs",
+      "voucherDeadlineTitle": "Expense Submission Deadline",
+      "voucherDeadlineDays": "Days after trip end",
+      "voucherDeadlineDaysLabel": "days",
+      "voucherDeadlineSave": "Save",
+      "voucherDeadlineSuccess": "Deadline updated successfully.",
+      "voucherDeadlineError": "Error saving deadline."
     },
     "notifications": {
       "title": "Notifications",

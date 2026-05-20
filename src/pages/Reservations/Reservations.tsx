@@ -40,6 +40,7 @@ export const Reservations = () => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [request, setRequest] = useState<any>({});
   const [isFormValid, _setIsFormValid] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { handleVisitPage, tutorial } = useApp();
   const { t } = useTranslation();
   const [activePreview, setActivePreview] = useState<string | null>(null);
@@ -383,6 +384,8 @@ export const Reservations = () => {
       toast.error(t('reservations.fillRequired'));
       return;
     }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     // Format the formData to match the API requirements
     const formattedData = {
       reservations: Object.entries(formData).flatMap(([key, value]) => {
@@ -480,6 +483,8 @@ export const Reservations = () => {
     } catch (error) {
       console.error("Error sending data:", error);
       toast.error(t('reservations.sendError'));
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -835,12 +840,13 @@ export const Reservations = () => {
               <button
                 type="submit"
                 id="assign-reservations"
-                className={`px-4 py-2 rounded-md transition-colors ${isFormValid
+                disabled={isSubmitting}
+                className={`px-4 py-2 rounded-md transition-colors ${!isSubmitting && isFormValid
                     ? "bg-[#0a2c6d] text-white hover:bg-[#0d3d94]"
                     : "bg-gray-400 text-white cursor-not-allowed"
                   }`}
               >
-                {t('reservations.submit')}
+                {isSubmitting ? t('common.loading') : t('reservations.submit')}
               </button>
             </div>
           </form>

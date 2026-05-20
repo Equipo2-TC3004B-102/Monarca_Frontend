@@ -5,17 +5,11 @@
  *              Uses GET/POST/PATCH/DELETE /approval-engine/levels. company_id is derived server-side from JWT.
  * Authors: Original Monarca team
  * Last Modification made:
- * 13/05/2026 [Julio Rodriguez] Added CECO selector to inline actor form; loads CECOs from /admin/companies/:id/cost-centers.
- *                              Added edit and delete functionality with pending-request reassignment error handling.
- *                              Added ApprovalLevelActor management section per level (Tarea E).
- *                              Fixed ceco_id DTO validator: @IsString instead of @IsUUID in approval-level-actor.dto.ts.
- *                              Show company name (not UUID) in header via GET /admin/companies/:id/info.
- *                              CECO selector always visible in create form (not hidden behind actor_type).
  * 19/05/2026 [Julio Rodriguez] Replaced hardcoded Spanish strings with i18n t() calls; unified CECO display to show id+name;
  *                              added description and applies_to fields to edit form.
+ *                              Added voucher deadline section — PATCH /admin/companies/:id/settings.
  */
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getRequest, postRequest, patchRequest, deleteRequest } from "../../utils/apiService";
 import { useAuth } from "../../hooks/auth/authContext";
 import GoBack from "../../components/GoBack";
@@ -109,6 +103,9 @@ export default function AdminRules() {
   const [deleting, setDeleting] = useState(false);
   const [cecos, setCecos] = useState<CostCenter[]>([]);
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [voucherDeadlineDays, setVoucherDeadlineDays] = useState<number | null>(null);
+  const [deadlineInput, setDeadlineInput] = useState<string>("");
+  const [savingDeadline, setSavingDeadline] = useState(false);
 
   // Actors section state
   const [selectedLevelForActors, setSelectedLevelForActors] = useState<ApprovalRule | null>(null);
@@ -120,8 +117,6 @@ export default function AdminRules() {
   const [actorToDelete, setActorToDelete] = useState<ApprovalLevelActor | null>(null);
   const [savingActor, setSavingActor] = useState(false);
   const [deletingActor, setDeletingActor] = useState(false);
-
-  const navigate = useNavigate();
 
   const fetchRules = async () => {
     setLoading(true);
@@ -143,7 +138,11 @@ export default function AdminRules() {
         .then((data) => setCecos(data))
         .catch(() => {});
       getRequest(`/admin/companies/${companyId}/info`)
-        .then((data) => setCompanyName(data.name ?? null))
+        .then((data) => {
+          setCompanyName(data.name ?? null);
+          setVoucherDeadlineDays(data.voucher_deadline_days ?? 7);
+          setDeadlineInput(String(data.voucher_deadline_days ?? 7));
+        })
         .catch(() => {});
     }
   }, []);
@@ -390,6 +389,24 @@ export default function AdminRules() {
     }
   };
 
+  const handleSaveDeadline = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!companyId) return;
+    const days = parseInt(deadlineInput, 10);
+    if (isNaN(days) || days < 1) return;
+    setSavingDeadline(true);
+    setMessage(null);
+    try {
+      const updated = await patchRequest(`/admin/companies/${companyId}/settings`, { voucher_deadline_days: days });
+      setVoucherDeadlineDays(updated.voucher_deadline_days);
+      setMessage({ text: t('admin.rules.voucherDeadlineSuccess'), error: false });
+    } catch {
+      setMessage({ text: t('admin.rules.voucherDeadlineError'), error: true });
+    } finally {
+      setSavingDeadline(false);
+    }
+  };
+
   return (
     <>
       <GoBack />
@@ -410,12 +427,6 @@ export default function AdminRules() {
               <option value="inactive">{t('admin.rules.inactive')}</option>
             </select>
             <button
-              onClick={() => navigate('/admin/notifications')}
-              className="px-3 py-2 bg-[#f0f4ff] text-[#0a2c6d] text-sm rounded-md hover:bg-[#ebf0ff] transition-colors"
-            >
-              {t('admin.rules.notifications')}
-            </button>
-            <button
               onClick={() => { setShowForm(!showForm); setMessage(null); }}
               disabled={!canLoad}
               className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
@@ -430,6 +441,34 @@ export default function AdminRules() {
           <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
             {message.text}
           </div>
+        )}
+
+        {canLoad && (
+          <section className="bg-[var(--color-page-bg)] border border-[var(--color-border)] rounded-md mb-6 p-5">
+            <h3 className="text-base font-semibold text-[var(--color-page-text-title)] mb-3">
+              {t('admin.rules.voucherDeadlineTitle')}
+            </h3>
+            <form onSubmit={handleSaveDeadline} className="flex items-end gap-4">
+              <div>
+                <label className={labelClass}>{t('admin.rules.voucherDeadlineDays')}</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    name="voucher_deadline_days"
+                    type="number"
+                    min={1}
+                    value={deadlineInput}
+                    onChange={(e) => setDeadlineInput(e.target.value)}
+                    required
+                    className="w-24"
+                  />
+                  <span className="text-sm text-[var(--color-page-text)]">{t('admin.rules.voucherDeadlineDaysLabel')}</span>
+                </div>
+              </div>
+              <Button type="submit" disabled={savingDeadline}>
+                {savingDeadline ? t('common.saving') : t('admin.rules.voucherDeadlineSave')}
+              </Button>
+            </form>
+          </section>
         )}
 
         {showForm && (

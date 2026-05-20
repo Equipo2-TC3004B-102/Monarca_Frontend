@@ -93,6 +93,9 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {user.isCompanyAdmin && (
               <SidebarOption label={t('sidebar.rules')} pathIcon="/assets/historial_de_viajes.png" link="/admin/rules" onClick={onNavigate}/>
             )}
+            {user.isCompanyAdmin && (
+              <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
+            )}
         </ul>
         <div className="flex gap-7 items-center p-2 mt-10">
             <DarkModeButton className="block md:hidden"></DarkModeButton>

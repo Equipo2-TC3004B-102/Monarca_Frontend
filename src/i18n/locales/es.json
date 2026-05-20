@@ -596,7 +596,13 @@
       "selectionModeAny": "Cualquiera",
       "selectionModeAll": "Todos",
       "cecoAppliesTo": "CECO al que aplica",
-      "cecoAll": "Todos los CECOs"
+      "cecoAll": "Todos los CECOs",
+      "voucherDeadlineTitle": "Límite de comprobación de gastos",
+      "voucherDeadlineDays": "Días después del fin del viaje",
+      "voucherDeadlineDaysLabel": "días",
+      "voucherDeadlineSave": "Guardar",
+      "voucherDeadlineSuccess": "Límite actualizado exitosamente.",
+      "voucherDeadlineError": "Error al guardar el límite."
     },
     "notifications": {
       "title": "Notificaciones",
