@@ -239,15 +239,6 @@ const RefundsAcceptance: React.FC = () => {
       toast.error(t('refundAcceptance.errorCompleting'));
     }
   };
-  const approvedVoucherTotal = data?.vouchers?.reduce((acc: number, file: { status: string; amount: any }) => {
-    if (file.status === "Voucher Approved") {
-      return acc + Number(file.amount);
-    }
-    return acc;
-  }, 0) ?? 0;
-
-  const previewAdvanceMoney = Number(data?.advance_money) || 0;
-
   return (
     <Tutorial page="refundReview" run={tutorial}>
       <div className="pb-10">
