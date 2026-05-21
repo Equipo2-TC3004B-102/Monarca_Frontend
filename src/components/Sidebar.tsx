@@ -64,7 +64,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label={t('sidebar.tripsToApprove')} pathIcon="/assets/viajes_por_aprobar.png" link="/approvals" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("view_approved_request_history" as Permission) && (
-              <SidebarOption label={t('sidebar.approvalHistory')} pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.approvalHistory')} pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history?view=approvals" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("approve_vouchers" as Permission) && (
               <SidebarOption label={t('sidebar.vouchersAndRefunds')} pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>

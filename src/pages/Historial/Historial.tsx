@@ -14,7 +14,7 @@ import { getRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { Permission, useAuth } from "../../hooks/auth/authContext";
 import RefreshButton from "../../components/RefreshButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "../../components/Refunds/Button";
 import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
@@ -92,6 +92,7 @@ export const Historial = () => {
   const [dataWithActions, setDataWithActions] = useState([]);
   const { authState } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { handleVisitPage, tutorial, setTutorial } = useApp();
   const { t } = useTranslation();
 
@@ -104,16 +105,19 @@ export const Historial = () => {
   useEffect(() => {
     const fetchTravelRecords = async () => {
       try {
+        const isApprovalsView = searchParams.get("view") === "approvals";
         const endpoint =
-          authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
-          authState.userPermissions.includes("submit_reservations" as Permission)
+          isApprovalsView && authState.userPermissions.includes("view_approved_request_history" as Permission)
+            ? "/requests/approved-history"
+            : authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
+              authState.userPermissions.includes("submit_reservations" as Permission)
             ? "/requests/reserved-history"
             : authState.userPermissions.includes("view_own_requests" as Permission)
             ? "/requests/user"
-            : authState.userPermissions.includes("check_budgets" as Permission)
-            ? "/requests/to-approve-SOI"
             : authState.userPermissions.includes("view_approved_request_history" as Permission)
             ? "/requests/approved-history"
+            : authState.userPermissions.includes("check_budgets" as Permission)
+            ? "/requests/to-approve-SOI"
             : authState.userPermissions.includes("view_travel_agent_history" as Permission)
             ? "/requests/ta-history"
             : "/requests/all"
