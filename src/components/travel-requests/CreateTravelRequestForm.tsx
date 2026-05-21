@@ -116,7 +116,7 @@ function CreateTravelRequestForm() {
 
   const { createTravelRequestMutation, isPending } = useCreateTravelRequest();
 
-  const { clearPersistedForm } = usePersistedForm<RawFormValues>({
+  const { clearPersistedForm } = usePersistedForm<RawFormValues, FormValues>({
     storageKey: "createTravelRequestForm:legacy",
     control,
     reset,
