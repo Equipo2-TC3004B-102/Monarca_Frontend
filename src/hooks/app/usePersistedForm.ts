@@ -17,6 +17,7 @@ interface UsePersistedFormParams<
   control: Control<T, unknown, TTransformedValues>;
   reset: UseFormReset<T>;
   enabled?: boolean;
+  isDirty?: boolean;
 }
 
 /**
@@ -36,6 +37,7 @@ export function usePersistedForm<
   control,
   reset,
   enabled = true,
+  isDirty = false,
 }: UsePersistedFormParams<T, TTransformedValues>) {
   const values = useWatch({ control });
   const isHydratedRef = useRef(false);
@@ -84,6 +86,10 @@ export function usePersistedForm<
       return;
     }
 
+    if (!isDirty) {
+      return;
+    }
+
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(values));
     } catch {
@@ -92,7 +98,7 @@ export function usePersistedForm<
       });
       // Ignore quota and serialization errors to avoid blocking form usage.
     }
-  }, [enabled, saveErrorToastId, storageKey, values]);
+  }, [enabled, isDirty, saveErrorToastId, storageKey, values]);
 
   const clearPersistedForm = () => {
     if (typeof window === "undefined") {
