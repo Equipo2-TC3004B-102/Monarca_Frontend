@@ -38,6 +38,7 @@ import GoBack from "../GoBack";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { makeCurrencyOptions } from "../../utils/currencies";
 import { usePersistedForm } from "../../hooks/app/usePersistedForm";
+import { useAuth } from "../../hooks/auth/authContext";
 
 type Option = { id: number | string; name: string };
 
@@ -266,6 +267,7 @@ function DestinationFields({
 function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { authState } = useAuth();
 
   const tRef = useRef(t);
   tRef.current = t;
@@ -375,7 +377,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const persistStorageKey =
     isEditing && requestId
       ? `travelRequestForm:edit:${requestId}`
-      : "travelRequestForm:create";
+      : `travelRequestForm:create:${authState.userId}`;
 
   const { clearPersistedForm } = usePersistedForm<FormValues, SubmitValues>({
     storageKey: persistStorageKey,
