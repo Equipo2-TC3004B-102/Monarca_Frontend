@@ -50,16 +50,22 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               _wheelHandler?: (event: WheelEvent) => void;
             };
 
+            const nativeSetter = Object.getOwnPropertyDescriptor(
+              window.HTMLInputElement.prototype,
+              "value"
+            )?.set;
+
             const handleWheel = (event: WheelEvent) => {
               event.preventDefault();
               const current = parseFloat(el.value || "0");
+              const step = parseFloat(el.step) || 1;
+              const next =
+                event.deltaY < 0 ? current + step : Math.max(0, current - step);
+              const formatted = Number.isInteger(step)
+                ? String(Math.round(next))
+                : next.toFixed(2);
 
-              if (event.deltaY < 0) {
-                el.value = (current + 1).toFixed(2);
-              } else {
-                el.value = Math.max(0, current - 1).toFixed(2);
-              }
-
+              nativeSetter?.call(el, formatted);
               el.dispatchEvent(new Event("input", { bubbles: true }));
             };
 

@@ -396,7 +396,8 @@ export default function AdminRules() {
   const handleSaveDeadline = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!companyId) return;
-    const days = parseInt(deadlineInput, 10);
+    const inputEl = (e.currentTarget.elements.namedItem("voucher_deadline_days")) as HTMLInputElement | null;
+    const days = parseInt(inputEl?.value ?? deadlineInput, 10);
     if (isNaN(days) || days < 1) return;
     setSavingDeadline(true);
     setMessage(null);
@@ -435,25 +436,27 @@ export default function AdminRules() {
           <p className="text-sm text-gray-600">
             {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between w-full lg:w-auto gap-3">
             <select
               value={filterActive}
               onChange={(e) => { setFilterActive(e.target.value as 'all' | 'active' | 'inactive'); setCurrentPage(1); }}
-              className={selectClass}
+              className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-gray-500 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 p-2.5 min-w-[90px]"
             >
               <option value="all">{t('admin.rules.all')}</option>
               <option value="active">{t('admin.rules.active')}</option>
               <option value="inactive">{t('admin.rules.inactive')}</option>
             </select>
-            <button
-              id="btn_newRule"
-              onClick={() => { setShowForm(!showForm); setMessage(null); }}
-              disabled={!canLoad}
-              className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md cursor-pointer hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
-            >
-              {showForm ? t('common.cancel') : t('admin.rules.createRule')}
-            </button>
-            <RefreshButton />
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                id="btn_newRule"
+                onClick={() => { setShowForm(!showForm); setMessage(null); }}
+                disabled={!canLoad}
+                className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md cursor-pointer hover:bg-[#0d3d94] transition-colors disabled:opacity-50 whitespace-nowrap"
+              >
+                {showForm ? t('common.cancel') : t('admin.rules.createRule')}
+              </button>
+              <RefreshButton />
+            </div>
           </div>
         </div>
 
