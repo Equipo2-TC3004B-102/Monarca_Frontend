@@ -342,7 +342,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     control,
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
     trigger,
   } = useForm<FormValues, unknown, SubmitValues>({
@@ -384,6 +384,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     control,
     reset,
     enabled: !isEditing,
+    isDirty,
   });
 
   const { fields, append, remove } = useFieldArray({
