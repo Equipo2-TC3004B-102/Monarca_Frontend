@@ -3,9 +3,7 @@
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 04/05/2026 - [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits. Also implemented localStorage persistence for form data to prevent data loss on page refreshes or accidental navigations away from the page.
- * 13/05/2026 - [Julio Rodriguez] Fixed silent failure: reservation creation errors are now propagated so
- *                                finishedReservations is not called when any reservation POST fails.
+ * 20/05/2026 [Jin Sik Yoon] Added internationalization and some UI copy improvements.
  */
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -349,7 +347,7 @@ export const Reservations = () => {
     const lastSegment = flight.segments?.[flight.segments.length - 1];
     const routeLabel = firstSegment && lastSegment
       ? `${firstSegment.origin_airport_code} → ${lastSegment.destination_airport_code}`
-      : 'Vuelo seleccionado';
+      : t('reservations.selectedFlight');
 
     setFormData((prev) => ({
       ...prev,
@@ -363,7 +361,21 @@ export const Reservations = () => {
       },
     }));
 
-    toast.success(`Vuelo aplicado al destino ${destinationId} (tramo ${segmentIndex + 1})`);
+    const selectedDestination = request.requests_destinations?.find(
+      (destination: any) => destination.id === destinationId
+    );
+
+    const destinationName =
+      selectedDestination?.destination_city ||
+      selectedDestination?.destination?.city ||
+      t('reservations.destination');
+
+    toast.success(
+      t('reservations.flightAppliedSuccess', {
+        destination: destinationName,
+        segment: segmentIndex + 1,
+      })
+    );
   };
 
   const setPageScroll = (enabled: boolean) => {
@@ -742,7 +754,7 @@ export const Reservations = () => {
                           </div>
                           {formData[destination.id]?.plane_price_locked && (
                             <p className="text-xs text-gray-500 mt-1">
-                              Precio fijado por Duffel.{" "}
+                              {t('reservations.priceSetByDuffel')}{" "}
                               <button
                                 type="button"
                                 className="text-blue-600 underline"
@@ -756,7 +768,7 @@ export const Reservations = () => {
                                   }))
                                 }
                               >
-                                Editar manualmente
+                                {t('reservations.editManually')}
                               </button>
                             </p>
                           )}
@@ -767,10 +779,10 @@ export const Reservations = () => {
                             className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_link_${destination.id}`}
                           >
-                            Referencia del vuelo
+                            {t('reservations.flightReference')}
                           </label>
                           <Input
-                            placeholder="Se llena automáticamente al seleccionar un vuelo"
+                            placeholder={t('reservations.flightReferencePlaceholder')}
                             value={formData[destination.id]?.plane_link || ""}
                             onChange={(e) => handleChange(e, destination.id)}
                             name="plane_link"

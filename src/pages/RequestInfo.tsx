@@ -536,7 +536,7 @@ const RequestInfo: React.FC = () => {
     }
   }
 
-  const previewAdvanceMoney = normalizeAmount(data?.effective_advance_money) ?? 0;
+  const previewAdvanceMoney = normalizeAmount(data?.advance_money) ?? 0;
   const approvedVoucherTotal =
     data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
       if (file.status === "Voucher Approved") {

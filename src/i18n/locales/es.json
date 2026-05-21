@@ -294,6 +294,12 @@
   "reservations": {
     "title": "Reservaciones",
     "titleField": "Título",
+    "selectedFlight": "Vuelo seleccionado",
+    "flightAppliedSuccess": "Vuelo aplicado al destino {{destination}} (tramo {{segment}})",
+    "priceSetByDuffel": "Precio fijado por Duffel.",
+    "editManually": "Editar manualmente",
+    "flightReference": "Referencia del vuelo",
+    "flightReferencePlaceholder": "Se llena automáticamente al seleccionar un vuelo",
     "destination": "Destino",
     "origin": "Origen",
     "departureDate": "Fecha de salida",
@@ -665,6 +671,38 @@
   "theme": {
     "dark": "Modo oscuro",
     "light": "Modo claro"
+  },
+  "flightReservationOptions": {
+    "flightOptions": "Opciones de vuelo",
+    "notEnoughIata": "No hay suficientes códigos IATA para buscar vuelos automáticamente.",
+    "bestOptions": "Se muestran las mejores opciones por tramo para el itinerario cargado.",
+    "searchingDuffel": "Buscando opciones en Duffel...",
+    "loadError": "No fue posible cargar las opciones de vuelo.",
+    "segment": "Tramo",
+    "suggestedDate": "Fecha sugerida",
+    "noDate": "Sin fecha",
+    "useForDestination": "Usar para destino #{{number}}",
+    "useOption": "Usar opción",
+    "noResults": "No hay resultados para este tramo."
+  },
+  "flightCard": {
+    "stops_one": "{{count}} parada",
+    "directFlight": "Vuelo directo",
+    "stops_other": "{{count}} paradas",
+    "departure": "Salida",
+    "arrival": "Llegada",
+    "to": "a",
+    "hideDetails": "Ocultar detalles",
+    "showDetails": "Ver detalles",
+    "select": "Seleccionar",
+    "flightInformation": "Información del Vuelo",
+    "provider": "Proveedor",
+    "offerId": "ID de Oferta",
+    "priceBreakdown": "Desglose de Precio",
+    "originalPrice": "Precio original",
+    "exchangeRate": "Tasa de cambio",
+    "priceInMXN": "Precio en MXN",
+    "fullItinerary": "Itinerario Completo"
   },
   "accounting": {
     "title": "Exportar pólizas contables",

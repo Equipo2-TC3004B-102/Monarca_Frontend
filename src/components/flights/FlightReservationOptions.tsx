@@ -5,10 +5,11 @@
  *              into the reservation form.
  * Authors: Debug Studio (Diego de la Vega)
  * Last Modification made:
- * 12/05/2026 [Diego de la Vega] Added reservation-flow flight search integration and dark mode for some buttons.
+ * 20/05/2026 [Jin Sik Yoon] Added internationalization and some UI copy improvements.
  */
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import FlightCard from './FlightCard';
 import {
   FlightSearchMultiSegmentQuery,
@@ -49,6 +50,7 @@ export default function FlightReservationOptions({
   request,
   onSelectFlight,
 }: FlightReservationOptionsProps) {
+  const { t } = useTranslation();
   const sortedDestinations = useMemo(
     () =>
       [...(request.requests_destinations || [])].sort(
@@ -107,9 +109,9 @@ export default function FlightReservationOptions({
   if (!flightSearchQuery) {
     return (
       <section className="bg-[var(--color-page-bg)] rounded-lg shadow-sm border border-[var(--color-border)] p-6 mb-8">
-        <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-2">Opciones de vuelo</h3>
+        <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-2">{t("flightReservationOptions.flightOptions")}</h3>
         <p className="text-sm text-[var(--color-page-text)]">
-          No hay suficientes códigos IATA para buscar vuelos automáticamente.
+          {t("flightReservationOptions.notEnoughIata")}
         </p>
       </section>
     );
@@ -120,19 +122,19 @@ export default function FlightReservationOptions({
   return (
     <section className="bg-[var(--color-page-bg)] rounded-lg shadow-sm p-6 mb-8">
       <div className="flex flex-col gap-2 mb-6">
-        <h3 className="text-lg font-bold text-[var(--color-page-text-title)]">Opciones de vuelo</h3>
+        <h3 className="text-lg font-bold text-[var(--color-page-text-title)]">{t("flightReservationOptions.flightOptions")}</h3>
         <p className="text-sm text-[var(--color-page-text)]">
-          Se muestran las mejores opciones por tramo para el itinerario cargado.
+          {t("flightReservationOptions.bestOptions")}
         </p>
       </div>
 
       {searchResult.isLoading && (
-        <div className="py-8 text-center text-[var(--color-page-text)]">Buscando opciones en Duffel...</div>
+        <div className="py-8 text-center text-[var(--color-page-text)]">{t("flightReservationOptions.searchingDuffel")}</div>
       )}
 
       {searchResult.isError && (
         <div className="py-4 px-4 rounded bg-red-50 border border-red-200 text-red-700">
-          No fue posible cargar las opciones de vuelo.
+          {t("flightReservationOptions.loadError")}
         </div>
       )}
 
@@ -146,10 +148,10 @@ export default function FlightReservationOptions({
               <div key={segment.segment_index} className="space-y-4">
                 <div className="flex flex-col gap-1 border-b border-[var(--color-border)] pb-3">
                   <h4 className="text-base font-semibold text-[var(--color-page-text-title)]">
-                    Tramo {segment.segment_index + 1}: {segment.route}
+                    {t("flightReservationOptions.segment")} {segment.segment_index + 1}: {segment.route}
                   </h4>
                   <p className="text-sm text-[var(--color-page-text)]">
-                    Fecha sugerida: {segmentDate ? formatDate(segmentDate) : 'Sin fecha'}
+                    {t("flightReservationOptions.suggestedDate")}:{" "} {segmentDate ? formatDate(segmentDate) : t("flightReservationOptions.noDate")}
                   </p>
                 </div>
 
@@ -159,7 +161,9 @@ export default function FlightReservationOptions({
                       <FlightCard
                         key={flight.provider_offer_id}
                         flight={flight}
-                        selectLabel={destination ? `Usar para destino #${destination.destination_order}` : 'Usar opción'}
+                        selectLabel={destination ? t("flightReservationOptions.useForDestination", {
+                          number: destination.destination_order,
+                        }) : t("flightReservationOptions.useOption")}
                         onSelect={() => {
                           if (!destination) {
                             return;
@@ -176,7 +180,7 @@ export default function FlightReservationOptions({
                   </div>
                 ) : (
                   <div className="rounded bg-[var(--color-page-bg)] border border-[var(--color-border)] p-4 text-sm text-[var(--color-page-text)]">
-                    No hay resultados para este tramo.
+                    {t("flightReservationOptions.noResults")}
                   </div>
                 )}
               </div>

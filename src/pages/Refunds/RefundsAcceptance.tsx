@@ -3,10 +3,8 @@
  * Description: Detailed view for reviewing, approving, or denying individual expense vouchers associated with a trip request.
  * Authors: Original Monarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
- * 20/04/2026 [Diego de la Vega] Added fallback rendering for origin/destination values when destination data is partial.
- * 22/04/2026 [Sebastián Borjas] Fixed voucher approval flow: corrected status strings for buttons, totals, and optimistic updates.
- */
+ * 20/05/2026 [Diego de la Vega] Fixed an error where the amount of advance money paid was not shown converted to the local currency, as well as fixed the addition of advance money+payment to advance payment-payment.
+*/
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -164,13 +162,13 @@ const RefundsAcceptance: React.FC = () => {
    * Tracks page visits for the tutorial system.
    */
   useEffect(() => {
-      const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
-      const isPageVisited = visitedPages.includes(location.pathname);
-  
-      if (!isPageVisited) {
-      }
-      handleVisitPage();
-    }, []);
+    const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+    const isPageVisited = visitedPages.includes(location.pathname);
+
+    if (!isPageVisited) {
+    }
+    handleVisitPage();
+  }, []);
 
   const labels: { key: keyof RequestData; label: string }[] = [
     { key: "id", label: t('refundAcceptance.requestId') },
@@ -201,7 +199,7 @@ const RefundsAcceptance: React.FC = () => {
       });
       setData({ ...data, vouchers: updatedVouchers });
     }
-    catch (error) { 
+    catch (error) {
       console.error("Error approving voucher:", error);
     }
   }
@@ -224,7 +222,7 @@ const RefundsAcceptance: React.FC = () => {
     } catch (error) {
       console.error("Error denying voucher:", error);
     }
-  } 
+  }
 
   /**
    * completeRequest, finalizes the verification process for the entire request.
@@ -241,7 +239,6 @@ const RefundsAcceptance: React.FC = () => {
       toast.error(t('refundAcceptance.errorCompleting'));
     }
   };
-
   return (
     <Tutorial page="refundReview" run={tutorial}>
       <div className="pb-10">
@@ -262,24 +259,24 @@ const RefundsAcceptance: React.FC = () => {
                     {label}
                   </label>
 
-                {key === 'status' ? (
+                  {key === 'status' ? (
                     <input
-                    id={key}
-                    type="text"
-                    readOnly
-                    value={data[key] !== undefined ? String(renderStatus(data.status ?? '', t)) : ""}
-                    className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
-                  />
-                  
-                ) : (
-                  <input
-                    id={key}
-                    type="text"
-                    readOnly
-                    value={data[key] !== undefined ? String(data[key]) : ""}
-                    className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
-                  />
-                )}
+                      id={key}
+                      type="text"
+                      readOnly
+                      value={data[key] !== undefined ? String(renderStatus(data.status ?? '', t)) : ""}
+                      className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
+                    />
+
+                  ) : (
+                    <input
+                      id={key}
+                      type="text"
+                      readOnly
+                      value={data[key] !== undefined ? String(data[key]) : ""}
+                      className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
+                    />
+                  )}
                 </div>
               ))}
             </section>
@@ -304,168 +301,165 @@ const RefundsAcceptance: React.FC = () => {
                 </h2>
                 {/* Display the existing PDF using an iframe */}
                 <Swiper
-                    modules={[Navigation, Pagination]}
-                    spaceBetween={50}
-                    slidesPerView={1}
-                    pagination={{ clickable: true }}
-                    onBeforeInit={(swiper: any) => {
-                      if (typeof swiper.params.navigation !== 'boolean') {
-                        swiper.params.navigation.prevEl = prevRef.current;
-                        swiper.params.navigation.nextEl = nextRef.current;
-                      }
-                    }}
-                    onSlideChange={(swiper: any) => setCurrentIndex(swiper.activeIndex)}
+                  modules={[Navigation, Pagination]}
+                  spaceBetween={50}
+                  slidesPerView={1}
+                  pagination={{ clickable: true }}
+                  onBeforeInit={(swiper: any) => {
+                    if (typeof swiper.params.navigation !== 'boolean') {
+                      swiper.params.navigation.prevEl = prevRef.current;
+                      swiper.params.navigation.nextEl = nextRef.current;
+                    }
+                  }}
+                  onSlideChange={(swiper: any) => setCurrentIndex(swiper.activeIndex)}
                 >
                   {data?.vouchers?.map((file, index) => (
                     <SwiperSlide key={index}>
                       <FilePreviewer
-                          file={file}
-                          fileIndex={index}
-                          showDownload={false}
+                        file={file}
+                        fileIndex={index}
+                        showDownload={false}
                       />
                     </SwiperSlide>
                   ))}
                 </Swiper>
                 <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-                <button
-                  ref={prevRef}
-                  disabled={currentIndex === 0}
-                  className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                    currentIndex === 0
+                  <button
+                    ref={prevRef}
+                    disabled={currentIndex === 0}
+                    className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndex === 0
                       ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                       : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                  }`}
-                >
-                  {t('refundAcceptance.previous')}
-                </button>
-                <div className="flex flex-wrap gap-3">
-                  <a
-                    href={data?.vouchers?.[currentIndex]?.file_url_xml}
-                    download={`comprobante${currentIndex + 1}.xml`}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                      }`}
                   >
-                    {t('refundAcceptance.downloadXml')}
-                  </a>
-                  <a
-                    href={data?.vouchers?.[currentIndex]?.file_url_pdf}
-                    download={`comprobante${currentIndex + 1}.pdf`}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                  >
-                    {t('refundAcceptance.downloadPdf')}
-                  </a>
-                  <button
-                    disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
-                    className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${
-                      data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
+                    {t('refundAcceptance.previous')}
+                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <a
+                      href={data?.vouchers?.[currentIndex]?.file_url_xml}
+                      download={`comprobante${currentIndex + 1}.xml`}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                      {t('refundAcceptance.downloadXml')}
+                    </a>
+                    <a
+                      href={data?.vouchers?.[currentIndex]?.file_url_pdf}
+                      download={`comprobante${currentIndex + 1}.pdf`}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    >
+                      {t('refundAcceptance.downloadPdf')}
+                    </a>
+                    <button
+                      disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
+                      className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700"
-                    }`}
-                    onClick={() => approveVoucher(data?.vouchers?.[currentIndex]?.id ?? "")}
-                    id="approve-button"
-                  >
-                    {t('refundAcceptance.approve')}
-                  </button>
-                  <button
-                    disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
-                    className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${
-                      data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
+                        }`}
+                      onClick={() => approveVoucher(data?.vouchers?.[currentIndex]?.id ?? "")}
+                      id="approve-button"
+                    >
+                      {t('refundAcceptance.approve')}
+                    </button>
+                    <button
+                      disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
+                      className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-red-600 hover:bg-red-700"
-                    }`}
-                    onClick={() => denyVoucher(data?.vouchers?.[currentIndex]?.id ?? "")}
-                    id="deny-button"
-                  >
-                    {t('refundAcceptance.deny')}
-                  </button>
-                </div>
-                <button
-                  disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
-                  ref={nextRef}
-                  className={`px-4 py-2 rounded-md hover:cursor-pointer ${
-                    currentIndex === (data?.vouchers?.length ?? 0) - 1
+                        }`}
+                      onClick={() => denyVoucher(data?.vouchers?.[currentIndex]?.id ?? "")}
+                      id="deny-button"
+                    >
+                      {t('refundAcceptance.deny')}
+                    </button>
+                  </div>
+                  <button
+                    disabled={currentIndex === ((data?.vouchers?.length ?? 0) - 1)}
+                    ref={nextRef}
+                    className={`px-4 py-2 rounded-md hover:cursor-pointer ${currentIndex === (data?.vouchers?.length ?? 0) - 1
                       ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                       : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                  }`}
-                  id="next-voucher"
-                >
-                  {t('refundAcceptance.next')}
-                </button>
+                      }`}
+                    id="next-voucher"
+                  >
+                    {t('refundAcceptance.next')}
+                  </button>
                 </div>
               </div>
               <section className="grid grid-cols-3 gap-5" id="refund-review">
-              <div className="my-5">
-                <label
-                  htmlFor={"total"}
-                  className="block text-xs font-semibold text-gray-500 mb-1"
-                >
-                  {t('refundAcceptance.totalVouchers')}
-                </label>
-                <input
-                  id={"total"}
-                  type="text"
-                  readOnly
-                  value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
-                    if (file.status === "Voucher Approved") {
-                      return acc + +file.amount;
-                    }
-                    return acc;
-                  }, 0) ?? 0)}
-                  className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
-                />
-              </div>
-              <div className="my-5">
-                <label
-                  htmlFor={"advance_money"}
-                  className="block text-xs font-semibold text-gray-500 mb-1"
-                >
-                  {t('refundAcceptance.advance')}
-                </label>
-                <input
-                  id={"advance_money"}
-                  type="text"
-                  readOnly
-                  value={formatMoney(Number(data?.advance_money) || 0)}
-                  className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
-                />
-              </div>
-              <div className="my-5">
-                <label
-                  htmlFor={"total"}
-                  className="block text-xs font-semibold text-gray-500 mb-1"
-                >
-                  {t('refundAcceptance.total')}
-                </label>
-                <input
-                  id={"total"}
-                  type="text"
-                  readOnly
-                  value={formatMoney(
-                    (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                <div className="my-5">
+                  <label
+                    htmlFor={"total"}
+                    className="block text-xs font-semibold text-gray-500 mb-1"
+                  >
+                    {t('refundAcceptance.totalVouchers')}
+                  </label>
+                  <input
+                    id={"total"}
+                    type="text"
+                    readOnly
+                    value={formatMoney(data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
                       if (file.status === "Voucher Approved") {
-                        return acc + Number(file.amount);
+                        return acc + +file.amount;
                       }
                       return acc;
-                    }, 0) ?? 0) + (typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0)
-                  )}
-                  className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
-                />
-              </div>
+                    }, 0) ?? 0)}
+                    className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div className="my-5">
+                  <label
+                    htmlFor={"advance_money"}
+                    className="block text-xs font-semibold text-gray-500 mb-1"
+                  >
+                    {t('refundAcceptance.advance')}
+                  </label>
+                  <input
+                    id={"advance_money"}
+                    type="text"
+                    readOnly
+                    value={formatMoney(Number(data?.advance_money) || 0)}
+                    className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div className="my-5">
+                  <label
+                    htmlFor={"total"}
+                    className="block text-xs font-semibold text-gray-500 mb-1"
+                  >
+                    {t('refundAcceptance.total')}
+                  </label>
+                  <input
+                    id={"total"}
+                    type="text"
+                    readOnly
+                    value={formatMoney(
+                      (typeof data?.advance_money === "number" ? data.advance_money : Number(data?.advance_money) || 0)
+                      - (data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
+                        if (file.status === "Voucher Approved") {
+                          return acc + Number(file.amount);
+                        }
+                        return acc;
+                      }, 0) ?? 0)
+                    )}
+                    className="w-full bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] rounded-lg px-3 py-2"
+                  />
+                </div>
 
               </section>
 
               <div className="flex space-x-4 justify-end mt-6">
-                  <button 
-                    className={`px-4 py-2 text-white rounded-md hover:cursor-pointer 
+                <button
+                  className={`px-4 py-2 text-white rounded-md hover:cursor-pointer 
                       ${data?.vouchers?.some((file) => file.status === "pending_voucher")
-                        ? "bg-[var(--color-button)] text-[var(--color-text-button)] cursor-not-allowed"
-                        : "bg-[var(--blue)] hover:bg-[var(--dark-blue)]"
-                      }`}
-                    disabled={data?.vouchers?.some((file) => file.status === "pending_voucher")}
-                    onClick={completeRequest}
-                    id="complete-refund"
-                  >
-                      {t('refundAcceptance.finishVerification')}
-                  </button>
+                      ? "bg-[var(--color-button)] text-[var(--color-text-button)] cursor-not-allowed"
+                      : "bg-[var(--blue)] hover:bg-[var(--dark-blue)]"
+                    }`}
+                  disabled={data?.vouchers?.some((file) => file.status === "pending_voucher")}
+                  onClick={completeRequest}
+                  id="complete-refund"
+                >
+                  {t('refundAcceptance.finishVerification')}
+                </button>
               </div>
             </div>
           </div>
