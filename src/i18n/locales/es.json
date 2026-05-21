@@ -377,6 +377,7 @@
     "errorCompleting": "Error al completar la verificación. Intenta de nuevo.",
     "downloadXml": "Descargar XML",
     "downloadPdf": "Descargar PDF",
+    "noPreview": "Vista previa no disponible",
     "voucherClass": "Clase",
     "amountMxn": "Cantidad (MXN)",
     "originalAmount": "Cantidad original",

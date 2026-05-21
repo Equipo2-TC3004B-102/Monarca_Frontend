@@ -118,9 +118,7 @@ export const Historial = () => {
             ? "/requests/ta-history"
             : "/requests/all"
         let response = await getRequest(endpoint);
-        if (authState.userPermissions.includes("view_approved_request_history" as Permission)) {
-          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
-        }
+        // approved-history is already filtered by the backend (scoped to current approver, excludes Pending Review/Denied/Cancelled)
         if (endpoint === "/requests/reserved-history") {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status));
         }
