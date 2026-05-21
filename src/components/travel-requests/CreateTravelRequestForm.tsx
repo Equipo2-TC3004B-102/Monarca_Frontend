@@ -72,6 +72,7 @@ const formSchema = z.object({
 });
 
 type RawFormValues = z.input<typeof formSchema>;
+type FormValues = z.output<typeof formSchema>;
 
 /**
  * CreateTravelRequestForm, renders the travel request creation form with destination fields, validation schemas, and submission logic.
@@ -89,7 +90,7 @@ function CreateTravelRequestForm() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<RawFormValues>({
+  } = useForm<RawFormValues, unknown, FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       id_origin_city: null,
@@ -131,7 +132,7 @@ function CreateTravelRequestForm() {
    * Inputs: data (RawFormValues) - Form data containing origin, motive, destinations, and other request details.
    * Returns: Promise<void> - Executes mutation, displays toast notifications, and navigates on success.
    */
-  const onSubmit = async (data: RawFormValues) => {
+  const onSubmit = async (data: FormValues) => {
     if (!data.id_origin_city) {
       toast.error("Selecciona una ciudad de origen");
       return;
