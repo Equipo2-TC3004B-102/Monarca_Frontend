@@ -29,16 +29,20 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
  * Output: JSX.Element - An <input> element with merged classes and forwarded props.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, onWheel, onFocus, onBlur, type, ...props }, ref) => {
+  ({ className, onWheel, onFocus, onBlur, type, value, style, ...props }, ref) => {
     /**
      * baseStyles, provides default Tailwind/CSS classes for consistent input appearance across the UI.
      */
     const baseStyles =
       "bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
+    const dateStyle: React.CSSProperties | undefined =
+      type === "date" && !value ? { color: "#9ca3af", ...style } : style;
     return (
       <input
         ref={ref}
         type={type}
+        value={value}
+        style={dateStyle}
         className={clsx(baseStyles, className)}
         onFocus={(e) => {
           if (type === "number") {
