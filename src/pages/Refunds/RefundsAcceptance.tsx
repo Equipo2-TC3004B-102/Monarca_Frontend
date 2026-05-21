@@ -335,20 +335,44 @@ const RefundsAcceptance: React.FC = () => {
                     {t('refundAcceptance.previous')}
                   </button>
                   <div className="flex flex-wrap gap-3">
-                    <a
-                      href={data?.vouchers?.[currentIndex]?.file_url_xml}
-                      download={`comprobante${currentIndex + 1}.xml`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    <button
+                      onClick={async () => {
+                        const url = data?.vouchers?.[currentIndex]?.file_url_xml;
+                        if (!url) return;
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        const objUrl = window.URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = objUrl;
+                        link.download = `comprobante${currentIndex + 1}.xml`;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        window.URL.revokeObjectURL(objUrl);
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
                     >
                       {t('refundAcceptance.downloadXml')}
-                    </a>
-                    <a
-                      href={data?.vouchers?.[currentIndex]?.file_url_pdf}
-                      download={`comprobante${currentIndex + 1}.pdf`}
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const url = data?.vouchers?.[currentIndex]?.file_url_pdf;
+                        if (!url) return;
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        const objUrl = window.URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = objUrl;
+                        link.download = `comprobante${currentIndex + 1}.pdf`;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        window.URL.revokeObjectURL(objUrl);
+                      }}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 cursor-pointer"
                     >
                       {t('refundAcceptance.downloadPdf')}
-                    </a>
+                    </button>
                     <button
                       disabled={data?.vouchers?.[currentIndex]?.status !== "pending_voucher"}
                       className={`px-4 py-2 text-white rounded-md hover:cursor-pointer ${data?.vouchers?.[currentIndex]?.status !== "pending_voucher"
