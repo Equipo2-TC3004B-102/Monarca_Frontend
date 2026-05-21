@@ -13,7 +13,9 @@
     "newCompany": "New company",
     "userList": "User list",
     "rules": "Rules",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "reservedHistory": "Reserved travel history",
+    "accountingExport": "Export accounting polizas"
   },
   "dashboard": {
     "createRequest": "Create travel request",
@@ -24,11 +26,13 @@
     "vouchersToApprove": "Expense vouchers to approve",
     "tripsToRegister": "Trips to register",
     "refundsToRegister": "Refunds to register",
+    "accountingExport": "Export accounting polizas",
     "tripsToBook": "Trips to book",
     "reservedHistory": "Reserved travel history",
     "newCompany": "New company",
     "userList": "User list",
-    "rules": "Rules"
+    "rules": "Rules",
+    "notifications": "Notifications"
   },
   "header": {
     "logout": "Log out"
@@ -373,6 +377,7 @@
     "errorCompleting": "Error completing verification. Please try again.",
     "downloadXml": "Download XML",
     "downloadPdf": "Download PDF",
+    "noPreview": "Preview not available",
     "voucherClass": "Class",
     "amountMxn": "Amount (MXN)",
     "originalAmount": "Original amount",
@@ -620,7 +625,21 @@
       "successEditActor": "Actor updated successfully.",
       "errorEditActor": "Error updating actor.",
       "successDeleteActor": "Actor deleted successfully.",
-      "errorDeleteActor": "Error deleting actor."
+      "errorDeleteActor": "Error deleting actor.",
+      "actorTypeOptionalLabel": "Approver type (optional)",
+      "actorTypeNone": "No approver defined",
+      "actorTypeManager": "Direct manager",
+      "actorTypeUser": "Specific user",
+      "selectionModeAny": "Any",
+      "selectionModeAll": "All",
+      "cecoAppliesTo": "Applicable CECO",
+      "cecoAll": "All CECOs",
+      "voucherDeadlineTitle": "Expense Submission Deadline",
+      "voucherDeadlineDays": "Days after trip end",
+      "voucherDeadlineDaysLabel": "days",
+      "voucherDeadlineSave": "Save",
+      "voucherDeadlineSuccess": "Deadline updated successfully.",
+      "voucherDeadlineError": "Error saving deadline."
     },
     "notifications": {
       "title": "Notifications",
@@ -685,5 +704,24 @@
     "exchangeRate": "Exchange rate",
     "priceInMXN": "Price in MXN",
     "fullItinerary": "Full itinerary"
+  },
+  "accounting": {
+    "title": "Export accounting polizas",
+    "subtitle": "Generate and download the SAP poliza JSON for each completed trip.",
+    "loading": "Loading trips...",
+    "noRequests": "No completed trips to export.",
+    "polizaReady": "Poliza generated and downloaded successfully.",
+    "errorLoad": "Error loading completed trips.",
+    "errorGenerate": "Error generating poliza.",
+    "generating": "Generating...",
+    "generateButton": "Generate poliza",
+    "tableHeaders": {
+      "folio": "Folio",
+      "employee": "Employee",
+      "title": "Trip name",
+      "advance": "Advance",
+      "date": "Date",
+      "actions": "Actions"
+    }
   }
 }

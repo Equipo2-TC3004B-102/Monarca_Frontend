@@ -13,7 +13,9 @@
     "newCompany": "Nueva empresa",
     "userList": "Lista de usuarios",
     "rules": "Reglas",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "reservedHistory": "Historial de viajes reservados",
+    "accountingExport": "Exportar pólizas contables"
   },
   "dashboard": {
     "createRequest": "Crear solicitud de viaje",
@@ -24,11 +26,13 @@
     "vouchersToApprove": "Comprobantes de gastos por aprobar",
     "tripsToRegister": "Viajes por registrar",
     "refundsToRegister": "Reembolsos por registrar",
+    "accountingExport": "Exportar pólizas contables",
     "tripsToBook": "Viajes por reservar",
     "reservedHistory": "Historial de viajes reservados",
     "newCompany": "Crear empresa",
     "userList": "Lista de usuarios",
-    "rules": "Reglas"
+    "rules": "Reglas",
+    "notifications": "Notificaciones"
   },
   "header": {
     "logout": "Cerrar sesión"
@@ -373,6 +377,7 @@
     "errorCompleting": "Error al completar la verificación. Intenta de nuevo.",
     "downloadXml": "Descargar XML",
     "downloadPdf": "Descargar PDF",
+    "noPreview": "Vista previa no disponible",
     "voucherClass": "Clase",
     "amountMxn": "Cantidad (MXN)",
     "originalAmount": "Cantidad original",
@@ -620,7 +625,21 @@
       "successEditActor": "Actor actualizado exitosamente.",
       "errorEditActor": "Error al actualizar el actor.",
       "successDeleteActor": "Actor eliminado exitosamente.",
-      "errorDeleteActor": "Error al eliminar el actor."
+      "errorDeleteActor": "Error al eliminar el actor.",
+      "actorTypeOptionalLabel": "Tipo de aprobador (opcional)",
+      "actorTypeNone": "Sin aprobador definido",
+      "actorTypeManager": "Gerente directo",
+      "actorTypeUser": "Usuario específico",
+      "selectionModeAny": "Cualquiera",
+      "selectionModeAll": "Todos",
+      "cecoAppliesTo": "CECO al que aplica",
+      "cecoAll": "Todos los CECOs",
+      "voucherDeadlineTitle": "Límite de comprobación de gastos",
+      "voucherDeadlineDays": "Días después del fin del viaje",
+      "voucherDeadlineDaysLabel": "días",
+      "voucherDeadlineSave": "Guardar",
+      "voucherDeadlineSuccess": "Límite actualizado exitosamente.",
+      "voucherDeadlineError": "Error al guardar el límite."
     },
     "notifications": {
       "title": "Notificaciones",
@@ -685,5 +704,24 @@
     "exchangeRate": "Tasa de cambio",
     "priceInMXN": "Precio en MXN",
     "fullItinerary": "Itinerario Completo"
+  },
+  "accounting": {
+    "title": "Exportar pólizas contables",
+    "subtitle": "Genera y descarga el JSON de póliza SAP para cada viaje completado.",
+    "loading": "Cargando viajes...",
+    "noRequests": "No hay viajes completados por exportar.",
+    "polizaReady": "Póliza generada y descargada correctamente.",
+    "errorLoad": "Error al cargar los viajes completados.",
+    "errorGenerate": "Error al generar la póliza.",
+    "generating": "Generando...",
+    "generateButton": "Generar póliza",
+    "tableHeaders": {
+      "folio": "Folio",
+      "employee": "Empleado",
+      "title": "Nombre del viaje",
+      "advance": "Anticipo",
+      "date": "Fecha",
+      "actions": "Acciones"
+    }
   }
 }

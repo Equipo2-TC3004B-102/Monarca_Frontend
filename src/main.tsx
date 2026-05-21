@@ -4,7 +4,7 @@
  * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 11/05/2026 [Diego de la Vega] Integration of flight search panel into reservations page and updated last modification comment.
+ * 19/05/2026 [Julio Rodriguez] Updated admin guard for notifications page to be company-admin only; added new routes for notifications management and travel agent history; integrated new permissions and flags into route protection logic.
  */
 
 import { StrictMode } from "react";
@@ -49,6 +49,7 @@ import { Approvals } from "./pages/Approvals/Approvals.tsx";
 import { RefundsReview } from "./pages/Refunds/RefundsReview.tsx";
 import { CheckRefunds } from "./pages/Refunds/CheckRefunds.tsx";
 import FlightSearch from "./pages/FlightSearch.tsx";
+import { AccountingExport } from "./pages/Accounting/AccountingExport.tsx";
 
 /**
  * router, defines the application's route tree.
@@ -127,6 +128,10 @@ export const router = createBrowserRouter([
         element: <CheckRefunds />,
       },
       {
+        path: "/accounting/export",
+        element: <AccountingExport />,
+      },
+      {
         path: "/bookings",
         element: <Bookings />,
       },
@@ -152,7 +157,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/admin/notifications",
-        element: <FlagProtectedRoute requireCompanyAdmin><AdminNotifications /></FlagProtectedRoute>,
+        element: <FlagProtectedRoute requireCompanyAdminOnly><AdminNotifications /></FlagProtectedRoute>,
       },
       {
         path: "/admin/companies/new",

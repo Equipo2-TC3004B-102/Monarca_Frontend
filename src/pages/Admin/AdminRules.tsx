@@ -5,16 +5,11 @@
  *              Uses GET/POST/PATCH/DELETE /approval-engine/levels. company_id is derived server-side from JWT.
  * Authors: Original Monarca team
  * Last Modification made:
- * 13/05/2026 [Julio Rodriguez] Added CECO selector to inline actor form; loads CECOs from /admin/companies/:id/cost-centers.
- *                              Added edit and delete functionality with pending-request reassignment error handling.
- *                              Added ApprovalLevelActor management section per level (Tarea E).
- *                              Fixed ceco_id DTO validator: @IsString instead of @IsUUID in approval-level-actor.dto.ts.
- *                              Show company name (not UUID) in header via GET /admin/companies/:id/info.
- *                              CECO selector always visible in create form (not hidden behind actor_type).
- * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the list of rules
+ * 19/05/2026 [Julio Rodriguez] Replaced hardcoded Spanish strings with i18n t() calls; unified CECO display to show id+name;
+ *                              added description and applies_to fields to edit form.
+ *                              Added voucher deadline section — PATCH /admin/companies/:id/settings.
  */
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getRequest, postRequest, patchRequest, deleteRequest } from "../../utils/apiService";
 import { useAuth } from "../../hooks/auth/authContext";
 import GoBack from "../../components/GoBack";
@@ -70,6 +65,8 @@ const emptyForm = {
 
 const emptyEditForm = {
   name: "",
+  description: "",
+  applies_to: "travel",
   min_amount_mon: "",
   max_amount_mon: "",
   required_approvals: 1,
@@ -96,6 +93,7 @@ export default function AdminRules() {
   const { handleVisitPage, tutorial, setTutorial } = useApp();
 
   const [rules, setRules] = useState<ApprovalRule[]>([]);
+  const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -109,6 +107,9 @@ export default function AdminRules() {
   const [deleting, setDeleting] = useState(false);
   const [cecos, setCecos] = useState<CostCenter[]>([]);
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [, setVoucherDeadlineDays] = useState<number | null>(null);
+  const [deadlineInput, setDeadlineInput] = useState<string>("");
+  const [savingDeadline, setSavingDeadline] = useState(false);
 
   // Actors section state
   const [selectedLevelForActors, setSelectedLevelForActors] = useState<ApprovalRule | null>(null);
@@ -120,8 +121,6 @@ export default function AdminRules() {
   const [actorToDelete, setActorToDelete] = useState<ApprovalLevelActor | null>(null);
   const [savingActor, setSavingActor] = useState(false);
   const [deletingActor, setDeletingActor] = useState(false);
-
-  const navigate = useNavigate();
 
   const fetchRules = async () => {
     setLoading(true);
@@ -143,13 +142,18 @@ export default function AdminRules() {
         .then((data) => setCecos(data))
         .catch(() => {});
       getRequest(`/admin/companies/${companyId}/info`)
-        .then((data) => setCompanyName(data.name ?? null))
+        .then((data) => {
+          setCompanyName(data.name ?? null);
+          setVoucherDeadlineDays(data.voucher_deadline_days ?? 7);
+          setDeadlineInput(String(data.voucher_deadline_days ?? 7));
+        })
         .catch(() => {});
     }
   }, []);
 
-  const totalPages = Math.ceil(rules.length / ITEMS_PER_PAGE);
-  const paginated = rules.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const filteredRules = filterActive === 'all' ? rules : rules.filter((r) => r.is_active === (filterActive === 'active'));
+  const totalPages = Math.ceil(filteredRules.length / ITEMS_PER_PAGE);
+  const paginated = filteredRules.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const changePage = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -204,6 +208,8 @@ export default function AdminRules() {
     setEditLevel(level);
     setEditForm({
       name: level.name,
+      description: level.description ?? "",
+      applies_to: level.applies_to ?? "travel",
       min_amount_mon: level.min_amount_mon !== null ? String(level.min_amount_mon) : "",
       max_amount_mon: level.max_amount_mon !== null ? String(level.max_amount_mon) : "",
       required_approvals: level.required_approvals,
@@ -228,8 +234,10 @@ export default function AdminRules() {
     try {
       const payload: Record<string, unknown> = {
         name: editForm.name,
+        applies_to: editForm.applies_to,
         required_approvals: Number(editForm.required_approvals),
         is_active: editForm.is_active,
+        ...(editForm.description !== "" && { description: editForm.description }),
         ...(editForm.min_amount_mon !== "" && { min_amount_mon: Number(editForm.min_amount_mon) }),
         ...(editForm.max_amount_mon !== "" && { max_amount_mon: Number(editForm.max_amount_mon) }),
       };
@@ -385,6 +393,24 @@ export default function AdminRules() {
     }
   };
 
+  const handleSaveDeadline = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!companyId) return;
+    const days = parseInt(deadlineInput, 10);
+    if (isNaN(days) || days < 1) return;
+    setSavingDeadline(true);
+    setMessage(null);
+    try {
+      const updated = await patchRequest(`/admin/companies/${companyId}/settings`, { voucher_deadline_days: days });
+      setVoucherDeadlineDays(updated.voucher_deadline_days);
+      setMessage({ text: t('admin.rules.voucherDeadlineSuccess'), error: false });
+    } catch {
+      setMessage({ text: t('admin.rules.voucherDeadlineError'), error: true });
+    } finally {
+      setSavingDeadline(false);
+    }
+  };
+
   useEffect(() => {
     // Get the visited pages from localStorage
     const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
@@ -410,13 +436,15 @@ export default function AdminRules() {
             {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
           <div className="flex items-center gap-3">
-            <button
-              id="btn_notifications"
-              onClick={() => navigate('/admin/notifications')}
-              className="px-3 py-2 bg-[var(--color-page-bg)] text-[var(--color-page-text)] text-sm rounded-md cursor-pointer transition-colors"
+            <select
+              value={filterActive}
+              onChange={(e) => { setFilterActive(e.target.value as 'all' | 'active' | 'inactive'); setCurrentPage(1); }}
+              className={selectClass}
             >
-              {t('admin.rules.notifications')}
-            </button>
+              <option value="all">{t('admin.rules.all')}</option>
+              <option value="active">{t('admin.rules.active')}</option>
+              <option value="inactive">{t('admin.rules.inactive')}</option>
+            </select>
             <button
               id="btn_newRule"
               onClick={() => { setShowForm(!showForm); setMessage(null); }}
@@ -434,6 +462,34 @@ export default function AdminRules() {
             "bg-[var(--color-correct-bg)] text-[var(--color-correct-text)]"}`}>
             {message.text}
           </div>
+        )}
+
+        {canLoad && (
+          <section className="bg-[var(--color-page-bg)] border border-[var(--color-border)] rounded-md mb-6 p-5">
+            <h3 className="text-base font-semibold text-[var(--color-page-text-title)] mb-3">
+              {t('admin.rules.voucherDeadlineTitle')}
+            </h3>
+            <form onSubmit={handleSaveDeadline} className="flex items-end gap-4">
+              <div>
+                <label className={labelClass}>{t('admin.rules.voucherDeadlineDays')}</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    name="voucher_deadline_days"
+                    type="number"
+                    min={1}
+                    value={deadlineInput}
+                    onChange={(e) => setDeadlineInput(e.target.value)}
+                    required
+                    className="w-24"
+                  />
+                  <span className="text-sm text-[var(--color-page-text)]">{t('admin.rules.voucherDeadlineDaysLabel')}</span>
+                </div>
+              </div>
+              <Button type="submit" disabled={savingDeadline}>
+                {savingDeadline ? t('common.saving') : t('admin.rules.voucherDeadlineSave')}
+              </Button>
+            </form>
+          </section>
         )}
 
         {showForm && (
@@ -479,28 +535,28 @@ export default function AdminRules() {
                     <Input name="required_approvals" type="number" min={1} value={form.required_approvals} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className={labelClass}>Tipo de aprobador (opcional)</label>
+                    <label className={labelClass}>{t('admin.rules.actorTypeOptionalLabel')}</label>
                     <select name="actor_type" value={form.actor_type} onChange={handleChange} className={selectClass}>
-                      <option value="">Sin aprobador definido</option>
-                      <option value="MANAGER">Gerente directo</option>
-                      <option value="USER">Usuario específico</option>
+                      <option value="">{t('admin.rules.actorTypeNone')}</option>
+                      <option value="MANAGER">{t('admin.rules.actorTypeManager')}</option>
+                      <option value="USER">{t('admin.rules.actorTypeUser')}</option>
                     </select>
                   </div>
                   {form.actor_type && (
                     <div>
-                      <label className={labelClass}>Modo de selección</label>
+                      <label className={labelClass}>{t('admin.rules.selectionMode')}</label>
                       <select name="selection_mode" value={form.selection_mode} onChange={handleChange} className={selectClass}>
-                        <option value="any">Cualquiera</option>
-                        <option value="all">Todos</option>
+                        <option value="any">{t('admin.rules.selectionModeAny')}</option>
+                        <option value="all">{t('admin.rules.selectionModeAll')}</option>
                       </select>
                     </div>
                   )}
                   <div>
-                    <label className={labelClass}>CECO al que aplica</label>
+                    <label className={labelClass}>{t('admin.rules.cecoAppliesTo')}</label>
                     <select name="actor_ceco_id" value={form.actor_ceco_id} onChange={handleChange} className={selectClass}>
-                      <option value="">Todos los CECOs</option>
+                      <option value="">{t('admin.rules.cecoAll')}</option>
                       {cecos.map((c) => (
-                        <option key={c.id} value={c.id}>{c.id}</option>
+                        <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
                       ))}
                     </select>
                   </div>
@@ -522,6 +578,18 @@ export default function AdminRules() {
                   <div className="sm:col-span-2">
                     <label className={labelClass}>{t('admin.rules.levelName')}</label>
                     <Input name="name" value={editForm.name} onChange={handleEditChange} required />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={labelClass}>{t('admin.rules.levelDescription')}</label>
+                    <Input name="description" value={editForm.description} onChange={handleEditChange} placeholder={t('admin.rules.levelDescriptionPlaceholder')} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('admin.rules.appliesTo')}</label>
+                    <select name="applies_to" value={editForm.applies_to} onChange={handleEditChange} className={selectClass}>
+                      <option value="travel">{t('admin.rules.travel')}</option>
+                      <option value="refund">{t('admin.rules.refund')}</option>
+                      <option value="all">{t('admin.rules.all')}</option>
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>{t('admin.rules.minAmount')}</label>
@@ -622,21 +690,21 @@ export default function AdminRules() {
                     <label className={labelClass}>{t('admin.rules.actorType')}</label>
                     <select name="actor_type" value={actorForm.actor_type} onChange={handleActorFormChange} className={selectClass} required>
                       <option value="">—</option>
-                      <option value="MANAGER">Gerente directo</option>
-                      <option value="USER">Usuario específico</option>
+                      <option value="MANAGER">{t('admin.rules.actorTypeManager')}</option>
+                      <option value="USER">{t('admin.rules.actorTypeUser')}</option>
                     </select>
                   </div>
                   <div>
                     <label className={labelClass}>{t('admin.rules.selectionMode')}</label>
                     <select name="selection_mode" value={actorForm.selection_mode} onChange={handleActorFormChange} className={selectClass}>
-                      <option value="any">Cualquiera</option>
-                      <option value="all">Todos</option>
+                      <option value="any">{t('admin.rules.selectionModeAny')}</option>
+                      <option value="all">{t('admin.rules.selectionModeAll')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>CECO</label>
+                    <label className={labelClass}>{t('admin.rules.cecoAppliesTo')}</label>
                     <select name="ceco_id" value={actorForm.ceco_id} onChange={handleActorFormChange} className={selectClass}>
-                      <option value="">Todos los CECOs</option>
+                      <option value="">{t('admin.rules.cecoAll')}</option>
                       {cecos.map((c) => (
                         <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
                       ))}
@@ -671,21 +739,21 @@ export default function AdminRules() {
                     <label className={labelClass}>{t('admin.rules.actorType')}</label>
                     <select name="actor_type" value={actorForm.actor_type} onChange={handleActorFormChange} className={selectClass} required>
                       <option value="">—</option>
-                      <option value="MANAGER">Gerente directo</option>
-                      <option value="USER">Usuario específico</option>
+                      <option value="MANAGER">{t('admin.rules.actorTypeManager')}</option>
+                      <option value="USER">{t('admin.rules.actorTypeUser')}</option>
                     </select>
                   </div>
                   <div>
                     <label className={labelClass}>{t('admin.rules.selectionMode')}</label>
                     <select name="selection_mode" value={actorForm.selection_mode} onChange={handleActorFormChange} className={selectClass}>
-                      <option value="any">Cualquiera</option>
-                      <option value="all">Todos</option>
+                      <option value="any">{t('admin.rules.selectionModeAny')}</option>
+                      <option value="all">{t('admin.rules.selectionModeAll')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>CECO</label>
+                    <label className={labelClass}>{t('admin.rules.cecoAppliesTo')}</label>
                     <select name="ceco_id" value={actorForm.ceco_id} onChange={handleActorFormChange} className={selectClass}>
-                      <option value="">Todos los CECOs</option>
+                      <option value="">{t('admin.rules.cecoAll')}</option>
                       {cecos.map((c) => (
                         <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
                       ))}
@@ -824,7 +892,7 @@ export default function AdminRules() {
                   <td className="px-4 py-3 rounded-l-lg">{r.code}</td>
                   <td className="px-4 py-3">{r.name}</td>
                   <td className="px-4 py-3">{r.description ?? "-"}</td>
-                  <td className="px-4 py-3">{r.applies_to}</td>
+                  <td className="px-4 py-3">{t(`admin.rules.${r.applies_to}`)}</td>
                   <td className="px-4 py-3">{r.level_order}</td>
                   <td className="px-4 py-3">{r.min_amount_mon ?? "-"}</td>
                   <td className="px-4 py-3">{r.max_amount_mon ?? "-"}</td>
