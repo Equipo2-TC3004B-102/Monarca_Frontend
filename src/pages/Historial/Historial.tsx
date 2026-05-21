@@ -105,10 +105,12 @@ export const Historial = () => {
   useEffect(() => {
     const fetchTravelRecords = async () => {
       try {
-        const isApprovalsView = searchParams.get("view") === "approvals";
+        const view = searchParams.get("view");
         const endpoint =
-          isApprovalsView && authState.userPermissions.includes("view_approved_request_history" as Permission)
+          view === "approvals" && authState.userPermissions.includes("view_approved_request_history" as Permission)
             ? "/requests/approved-history"
+            : view === "soi" && authState.userPermissions.includes("check_budgets" as Permission)
+            ? "/requests/to-approve-SOI"
             : authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
               authState.userPermissions.includes("submit_reservations" as Permission)
             ? "/requests/reserved-history"
@@ -126,9 +128,7 @@ export const Historial = () => {
         if (endpoint === "/requests/reserved-history") {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status));
         }
-        if (endpoint === "/requests/to-approve-SOI") {
-          response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
-        }
+        // to-approve-SOI is already filtered by the backend (scoped to current SOI, status = Pending Accounting Approval)
         // Data with actions (edit buttons)
         setDataWithActions(response?.map((record: any, index: number) => {
           const sortedDestinations = [...(record.requests_destinations || [])].sort(
@@ -166,7 +166,7 @@ export const Historial = () => {
     };
 
     fetchTravelRecords();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
       // Get the visited pages from localStorage

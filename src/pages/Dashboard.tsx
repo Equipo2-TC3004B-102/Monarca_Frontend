@@ -60,7 +60,7 @@ export const Dashboard = ({title}:DashboardProps) => {
           <Mosaic title={t('dashboard.tripsToApprove')} iconPath="/assets/viajes_por_aprobar.png" link="/approvals" id="approve_request"/>
         )}
         {!isAdmin && authState.userPermissions.includes("view_approved_request_history" as Permission) && (
-          <Mosaic title={t('dashboard.approvedHistory')} iconPath="/assets/historial_de_viajes_aprobados.png" link="/history" id="approved_requests"/>
+          <Mosaic title={t('dashboard.approvedHistory')} iconPath="/assets/historial_de_viajes_aprobados.png" link="/history?view=approvals" id="approved_requests"/>
         )}
         {!isAdmin && authState.userPermissions.includes("approve_vouchers" as Permission) && (
           <Mosaic title={t('dashboard.vouchersToApprove')} iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" id="approve_vouchers"/>
@@ -69,7 +69,7 @@ export const Dashboard = ({title}:DashboardProps) => {
           <Mosaic title="Reembolsos por aprobar" iconPath="/assets/reembolsos_por_aprobar.png" link=""/>
         )} */}
         {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
-          <Mosaic title={t('dashboard.tripsToRegister')} iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/history" id="check_budgets"/>
+          <Mosaic title={t('dashboard.tripsToRegister')} iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/history?view=soi" id="check_budgets"/>
         )}
         {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
           <Mosaic title={t('dashboard.refundsToRegister')} iconPath="/assets/reembolsos_por_aprobar.png" link="/check-refunds" id="check_refunds"/>

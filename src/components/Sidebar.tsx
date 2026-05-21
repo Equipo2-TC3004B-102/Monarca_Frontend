@@ -70,7 +70,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label={t('sidebar.vouchersAndRefunds')} pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
-              <SidebarOption label={t('sidebar.tripsToRegister')} pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/history" onClick={onNavigate}/>
+              <SidebarOption label={t('sidebar.tripsToRegister')} pathIcon="/assets/historial_de_reembolsos_aprobados.png" link="/history?view=soi" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
               <SidebarOption label={t('sidebar.vouchersToRegister')} pathIcon="/assets/reembolsos_por_aprobar.png" link="/check-refunds" onClick={onNavigate}/>
