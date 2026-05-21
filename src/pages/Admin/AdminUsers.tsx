@@ -43,6 +43,7 @@ export default function AdminUsers() {
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [companyName, setCompanyName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchUsers = async () => {
@@ -59,7 +60,14 @@ export default function AdminUsers() {
     }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsers();
+    if (companyId) {
+      getRequest(`/admin/companies/${companyId}/info`)
+        .then((data) => setCompanyName(data.name ?? null))
+        .catch(() => {});
+    }
+  }, []);
 
   const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
   const paginated = users.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -134,7 +142,7 @@ export default function AdminUsers() {
             </div>
           </div>
           <p className="text-sm text-gray-600">
-            {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
+            {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
           <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
         </div>
