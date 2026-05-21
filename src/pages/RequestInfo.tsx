@@ -216,7 +216,7 @@ const RequestInfo: React.FC = () => {
                   response.currency,
                 )
               : undefined,
-          exchange_rate_str: response.currency && response.currency !== "MXN" ? `$${response.exchange_rate} MXN` : undefined,
+          exchange_rate_str: response.currency && response.currency !== "MXN" ? response.exchange_rate != null ? `$${Number(response.exchange_rate).toFixed(2)} MXN` : "N/A" : undefined,
           admin: response.admin.name + ' ' + response.admin.last_name,
           id_origin_city:
             response.destination?.city ||

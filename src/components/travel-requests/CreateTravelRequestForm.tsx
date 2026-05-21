@@ -57,14 +57,21 @@ const formSchema = z.object({
   priority: z.enum(["alta", "media", "baja"]),
   requirements: z.string().optional(),
   advance_money: z
-    .number()
-    .int()
-    .positive({ message: "El dinero adelantado debe ser positivo" }),
+    .string()
+    .trim()
+    .nonempty({ message: "El dinero adelantado es requerido" })
+    .refine((value) => /^\d+(\.\d{1,2})?$/.test(value), {
+      message: "Ingresa un número válido",
+    })
+    .transform((value) => Number(value))
+    .refine((value) => value >= 0, {
+      message: "El dinero adelantado debe ser positivo",
+    }),
   currency: z.string().optional(),
   destinations: z.array(destinationSchema).min(1, "Al menos un destino"),
 });
 
-type RawFormValues = z.infer<typeof formSchema>;
+type RawFormValues = z.input<typeof formSchema>;
 
 /**
  * CreateTravelRequestForm, renders the travel request creation form with destination fields, validation schemas, and submission logic.
@@ -89,7 +96,7 @@ function CreateTravelRequestForm() {
       motive: "",
       title: "",
       priority: "media",
-      advance_money: 0,
+      advance_money: "0.00",
       currency: "",
       requirements: "",
       destinations: [
@@ -277,12 +284,48 @@ function CreateTravelRequestForm() {
               <label className="block mb-2 text-sm font-medium text-gray-900">
                 Dinero adelantado (MXN)
               </label>
-              <Input
-                type="number"
-                min={1}
-                {...register("advance_money", {
-                  valueAsNumber: true,
-                })}
+              <Controller
+                control={control}
+                name="advance_money"
+                render={({ field }) => (
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      if (value === "") {
+                        field.onChange("");
+                        return;
+                      }
+
+                      if (/^\d*\.?\d{0,2}$/.test(value)) {
+                        field.onChange(value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value.trim();
+
+                      if (value === "") {
+                        field.onChange("0.00");
+                        return;
+                      }
+
+                      const num = Number(value);
+
+                      if (!isNaN(num)) {
+                        field.onChange(num.toFixed(2));
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (["e", "E", "+", "-"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                )}
               />
               <FieldError msg={errors?.advance_money?.message} />
             </div>
