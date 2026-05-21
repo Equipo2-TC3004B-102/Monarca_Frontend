@@ -128,7 +128,11 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
                 <p>
                   <span className="text-[var(--color-page-text)]">{t('flightCard.exchangeRate')}:</span>{' '}
                   <span className="font-semibold text-[var(--color-page-text-title)]">
-                    {(flight.total_price_mxn / flight.original_price).toFixed(2)} MXN
+                    {
+                      flight.total_price_mxn != null && flight.original_price != null && Number(flight.original_price) > 0 ? `${(
+                        Number(flight.total_price_mxn) / Number(flight.original_price)
+                      ).toFixed(2)} MXN` : "N/A"
+                    }
                   </span>
                 </p>
                 <p className="border-t border-[var(--color-border)] pt-2 mt-2">
