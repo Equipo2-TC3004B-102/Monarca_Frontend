@@ -29,16 +29,20 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
  * Output: JSX.Element - An <input> element with merged classes and forwarded props.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, onWheel, onFocus, onBlur, type, ...props }, ref) => {
+  ({ className, onWheel, onFocus, onBlur, type, value, style, ...props }, ref) => {
     /**
      * baseStyles, provides default Tailwind/CSS classes for consistent input appearance across the UI.
      */
     const baseStyles =
       "bg-[var(--color-card-bg)] border border-[var(--color-border)] text-[var(--color-page-text)] text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5";
+    const dateStyle: React.CSSProperties | undefined =
+      type === "date" && !value ? { color: "#9ca3af", ...style } : style;
     return (
       <input
         ref={ref}
         type={type}
+        value={value}
+        style={dateStyle}
         className={clsx(baseStyles, className)}
         onFocus={(e) => {
           if (type === "number") {
@@ -46,16 +50,22 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               _wheelHandler?: (event: WheelEvent) => void;
             };
 
+            const nativeSetter = Object.getOwnPropertyDescriptor(
+              window.HTMLInputElement.prototype,
+              "value"
+            )?.set;
+
             const handleWheel = (event: WheelEvent) => {
               event.preventDefault();
               const current = parseFloat(el.value || "0");
+              const step = parseFloat(el.step) || 1;
+              const next =
+                event.deltaY < 0 ? current + step : Math.max(0, current - step);
+              const formatted = Number.isInteger(step)
+                ? String(Math.round(next))
+                : next.toFixed(2);
 
-              if (event.deltaY < 0) {
-                el.value = (current + 1).toFixed(2);
-              } else {
-                el.value = Math.max(0, current - 1).toFixed(2);
-              }
-
+              nativeSetter?.call(el, formatted);
               el.dispatchEvent(new Event("input", { bubbles: true }));
             };
 

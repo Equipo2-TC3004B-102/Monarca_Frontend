@@ -360,6 +360,7 @@ const InputField: React.FC<InputFieldProps> = ({
             aria-invalid={!!errorMessage}
             aria-required={required}
             role={type === "date" ? "spinbutton" : undefined}
+            style={type === "date" && !value ? { color: '#9ca3af' } : undefined}
           />
         </div>
       </>

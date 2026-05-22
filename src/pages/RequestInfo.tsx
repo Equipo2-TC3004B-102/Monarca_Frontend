@@ -337,7 +337,6 @@ const RequestInfo: React.FC = () => {
     { key: 'id_origin_city', label: t('requestInfo.labelOriginCity') },
     { key: 'destinations', label: t('requestInfo.labelDestinations') },
     { key: 'motive', label: t('requestInfo.labelMotive') },
-    { key: 'currency', label: t('requestInfo.labelCurrency') },
     { key: 'unconverted_advance_money_str', label: t('requestInfo.labelAdvanceOrigin') },
     { key: 'exchange_rate_str', label: t('requestInfo.labelExchangeRate') },
     { key: 'advance_money_str', label: t('requestInfo.labelAdvanceMXN') },
