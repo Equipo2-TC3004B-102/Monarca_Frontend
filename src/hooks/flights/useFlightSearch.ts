@@ -19,6 +19,7 @@ export interface FlightSearchQuery {
 }
 
 export interface UnifiedFlightOption {
+  exchange_rate?: number | null;
   provider_offer_id: string;
   provider_id: string;
   provider_name: string;
