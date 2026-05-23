@@ -6,6 +6,7 @@
  * Authors: DebugStudio Team
  * Last Modification made:
  * 05/05/2026 [Julio Rodriguez] Added companyId guard and company indicator using authState.companyId pattern.
+ * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the list of users
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -14,6 +15,8 @@ import { useAuth } from "../../hooks/auth/authContext";
 import GoBack from "../../components/GoBack";
 import RefreshButton from "../../components/RefreshButton";
 import { useTranslation } from "react-i18next";
+import { Tutorial } from "../../components/Tutorial";
+import { useApp } from "../../hooks/app/appContext";
 
 interface User {
   id: string;
@@ -32,12 +35,15 @@ export default function AdminUsers() {
   const { t } = useTranslation();
   const companyId = authState.companyId;
   const canLoad = Boolean(companyId);
+  
+  const { handleVisitPage, tutorial, setTutorial } = useApp();
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [companyName, setCompanyName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchUsers = async () => {
@@ -54,7 +60,14 @@ export default function AdminUsers() {
     }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsers();
+    if (companyId) {
+      getRequest(`/admin/companies/${companyId}/info`)
+        .then((data) => setCompanyName(data.name ?? null))
+        .catch(() => {});
+    }
+  }, []);
 
   const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
   const paginated = users.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -92,8 +105,23 @@ export default function AdminUsers() {
     }
   };
 
+  useEffect(() => {
+      // Get the visited pages from localStorage
+      const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+      // Check if the current page is already in the visited pages
+      const isPageVisited = visitedPages.includes(location.pathname);
+  
+      // If the page is not visited, set the tutorial to true
+      if (!isPageVisited) {
+        setTutorial(true);
+      }
+      // Add the current page to the visited pages
+      handleVisitPage();
+    }, []);
+
   return (
     <>
+      <Tutorial page="adminUsers" run={tutorial}>
       <GoBack />
       <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <div className="flex flex-col gap-2 mb-4">
@@ -102,6 +130,7 @@ export default function AdminUsers() {
             <div className="flex items-center gap-3">
               {!authState.isSystemAdmin && (
                 <button
+                  id="btn_loadUsers"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={importing || !canLoad}
                   className="px-4 py-2 bg-[#0a2c6d] text-white text-sm rounded-md hover:bg-[#0d3d94] transition-colors disabled:opacity-50"
@@ -113,19 +142,20 @@ export default function AdminUsers() {
             </div>
           </div>
           <p className="text-sm text-gray-600">
-            {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
+            {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
           <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
         </div>
 
         {message && (
-          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-[var(--color-incorrect-bg)] text-[var(--color-incorrect-text)] border border-[var(--color-incorrect-border)]" : 
+          "bg-[var(--color-correct-bg)] text-[var(--color-correct-text)] "}`}>
             {message.text}
           </div>
         )}
 
         <div className="overflow-x-auto mb-4">
-          <table className="w-full min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
+          <table id="users_list" className="w-full min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
                 <th className="px-4 py-2 text-center rounded-l-lg">{t('admin.users.name')}</th>
@@ -183,6 +213,7 @@ export default function AdminUsers() {
           </div>
         )}
       </div>
+      </Tutorial>
     </>
   );
 }

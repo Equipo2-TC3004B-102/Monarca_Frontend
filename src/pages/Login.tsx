@@ -141,7 +141,7 @@ export default function LoginPage() {
           <span className="text-[#0466CB]">M</span>ONARCA
         </p>
       </div>
-        <ToastContainer />
+        <ToastContainer toastClassName="custom-toast"/>
         <h1
           className="text-[2.5rem] lg:text-[3.5rem] text-[var(--color-page-text-title)] dark:text-[var(--color-page-text-title)] text-center mb-8 mt-20"
           style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 700 }}

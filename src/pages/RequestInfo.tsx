@@ -4,6 +4,8 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 14/05/2026 [Diego de la Vega] Update destinations display to show origin-to-destination flow and synthesize return legs. Added dark mode for some buttons.
+ * 19/05/2026 [Julio Rodriguez] Disabled submit buttons while request is in-flight (isSubmitting).
+ *                              Show folio (YYYY-NNN) in header badge instead of UUID.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -100,6 +102,7 @@ const RequestInfo: React.FC = () => {
   const prevRefRes = React.useRef(null);
   const nextRefRes = React.useRef(null);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { handleVisitPage, tutorial } = useApp();
   const { t } = useTranslation();
 
@@ -204,6 +207,7 @@ const RequestInfo: React.FC = () => {
           requests_destinations: mappedDests,
           effective_advance_money: effectiveAdvanceMoney,
           reservations: reservations,
+          createdYear: new Date(response.createdAt).getFullYear(),
           createdAt: formatDate(response.createdAt),
           advance_money_str: formatMoney(
             normalizedAdvanceMoney ?? effectiveAdvanceMoney,
@@ -216,7 +220,7 @@ const RequestInfo: React.FC = () => {
                   response.currency,
                 )
               : undefined,
-          exchange_rate_str: response.currency && response.currency !== "MXN" ? `$${response.exchange_rate} MXN` : undefined,
+          exchange_rate_str: response.currency && response.currency !== "MXN" ? response.exchange_rate != null ? `$${Number(response.exchange_rate).toFixed(2)} MXN` : "N/A" : undefined,
           admin: response.admin.name + ' ' + response.admin.last_name,
           id_origin_city:
             response.destination?.city ||
@@ -333,7 +337,6 @@ const RequestInfo: React.FC = () => {
     { key: 'id_origin_city', label: t('requestInfo.labelOriginCity') },
     { key: 'destinations', label: t('requestInfo.labelDestinations') },
     { key: 'motive', label: t('requestInfo.labelMotive') },
-    { key: 'currency', label: t('requestInfo.labelCurrency') },
     { key: 'unconverted_advance_money_str', label: t('requestInfo.labelAdvanceOrigin') },
     { key: 'exchange_rate_str', label: t('requestInfo.labelExchangeRate') },
     { key: 'advance_money_str', label: t('requestInfo.labelAdvanceMXN') },
@@ -356,6 +359,8 @@ const RequestInfo: React.FC = () => {
       });
       return;
     }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await patchRequest(`/requests/approve/${id}`, {
         id_travel_agency: selectedAgency,
@@ -372,7 +377,8 @@ const RequestInfo: React.FC = () => {
         position: 'top-right',
         autoClose: 3000,
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -391,6 +397,8 @@ const RequestInfo: React.FC = () => {
       });
       return;
     }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await postRequest(`/revisions`, {
         id_request: id,
@@ -408,7 +416,8 @@ const RequestInfo: React.FC = () => {
         position: 'top-right',
         autoClose: 3000,
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -420,6 +429,8 @@ const RequestInfo: React.FC = () => {
    * Returns: Promise<void> - Sends deny request and redirects on success.
    */
   const deny = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await patchRequest(`/requests/deny/${id}`, {});
       clearRequestInfoDraft();
@@ -434,7 +445,8 @@ const RequestInfo: React.FC = () => {
         position: 'top-right',
         autoClose: 3000,
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -446,6 +458,8 @@ const RequestInfo: React.FC = () => {
    * Returns: Promise<void> - Sends cancel request and redirects on success.
    */
   const cancel = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await patchRequest(`/requests/cancel/${id}`, {});
       clearRequestInfoDraft();
@@ -460,7 +474,8 @@ const RequestInfo: React.FC = () => {
         position: 'top-right',
         autoClose: 3000,
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -472,6 +487,8 @@ const RequestInfo: React.FC = () => {
    * Returns: Promise<void> - Sends status update and redirects on success.
    */
   const register = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await patchRequest(`/requests/SOI-approve/${id}`, {});
       clearRequestInfoDraft();
@@ -486,7 +503,8 @@ const RequestInfo: React.FC = () => {
         position: 'top-right',
         autoClose: 3000,
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -496,6 +514,8 @@ const RequestInfo: React.FC = () => {
    * Returns: Promise<void> - Sends completion request and redirects on success.
    */
   const complete = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await patchRequest(`/requests/complete-request/${id}`, {});
       clearRequestInfoDraft();
@@ -510,11 +530,12 @@ const RequestInfo: React.FC = () => {
         position: 'top-right',
         autoClose: 3000,
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
-  const previewAdvanceMoney = normalizeAmount(data?.effective_advance_money) ?? 0;
+  const previewAdvanceMoney = normalizeAmount(data?.advance_money) ?? 0;
   const approvedVoucherTotal =
     data?.vouchers?.reduce((acc: number, file: { status: string; amount: number }) => {
       if (file.status === "Voucher Approved") {
@@ -524,6 +545,11 @@ const RequestInfo: React.FC = () => {
     }, 0) ?? 0;
   const previewBalance = previewAdvanceMoney - approvedVoucherTotal;
 
+  const folio =
+    data?.request_num && data?.createdYear
+      ? `${data.createdYear}-${String(data.request_num).padStart(3, '0')}`
+      : null;
+
   return ( // Returns the main JSX content of the RequestInfo page, including request details, destinations, reservations, vouchers, and action buttons based on user permissions and request status.
     <Tutorial page="requestInfo" run={tutorial}>
       <div className="pb-10">
@@ -531,7 +557,7 @@ const RequestInfo: React.FC = () => {
         <main className="max-w-6xl bg-[var(--color-card-bg)] mx-auto rounded-lg shadow-lg overflow-hidden">
           <div className="px-8 py-10 flex flex-col">
             <div className="w-fit bg-[var(--blue)] text-white text-xs lg:text-base px-4 py-2 rounded-full mb-6">
-              {t('requestInfo.title')} <span>{id}</span>
+              {t('requestInfo.title')} <span>{folio ?? id}</span>
             </div>
             <p className="mb-6 text-gray-700 font-medium">
               {t('requestInfo.requester')} <span className="text-[var(--color-page-text-title)]">{data?.user?.name} {data?.user?.last_name}</span>
@@ -925,40 +951,39 @@ const RequestInfo: React.FC = () => {
                 <footer className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={approve}
-                    disabled={!selectedAgency || data.status !== "Pending Review"}
+                    disabled={isSubmitting || !selectedAgency || data.status !== "Pending Review"}
                     className={`flex-1 py-3 rounded-lg font-semibold transition
-                    ${selectedAgency && data.status === "Pending Review"
+                    ${!isSubmitting && selectedAgency && data.status === "Pending Review"
                         ? 'bg-green-600 hover:bg-green-700 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
                     id="approve-request-button"
                   >
-                    {t('requestInfo.approve')}
+                    {isSubmitting ? t('common.loading') : t('requestInfo.approve')}
                   </button>
                   <button
                     onClick={requestChanges}
-                    disabled={!comment.trim() || data.status !== "Pending Review"}
+                    disabled={isSubmitting || !comment.trim() || data.status !== "Pending Review"}
                     className={`flex-1 py-3 rounded-lg font-semibold transition
-                    ${comment.trim() && data.status === "Pending Review"
+                    ${!isSubmitting && comment.trim() && data.status === "Pending Review"
                         ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
-
                     id="changes-request-button"
                   >
-                    {t('requestInfo.requestChanges')}
+                    {isSubmitting ? t('common.loading') : t('requestInfo.requestChanges')}
                   </button>
                   <button
                     onClick={deny}
-                    disabled={data.status !== "Pending Review"}
+                    disabled={isSubmitting || data.status !== "Pending Review"}
                     className={`flex-1 py-3 rounded-lg font-semibold transition
-                    ${data.status === "Pending Review"
+                    ${!isSubmitting && data.status === "Pending Review"
                         ? 'bg-red-600 hover:bg-red-700 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
                     id="deny-request-button"
                   >
-                    {t('requestInfo.deny')}
+                    {isSubmitting ? t('common.loading') : t('requestInfo.deny')}
                   </button>
                 </footer>
               </>
@@ -979,14 +1004,14 @@ const RequestInfo: React.FC = () => {
                 </button>
                 <button
                   onClick={cancel}
-                  disabled={data.status !== "Pending Review" && data.status !== "Changes Needed"}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition ${data.status !== "Pending Review" && data.status !== "Changes Needed"
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-red-600 hover:bg-red-700 text-white"
+                  disabled={isSubmitting || (data.status !== "Pending Review" && data.status !== "Changes Needed")}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition ${!isSubmitting && (data.status === "Pending Review" || data.status === "Changes Needed")
+                      ? "bg-red-600 hover:bg-red-700 text-white"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     }`}
                   id="cancel-request-button"
                 >
-                  {t('requestInfo.cancel')}
+                  {isSubmitting ? t('common.loading') : t('requestInfo.cancel')}
                 </button>
 
               </footer>}
@@ -996,13 +1021,13 @@ const RequestInfo: React.FC = () => {
                 <button
                   id="register-spend"
                   onClick={register}
-                  disabled={data.status !== "Pending Accounting Approval"}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition ${data.status === "Pending Accounting Approval"
+                  disabled={isSubmitting || data.status !== "Pending Accounting Approval"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition ${!isSubmitting && data.status === "Pending Accounting Approval"
                       ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                 >
-                  {t('requestInfo.markAsRegistered')}
+                  {isSubmitting ? t('common.loading') : t('requestInfo.markAsRegistered')}
                 </button>
               </footer>
             }
@@ -1012,13 +1037,13 @@ const RequestInfo: React.FC = () => {
                 <button
                   id="complete-refund-request"
                   onClick={complete}
-                  disabled={data.status !== "Pending Refund Approval"}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition ${data.status === "Pending Refund Approval"
+                  disabled={isSubmitting || data.status !== "Pending Refund Approval"}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition ${!isSubmitting && data.status === "Pending Refund Approval"
                       ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                 >
-                  {t('requestInfo.markAsCompleted')}
+                  {isSubmitting ? t('common.loading') : t('requestInfo.markAsCompleted')}
                 </button>
               </footer>
             }

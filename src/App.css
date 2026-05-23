@@ -28,6 +28,16 @@
   --color-button: #E4E4E7;
   --color-text-button: #71717A;
 
+  --color-correct-bg: #DCFCE7;
+  --color-correct-text: #15803D;
+  --color-correct-border: #BBF7D0;
+  --color-incorrect-bg: #FEE2E2;
+  --color-incorrect-text: #B91C1C;
+  --color-incorrect-border: #FECACA;
+  --color-message-bg: #EFF6FF;
+  --color-message-text: #1E3A8A;
+  --color-message-border: #C2D5FF;
+
   /* Fonts Weights */
   /* --thin: 300;
   --regular: 400;
@@ -83,6 +93,64 @@ a {
   z-index: 10;
 }
 
+.custom-driver-theme{
+  background-color: var(--color-card-bg);
+  color: var(--color-page-text);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.custom-driver-theme .driver-popover-close-btn {
+  color: var(--color-page-text);
+}
+
+.custom-driver-theme  .driver-popover-next-btn, .custom-driver-theme  .driver-popover-prev-btn{
+  background-color: var(--color-card-bg);
+  color: var(--color-page-text);
+  text-shadow: none;
+  border: 1px solid var(--color-border);
+}
+
+.custom-driver-theme  .driver-popover-next-btn, .custom-driver-theme  .driver-popover-prev-btn{
+  background-color: var(--color-card-bg);
+  color: var(--color-page-text);
+  text-shadow: none;
+  border: 1px solid var(--color-border);
+}
+
+.custom-driver-theme .driver-popover-next-btn:hover,
+.custom-driver-theme .driver-popover-prev-btn:hover {
+  background-color: var(--color-card-bg);
+  color: var(--color-page-text);
+  border: 1px solid var(--color-border);
+}
+
+.custom-toast {
+  background-color: var(--color-card-bg);
+  color: var(--color-page-text);
+  border: 1px solid var(--color-border);
+}
+
+.Toastify__close-button {
+  color: var(--color-page-text);
+}
+
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark input[type="time"],
+.dark input[type="month"],
+.dark input[type="week"] {
+  color-scheme: dark;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator,
+.dark input[type="month"]::-webkit-calendar-picker-indicator,
+.dark input[type="week"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.6);
+}
+
 .dark {
   --color-page-bg: #121212;
   --color-page-text: #f9fafb;
@@ -91,4 +159,14 @@ a {
   --color-border: #3b3b3b;
   --color-button: #52525B;
   --color-text-button: #E4E4E7;
+
+  --color-correct-bg: #052E16;
+  --color-correct-text: #DCFCE7;
+  --color-correct-border: #379e5b;
+  --color-incorrect-bg: #450A0A;
+  --color-incorrect-text: #B91C1C;
+  --color-incorrect-border: #FECACA;
+  --color-message-bg: #172554;
+  --color-message-text: #C2D5FF;
+  --color-message-border: #4981f9;
 }

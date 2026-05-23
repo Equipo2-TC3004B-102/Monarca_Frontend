@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 06/05/2026 [Sergio Jiawei Xuan] Adjusted mosaic row gap to compensate for updated Mosaic wrapper padding.
+ * 19/05/2026 [Julio Rodriguez]: Hide travel history mosaic for admin users; use view_travel_agent_history for TA history mosaic; add notifications mosaic for company admins only.
  */
 
 import { useEffect } from "react";
@@ -50,7 +50,7 @@ export const Dashboard = ({title}:DashboardProps) => {
         {!isAdmin && authState.userPermissions.includes("create_request" as Permission) && (
           <Mosaic title={t('dashboard.createRequest')} iconPath="/assets/crear_solicitud_de_viaje.png" link="/requests/create" id="create-request"/>
         )}
-        {authState.userPermissions.includes("view_own_requests" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("view_own_requests" as Permission) && (
           <Mosaic title={t('dashboard.travelHistory')} iconPath="/assets/historial_de_viajes.png" link="/history" id="history"/>
         )}
         {!isAdmin && authState.userPermissions.includes("upload_vouchers" as Permission) && (
@@ -60,7 +60,7 @@ export const Dashboard = ({title}:DashboardProps) => {
           <Mosaic title={t('dashboard.tripsToApprove')} iconPath="/assets/viajes_por_aprobar.png" link="/approvals" id="approve_request"/>
         )}
         {!isAdmin && authState.userPermissions.includes("view_approved_request_history" as Permission) && (
-          <Mosaic title={t('dashboard.approvedHistory')} iconPath="/assets/historial_de_viajes_aprobados.png" link="/history" id="approved_requests"/>
+          <Mosaic title={t('dashboard.approvedHistory')} iconPath="/assets/historial_de_viajes_aprobados.png" link="/history?view=approvals" id="approved_requests"/>
         )}
         {!isAdmin && authState.userPermissions.includes("approve_vouchers" as Permission) && (
           <Mosaic title={t('dashboard.vouchersToApprove')} iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" id="approve_vouchers"/>
@@ -69,10 +69,13 @@ export const Dashboard = ({title}:DashboardProps) => {
           <Mosaic title="Reembolsos por aprobar" iconPath="/assets/reembolsos_por_aprobar.png" link=""/>
         )} */}
         {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
-          <Mosaic title={t('dashboard.tripsToRegister')} iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/history" id="check_budgets"/>
+          <Mosaic title={t('dashboard.tripsToRegister')} iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/history?view=soi" id="check_budgets"/>
         )}
         {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
           <Mosaic title={t('dashboard.refundsToRegister')} iconPath="/assets/reembolsos_por_aprobar.png" link="/check-refunds" id="check_refunds"/>
+        )}
+        {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
+          <Mosaic title={t('dashboard.accountingExport')} iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/accounting/export" id="accounting_export"/>
         )}
         {!isAdmin && authState.userPermissions.includes("submit_reservations" as Permission) && (
           <Mosaic title={t('dashboard.tripsToBook')} iconPath="/assets/viajes_por_reservar.png" link="/bookings" id="bookings"/>
@@ -80,7 +83,7 @@ export const Dashboard = ({title}:DashboardProps) => {
         {/* {authState.userPermissions.includes("submit_reservations" as Permission) && (
           <Mosaic title="Formulario de ingreso de reservación" iconPath="/assets/formulario_de_ingreso_de_reservacion.png" link=""/>
         )} */}
-        {!isAdmin && authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) && authState.userPermissions.includes("submit_reservations" as Permission) && (
+        {!isAdmin && authState.userPermissions.includes("view_travel_agent_history" as Permission) && (
           <Mosaic title={t('dashboard.reservedHistory')} iconPath="/assets/historial_de_viajes_reservados.png" link="/history" id="reserved_requests"/>
         )}
         {authState.isSystemAdmin && (
@@ -91,6 +94,9 @@ export const Dashboard = ({title}:DashboardProps) => {
         )}
         {authState.isCompanyAdmin && (
           <Mosaic title={t('dashboard.rules')} iconPath="/assets/historial_de_viajes.png" link="/admin/rules" id="rules"/>
+        )}
+        {authState.isCompanyAdmin && (
+          <Mosaic title={t('dashboard.notifications')} iconPath="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" id="notifications"/>
         )}
       </div>
     </Tutorial>

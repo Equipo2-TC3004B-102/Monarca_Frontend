@@ -4,7 +4,8 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 17/05/2026 [Santiago Coronado Hernández and Juan Pablo Narchi] Make it so that travel agents can see all reserved requests.
+ * 19/05/2026 [Julio Rodriguez] Route travel agents to dedicated /requests/ta-history endpoint;
+ *                              replace endpoint-string filters with permission-based filters.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -13,7 +14,7 @@ import { getRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { Permission, useAuth } from "../../hooks/auth/authContext";
 import RefreshButton from "../../components/RefreshButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "../../components/Refunds/Button";
 import GoBack from "../../components/GoBack";
 import { Tutorial } from "../../components/Tutorial";
@@ -91,6 +92,7 @@ export const Historial = () => {
   const [dataWithActions, setDataWithActions] = useState([]);
   const { authState } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { handleVisitPage, tutorial, setTutorial } = useApp();
   const { t } = useTranslation();
 
@@ -103,27 +105,30 @@ export const Historial = () => {
   useEffect(() => {
     const fetchTravelRecords = async () => {
       try {
+        const view = searchParams.get("view");
         const endpoint =
-          authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
-          authState.userPermissions.includes("submit_reservations" as Permission)
+          view === "approvals" && authState.userPermissions.includes("view_approved_request_history" as Permission)
+            ? "/requests/approved-history"
+            : view === "soi" && authState.userPermissions.includes("check_budgets" as Permission)
+            ? "/requests/to-approve-SOI"
+            : authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
+              authState.userPermissions.includes("submit_reservations" as Permission)
             ? "/requests/reserved-history"
             : authState.userPermissions.includes("view_own_requests" as Permission)
             ? "/requests/user"
-            : authState.userPermissions.includes("check_budgets" as Permission)
-            ? "/requests/to-approve-SOI"
             : authState.userPermissions.includes("view_approved_request_history" as Permission)
             ? "/requests/approved-history"
+            : authState.userPermissions.includes("check_budgets" as Permission)
+            ? "/requests/to-approve-SOI"
+            : authState.userPermissions.includes("view_travel_agent_history" as Permission)
+            ? "/requests/ta-history"
             : "/requests/all"
         let response = await getRequest(endpoint);
-        if (endpoint === "/requests/approved-history") {
-          response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled"].includes(record.status) && record.id_admin === authState.userId);
-        }
+        // approved-history is already filtered by the backend (scoped to current approver, excludes Pending Review/Denied/Cancelled)
         if (endpoint === "/requests/reserved-history") {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status));
         }
-        if (endpoint === "/requests/to-approve-SOI") {
-          response = response.filter((record: any) => ["Pending Accounting Approval"].includes(record.status) && record.id_SOI === authState.userId);
-        }
+        // to-approve-SOI is already filtered by the backend (scoped to current SOI, status = Pending Accounting Approval)
         // Data with actions (edit buttons)
         setDataWithActions(response?.map((record: any, index: number) => {
           const sortedDestinations = [...(record.requests_destinations || [])].sort(
@@ -161,7 +166,7 @@ export const Historial = () => {
     };
 
     fetchTravelRecords();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
       // Get the visited pages from localStorage

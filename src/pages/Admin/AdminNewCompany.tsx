@@ -5,14 +5,17 @@
  * Authors: DebugStudio Team
  * Last Modification:
  * 30/04/2026 [Julio Rodriguez] Created view for system admin to generate a company entry in the database.
+ * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the new company setup page
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { postRequest } from "../../utils/apiService";
 import GoBack from "../../components/GoBack";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { useTranslation } from "react-i18next";
+import { Tutorial } from "../../components/Tutorial";
+import { useApp } from "../../hooks/app/appContext";
 
 interface SetupResult {
   company: { id: string; name: string; local_currency: string };
@@ -35,6 +38,8 @@ export default function AdminNewCompany() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [result, setResult] = useState<SetupResult | null>(null);
+
+  const { handleVisitPage, tutorial, setTutorial } = useApp();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -66,20 +71,36 @@ export default function AdminNewCompany() {
     }
   };
 
+  useEffect(() => {
+    // Get the visited pages from localStorage
+    const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+    // Check if the current page is already in the visited pages
+    const isPageVisited = visitedPages.includes(location.pathname);
+
+    // If the page is not visited, set the tutorial to true
+    if (!isPageVisited) {
+      setTutorial(true);
+    }
+    // Add the current page to the visited pages
+    handleVisitPage();
+  }, []);
+
   return (
     <>
+      <Tutorial page="adminNewCompany" run={tutorial}>
       <GoBack />
       <div className="flex-1 p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold text-[var(--color-page-text-title)] mb-6">{t('admin.newCompany.title')}</h2>
 
         {message && (
-          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-[var(--color-incorrect-bg)] text-[var(--color-incorrect-text)]" : 
+            "bg-[var(--color-correct-bg)] text-[var(--color-correct-text)]"}`}>
             {message.text}
           </div>
         )}
 
         {result && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-900">
+          <div className="mb-6 p-4 bg-[var(--color-message-bg)] border border-[var(--color-message-border)] rounded-md text-sm text-[var(--color-message-text)]">
             <p className="font-bold mb-2">{t('admin.newCompany.credentialsLabel')}</p>
             <p><span className="font-medium">{t('admin.newCompany.companyLabel')}</span> {result.company.name} <span className="text-blue-500 font-mono text-xs ml-1">({result.company.id})</span></p>
             <p><span className="font-medium">{t('admin.newCompany.currencyLabel')}</span> {result.company.local_currency}</p>
@@ -89,7 +110,7 @@ export default function AdminNewCompany() {
         )}
 
         <section className="bg-[var(--color-page-bg)] rounded-md">
-          <div className="p-10">
+          <div id="form_company" className="p-10">
             <form onSubmit={handleSubmit}>
               <h3 className="text-lg font-bold text-[var(--color-page-text-title)] mb-4">{t('admin.newCompany.companyData')}</h3>
               <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 mb-8">
@@ -119,13 +140,14 @@ export default function AdminNewCompany() {
                 </div>
               </div>
 
-              <Button type="submit" disabled={saving} className="mt-8">
+              <Button id="btn_newCompany" type="submit" disabled={saving} className="mt-8">
                 {saving ? t('admin.newCompany.creating') : t('admin.newCompany.create')}
               </Button>
             </form>
           </div>
         </section>
       </div>
+      </Tutorial>
     </>
   );
 }

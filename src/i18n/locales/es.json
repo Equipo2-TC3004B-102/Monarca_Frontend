@@ -13,7 +13,9 @@
     "newCompany": "Nueva empresa",
     "userList": "Lista de usuarios",
     "rules": "Reglas",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "reservedHistory": "Historial de viajes reservados",
+    "accountingExport": "Exportar pólizas contables"
   },
   "dashboard": {
     "createRequest": "Crear solicitud de viaje",
@@ -24,11 +26,13 @@
     "vouchersToApprove": "Comprobantes de gastos por aprobar",
     "tripsToRegister": "Viajes por registrar",
     "refundsToRegister": "Reembolsos por registrar",
+    "accountingExport": "Exportar pólizas contables",
     "tripsToBook": "Viajes por reservar",
     "reservedHistory": "Historial de viajes reservados",
     "newCompany": "Crear empresa",
     "userList": "Lista de usuarios",
-    "rules": "Reglas"
+    "rules": "Reglas",
+    "notifications": "Notificaciones"
   },
   "header": {
     "logout": "Cerrar sesión"
@@ -290,6 +294,12 @@
   "reservations": {
     "title": "Reservaciones",
     "titleField": "Título",
+    "selectedFlight": "Vuelo seleccionado",
+    "flightAppliedSuccess": "Vuelo aplicado al destino {{destination}} (tramo {{segment}})",
+    "priceSetByDuffel": "Precio fijado por Duffel.",
+    "editManually": "Editar manualmente",
+    "flightReference": "Referencia del vuelo",
+    "flightReferencePlaceholder": "Se llena automáticamente al seleccionar un vuelo",
     "destination": "Destino",
     "origin": "Origen",
     "departureDate": "Fecha de salida",
@@ -367,6 +377,7 @@
     "errorCompleting": "Error al completar la verificación. Intenta de nuevo.",
     "downloadXml": "Descargar XML",
     "downloadPdf": "Descargar PDF",
+    "noPreview": "Vista previa no disponible",
     "voucherClass": "Clase",
     "amountMxn": "Cantidad (MXN)",
     "originalAmount": "Cantidad original",
@@ -486,6 +497,34 @@
       "requestChangesDesc": "Aquí puedes solicitar cambios a la solicitud de viaje. Recuerda que debes poner una justificación en los comentarios.",
       "deny": "Denegar Solicitud",
       "denyDesc": "Aquí puedes denegar la solicitud de viaje."
+    },
+    "adminUsers": {
+      "usersList": "Lista de Usuarios",
+      "usersListDesc": "Aquí puedes ver todos los usuarios registrados en el sistema.",
+      "loadUsers": "Cargar nuevos usuarios",
+      "loadUsersDesc": "Haz clic aquí para cargar nuevos usuarios al sistema con un json."
+    },
+    "adminRules": {
+      "rulesList": "Lista de Reglas",
+      "rulesListDesc": "Aquí puedes ver todas las reglas definidas en el sistema.",
+      "btnNotifications": "Notificaciones",
+      "btnNotificationsDesc": "Haz clic aquí para ir a la pagina de notificaciones del sistema.",
+      "btnNewRule": "Nueva Regla",
+      "btnNewRuleDesc": "Haz clic aquí para crear una nueva regla.",
+      "rulesButtons": "Botones de Reglas",
+      "rulesButtonsDesc": "Con estos botones puedes agregar actores, editar la regla o eliminarla."
+    },
+    "adminNotifications": {
+      "preferences": "Opciones de preferencias",
+      "preferencesDesc": "Aquí puedes elegir las preferencias de notificaciones dentro del sistema.",
+      "saveChanges": "Guardar Cambios",
+      "saveChangesDesc": "Haz clic aquí para guardar los cambios realizados a tus preferencias."
+    },
+    "adminNewCompany": {
+      "formCompany": "Fomulario de nueva empresa",
+      "formCompanyDesc": "Aquí debes de llenar el formulario para crear una nueva empresa dentro del sistema.",
+      "btnNewCompany": "Crear empresa",
+      "btnNewCompanyDesc": "Haz clic aquí para crear la empresa junto con su nuevo usuario administrador."
     }
   },
   "admin": {
@@ -586,7 +625,21 @@
       "successEditActor": "Actor actualizado exitosamente.",
       "errorEditActor": "Error al actualizar el actor.",
       "successDeleteActor": "Actor eliminado exitosamente.",
-      "errorDeleteActor": "Error al eliminar el actor."
+      "errorDeleteActor": "Error al eliminar el actor.",
+      "actorTypeOptionalLabel": "Tipo de aprobador (opcional)",
+      "actorTypeNone": "Sin aprobador definido",
+      "actorTypeManager": "Gerente directo",
+      "actorTypeUser": "Usuario específico",
+      "selectionModeAny": "Cualquiera",
+      "selectionModeAll": "Todos",
+      "cecoAppliesTo": "CECO al que aplica",
+      "cecoAll": "Todos los CECOs",
+      "voucherDeadlineTitle": "Límite de comprobación de gastos",
+      "voucherDeadlineDays": "Días después del fin del viaje",
+      "voucherDeadlineDaysLabel": "días",
+      "voucherDeadlineSave": "Guardar",
+      "voucherDeadlineSuccess": "Límite actualizado exitosamente.",
+      "voucherDeadlineError": "Error al guardar el límite."
     },
     "notifications": {
       "title": "Notificaciones",
@@ -619,5 +672,56 @@
   "theme": {
     "dark": "Modo oscuro",
     "light": "Modo claro"
+  },
+  "flightReservationOptions": {
+    "flightOptions": "Opciones de vuelo",
+    "notEnoughIata": "No hay suficientes códigos IATA para buscar vuelos automáticamente.",
+    "bestOptions": "Se muestran las mejores opciones por tramo para el itinerario cargado.",
+    "searchingDuffel": "Buscando opciones en Duffel...",
+    "loadError": "No fue posible cargar las opciones de vuelo.",
+    "segment": "Tramo",
+    "suggestedDate": "Fecha sugerida",
+    "noDate": "Sin fecha",
+    "useForDestination": "Usar para destino #{{number}}",
+    "useOption": "Usar opción",
+    "noResults": "No hay resultados para este tramo."
+  },
+  "flightCard": {
+    "stops_one": "{{count}} parada",
+    "directFlight": "Vuelo directo",
+    "stops_other": "{{count}} paradas",
+    "departure": "Salida",
+    "arrival": "Llegada",
+    "to": "a",
+    "hideDetails": "Ocultar detalles",
+    "showDetails": "Ver detalles",
+    "select": "Seleccionar",
+    "flightInformation": "Información del Vuelo",
+    "provider": "Proveedor",
+    "offerId": "ID de Oferta",
+    "priceBreakdown": "Desglose de Precio",
+    "originalPrice": "Precio original",
+    "exchangeRate": "Tasa de cambio",
+    "priceInMXN": "Precio en MXN",
+    "fullItinerary": "Itinerario Completo"
+  },
+  "accounting": {
+    "title": "Exportar pólizas contables",
+    "subtitle": "Genera y descarga el JSON de póliza SAP para cada viaje completado.",
+    "loading": "Cargando viajes...",
+    "noRequests": "No hay viajes completados por exportar.",
+    "polizaReady": "Póliza generada y descargada correctamente.",
+    "errorLoad": "Error al cargar los viajes completados.",
+    "errorGenerate": "Error al generar la póliza.",
+    "generating": "Generando...",
+    "generateButton": "Generar póliza",
+    "tableHeaders": {
+      "folio": "Folio",
+      "employee": "Empleado",
+      "title": "Nombre del viaje",
+      "advance": "Anticipo",
+      "date": "Fecha",
+      "actions": "Acciones"
+    }
   }
 }

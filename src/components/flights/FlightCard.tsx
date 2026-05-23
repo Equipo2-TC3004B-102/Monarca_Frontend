@@ -3,10 +3,11 @@
  * Description: Individual flight offer card showing details, price, airline and segments.
  * Authors: Debug Studio (Diego de la Vega)
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Added Duffel provider and some dark mode buttons.
+ * 20/05/2026 [Jin Sik Yoon] Added internationalization and some UI copy improvements.
  */
 
 import { UnifiedFlightOption } from '../../hooks/flights/useFlightSearch';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
 interface FlightCardProps {
@@ -18,8 +19,11 @@ interface FlightCardProps {
 export default function FlightCard({ flight, onSelect, selectLabel }: FlightCardProps) {
   const [expanded, setExpanded] = useState(false);
 
+  const { t, i18n } = useTranslation();
+
   const formatTime = (isoString: string) => {
-    return new Date(isoString).toLocaleString('es-MX', {
+    return new Date(isoString).toLocaleString(i18n.language === 'en' ? 'en-US' : 'es-MX',
+    {
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
@@ -28,11 +32,13 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
   };
 
   const formatPrice = (price: number, currency: string = 'MXN') => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-    }).format(price);
+    return new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : 'es-MX',
+      {
+        style: 'currency',
+        currency: currency,
+        minimumFractionDigits: 2,
+      }
+    ).format(price);
   };
 
   return (
@@ -43,7 +49,7 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
           <div>
             <h3 className="text-lg font-bold text-[var(--color-page-text-title)]">{flight.airline || 'Airline'}</h3>
             <p className="text-sm text-[var(--color-page-text)]">
-              {flight.stops === 0 ? 'Vuelo directo' : `${flight.stops} parada${flight.stops !== 1 ? 's' : ''}`}
+              {flight.stops === 0 ? t('flightCard.directFlight') : t('flightCard.stops', { count: flight.stops })}
             </p>
           </div>
           <div className="text-right">
@@ -64,12 +70,12 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
                 {segment.origin_airport_code} → {segment.destination_airport_code}
               </p>
               <p className="text-sm text-[var(--color-page-text)]">
-                {segment.origin_city} a {segment.destination_city}
+                {segment.origin_city} {t("flightCard.to")}{" "} {segment.destination_city}
               </p>
             </div>
             <div className="text-right">
               <p className="font-mono text-sm text-[var(--color-page-text-title)]">{formatTime(segment.departure_at)}</p>
-              <p className="text-xs text-[var(--color-page-text)]">Salida</p>
+              <p className="text-xs text-[var(--color-page-text)]">{t('flightCard.departure')}</p>
             </div>
           </div>
         ))}
@@ -81,7 +87,7 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
           onClick={() => setExpanded(!expanded)}
           className="flex-1 px-4 py-2 text-[var(--color-page-text-title)] bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded hover:opacity-80 font-semibold transition"
         >
-          {expanded ? 'Ocultar detalles' : 'Ver detalles'}
+          {expanded ? t('flightCard.hideDetails') : t('flightCard.showDetails')}
         </button>
         {onSelect ? (
           <button
@@ -89,11 +95,11 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
             onClick={() => onSelect(flight)}
             className="flex-1 px-4 py-2 bg-[var(--blue)] hover:opacity-90 text-white rounded font-semibold transition"
           >
-            {selectLabel ?? 'Seleccionar'}
+            {selectLabel ?? t('flightCard.selectFlight')}
           </button>
         ) : (
           <button className="flex-1 px-4 py-2 bg-[var(--blue)] hover:opacity-90 text-white rounded font-semibold transition">
-            Seleccionar
+            {t('flightCard.selectFlight')}
           </button>
         )}
       </div>
@@ -103,30 +109,34 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
         <div className="px-6 py-4 bg-[var(--color-card-bg)] border-t border-[var(--color-border)]">
           <div className="space-y-4">
             <div>
-              <h4 className="font-semibold text-[var(--color-page-text-title)] mb-2">Información del Vuelo</h4>
+              <h4 className="font-semibold text-[var(--color-page-text-title)] mb-2">{t('flightCard.flightInformation')}</h4>
               <p className="text-sm text-[var(--color-page-text)]">
-                <strong>Proveedor:</strong> Duffel
+                <strong>{t('flightCard.provider')}:</strong> Duffel
               </p>
               <p className="text-sm text-[var(--color-page-text)]">
-                <strong>ID de Oferta:</strong> <code className="bg-[var(--color-page-bg)] px-2 py-1 rounded text-xs">{flight.provider_offer_id}</code>
+                <strong>{t('flightCard.offerId')}:</strong> <code className="bg-[var(--color-page-bg)] px-2 py-1 rounded text-xs">{flight.provider_offer_id}</code>
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold text-[var(--color-page-text-title)] mb-2">Desglose de Precio</h4>
+              <h4 className="font-semibold text-[var(--color-page-text-title)] mb-2">{t('flightCard.priceBreakdown')}</h4>
               <div className="bg-[var(--color-page-bg)] p-3 rounded space-y-1 text-sm">
                 <p>
-                  <span className="text-[var(--color-page-text)]">Precio original:</span>{' '}
+                  <span className="text-[var(--color-page-text)]">{t('flightCard.originalPrice')}:</span>{' '}
                   <span className="font-semibold text-[var(--color-page-text-title)]">{formatPrice(flight.original_price, flight.original_currency)}</span>
                 </p>
                 <p>
-                  <span className="text-[var(--color-page-text)]">Tasa de cambio:</span>{' '}
+                  <span className="text-[var(--color-page-text)]">{t('flightCard.exchangeRate')}:</span>{' '}
                   <span className="font-semibold text-[var(--color-page-text-title)]">
-                    {(flight.total_price_mxn / flight.original_price).toFixed(2)} MXN
+                    {
+                      flight.total_price_mxn != null && flight.original_price != null && Number(flight.original_price) > 0 ? `${(
+                        Number(flight.total_price_mxn) / Number(flight.original_price)
+                      ).toFixed(2)} MXN` : "N/A"
+                    }
                   </span>
                 </p>
                 <p className="border-t border-[var(--color-border)] pt-2 mt-2">
-                  <span className="text-[var(--color-page-text)]">Precio en MXN:</span>{' '}
+                  <span className="text-[var(--color-page-text)]">{t('flightCard.priceInMXN')}:</span>{' '}
                   <span className="font-semibold text-[var(--blue)]">{formatPrice(flight.total_price_mxn)}</span>
                 </p>
               </div>
@@ -134,7 +144,7 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
 
             {flight.segments.length > 1 && (
               <div>
-                <h4 className="font-semibold text-[var(--color-page-text-title)] mb-2">Itinerario Completo</h4>
+                <h4 className="font-semibold text-[var(--color-page-text-title)] mb-2">{t('flightCard.fullItinerary')}</h4>
                 <div className="space-y-2">
                   {flight.segments.map((segment, idx) => (
                     <div key={idx} className="bg-[var(--color-page-bg)] p-3 rounded text-sm text-[var(--color-page-text)]">
@@ -142,10 +152,10 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
                         {segment.origin_airport_code} ({segment.origin_city}) → {segment.destination_airport_code} ({segment.destination_city})
                       </p>
                       <p>
-                        Salida: {formatTime(segment.departure_at)}
+                        {t('flightCard.departure')}: {formatTime(segment.departure_at)}
                       </p>
                       <p>
-                        Llegada: {formatTime(segment.arrival_at)}
+                        {t('flightCard.arrival')}: {formatTime(segment.arrival_at)}
                       </p>
                     </div>
                   ))}

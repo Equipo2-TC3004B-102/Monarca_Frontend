@@ -13,7 +13,9 @@
     "newCompany": "New company",
     "userList": "User list",
     "rules": "Rules",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "reservedHistory": "Reserved travel history",
+    "accountingExport": "Export accounting polizas"
   },
   "dashboard": {
     "createRequest": "Create travel request",
@@ -24,11 +26,13 @@
     "vouchersToApprove": "Expense vouchers to approve",
     "tripsToRegister": "Trips to register",
     "refundsToRegister": "Refunds to register",
+    "accountingExport": "Export accounting polizas",
     "tripsToBook": "Trips to book",
     "reservedHistory": "Reserved travel history",
     "newCompany": "New company",
     "userList": "User list",
-    "rules": "Rules"
+    "rules": "Rules",
+    "notifications": "Notifications"
   },
   "header": {
     "logout": "Log out"
@@ -290,6 +294,12 @@
   "reservations": {
     "title": "Reservations",
     "titleField": "Title",
+    "selectedFlight": "Selected flight",
+    "flightAppliedSuccess": "Flight applied to {{destination}} (segment {{segment}})",
+    "priceSetByDuffel": "Price set by Duffel.",
+    "editManually": "Edit manually",
+    "flightReference": "Flight reference",
+    "flightReferencePlaceholder": "Automatically filled when selecting a flight",
     "destination": "Destination",
     "origin": "Origin",
     "departureDate": "Departure date",
@@ -367,6 +377,7 @@
     "errorCompleting": "Error completing verification. Please try again.",
     "downloadXml": "Download XML",
     "downloadPdf": "Download PDF",
+    "noPreview": "Preview not available",
     "voucherClass": "Class",
     "amountMxn": "Amount (MXN)",
     "originalAmount": "Original amount",
@@ -486,6 +497,34 @@
       "requestChangesDesc": "Here you can request changes to the travel request. Remember to add a justification in the comments.",
       "deny": "Deny request",
       "denyDesc": "Here you can deny the travel request."
+    },
+    "adminUsers": {
+      "usersList": "User list",
+      "usersListDesc": "Here you can see all users registered in the system.",
+      "loadUsers": "Load new users",
+      "loadUsersDesc": "Click here to load new users into the system with a json file."
+    },
+    "adminRules": {
+      "rulesList": "Rules list",
+      "rulesListDesc": "Here you can see all rules defined in the system.",
+      "btnNotifications": "Notifications",
+      "btnNotificationsDesc": "Click here to go to the system's notification page.",
+      "btnNewRule": "New Rule",
+      "btnNewRuleDesc": "Click here to create a new rule.",
+      "rulesButtons": "Rule Buttons",
+      "rulesButtonsDesc": "With these buttons you can add actors, edit the rule or delete it."
+    },
+    "adminNotifications": {
+      "preferences": "Preference options",
+      "preferencesDesc": "Here you can choose the notification preferences within the system.",
+      "saveChanges": "Save Changes",
+      "saveChangesDesc": "Click here to save the changes made to your preferences."
+    },
+    "adminNewCompany": {
+      "formCompany": "New company form",
+      "formCompanyDesc": "Here you must fill out the form to create a new company within the system.",
+      "btnNewCompany": "Create company",
+      "btnNewCompanyDesc": "Click here to create the company along with its new admin user."
     }
   },
   "admin": {
@@ -586,7 +625,21 @@
       "successEditActor": "Actor updated successfully.",
       "errorEditActor": "Error updating actor.",
       "successDeleteActor": "Actor deleted successfully.",
-      "errorDeleteActor": "Error deleting actor."
+      "errorDeleteActor": "Error deleting actor.",
+      "actorTypeOptionalLabel": "Approver type (optional)",
+      "actorTypeNone": "No approver defined",
+      "actorTypeManager": "Direct manager",
+      "actorTypeUser": "Specific user",
+      "selectionModeAny": "Any",
+      "selectionModeAll": "All",
+      "cecoAppliesTo": "Applicable CECO",
+      "cecoAll": "All CECOs",
+      "voucherDeadlineTitle": "Expense Submission Deadline",
+      "voucherDeadlineDays": "Days after trip end",
+      "voucherDeadlineDaysLabel": "days",
+      "voucherDeadlineSave": "Save",
+      "voucherDeadlineSuccess": "Deadline updated successfully.",
+      "voucherDeadlineError": "Error saving deadline."
     },
     "notifications": {
       "title": "Notifications",
@@ -619,5 +672,56 @@
   "theme": {
     "dark": "Dark mode",
     "light": "Light mode"
+  },
+  "flightReservationOptions": {
+    "flightOptions": "Flight options",
+    "notEnoughIata": "There are not enough IATA codes to search flights automatically.",
+    "bestOptions": "The best options per segment are displayed for the loaded itinerary.",
+    "searchingDuffel": "Searching options in Duffel...",
+    "loadError": "Could not load flight options.",
+    "segment": "Segment",
+    "suggestedDate": "Suggested date",
+    "noDate": "No date",
+    "useForDestination": "Use for destination #{{number}}",
+    "useOption": "Use option",
+    "noResults": "No results for this segment."
+  },
+  "flightCard": {
+    "directFlight": "Direct flight",
+    "stops_one": "{{count}} stop",
+    "stops_other": "{{count}} stops",
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "to": "to",
+    "hideDetails": "Hide details",
+    "showDetails": "View details",
+    "select": "Select",
+    "flightInformation": "Flight Information",
+    "provider": "Provider",
+    "offerId": "Offer ID",
+    "priceBreakdown": "Price Breakdown",
+    "originalPrice": "Original price",
+    "exchangeRate": "Exchange rate",
+    "priceInMXN": "Price in MXN",
+    "fullItinerary": "Full itinerary"
+  },
+  "accounting": {
+    "title": "Export accounting polizas",
+    "subtitle": "Generate and download the SAP poliza JSON for each completed trip.",
+    "loading": "Loading trips...",
+    "noRequests": "No completed trips to export.",
+    "polizaReady": "Poliza generated and downloaded successfully.",
+    "errorLoad": "Error loading completed trips.",
+    "errorGenerate": "Error generating poliza.",
+    "generating": "Generating...",
+    "generateButton": "Generate poliza",
+    "tableHeaders": {
+      "folio": "Folio",
+      "employee": "Employee",
+      "title": "Trip name",
+      "advance": "Advance",
+      "date": "Date",
+      "actions": "Actions"
+    }
   }
 }

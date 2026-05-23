@@ -39,13 +39,23 @@ const FilePreviewer = ({ file, fileIndex, showDownload = true }: FilePreviewerPr
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-3 w-full mb-4">
-                <iframe
-                  src={`${file.file_url_pdf}#navpanes=0&view=FitH`}
-                  width="100%"
-                  height="100%"
-                  title={`Comprobante de Solicitud ${fileIndex + 1}`}
-                  className="border-0 col-span-1 md:col-span-2 h-64 md:h-96"
-                />
+                        {file.file_url_pdf ? (
+                  <iframe
+                    src={`${file.file_url_pdf}#navpanes=0&view=FitH`}
+                    width="100%"
+                    height="100%"
+                    title={`Comprobante de Solicitud ${fileIndex + 1}`}
+                    className="border-0 col-span-1 md:col-span-2 h-64 md:h-96"
+                  />
+                ) : (
+                  <div className="col-span-1 md:col-span-2 h-64 md:h-96 flex flex-col items-center justify-center bg-[var(--color-page-bg)] border border-dashed border-gray-400 rounded-md gap-3">
+                    <span className="text-4xl">📄</span>
+                    <p className="text-sm font-medium text-[var(--color-page-text)]">
+                      {file.file_url_xml.split('/').pop() ?? `comprobante${fileIndex + 1}.xml`}
+                    </p>
+                    <p className="text-xs text-gray-400">{t('refundAcceptance.noPreview')}</p>
+                  </div>
+                )}
 
                 <div className="flex flex-col bg-[var(--color-page-bg)] p-6 gap-3 col-span-1">
                   <p id={`class-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.voucherClass')}: </span>{file.class}</p>
@@ -75,22 +85,42 @@ const FilePreviewer = ({ file, fileIndex, showDownload = true }: FilePreviewerPr
               {showDownload && (
                 <div className="mt-4 flex justify-between items-center">
                   <div className="flex space-x-4">
-                    <a
+                    <button
                       id={`download-file-xml-${fileIndex}`}
-                      href={file.file_url_xml}
-                      download={`comprobante${fileIndex + 1}.xml`}
+                      onClick={async () => {
+                        const response = await fetch(file.file_url_xml);
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = `comprobante${fileIndex + 1}.xml`;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        window.URL.revokeObjectURL(url);
+                      }}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:cursor-pointer"
                     >
                       {t('refundAcceptance.downloadXml')}
-                    </a>
-                    <a
+                    </button>
+                    <button
                       id={`download-file-pdf-${fileIndex}`}
-                      href={file.file_url_pdf}
-                      download={`comprobante${fileIndex + 1}.pdf`}
+                      onClick={async () => {
+                        const response = await fetch(file.file_url_pdf);
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = `comprobante${fileIndex + 1}.pdf`;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        window.URL.revokeObjectURL(url);
+                      }}
                       className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 hover:cursor-pointer"
                     >
                       {t('refundAcceptance.downloadPdf')}
-                    </a>
+                    </button>
                   </div>
                 </div>
               )}
