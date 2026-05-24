@@ -143,6 +143,16 @@ function parseReport(raw: string, t: TFunc): { text: string; requestId: string |
           text: t(`admin.auditLogs.actions.${code}`, { email: parts[1] ?? "" }),
           requestId: null,
         };
+      case "USERS_IMPORTED":
+        return {
+          text: t(`admin.auditLogs.actions.${code}`, {
+            created: parts[1] ?? "0",
+            updated: parts[2] ?? "0",
+            unchanged: parts[3] ?? "0",
+            errors: parts[4] ?? "0",
+          }),
+          requestId: null,
+        };
       default:
         return { text: raw, requestId: null };
     }

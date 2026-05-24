@@ -703,7 +703,8 @@
         "REQUEST_CANCELLED": "Solicitud cancelada — Folio {{folio}}: \"{{title}}\"",
         "RULE_CREATED": "Regla de aprobación creada: \"{{name}}\" (orden {{order}})",
         "RULE_UPDATED": "Regla de aprobación modificada: \"{{name}}\" — campos: {{fields}}",
-        "FIRST_LOGIN": "Primer inicio de sesión: {{email}}"
+        "FIRST_LOGIN": "Primer inicio de sesión: {{email}}",
+        "USERS_IMPORTED": "Importación de usuarios: {{created}} creado(s), {{updated}} actualizado(s), {{unchanged}} sin cambios, {{errors}} error(es)"
       },
       "fieldNames": {
         "is_requester": "Solicitante",

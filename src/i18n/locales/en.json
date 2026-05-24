@@ -703,7 +703,8 @@
         "REQUEST_CANCELLED": "Request cancelled — Folio {{folio}}: \"{{title}}\"",
         "RULE_CREATED": "Approval rule created: \"{{name}}\" (order {{order}})",
         "RULE_UPDATED": "Approval rule updated: \"{{name}}\" — fields: {{fields}}",
-        "FIRST_LOGIN": "First login: {{email}}"
+        "FIRST_LOGIN": "First login: {{email}}",
+        "USERS_IMPORTED": "User import: {{created}} created, {{updated}} updated, {{unchanged}} unchanged, {{errors}} error(s)"
       },
       "fieldNames": {
         "is_requester": "Requester",
