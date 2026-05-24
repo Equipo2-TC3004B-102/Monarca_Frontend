@@ -15,7 +15,9 @@
     "rules": "Reglas",
     "notifications": "Notificaciones",
     "reservedHistory": "Historial de viajes reservados",
-    "accountingExport": "Exportar pólizas contables"
+    "accountingExport": "Exportar pólizas contables",
+    "auditLogs": "Bitácora de auditoría",
+    "companyRequests": "Solicitudes"
   },
   "dashboard": {
     "createRequest": "Crear solicitud de viaje",
@@ -32,7 +34,9 @@
     "newCompany": "Crear empresa",
     "userList": "Lista de usuarios",
     "rules": "Reglas",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "auditLogs": "Bitácora de auditoría",
+    "companyRequests": "Solicitudes"
   },
   "header": {
     "logout": "Cerrar sesión"
@@ -667,6 +671,65 @@
       "reservationsDesc": "Notifica por email cuando se crea una reservación.",
       "adminAlerts": "Alertas administrativas",
       "adminAlertsDesc": "Notifica por email eventos administrativos relevantes."
+    },
+    "companyRequests": {
+      "title": "Solicitudes de la empresa",
+      "folio": "Folio",
+      "title_col": "Título",
+      "requester": "Solicitante",
+      "status": "Estado",
+      "createdAt": "Fecha",
+      "actions": "Acciones",
+      "view": "Ver solicitud",
+      "errorLoading": "Error al cargar las solicitudes."
+    },
+    "auditLogs": {
+      "title": "Bitácora de auditoría",
+      "date": "Fecha",
+      "user": "Usuario afectado",
+      "email": "Correo",
+      "action": "Acción",
+      "seeMore": "ver más",
+      "seeLess": "ver menos",
+      "viewRequest": "Ver solicitud",
+      "errorLoading": "Error al cargar la bitácora de auditoría.",
+      "actions": {
+        "USER_CREATED": "Usuario creado: {{email}} (roles: {{flags}})",
+        "USER_PROFILE_UPDATED": "Perfil actualizado de {{email}} — campos: {{fields}}",
+        "USER_FLAGS_UPDATED": "Roles actualizados de {{email}}: {{flags}}",
+        "USER_DELETED": "Usuario eliminado: {{email}}",
+        "SETTINGS_UPDATED": "Configuración de empresa actualizada: {{fields}}",
+        "REQUEST_CREATED": "Solicitud creada — Folio {{folio}}: \"{{title}}\"",
+        "REQUEST_CANCELLED": "Solicitud cancelada — Folio {{folio}}: \"{{title}}\"",
+        "RULE_CREATED": "Regla de aprobación creada: \"{{name}}\" (orden {{order}})",
+        "RULE_UPDATED": "Regla de aprobación modificada: \"{{name}}\" — campos: {{fields}}",
+        "FIRST_LOGIN": "Primer inicio de sesión: {{email}}"
+      },
+      "fieldNames": {
+        "is_requester": "Solicitante",
+        "is_approver": "Aprobador",
+        "is_soi": "SOI",
+        "is_travelAgent": "Agente de viajes",
+        "is_company_admin": "Admin de empresa",
+        "voucher_deadline_days": "Días límite de comprobación",
+        "name": "Nombre",
+        "last_name": "Apellido",
+        "email": "Correo",
+        "employee_num": "Núm. empleado",
+        "status": "Estado",
+        "password": "Contraseña",
+        "user_name": "Usuario",
+        "level_order": "Orden",
+        "is_active": "Activo",
+        "description": "Descripción",
+        "code": "Código",
+        "applies_to": "Aplica a",
+        "min_amount": "Monto mínimo",
+        "max_amount": "Monto máximo",
+        "required_approvals": "Aprobaciones requeridas"
+      },
+      "boolTrue": "Sí",
+      "boolFalse": "No"
     }
   },
   "theme": {
