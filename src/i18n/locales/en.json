@@ -15,7 +15,9 @@
     "rules": "Rules",
     "notifications": "Notifications",
     "reservedHistory": "Reserved travel history",
-    "accountingExport": "Export accounting polizas"
+    "accountingExport": "Export accounting polizas",
+    "auditLogs": "Audit log",
+    "companyRequests": "Requests"
   },
   "dashboard": {
     "createRequest": "Create travel request",
@@ -32,7 +34,9 @@
     "newCompany": "New company",
     "userList": "User list",
     "rules": "Rules",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "auditLogs": "Audit log",
+    "companyRequests": "Requests"
   },
   "header": {
     "logout": "Log out"
@@ -667,6 +671,66 @@
       "reservationsDesc": "Notifies by email when a reservation is created.",
       "adminAlerts": "Administrative alerts",
       "adminAlertsDesc": "Notifies by email about relevant administrative events."
+    },
+    "companyRequests": {
+      "title": "Company requests",
+      "folio": "Folio",
+      "title_col": "Title",
+      "requester": "Requester",
+      "status": "Status",
+      "createdAt": "Date",
+      "actions": "Actions",
+      "view": "View request",
+      "errorLoading": "Error loading requests."
+    },
+    "auditLogs": {
+      "title": "Audit log",
+      "date": "Date",
+      "user": "Affected user",
+      "email": "Email",
+      "action": "Action",
+      "seeMore": "see more",
+      "seeLess": "see less",
+      "viewRequest": "View request",
+      "errorLoading": "Error loading audit log.",
+      "actions": {
+        "USER_CREATED": "User created: {{email}} (roles: {{flags}})",
+        "USER_PROFILE_UPDATED": "Profile updated for {{email}} — fields: {{fields}}",
+        "USER_FLAGS_UPDATED": "Roles updated for {{email}}: {{flags}}",
+        "USER_DELETED": "User deleted: {{email}}",
+        "SETTINGS_UPDATED": "Company settings updated: {{fields}}",
+        "REQUEST_CREATED": "Request created — Folio {{folio}}: \"{{title}}\"",
+        "REQUEST_CANCELLED": "Request cancelled — Folio {{folio}}: \"{{title}}\"",
+        "RULE_CREATED": "Approval rule created: \"{{name}}\" (order {{order}})",
+        "RULE_UPDATED": "Approval rule updated: \"{{name}}\" — fields: {{fields}}",
+        "FIRST_LOGIN": "First login: {{email}}",
+        "USERS_IMPORTED": "User import: {{created}} created, {{updated}} updated, {{unchanged}} unchanged, {{errors}} error(s)"
+      },
+      "fieldNames": {
+        "is_requester": "Requester",
+        "is_approver": "Approver",
+        "is_soi": "SOI",
+        "is_travelAgent": "Travel Agent",
+        "is_company_admin": "Company Admin",
+        "voucher_deadline_days": "Voucher deadline (days)",
+        "name": "Name",
+        "last_name": "Last name",
+        "email": "Email",
+        "employee_num": "Employee no.",
+        "status": "Status",
+        "password": "Password",
+        "user_name": "Username",
+        "level_order": "Order",
+        "is_active": "Active",
+        "description": "Description",
+        "code": "Code",
+        "applies_to": "Applies to",
+        "min_amount": "Min. amount",
+        "max_amount": "Max. amount",
+        "required_approvals": "Required approvals"
+      },
+      "boolTrue": "Yes",
+      "boolFalse": "No"
     }
   },
   "theme": {

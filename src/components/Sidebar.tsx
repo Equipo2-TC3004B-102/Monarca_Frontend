@@ -4,7 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez]: Hide travel history link for admin users; use view_travel_agent_history for TA history link; fix duplicated label for travel agents.
+ * 21/05/2026 [Julio Rodriguez]: Added audit logs link for company admins.
  */
 
 // ***************** images *****************
@@ -98,6 +98,12 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             )}
             {user.isCompanyAdmin && (
               <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
+            )}
+            {user.isCompanyAdmin && (
+              <SidebarOption label={t('sidebar.auditLogs')} pathIcon="/assets/historial_de_viajes.png" link="/admin/audit-logs" onClick={onNavigate}/>
+            )}
+            {user.isCompanyAdmin && (
+              <SidebarOption label={t('sidebar.companyRequests')} pathIcon="/assets/historial_de_viajes.png" link="/admin/company-requests" onClick={onNavigate}/>
             )}
         </ul>
         <div className="flex gap-7 items-center p-2 mt-10">
