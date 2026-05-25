@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez]: Hide travel history mosaic for admin users; use view_travel_agent_history for TA history mosaic; add notifications mosaic for company admins only.
+ * 21/05/2026 [Julio Rodriguez] Added new company admin pages for logs and seeing requests in the company; updated mosaics to conditionally render based on permissions and admin status; added tutorial logic for first-time visitors to the dashboard.
  */
 
 import { useEffect } from "react";
@@ -97,6 +97,12 @@ export const Dashboard = ({title}:DashboardProps) => {
         )}
         {authState.isCompanyAdmin && (
           <Mosaic title={t('dashboard.notifications')} iconPath="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" id="notifications"/>
+        )}
+        {authState.isCompanyAdmin && (
+          <Mosaic title={t('dashboard.auditLogs')} iconPath="/assets/historial_de_viajes.png" link="/admin/audit-logs" id="audit_logs"/>
+        )}
+        {authState.isCompanyAdmin && (
+          <Mosaic title={t('dashboard.companyRequests')} iconPath="/assets/historial_de_viajes.png" link="/admin/company-requests" id="company_requests"/>
         )}
       </div>
     </Tutorial>
