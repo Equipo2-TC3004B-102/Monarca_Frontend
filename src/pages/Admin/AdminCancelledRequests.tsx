@@ -146,7 +146,7 @@ export default function AdminCompanyRequests() {
                       {r.user ? `${r.user.name} ${r.user.last_name}` : "-"}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-semibold ${STATUS_STYLES[r.status] ?? "bg-gray-100 text-gray-700"}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${STATUS_STYLES[r.status] ?? "bg-gray-100 text-gray-700"}`}>
                         {t(`status.${r.status}`, { defaultValue: r.status })}
                       </span>
                     </td>
