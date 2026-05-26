@@ -4,7 +4,7 @@
  * It provides a customizable table with dynamic rows and columns.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 23/04/2026 Rebeca Davila Added an X button to delete vouchers spaces
+ * 25/05/2026 [Santiago Coronado Hernández] Added React.useEffect to handle initial data updates.
  */
 import React, { useState, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -73,6 +73,11 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
    * This is useful if there are data that is already loaded in the table.
    */
   const [tableData, setTableData] = useState<TableRow[]>(initialData);
+
+  // Sync state with prop updates from parent component
+  React.useEffect(() => {
+    setTableData(initialData);
+  }, [initialData]);
 
   /**
    * handleFieldChange, updates a specific cell's value in the table and notifies parent component of changes.

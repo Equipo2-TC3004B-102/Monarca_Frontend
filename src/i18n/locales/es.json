@@ -150,7 +150,9 @@
     "submit": "Enviar",
     "amountError": "El importe no puede ser 0.00",
     "selectCurrencyError": "Por favor selecciona una moneda para cada comprobante.",
-    "submitError": "Error al enviar. Intenta de nuevo."
+    "submitError": "Error al enviar. Intenta de nuevo.",
+    "colCfdiStatus": "Estado CFDI",
+    "checkingCfdi": "Validando..."
   },
   "form": {
     "title": "Título",
@@ -558,7 +560,8 @@
       "credentialsLabel": "Credenciales generadas — comparte con el administrador de empresa:",
       "companyLabel": "Empresa:",
       "currencyLabel": "Moneda:",
-      "adminEmailLabel": "Admin email:",
+      "status": "Estado",
+      "cfdiStatus": "Estado CFDI",
       "tempPasswordLabel": "Contraseña temporal:",
       "companyData": "Datos de la empresa",
       "companyName": "Nombre de la empresa",
@@ -669,7 +672,8 @@
       "revisionsDesc": "Notifica por email cuando se genera una revisión.",
       "reservations": "Reservación creada",
       "reservationsDesc": "Notifica por email cuando se crea una reservación.",
-      "adminAlerts": "Alertas administrativas",
+      "submitError": "Error al enviar. Intenta de nuevo.",
+      "existingVouchers": "Comprobantes existentes",
       "adminAlertsDesc": "Notifica por email eventos administrativos relevantes."
     },
     "companyRequests": {
