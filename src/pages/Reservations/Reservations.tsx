@@ -231,6 +231,15 @@ export const Reservations = () => {
     handleVisitPage();
   }, []);
 
+  useEffect(() => {
+    if (!activePreview) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActivePreview(null);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [activePreview]);
+
   /**
  * FunctionName: handleFileChange
  * Purpose of the function: to handle the file change event.
