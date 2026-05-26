@@ -455,18 +455,19 @@ export const Reservations = () => {
 
     for (const dest of requestDestinations) {
       const data = formData[dest.id] || {};
-      newFieldErrors[dest.id] = {};
+      const destErrors: Record<string, string> = {};
+      newFieldErrors[dest.id] = destErrors;
       if (dest.is_hotel_required) {
-        if (!data.hotel_title)    { newFieldErrors[dest.id].hotel_title    = required; hasErrors = true; }
-        if (!data.hotel_comments) { newFieldErrors[dest.id].hotel_comments = required; hasErrors = true; }
-        if (!data.hotel_price || parseFloat(data.hotel_price) <= 0) { newFieldErrors[dest.id].hotel_price = required; hasErrors = true; }
-        if (!data.hotel_file)     { newFieldErrors[dest.id].hotel_file     = required; hasErrors = true; }
+        if (!data.hotel_title)    { destErrors.hotel_title    = required; hasErrors = true; }
+        if (!data.hotel_comments) { destErrors.hotel_comments = required; hasErrors = true; }
+        if (!data.hotel_price || parseFloat(data.hotel_price) <= 0) { destErrors.hotel_price = required; hasErrors = true; }
+        if (!data.hotel_file)     { destErrors.hotel_file     = required; hasErrors = true; }
       }
       if (dest.is_plane_required) {
-        if (!data.plane_title)                          { newFieldErrors[dest.id].plane_title    = required; hasErrors = true; }
-        if (!data.plane_comments)                       { newFieldErrors[dest.id].plane_comments = required; hasErrors = true; }
-        if (!data.plane_price || data.plane_price === "0.00") { newFieldErrors[dest.id].plane_price = required; hasErrors = true; }
-        if (!data.plane_file && !data.plane_link)       { newFieldErrors[dest.id].plane_file     = required; hasErrors = true; }
+        if (!data.plane_title)                          { destErrors.plane_title    = required; hasErrors = true; }
+        if (!data.plane_comments)                       { destErrors.plane_comments = required; hasErrors = true; }
+        if (!data.plane_price || data.plane_price === "0.00") { destErrors.plane_price = required; hasErrors = true; }
+        if (!data.plane_file && !data.plane_link)       { destErrors.plane_file     = required; hasErrors = true; }
       }
     }
 
@@ -611,7 +612,7 @@ export const Reservations = () => {
                             className="bg-[var(--color-card-bg)]"
                           />
                           {fieldErrors[destination.id]?.hotel_title && (
-                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].hotel_title}</p>
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id]?.hotel_title}</p>
                           )}
                         </div>
 
@@ -630,7 +631,7 @@ export const Reservations = () => {
                             id={`hotel_comments_${destination.id}`}
                           />
                           {fieldErrors[destination.id]?.hotel_comments && (
-                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].hotel_comments}</p>
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id]?.hotel_comments}</p>
                           )}
                         </div>
 
@@ -670,7 +671,7 @@ export const Reservations = () => {
                             <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
                           </div>
                           {fieldErrors[destination.id]?.hotel_price && (
-                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].hotel_price}</p>
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id]?.hotel_price}</p>
                           )}
                         </div>
 
@@ -696,7 +697,7 @@ export const Reservations = () => {
                             </p>
                           )}
                           {fieldErrors[destination.id]?.hotel_file && (
-                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].hotel_file}</p>
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id]?.hotel_file}</p>
                           )}
                           {formData[destination.id]?.hotel_file_preview && (
                             <button
@@ -729,7 +730,7 @@ export const Reservations = () => {
                             id={`plane_title_${destination.id}`}
                           />
                           {fieldErrors[destination.id]?.plane_title && (
-                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].plane_title}</p>
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id]?.plane_title}</p>
                           )}
                         </div>
 
@@ -748,7 +749,7 @@ export const Reservations = () => {
                             id={`plane_comments_${destination.id}`}
                           />
                           {fieldErrors[destination.id]?.plane_comments && (
-                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].plane_comments}</p>
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id]?.plane_comments}</p>
                           )}
                         </div>
 
@@ -823,7 +824,7 @@ export const Reservations = () => {
                             </p>
                           )}
                           {fieldErrors[destination.id]?.plane_price && (
-                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].plane_price}</p>
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id]?.plane_price}</p>
                           )}
                         </div>
 
@@ -865,7 +866,7 @@ export const Reservations = () => {
                             </p>
                           )}
                           {fieldErrors[destination.id]?.plane_file && (
-                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].plane_file}</p>
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id]?.plane_file}</p>
                           )}
                           {formData[destination.id]?.plane_file_preview && (
                             <button
