@@ -15,7 +15,7 @@
     "rules": "Rules",
     "notifications": "Notifications",
     "reservedHistory": "Reserved travel history",
-    "accountingExport": "Export accounting polizas",
+    "accountingExport": "Export financial journal entries",
     "auditLogs": "Audit log",
     "companyRequests": "Requests"
   },
@@ -28,7 +28,7 @@
     "vouchersToApprove": "Vouchers & Refunds",
     "tripsToRegister": "Trips to register",
     "refundsToRegister": "Vouchers & Refunds to register",
-    "accountingExport": "Export accounting polizas",
+    "accountingExport": "Export financial journal entries",
     "tripsToBook": "Trips to book",
     "reservedHistory": "Reserved travel history",
     "newCompany": "New company",
@@ -771,15 +771,15 @@
     "fullItinerary": "Full itinerary"
   },
   "accounting": {
-    "title": "Export accounting polizas",
-    "subtitle": "Generate and download the SAP poliza JSON for each completed trip.",
+    "title": "Export financial journal entries",
+    "subtitle": "Generate and download the SAP financial journal entry JSON for each completed trip.",
     "loading": "Loading trips...",
     "noRequests": "No completed trips to export.",
-    "polizaReady": "Poliza generated and downloaded successfully.",
+    "polizaReady": "Journal entry generated and downloaded successfully.",
     "errorLoad": "Error loading completed trips.",
-    "errorGenerate": "Error generating poliza.",
+    "errorGenerate": "Error generating journal entry.",
     "generating": "Generating...",
-    "generateButton": "Generate poliza",
+    "generateButton": "Generate journal entry",
     "tableHeaders": {
       "folio": "Folio",
       "employee": "Employee",
