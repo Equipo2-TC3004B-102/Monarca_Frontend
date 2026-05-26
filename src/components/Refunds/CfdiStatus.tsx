@@ -7,7 +7,6 @@
  * 25/05/2026 [Santiago Coronado Hernández] Created file.
  */
 
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface CfdiStatusProps {
