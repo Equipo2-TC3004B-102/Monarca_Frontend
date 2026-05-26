@@ -331,7 +331,7 @@
     "success": "Reservaciones enviadas correctamente.",
     "sendError": "Error al enviar las reservaciones.",
     "fillRequired": "Por favor completa todos los campos requeridos.",
-    "invalidFormat": "Este formato no es válido. Solo se permiten PDF y XML.",
+    "invalidFormat": "Este formato no es válido. Solo se permite PDF.",
     "unavailable": "Destino no disponible"
   },
   "common": {

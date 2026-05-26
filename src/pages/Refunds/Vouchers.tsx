@@ -23,7 +23,7 @@ import GoBack from "../../components/GoBack";
 import CfdiStatus from "../../components/Refunds/CfdiStatus";
 import { Tutorial } from "../../components/Tutorial";
 import { currencyOptions } from "../../utils/currencies";
-import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
+import { isFileSizeValid, getFileSizeErrorMessage, validateFile } from "../../utils/fileValidation";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -115,12 +115,34 @@ export const Vouchers = () => {
     try {
       let formDataToSend = null;
       for (const rowData of formData) {
+        // Require PDF file; XML is optional. If XML is provided, validate it.
+        if (!rowData.PDFFile) {
+          toast.error(t('vouchers.pdfRequired') || 'PDF file is required for each voucher.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Validate PDF (size + extension + mime)
+        const pdfValidation = validateFile(rowData.PDFFile as File, ['.pdf'], ['application/pdf']);
+        if (!pdfValidation.isValid) {
+          toast.error(pdfValidation.errorMessage || t('vouchers.invalidPDF'));
+          setIsSubmitting(false);
+          return;
+        }
+
+        // If an XML file was attached, validate it before sending.
+        if (rowData.XMLFile) {
+          const xmlValidation = validateFile(rowData.XMLFile as File, ['.xml'], ['application/xml', 'text/xml']);
+          if (!xmlValidation.isValid) {
+            toast.error(xmlValidation.errorMessage || t('vouchers.invalidXML'));
+            setIsSubmitting(false);
+            return;
+          }
+        }
+
         formDataToSend = new FormData();
 
-        formDataToSend.append(
-          "id_request",
-          trip.id.toString()
-        );
+        formDataToSend.append("id_request", trip.id.toString());
         formDataToSend.append("date", rowData.date ? new Date(rowData.date).toISOString() : new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());

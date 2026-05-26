@@ -246,11 +246,9 @@ export const Reservations = () => {
 
     const allowedMimeTypes = [
       "application/pdf",
-      "application/xml",
-      "text/xml",
     ];
 
-    const allowedExtensions = [".pdf", ".xml"];
+    const allowedExtensions = [".pdf"];
     const fileName = file.name;
     const fileExtension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
 
@@ -643,7 +641,7 @@ export const Reservations = () => {
 
                           <Input
                             type="file"
-                            accept="*"
+                            accept=".pdf"
                             onChange={(e) => handleFileChange(e, destination.id)}
                             name="hotel_file"
                             id={`hotel_file_${destination.id}`}
@@ -800,7 +798,7 @@ export const Reservations = () => {
                           </label>
                           <Input
                             type="file"
-                            accept="*"
+                            accept=".pdf"
                             onChange={(e) => handleFileChange(e, destination.id)}
                             name="plane_file"
                             id={`plane_file_${destination.id}`}
