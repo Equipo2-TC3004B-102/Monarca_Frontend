@@ -329,6 +329,7 @@
     "success": "Reservations submitted successfully.",
     "sendError": "Error submitting reservations.",
     "fillRequired": "Please complete all required fields.",
+    "commentsRequired": "Comments are required for each reservation.",
     "invalidFormat": "Invalid format. Only PDF and XML are allowed.",
     "unavailable": "Destination not available"
   },

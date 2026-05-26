@@ -436,31 +436,41 @@ export const Reservations = () => {
     const totalLength = hotelLength + planeLength;
     if (formattedData.reservations.length !== totalLength) {
       toast.error(t('reservations.fillRequired'));
+      setIsSubmitting(false);
       return;
     }
-    // Check if the form is valid
-    const isValid = Object.values(formData).every((data, index) => {
-      // Get the key of the currrent value
-      const key = Object.keys(formData)[index];
-      const hotelValid = data.hotel_title && data.hotel_comments && data.hotel_file;
-      const planeValid = data.plane_title && data.plane_comments && data.plane_price && (data.plane_file || data.plane_link);
+    // Check if the form is valid, surfacing specific errors
+    for (const [key, data] of Object.entries(formData)) {
       const requestDestination = requestDestinations.find((destination: any) => destination.id === key);
       if (!requestDestination) {
-        return false;
+        toast.error(t('reservations.fillRequired'));
+        setIsSubmitting(false);
+        return;
       }
-      // Check if hotel or plane is required
-      if (requestDestination.is_hotel_required && requestDestination.is_plane_required) {
-        return hotelValid && planeValid;
-      } else if (requestDestination.is_hotel_required && !requestDestination.is_plane_required) {
-        return hotelValid;
-      } else if (requestDestination.is_plane_required && !requestDestination.is_hotel_required) {
-        return planeValid;
+      if (requestDestination.is_hotel_required) {
+        if (!data.hotel_comments) {
+          toast.error(t('reservations.commentsRequired'));
+          setIsSubmitting(false);
+          return;
+        }
+        if (!data.hotel_title || !data.hotel_file) {
+          toast.error(t('reservations.fillRequired'));
+          setIsSubmitting(false);
+          return;
+        }
       }
-      return true;
-    });
-    if (!isValid) {
-      toast.error(t('reservations.fillRequired'));
-      return;
+      if (requestDestination.is_plane_required) {
+        if (!data.plane_comments) {
+          toast.error(t('reservations.commentsRequired'));
+          setIsSubmitting(false);
+          return;
+        }
+        if (!data.plane_title || !data.plane_price || (!data.plane_file && !data.plane_link)) {
+          toast.error(t('reservations.fillRequired'));
+          setIsSubmitting(false);
+          return;
+        }
+      }
     }
     // Send the data to the API
     try {
