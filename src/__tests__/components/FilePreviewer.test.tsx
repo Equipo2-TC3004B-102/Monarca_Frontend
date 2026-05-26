@@ -17,7 +17,6 @@ vi.mock("../../utils/formatDate", () => ({
   default: vi.fn((date) => `Formatted: ${date}`),
 }));
 
-// Mirror the real fix: mock also handles string amounts (as PostgreSQL sends them)
 vi.mock("../../utils/formatMoney", () => ({
   default: vi.fn((amount) => {
     const n = typeof amount === "number" ? amount : parseFloat(amount);
