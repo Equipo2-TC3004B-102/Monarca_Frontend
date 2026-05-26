@@ -10,6 +10,7 @@
 
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
+import { DateInput } from "../ui/DateInput";
 import { TextArea } from "../ui/TextArea";
 import Switch from "../ui/Switch";
 import dayjs from "dayjs";
@@ -207,11 +208,10 @@ function DestinationFields({
             control={control}
             name={`requests_destinations.${idx}.departure_date`}
             render={({ field }) => (
-              <Input
+              <DateInput
                 id={`departure-${idx}`}
-                type="date"
                 value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
-                onChange={e => field.onChange(e.target.value)}
+                onChange={field.onChange}
               />
             )}
           />
@@ -707,11 +707,10 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                       control={control}
                       name="return_date"
                       render={({ field }) => (
-                        <Input
+                        <DateInput
                           id="return_date"
-                          type="date"
                           value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
-                          onChange={e => field.onChange(e.target.value)}
+                          onChange={field.onChange}
                         />
                       )}
                     />
