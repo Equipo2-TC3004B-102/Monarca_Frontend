@@ -3,7 +3,7 @@
  * Description: End-to-end tests for creating a travel request in the Monarca application.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 11/05/2026 [Diego de la Vega] Updated CreateRequest tests for login flow reliability
+ * 25/05/2026 [Diego de la Vega] Fixed date format to be compatible with HTML input type=date.
  */
 
 /**
@@ -55,7 +55,7 @@ describe("Create Travel Request as Requester", () => {
 
         cy.get('input[id="motive"]').type("Business trip");
         cy.get('input[id="title"]').type("Trip to New York");
-        
+
         // Select Origin City
         cy.get('input[id="id_origin_city"]').click().type("Mexico City");
         cy.contains("Mexico City, Mexico").click();
