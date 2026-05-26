@@ -18,6 +18,7 @@ import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
 import FlightReservationOptions from "../../components/flights/FlightReservationOptions";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 /**
  * FunctionName: Reservations
@@ -43,6 +44,16 @@ export const Reservations = () => {
   const { t } = useTranslation();
   const [activePreview, setActivePreview] = useState<string | null>(null);
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, Record<string, string>>>({});
+  const [collapsedDestinations, setCollapsedDestinations] = useState<Set<string>>(new Set());
+
+  const toggleDestination = (id: string) => {
+    setCollapsedDestinations(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
   const isDraftHydratedRef = useRef(false);
   const hasSkippedInitialPersistRef = useRef(false);
   const isPersistenceEnabledRef = useRef(true);
@@ -278,16 +289,18 @@ export const Reservations = () => {
 
     const previewUrl = URL.createObjectURL(file);
 
-    const updatedFormData = {
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [id]: {
-        ...formData[id],
+        ...prev[id],
         [name]: file,
         [`${name}_name`]: fileName,
         [`${name}_preview`]: previewUrl,
       },
-    };
-    setFormData(updatedFormData);
+    }));
+    if (fieldErrors[id]?.[name]) {
+      setFieldErrors(prev => ({ ...prev, [id]: { ...prev[id], [name]: '' } }));
+    }
   };
 
   /**
@@ -300,14 +313,10 @@ export const Reservations = () => {
  */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string) => {
     const { name, value } = e.target;
-    const updatedFormData = {
-      ...formData,
-      [id]: {
-        ...formData[id],
-        [name]: value,
-      }
-    };
-    setFormData(updatedFormData);
+    setFormData(prev => ({ ...prev, [id]: { ...prev[id], [name]: value } }));
+    if (fieldErrors[id]?.[name]) {
+      setFieldErrors(prev => ({ ...prev, [id]: { ...prev[id], [name]: '' } }));
+    }
   };
 
   const handlePriceWheel = (
@@ -429,48 +438,34 @@ export const Reservations = () => {
         return [hotelReservation, planeReservation].filter(Boolean);
       }),
     };
-    // Compute the length depending if each request destination has hotel or plane or both
+    // Validate all fields and collect inline errors
     const requestDestinations = request.requests_destinations || [];
-    const hotelLength = requestDestinations.filter((destination: any) => destination.is_hotel_required).length;
-    const planeLength = requestDestinations.filter((destination: any) => destination.is_plane_required).length;
-    const totalLength = hotelLength + planeLength;
-    if (formattedData.reservations.length !== totalLength) {
+    const newFieldErrors: Record<string, Record<string, string>> = {};
+    let hasErrors = false;
+    const required = t('common.fieldRequired');
+
+    for (const dest of requestDestinations) {
+      const data = formData[dest.id] || {};
+      newFieldErrors[dest.id] = {};
+      if (dest.is_hotel_required) {
+        if (!data.hotel_title)    { newFieldErrors[dest.id].hotel_title    = required; hasErrors = true; }
+        if (!data.hotel_comments) { newFieldErrors[dest.id].hotel_comments = required; hasErrors = true; }
+        if (!data.hotel_price || parseFloat(data.hotel_price) <= 0) { newFieldErrors[dest.id].hotel_price = required; hasErrors = true; }
+        if (!data.hotel_file)     { newFieldErrors[dest.id].hotel_file     = required; hasErrors = true; }
+      }
+      if (dest.is_plane_required) {
+        if (!data.plane_title)                          { newFieldErrors[dest.id].plane_title    = required; hasErrors = true; }
+        if (!data.plane_comments)                       { newFieldErrors[dest.id].plane_comments = required; hasErrors = true; }
+        if (!data.plane_price || data.plane_price === "0.00") { newFieldErrors[dest.id].plane_price = required; hasErrors = true; }
+        if (!data.plane_file && !data.plane_link)       { newFieldErrors[dest.id].plane_file     = required; hasErrors = true; }
+      }
+    }
+
+    setFieldErrors(newFieldErrors);
+    if (hasErrors) {
       toast.error(t('reservations.fillRequired'));
       setIsSubmitting(false);
       return;
-    }
-    // Check if the form is valid, surfacing specific errors
-    for (const [key, data] of Object.entries(formData)) {
-      const requestDestination = requestDestinations.find((destination: any) => destination.id === key);
-      if (!requestDestination) {
-        toast.error(t('reservations.fillRequired'));
-        setIsSubmitting(false);
-        return;
-      }
-      if (requestDestination.is_hotel_required) {
-        if (!data.hotel_comments) {
-          toast.error(t('reservations.commentsRequired'));
-          setIsSubmitting(false);
-          return;
-        }
-        if (!data.hotel_title || !data.hotel_file) {
-          toast.error(t('reservations.fillRequired'));
-          setIsSubmitting(false);
-          return;
-        }
-      }
-      if (requestDestination.is_plane_required) {
-        if (!data.plane_comments) {
-          toast.error(t('reservations.commentsRequired'));
-          setIsSubmitting(false);
-          return;
-        }
-        if (!data.plane_title || !data.plane_price || (!data.plane_file && !data.plane_link)) {
-          toast.error(t('reservations.fillRequired'));
-          setIsSubmitting(false);
-          return;
-        }
-      }
     }
     // Send the data to the API
     try {
@@ -544,35 +539,53 @@ export const Reservations = () => {
                 .map((destination: any) => (
                 <div
                   key={destination.id}
-                  className="rounded-md p-4 mb-6 space-y-4 bg-[var(--color-page-bg)] shadow-sm"
+                  className="rounded-2xl mb-6 bg-[var(--color-page-bg)] shadow-md overflow-hidden border border-[var(--color-border)]"
                 >
-                  <h3 className="font-bold text-gray-500">{t('reservations.destination')} #{destination.destination_order}</h3>
-                  <div>
+                  <button
+                    type="button"
+                    onClick={() => toggleDestination(destination.id)}
+                    className="w-full flex items-center justify-between px-6 py-4 bg-[var(--blue)] text-white hover:bg-[var(--dark-blue)] transition-colors"
+                  >
+                    <span className="text-base font-semibold tracking-wide">
+                      {t('reservations.destination')} #{destination.destination_order}
+                      {destination.origin && destination.destination_city && (
+                        <span className="ml-3 text-sm font-normal opacity-80">
+                          {destination.origin_city} → {destination.destination_city}
+                        </span>
+                      )}
+                    </span>
+                    {collapsedDestinations.has(destination.id) ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+                  </button>
 
-                  </div>
-                  <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8" id="reservation-info">
-                    {labels.map(({ key, label }) => (
-                      <div key={key as string}>
-                        <label
-                          htmlFor={key as string}
-                          className="block text-xs font-semibold text-gray-500 mb-1"
-                        >
-                          {label}
-                        </label>
-                        <input
-                          id={key as string}
-                          type="text"
-                          readOnly
-                          value={destination[key] || ""}
-                          className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
-                        />
-                      </div>
-                    ))}
+                  {!collapsedDestinations.has(destination.id) && (
+                  <div className="p-6 space-y-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-2" id="reservation-info">
+                    {labels.map(({ key, label }) => {
+                      const val = destination[key];
+                      if (val === "" || val === null || val === undefined || val === 0) return null;
+                      return (
+                        <div key={key as string}>
+                          <label
+                            htmlFor={key as string}
+                            className="block text-xs font-semibold text-gray-500 mb-1"
+                          >
+                            {label}
+                          </label>
+                          <input
+                            id={key as string}
+                            type="text"
+                            readOnly
+                            value={String(val)}
+                            className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] rounded-lg px-3 py-2"
+                          />
+                        </div>
+                      );
+                    })}
                   </section>
                   <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                     {destination.is_hotel_required && (
                       <div className="flex flex-col gap-y-4" id="hotel-reservation">
-                        <h3 className="text-[var(--blue)] mb-4 font-bold">{t('reservations.hotelInfo')}</h3>
+                        <h3 className="text-[var(--color-page-text-title)] mb-4 font-bold">{t('reservations.hotelInfo')}</h3>
                         <div>
                           <label 
                             className="block mb-2 text-sm font-medium text-gray-500"
@@ -588,10 +601,13 @@ export const Reservations = () => {
                             id={`hotel_title_${destination.id}`}
                             className="bg-[var(--color-card-bg)]"
                           />
+                          {fieldErrors[destination.id]?.hotel_title && (
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].hotel_title}</p>
+                          )}
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_comments_${destination.id}`}
                           >
@@ -604,6 +620,9 @@ export const Reservations = () => {
                             name="hotel_comments"
                             id={`hotel_comments_${destination.id}`}
                           />
+                          {fieldErrors[destination.id]?.hotel_comments && (
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].hotel_comments}</p>
+                          )}
                         </div>
 
                         <div>
@@ -641,10 +660,13 @@ export const Reservations = () => {
                             />
                             <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
                           </div>
+                          {fieldErrors[destination.id]?.hotel_price && (
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].hotel_price}</p>
+                          )}
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`hotel_file_${destination.id}`}
                           >
@@ -663,6 +685,9 @@ export const Reservations = () => {
                             <p className="text-red-500 text-sm mt-1">
                               {fileErrors[`${destination.id}_hotel_file`]}
                             </p>
+                          )}
+                          {fieldErrors[destination.id]?.hotel_file && (
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].hotel_file}</p>
                           )}
                           {formData[destination.id]?.hotel_file_preview && (
                             <button
@@ -694,10 +719,13 @@ export const Reservations = () => {
                             name="plane_title"
                             id={`plane_title_${destination.id}`}
                           />
+                          {fieldErrors[destination.id]?.plane_title && (
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].plane_title}</p>
+                          )}
                         </div>
 
                         <div>
-                          <label 
+                          <label
                             className="block mb-2 text-sm font-medium text-gray-500"
                             htmlFor={`plane_comments_${destination.id}`}
                           >
@@ -710,6 +738,9 @@ export const Reservations = () => {
                             name="plane_comments"
                             id={`plane_comments_${destination.id}`}
                           />
+                          {fieldErrors[destination.id]?.plane_comments && (
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].plane_comments}</p>
+                          )}
                         </div>
 
                         <div>
@@ -782,6 +813,9 @@ export const Reservations = () => {
                               </button>
                             </p>
                           )}
+                          {fieldErrors[destination.id]?.plane_price && (
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].plane_price}</p>
+                          )}
                         </div>
 
                         <div>
@@ -821,6 +855,9 @@ export const Reservations = () => {
                               {fileErrors[`${destination.id}_plane_file`]}
                             </p>
                           )}
+                          {fieldErrors[destination.id]?.plane_file && (
+                            <p className="mt-1 text-sm text-red-600">{fieldErrors[destination.id].plane_file}</p>
+                          )}
                           {formData[destination.id]?.plane_file_preview && (
                             <button
                               type="button"
@@ -835,27 +872,29 @@ export const Reservations = () => {
                     )}
                   </section>
 
-                  {activePreview && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                      <button
-                        type="button"
-                        onClick={() => setActivePreview(null)}
-                        className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
-                      >
-                        X
-                      </button>
-                      <div className="bg-white rounded-lg p-1 w-[90%] max-w-4xl h-[90vh] relative">
-                        <iframe
-                          src={activePreview}
-                          className="w-full h-full rounded"
-                          title={t('reservations.filePreview')}
-                        />
-                      </div>
-                    </div>
+                  </div>
                   )}
-
                 </div>
               ))}
+
+              {activePreview && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                  <button
+                    type="button"
+                    onClick={() => setActivePreview(null)}
+                    className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
+                  >
+                    X
+                  </button>
+                  <div className="bg-white rounded-lg p-1 w-[90%] max-w-4xl h-[90vh] relative">
+                    <iframe
+                      src={activePreview}
+                      className="w-full h-full rounded"
+                      title={t('reservations.filePreview')}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="pt-4 flex justify-end">
