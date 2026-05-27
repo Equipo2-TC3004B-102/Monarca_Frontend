@@ -150,7 +150,16 @@
     "submit": "Submit",
     "amountError": "Amount cannot be 0.00",
     "selectCurrencyError": "Please select a currency for each voucher.",
-    "submitError": "Error submitting. Please try again."
+    "submitError": "Error submitting. Please try again.",
+    "existingVouchers": "Existing vouchers",
+    "colCfdiStatus": "CFDI Status",
+    "checkingCfdi": "Checking..."
+  },
+  "cfdi": {
+    "VALID": "Valid",
+    "CANCELED": "Canceled",
+    "NOT_FOUND": "Not found",
+    "PENDING": "Pending"
   },
   "form": {
     "title": "Title",
@@ -329,7 +338,7 @@
     "success": "Reservations submitted successfully.",
     "sendError": "Error submitting reservations.",
     "fillRequired": "Please complete all required fields.",
-    "invalidFormat": "Invalid format. Only PDF and XML are allowed.",
+    "invalidFormat": "Invalid format. Only PDF is allowed.",
     "unavailable": "Destination not available"
   },
   "common": {
@@ -388,6 +397,7 @@
     "exchangeRate": "Exchange rate",
     "date": "Date",
     "voucherStatus": "Status",
+    "cfdiStatus": "CFDI status",
     "quantity": "Amount"
   },
   "tutorial": {
