@@ -6,7 +6,7 @@
  * Last Modification made: 
  * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
  */
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
 
@@ -84,6 +84,15 @@ const InputField: React.FC<InputFieldProps> = ({
   inputMode,
 }) => {
   const { t } = useTranslation();
+
+  const dateInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (type === "date" && dateInputRef.current && document.activeElement !== dateInputRef.current) {
+      const next = value || "";
+      if (dateInputRef.current.value !== next) dateInputRef.current.value = next;
+    }
+  }, [value, type]);
+
   // Set default placeholder for date inputs
   const effectivePlaceholder =
     type === "date" && !placeholder ? "DD/MM/YYYY" : placeholder;
@@ -341,10 +350,13 @@ const InputField: React.FC<InputFieldProps> = ({
         )}
         <div className="relative">
           <input
+            ref={type === "date" ? dateInputRef : undefined}
             id={id || name}
             name={name}
             type={type}
-            value={value || ""}
+            {...(type === "date"
+              ? { defaultValue: value || "" }
+              : { value: value || "" })}
             placeholder={effectivePlaceholder}
             className={`${baseClass} ${borderClass} ${textClass} ${className}`}
             disabled={disabled}

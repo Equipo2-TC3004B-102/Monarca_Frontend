@@ -15,7 +15,7 @@
     "rules": "Rules",
     "notifications": "Notifications",
     "reservedHistory": "Reserved travel history",
-    "accountingExport": "Export accounting polizas",
+    "accountingExport": "Export financial journal entries",
     "auditLogs": "Audit log",
     "companyRequests": "Requests"
   },
@@ -25,18 +25,16 @@
     "checkExpenses": "Check expenses",
     "tripsToApprove": "Trips to approve",
     "approvedHistory": "Approved travel history",
-    "vouchersToApprove": "Expense vouchers to approve",
+    "vouchersToApprove": "Vouchers & Refunds",
     "tripsToRegister": "Trips to register",
-    "refundsToRegister": "Refunds to register",
-    "accountingExport": "Export accounting polizas",
+    "refundsToRegister": "Vouchers & Refunds to register",
+    "accountingExport": "Export financial journal entries",
     "tripsToBook": "Trips to book",
     "reservedHistory": "Reserved travel history",
     "newCompany": "New company",
     "userList": "User list",
     "rules": "Rules",
-    "notifications": "Notifications",
-    "auditLogs": "Audit log",
-    "companyRequests": "Requests"
+    "notifications": "Notifications"
   },
   "header": {
     "logout": "Log out"
@@ -150,16 +148,7 @@
     "submit": "Submit",
     "amountError": "Amount cannot be 0.00",
     "selectCurrencyError": "Please select a currency for each voucher.",
-    "submitError": "Error submitting. Please try again.",
-    "existingVouchers": "Existing vouchers",
-    "colCfdiStatus": "CFDI Status",
-    "checkingCfdi": "Checking..."
-  },
-  "cfdi": {
-    "VALID": "Valid",
-    "CANCELED": "Canceled",
-    "NOT_FOUND": "Not found",
-    "PENDING": "Pending"
+    "submitError": "Error submitting. Please try again."
   },
   "form": {
     "title": "Title",
@@ -338,7 +327,8 @@
     "success": "Reservations submitted successfully.",
     "sendError": "Error submitting reservations.",
     "fillRequired": "Please complete all required fields.",
-    "invalidFormat": "Invalid format. Only PDF is allowed.",
+    "commentsRequired": "Comments are required for each reservation.",
+    "invalidFormat": "Invalid format. Only PDF and XML are allowed.",
     "unavailable": "Destination not available"
   },
   "common": {
@@ -397,7 +387,6 @@
     "exchangeRate": "Exchange rate",
     "date": "Date",
     "voucherStatus": "Status",
-    "cfdiStatus": "CFDI status",
     "quantity": "Amount"
   },
   "tutorial": {
@@ -681,66 +670,6 @@
       "reservationsDesc": "Notifies by email when a reservation is created.",
       "adminAlerts": "Administrative alerts",
       "adminAlertsDesc": "Notifies by email about relevant administrative events."
-    },
-    "companyRequests": {
-      "title": "Company requests",
-      "folio": "Folio",
-      "title_col": "Title",
-      "requester": "Requester",
-      "status": "Status",
-      "createdAt": "Date",
-      "actions": "Actions",
-      "view": "View request",
-      "errorLoading": "Error loading requests."
-    },
-    "auditLogs": {
-      "title": "Audit log",
-      "date": "Date",
-      "user": "Affected user",
-      "email": "Email",
-      "action": "Action",
-      "seeMore": "see more",
-      "seeLess": "see less",
-      "viewRequest": "View request",
-      "errorLoading": "Error loading audit log.",
-      "actions": {
-        "USER_CREATED": "User created: {{email}} (roles: {{flags}})",
-        "USER_PROFILE_UPDATED": "Profile updated for {{email}} — fields: {{fields}}",
-        "USER_FLAGS_UPDATED": "Roles updated for {{email}}: {{flags}}",
-        "USER_DELETED": "User deleted: {{email}}",
-        "SETTINGS_UPDATED": "Company settings updated: {{fields}}",
-        "REQUEST_CREATED": "Request created — Folio {{folio}}: \"{{title}}\"",
-        "REQUEST_CANCELLED": "Request cancelled — Folio {{folio}}: \"{{title}}\"",
-        "RULE_CREATED": "Approval rule created: \"{{name}}\" (order {{order}})",
-        "RULE_UPDATED": "Approval rule updated: \"{{name}}\" — fields: {{fields}}",
-        "FIRST_LOGIN": "First login: {{email}}",
-        "USERS_IMPORTED": "User import: {{created}} created, {{updated}} updated, {{unchanged}} unchanged, {{errors}} error(s)"
-      },
-      "fieldNames": {
-        "is_requester": "Requester",
-        "is_approver": "Approver",
-        "is_soi": "SOI",
-        "is_travelAgent": "Travel Agent",
-        "is_company_admin": "Company Admin",
-        "voucher_deadline_days": "Voucher deadline (days)",
-        "name": "Name",
-        "last_name": "Last name",
-        "email": "Email",
-        "employee_num": "Employee no.",
-        "status": "Status",
-        "password": "Password",
-        "user_name": "Username",
-        "level_order": "Order",
-        "is_active": "Active",
-        "description": "Description",
-        "code": "Code",
-        "applies_to": "Applies to",
-        "min_amount": "Min. amount",
-        "max_amount": "Max. amount",
-        "required_approvals": "Required approvals"
-      },
-      "boolTrue": "Yes",
-      "boolFalse": "No"
     }
   },
   "theme": {
@@ -780,15 +709,15 @@
     "fullItinerary": "Full itinerary"
   },
   "accounting": {
-    "title": "Export accounting polizas",
-    "subtitle": "Generate and download the SAP poliza JSON for each completed trip.",
+    "title": "Export financial journal entries",
+    "subtitle": "Generate and download the SAP financial journal entry JSON for each completed trip.",
     "loading": "Loading trips...",
     "noRequests": "No completed trips to export.",
-    "polizaReady": "Poliza generated and downloaded successfully.",
+    "polizaReady": "Journal entry generated and downloaded successfully.",
     "errorLoad": "Error loading completed trips.",
-    "errorGenerate": "Error generating poliza.",
+    "errorGenerate": "Error generating journal entry.",
     "generating": "Generating...",
-    "generateButton": "Generate poliza",
+    "generateButton": "Generate journal entry",
     "tableHeaders": {
       "folio": "Folio",
       "employee": "Employee",
