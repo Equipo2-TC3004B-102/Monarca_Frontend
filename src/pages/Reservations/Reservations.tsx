@@ -3,7 +3,7 @@
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 20/05/2026 [Jin Sik Yoon] Added internationalization and some UI copy improvements.
+ * 27/05/2026 [Julio Rodríguez] Added fixes for file input validation as a required field.
  */
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -465,7 +465,7 @@ export const Reservations = () => {
         if (!data.plane_title)                          { destErrors.plane_title    = required; hasErrors = true; }
         if (!data.plane_comments)                       { destErrors.plane_comments = required; hasErrors = true; }
         if (!data.plane_price || data.plane_price === "0.00") { destErrors.plane_price = required; hasErrors = true; }
-        if (!data.plane_file && !data.plane_link)       { destErrors.plane_file     = required; hasErrors = true; }
+        if (!data.plane_file)                           { destErrors.plane_file     = required; hasErrors = true; }
       }
     }
 
