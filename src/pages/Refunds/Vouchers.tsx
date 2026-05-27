@@ -3,8 +3,7 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
- * 04/05/2026 [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits.
+ * 25/05/2026 [Santiago Coronado Hernández] Added CfdiStatus component.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -21,9 +20,10 @@ import { useParams } from "react-router-dom";
 import formatMoney from "../../utils/formatMoney";
 import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
+import CfdiStatus from "../../components/Refunds/CfdiStatus";
 import { Tutorial } from "../../components/Tutorial";
 import { currencyOptions } from "../../utils/currencies";
-import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
+import { isFileSizeValid, getFileSizeErrorMessage, validateFile } from "../../utils/fileValidation";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -38,6 +38,8 @@ interface FormDataRow extends DynamicTableRow {
   date: string;
   XMLFile?: File;
   PDFFile?: File;
+  cfdiStatus?: string;
+  isCheckingCfdi?: boolean;
 }
 
 /**
@@ -82,6 +84,10 @@ export const Vouchers = () => {
       try {
         const response = await getRequest(`/requests/${id}`);
         setTrip(response);
+        // DEBUG: log vouchers to verify cfdi_status presence
+        // Remove or disable this log after verification
+        // eslint-disable-next-line no-console
+        console.debug('Vouchers.fetchTrip response.vouchers:', response?.vouchers);
       } catch (err) {
         console.error(
           "Error loading trip: ",
@@ -109,12 +115,34 @@ export const Vouchers = () => {
     try {
       let formDataToSend = null;
       for (const rowData of formData) {
+        // Require PDF file; XML is optional. If XML is provided, validate it.
+        if (!rowData.PDFFile) {
+          toast.error(t('vouchers.pdfRequired') || 'PDF file is required for each voucher.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Validate PDF (size + extension + mime)
+        const pdfValidation = validateFile(rowData.PDFFile as File, ['.pdf'], ['application/pdf']);
+        if (!pdfValidation.isValid) {
+          toast.error(pdfValidation.errorMessage || t('vouchers.invalidPDF'));
+          setIsSubmitting(false);
+          return;
+        }
+
+        // If an XML file was attached, validate it before sending.
+        if (rowData.XMLFile) {
+          const xmlValidation = validateFile(rowData.XMLFile as File, ['.xml'], ['application/xml', 'text/xml']);
+          if (!xmlValidation.isValid) {
+            toast.error(xmlValidation.errorMessage || t('vouchers.invalidXML'));
+            setIsSubmitting(false);
+            return;
+          }
+        }
+
         formDataToSend = new FormData();
 
-        formDataToSend.append(
-          "id_request",
-          trip.id.toString()
-        );
+        formDataToSend.append("id_request", trip.id.toString());
         formDataToSend.append("date", rowData.date ? new Date(rowData.date).toISOString() : new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
@@ -143,12 +171,12 @@ export const Vouchers = () => {
       const rawMsg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message;
       const apiMessage = typeof rawMsg === 'string' ? rawMsg
         : Array.isArray(rawMsg) ? (rawMsg as string[]).join(', ')
-        : null;
+          : null;
       toast.error(apiMessage ?? t('vouchers.submitError'));
     } finally {
       setIsSubmitting(false);
     }
-  }; 
+  };
 
   /**
    * Schema definition for the DynamicTable.
@@ -324,7 +352,7 @@ export const Vouchers = () => {
               type="file"
               accept=".xml"
               className="hidden"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (file) {
                   // Validate file size
@@ -333,13 +361,53 @@ export const Vouchers = () => {
                     e.target.value = "";
                     return;
                   }
-                  
+
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
                     if (updatedFormData[rowIndex]) {
                       updatedFormData[rowIndex].XMLFile = file;
+                      updatedFormData[rowIndex].isCheckingCfdi = true;
+                      updatedFormData[rowIndex].cfdiStatus = undefined;
                       setFormData(updatedFormData);
+
+                      try {
+                        const fd = new FormData();
+                        fd.append("xml", file);
+                        const result = await postRequest("/vouchers/parse-xml", fd);
+
+                        const latestFormData = [...formData];
+                        if (latestFormData[rowIndex]) {
+                          latestFormData[rowIndex].XMLFile = file;
+                          latestFormData[rowIndex].isCheckingCfdi = false;
+                          latestFormData[rowIndex].cfdiStatus = result.cfdi_status;
+
+                          // Auto-populate values if present
+                          if (result.amount) {
+                            latestFormData[rowIndex].amount = result.amount;
+                          }
+                          if (result.currency) {
+                            latestFormData[rowIndex].currency = result.currency;
+                          }
+                          if (result.date) {
+                            const dateStr = result.date.split("T")[0];
+                            latestFormData[rowIndex].date = dateStr;
+                          }
+                          setFormData(latestFormData);
+                        }
+                      } catch (err) {
+                        console.error("Error parsing XML:", err);
+                        const apiMsg = (err as any)?.response?.data?.message;
+                        toast.error(typeof apiMsg === "string" ? apiMsg : "Error parsing XML file.");
+
+                        const resetFormData = [...formData];
+                        if (resetFormData[rowIndex]) {
+                          resetFormData[rowIndex].XMLFile = undefined;
+                          resetFormData[rowIndex].isCheckingCfdi = false;
+                          resetFormData[rowIndex].cfdiStatus = undefined;
+                          setFormData(resetFormData);
+                        }
+                      }
                     }
                   }
                 }
@@ -396,7 +464,7 @@ export const Vouchers = () => {
                     e.target.value = "";
                     return;
                   }
-                  
+
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
@@ -430,6 +498,27 @@ export const Vouchers = () => {
         );
       },
     },
+    {
+      key: "cfdiStatus",
+      header: t('vouchers.colCfdiStatus') || 'CFDI Status',
+      className: "w-24",
+      defaultValue: "",
+      renderCell: (
+        _value: CellValueType,
+        _onChangeComponentFunction: (newValue: CellValueType) => void,
+        rowIndex?: number,
+        _cellIndex?: number
+      ) => {
+        const row = formData[rowIndex || 0];
+        if (row?.isCheckingCfdi) {
+          return <span className="text-xs text-blue-200 animate-pulse font-medium">{t('vouchers.checkingCfdi') || 'Checking...'}</span>;
+        }
+        if (row?.cfdiStatus) {
+          return <CfdiStatus status={row.cfdiStatus} variant="pill" />;
+        }
+        return <span className="text-xs text-gray-300">—</span>;
+      }
+    }
   ];
 
   /**
@@ -472,6 +561,27 @@ export const Vouchers = () => {
               <strong>{t('vouchers.advance')}</strong> {formatMoney(trip.advance_money)}
             </p>
           </div>
+          {/** Existing uploaded vouchers (read-only) */}
+          {/** Show CFDI pill for each existing voucher if present */}
+          {trip && (trip as any).vouchers && (trip as any).vouchers.length > 0 && (
+            <div className="mb-4 bg-[var(--color-page-bg)] p-4 rounded-md border border-[var(--color-border)]">
+              <h3 className="text-lg font-semibold text-[var(--color-page-text)] mb-2">{t('vouchers.existingVouchers')}</h3>
+              <div className="flex flex-col gap-3">
+                {(trip as any).vouchers.map((v: any, idx: number) => (
+                  <div key={v.id || idx} className="flex items-center justify-between p-2 bg-[var(--color-card-bg)] rounded-md">
+                    <div className="text-sm text-[var(--color-page-text)]">
+                      <div><span className="font-semibold">{t('refundAcceptance.voucherClass')}: </span>{v.class}</div>
+                      <div><span className="font-semibold">{t('refundAcceptance.amountMxn')}: </span>{formatMoney(v.amount)}</div>
+                      <div><span className="font-semibold">{t('refundAcceptance.date')}: </span>{v.date ? new Date(v.date).toLocaleDateString() : ''}</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CfdiStatus status={v.cfdi_status} variant="pill" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {/*
         * which contains the schema of the table.
         * The table is created initially with initially empty data,

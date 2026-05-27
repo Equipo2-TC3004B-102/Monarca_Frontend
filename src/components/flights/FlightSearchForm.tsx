@@ -6,7 +6,7 @@
  * 12/05/2026 [Diego de la Vega] Created FlightSearchForm component.
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FlightSearchQuery } from '../../hooks/flights/useFlightSearch';
 
 interface FlightSearchFormProps {
@@ -21,6 +21,19 @@ export default function FlightSearchForm({ onSearch }: FlightSearchFormProps) {
   const [passengers, setPassengers] = useState(1);
   const [tripType, setTripType] = useState<'round' | 'one-way'>('round');
   const [isLoading, setIsLoading] = useState(false);
+
+  const departureDateRef = useRef<HTMLInputElement>(null);
+  const returnDateRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (departureDateRef.current && document.activeElement !== departureDateRef.current)
+      departureDateRef.current.value = departureDate;
+  }, [departureDate]);
+
+  useEffect(() => {
+    if (returnDateRef.current && document.activeElement !== returnDateRef.current)
+      returnDateRef.current.value = returnDate;
+  }, [returnDate]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,8 +110,9 @@ export default function FlightSearchForm({ onSearch }: FlightSearchFormProps) {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Salida</label>
           <input
+            ref={departureDateRef}
             type="date"
-            value={departureDate}
+            defaultValue={departureDate}
             onChange={(e) => setDepartureDate(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -107,8 +121,9 @@ export default function FlightSearchForm({ onSearch }: FlightSearchFormProps) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Regreso</label>
             <input
+              ref={returnDateRef}
               type="date"
-              value={returnDate}
+              defaultValue={returnDate}
               onChange={(e) => setReturnDate(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

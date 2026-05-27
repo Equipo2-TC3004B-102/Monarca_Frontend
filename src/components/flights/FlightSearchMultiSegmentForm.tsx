@@ -6,7 +6,7 @@
  * 12/05/2026 [Diego de la Vega] Created FlightSearchMultiSegmentForm component.
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FlightSearchMultiSegmentQuery, FlightSegmentInput } from '../../hooks/flights/useFlightSearchMultiSegment';
 
 interface FlightSearchMultiSegmentFormProps {
@@ -21,6 +21,16 @@ export default function FlightSearchMultiSegmentForm({ onSearch }: FlightSearchM
   ]);
   const [passengers, setPassengers] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+
+  const segmentDateRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    segments.forEach((segment, idx) => {
+      const el = segmentDateRefs.current[idx];
+      if (el && document.activeElement !== el && el.value !== segment.departure_date)
+        el.value = segment.departure_date;
+    });
+  }, [segments]);
 
   const handleSegmentChange = (index: number, field: keyof FlightSegmentInput, value: string) => {
     const newSegments = [...segments];
@@ -124,8 +134,9 @@ export default function FlightSearchMultiSegmentForm({ onSearch }: FlightSearchM
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Fecha</label>
                 <input
+                  ref={(el) => { segmentDateRefs.current[idx] = el; }}
                   type="date"
-                  value={segment.departure_date}
+                  defaultValue={segment.departure_date}
                   onChange={(e) => handleSegmentChange(idx, 'departure_date', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
