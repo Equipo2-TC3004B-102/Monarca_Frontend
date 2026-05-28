@@ -48,7 +48,6 @@ const REQUEST_DATE_OPTIONS = [
 ];
 
 const base = "border border-[var(--color-border)] rounded-md px-3 py-2 text-sm bg-[var(--color-card-bg)] text-[var(--color-page-text)] focus:outline-none focus:ring-2 focus:ring-[#0a2c6d]";
-const selectClass = `w-56 ${base}`;
 const inputClass = `w-56 ${base}`;
 const selectClassNarrow = `w-40 ${base}`;
 const inputClassNarrow = `w-40 ${base}`;

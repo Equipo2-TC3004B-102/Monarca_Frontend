@@ -27,15 +27,6 @@ import FilterPanel, { FilterValues } from "../../components/FilterPanel";
  * Trip
  * Interface to define the structure of a trip object used within the component.
  */
-interface Trip {
-  id: number | string;
-  tripName: string;
-  amount: number;
-  date: string;
-  destination: string;
-  requestDate: string;
-  status: string;
-}
 
 /**
  * renderStatus, assigns a styled badge and translated text based on the trip status.
