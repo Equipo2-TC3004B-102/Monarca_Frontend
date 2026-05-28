@@ -148,7 +148,19 @@
     "submit": "Submit",
     "amountError": "Amount cannot be 0.00",
     "selectCurrencyError": "Please select a currency for each voucher.",
-    "submitError": "Error submitting. Please try again."
+    "submitError": "Error submitting. Please try again.",
+    "colCfdiStatus": "CFDI Status",
+    "checkingCfdi": "Validating...",
+    "existingVouchers": "Existing vouchers",
+    "deadlineLabel": "Voucher submission deadline",
+    "deadlineDaysLeft": "{{count}} day(s) remaining",
+    "deadlineExpired": "Submission deadline has passed — no new vouchers can be uploaded",
+    "uploadButton": "Upload vouchers",
+    "sendApprovalButton": "Send for approval",
+    "noVouchersError": "Upload at least one voucher before sending for approval",
+    "uploadSuccess": "Vouchers uploaded successfully",
+    "sendSuccess": "Vouchers sent for approval successfully",
+    "noMatchingRefundLevel": "No approval rule is configured for this advance amount. Ask your administrator to set up a refund rule that covers this range."
   },
   "form": {
     "title": "Title",
@@ -387,7 +399,14 @@
     "exchangeRate": "Exchange rate",
     "date": "Date",
     "voucherStatus": "Status",
-    "quantity": "Amount"
+    "quantity": "Amount",
+    "varianceReport": "Budget vs. Actual Expenses",
+    "budgetAmount": "Approved Budget",
+    "actualAmount": "Actual Expenses",
+    "variance": "Variance",
+    "variancePct": "Variance %",
+    "underBudget": "Under budget",
+    "overBudget": "Over budget"
   },
   "tutorial": {
     "done": "Done",

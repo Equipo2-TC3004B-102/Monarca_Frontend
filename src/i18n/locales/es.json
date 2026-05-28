@@ -152,7 +152,17 @@
     "selectCurrencyError": "Por favor selecciona una moneda para cada comprobante.",
     "submitError": "Error al enviar. Intenta de nuevo.",
     "colCfdiStatus": "Estado CFDI",
-    "checkingCfdi": "Validando..."
+    "checkingCfdi": "Validando...",
+    "existingVouchers": "Comprobantes existentes",
+    "deadlineLabel": "Plazo de comprobación de gastos",
+    "deadlineDaysLeft": "{{count}} día(s) restante(s)",
+    "deadlineExpired": "El plazo ha vencido — ya no se pueden subir nuevos comprobantes",
+    "uploadButton": "Subir comprobantes",
+    "sendApprovalButton": "Enviar para aprobación",
+    "noVouchersError": "Sube al menos un comprobante antes de enviar para aprobación",
+    "uploadSuccess": "Comprobantes subidos exitosamente",
+    "sendSuccess": "Comprobantes enviados para aprobación exitosamente",
+    "noMatchingRefundLevel": "No hay una regla de aprobación configurada para este monto de anticipo. Pide a tu administrador que configure una regla de reembolso que cubra este rango."
   },
   "form": {
     "title": "Título",
@@ -391,7 +401,14 @@
     "exchangeRate": "Tipo de cambio",
     "date": "Fecha",
     "voucherStatus": "Estado",
-    "quantity": "Cantidad"
+    "quantity": "Cantidad",
+    "varianceReport": "Presupuesto vs. Gasto Real",
+    "budgetAmount": "Presupuesto aprobado",
+    "actualAmount": "Gasto real",
+    "variance": "Varianza",
+    "variancePct": "Varianza %",
+    "underBudget": "Dentro del presupuesto",
+    "overBudget": "Fuera del presupuesto"
   },
   "tutorial": {
     "done": "Finalizar",
@@ -674,7 +691,6 @@
       "reservations": "Reservación creada",
       "reservationsDesc": "Notifica por email cuando se crea una reservación.",
       "submitError": "Error al enviar. Intenta de nuevo.",
-      "existingVouchers": "Comprobantes existentes",
       "adminAlertsDesc": "Notifica por email eventos administrativos relevantes."
     },
     "companyRequests": {
