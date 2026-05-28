@@ -808,5 +808,23 @@
       "date": "Fecha",
       "actions": "Acciones"
     }
+  },
+  "filters": {
+    "title": "Filtros",
+    "status": "Estatus",
+    "motive": "Motivo",
+    "motivePlaceholder": "Buscar por motivo",
+    "tripDate": "Fecha de viaje",
+    "requestDate": "Fecha de solicitud",
+    "departurePlace": "Lugar de salida",
+    "search": "Buscar",
+    "reset": "Restablecer",
+    "allStatuses": "Todos los estados",
+    "allPlaces": "Todos los lugares",
+    "allDates": "Todas las fechas",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "last7Days": "Últimos 7 días",
+    "last30Days": "Últimos 30 días"
   }
 }

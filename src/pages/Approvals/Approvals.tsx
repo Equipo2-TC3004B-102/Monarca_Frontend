@@ -4,6 +4,7 @@
  * Authors: Original Monarca team
  * Last Modification made:
  * 04/05/2026 [Rebeca-Davila] Changed colors dark mode
+ * 28/05/2026 [Sergio] Add filter panel for status, motive, trip date, request date and departure place.
  */
 import React, { useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
@@ -16,6 +17,7 @@ import { useLocation } from "react-router-dom";
 import { useApp } from "../../hooks/app/appContext";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import FilterPanel, { FilterValues } from "../../components/FilterPanel";
 
 // columns are built inside the component so they react to language changes
 /**
@@ -81,6 +83,42 @@ const renderStatus = (status: string, t: TFunction) => {
     )
 }
 
+const applyFilters = (data: any[], filters: FilterValues) => {
+  const now = new Date();
+  return data.filter((record) => {
+    if (filters.status && record.status !== filters.status) return false;
+
+    if (filters.motive && !record.motive?.toLowerCase().includes(filters.motive.toLowerCase())) return false;
+
+    if (filters.tripDate && record._rawDepartureDate) {
+      if (!record._rawDepartureDate.startsWith(filters.tripDate)) return false;
+    }
+
+    if (filters.requestDateRange && record._rawCreatedAt) {
+      const date = new Date(record._rawCreatedAt);
+      if (filters.requestDateRange === "today") {
+        if (date.toDateString() !== now.toDateString()) return false;
+      } else if (filters.requestDateRange === "yesterday") {
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        if (date.toDateString() !== yesterday.toDateString()) return false;
+      } else if (filters.requestDateRange === "last7") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 7);
+        if (date < cutoff) return false;
+      } else if (filters.requestDateRange === "last30") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 30);
+        if (date < cutoff) return false;
+      }
+    }
+
+    if (filters.departurePlace && record.country !== filters.departurePlace) return false;
+
+    return true;
+  });
+};
+
 /**
  * FunctionName: Approvals
  * Purpose of the function: to display the approvals page.
@@ -90,7 +128,8 @@ const renderStatus = (status: string, t: TFunction) => {
  * Last Modification made: original Moncarca team
  */
 export const Approvals: React.FC = () => {
-  const [dataWithActions, setDataWithActions] = useState([]);
+  const [allData, setAllData] = useState<any[]>([]);
+  const [displayData, setDisplayData] = useState<any[]>([]);
   const location = useLocation();
   const { handleVisitPage, tutorial, setTutorial } = useApp();
   const { t } = useTranslation();
@@ -108,26 +147,28 @@ export const Approvals: React.FC = () => {
     const fetchTravelRecords = async () => {
       try {
         const response = await getRequest("/requests/to-approve");
-        setDataWithActions(
-          response.map((trip: any) => {
-            const sortedDestinations = [...(trip.requests_destinations || [])].sort(
-              (a: any, b: any) => a.destination_order - b.destination_order
-            );
-            const firstDestination = sortedDestinations[0];
+        const mapped = response.map((trip: any) => {
+          const sortedDestinations = [...(trip.requests_destinations || [])].sort(
+            (a: any, b: any) => a.destination_order - b.destination_order
+          );
+          const firstDestination = sortedDestinations[0];
 
-            return {
-              ...trip,
-              status: trip.status,
-              country:
-                trip.destination?.city ||
-                trip.destination?.iata_code ||
-                t('historial.noDestination'),
-              departureDate: firstDestination?.departure_date
-                ? formatDate(firstDestination.departure_date)
-                : t('historial.noDate'),
-            };
-          })
-        );
+          return {
+            ...trip,
+            status: trip.status,
+            _rawCreatedAt: trip.createdAt,
+            _rawDepartureDate: firstDestination?.departure_date ?? null,
+            country:
+              trip.destination?.city ||
+              trip.destination?.iata_code ||
+              t('historial.noDestination'),
+            departureDate: firstDestination?.departure_date
+              ? formatDate(firstDestination.departure_date)
+              : t('historial.noDate'),
+          };
+        });
+        setAllData(mapped);
+        setDisplayData(mapped);
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
@@ -137,19 +178,22 @@ export const Approvals: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Get the visited pages from localStorage
     const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
-    // Check if the current page is already in the visited pages
     const isPageVisited = visitedPages.includes(location.pathname);
 
-    // If the page is not visited, set the tutorial to true
     if (!isPageVisited) {
       setTutorial(true);
     }
-    // Add the current page to the visited pages
     return () => handleVisitPage();
   }, []);
-    
+
+  const handleSearch = (filters: FilterValues) => {
+    setDisplayData(applyFilters(allData, filters));
+  };
+
+  const handleReset = () => {
+    setDisplayData(allData);
+  };
 
   return (
     <>
@@ -163,10 +207,13 @@ export const Approvals: React.FC = () => {
             <RefreshButton />
           </div>
 
+          {/* Filter panel */}
+          <FilterPanel onSearch={handleSearch} onReset={handleReset} />
+
           <div id="list_requests">
             <Table
               columns={columns}
-              data={dataWithActions}
+              data={displayData}
               itemsPerPage={5}
               link={"/requests"}
             />

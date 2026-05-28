@@ -4,6 +4,7 @@
  * Authors: Original Monarca team
  * Last Modification made:
  * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
+ * 28/05/2026 [Sergio] Add filter panel for status, motive, trip date, request date and departure place.
  */
 
 import { useState, useEffect } from "react";
@@ -20,6 +21,7 @@ import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import FilterPanel, { FilterValues } from "../../components/FilterPanel";
 
 /**
  * Trip
@@ -60,6 +62,42 @@ const renderStatus = (status: string, t: TFunction) => {
   return <span className={`text-xs px-2 py-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>{statusText}</span>;
 }
 
+const applyFilters = (data: any[], filters: FilterValues) => {
+  const now = new Date();
+  return data.filter((record) => {
+    if (filters.status && record.status !== filters.status) return false;
+
+    if (filters.motive && !record.motive?.toLowerCase().includes(filters.motive.toLowerCase())) return false;
+
+    if (filters.tripDate && record._rawDepartureDate) {
+      if (!record._rawDepartureDate.startsWith(filters.tripDate)) return false;
+    }
+
+    if (filters.requestDateRange && record._rawCreatedAt) {
+      const date = new Date(record._rawCreatedAt);
+      if (filters.requestDateRange === "today") {
+        if (date.toDateString() !== now.toDateString()) return false;
+      } else if (filters.requestDateRange === "yesterday") {
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        if (date.toDateString() !== yesterday.toDateString()) return false;
+      } else if (filters.requestDateRange === "last7") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 7);
+        if (date < cutoff) return false;
+      } else if (filters.requestDateRange === "last30") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 30);
+        if (date < cutoff) return false;
+      }
+    }
+
+    if (filters.departurePlace && record.origin !== filters.departurePlace) return false;
+
+    return true;
+  });
+};
+
 /**
  * CheckRefunds, main page component for viewing and managing refunds to be checked.
  * Input: None
@@ -67,7 +105,8 @@ const renderStatus = (status: string, t: TFunction) => {
  */
 export const CheckRefunds = () => {
   const navigate = useNavigate();
-  const [trips, setTrips] = useState<Trip[]>([]);
+  const [allTrips, setAllTrips] = useState<any[]>([]);
+  const [displayTrips, setDisplayTrips] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { handleVisitPage, tutorial, setTutorial } = useApp();
   const { t } = useTranslation();
@@ -81,7 +120,7 @@ export const CheckRefunds = () => {
       try {
         setLoading(true);
         const response = await getRequest("/requests/refund-to-approve-SOI");
-        setTrips(response.map((trip: any) => {
+        const mapped = response.map((trip: any) => {
           const sortedDestinations = [...(trip.requests_destinations || [])].sort(
             (a: any, b: any) => a.destination_order - b.destination_order
           );
@@ -90,6 +129,8 @@ export const CheckRefunds = () => {
           return {
             ...trip,
             status: trip.status,
+            _rawCreatedAt: trip.createdAt,
+            _rawDepartureDate: firstDestination?.departure_date ?? null,
             date: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
               : "N/A",
@@ -100,10 +141,12 @@ export const CheckRefunds = () => {
               t('historial.noDestination'),
             createdAt: formatDate(trip.createdAt),
           };
-        }));
+        });
+        setAllTrips(mapped);
+        setDisplayTrips(mapped);
       } catch (err) {
         toast.error(t('refunds.errorLoading'));
-    
+
         console.error(
           "Error loading trips: ",
           err instanceof Error ? err.message : err
@@ -121,12 +164,20 @@ export const CheckRefunds = () => {
   useEffect(() => {
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
       const isPageVisited = visitedPages.includes(location.pathname);
-  
+
       if (!isPageVisited) {
         setTutorial(true);
       }
       handleVisitPage();
     }, []);
+
+  const handleSearch = (filters: FilterValues) => {
+    setDisplayTrips(applyFilters(allTrips, filters));
+  };
+
+  const handleReset = () => {
+    setDisplayTrips(allTrips);
+  };
 
   const columnsSchemaTrips = [
     { key: "status",        header: t('refunds.status'),         width: "w-[22%]", render: (value: string) => renderStatus(value, t) },
@@ -137,7 +188,7 @@ export const CheckRefunds = () => {
     { key: "createdAt",     header: t('refunds.requestDate'),    width: "w-[21%]" },
     { key: "action",        header: "",                          width: "w-[11%]" },
   ];
-  
+
   if (loading) {
     return (
       <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
@@ -146,7 +197,7 @@ export const CheckRefunds = () => {
     );
   }
 
-  const dataWithActions = trips.map((trip, index: number) => ({
+  const dataWithActions = displayTrips.map((trip, index: number) => ({
     ...trip,
     action: (
       <Button
@@ -169,6 +220,9 @@ export const CheckRefunds = () => {
             </h2>
             <RefreshButton />
           </div>
+
+          {/* Filter panel */}
+          <FilterPanel onSearch={handleSearch} onReset={handleReset} />
 
           <div id="list_requests">
             <Table
