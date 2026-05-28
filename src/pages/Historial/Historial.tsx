@@ -114,7 +114,8 @@ const applyFilters = (data: any[], filters: FilterValues) => {
       }
     }
 
-    if (filters.departurePlace && record.country !== filters.departurePlace) return false;
+    if (filters.departureCountry && record.destination?.country !== filters.departureCountry) return false;
+    if (filters.departureCity && record.country !== filters.departureCity) return false;
 
     return true;
   });

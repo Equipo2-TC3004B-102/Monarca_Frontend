@@ -92,7 +92,8 @@ const applyFilters = (data: any[], filters: FilterValues) => {
       }
     }
 
-    if (filters.departurePlace && record.origin !== filters.departurePlace) return false;
+    if (filters.departureCountry && record.destination?.country !== filters.departureCountry) return false;
+    if (filters.departureCity && record.origin !== filters.departureCity) return false;
 
     return true;
   });
