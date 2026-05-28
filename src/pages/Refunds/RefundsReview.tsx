@@ -1,9 +1,9 @@
 /**
  * RefundsReview.tsx
- * Description: Component that displays a table of trip requests awaiting final voucher approval by an administrator.
+ * Description: Component that displays a table of trip requests awaiting voucher approval by the assigned approver.
  * Authors: Original Monarca team
  * Last Modification made:
- * 06/05/2026 [Sergio Jiawei Xuan] Adjusted column widths; replaced hardcoded strings with i18n t() calls; updated status badge style.
+ * 27/05/2026 [Julio Rodriguez] Changed data source from GET /requests/all (SOI) to GET /requests/vouchers-to-approve (approver).
  */
 
 import { useEffect, useState } from "react";
@@ -104,7 +104,7 @@ export const RefundsReview = () => {
   const { t } = useTranslation();
 
   /**
-   * fetchTrips, gets all trip requests and filters those awaiting voucher approval.
+   * fetchTrips, gets trip requests in Pending Vouchers Approval assigned to the current approver.
    * Input: None
    * Output: Promise<void>
    */
@@ -113,9 +113,9 @@ export const RefundsReview = () => {
       try {
         setLoading(true);
 
-        const response = await getRequest("/requests/all");
+        const response = await getRequest("/requests/vouchers-to-approve");
 
-        const processedTrips = response.filter((trip: Trip) => trip.status === "Pending Vouchers Approval").map((trip: Trip) => {
+        const processedTrips = response.map((trip: Trip) => {
           const sortedDestinations = [...trip.requests_destinations].sort(
             (a, b) => a.destination_order - b.destination_order
           );
