@@ -567,7 +567,13 @@
       "importCreated": "created",
       "importUpdated": "updated",
       "noChanges": "No changes",
-      "importErrors": "Errors"
+      "importErrors": "Errors",
+      "filterName": "Name",
+      "filterNamePlaceholder": "Search by name",
+      "filterCompany": "Company",
+      "allCompanies": "All companies",
+      "filterStatus": "Status",
+      "allStatuses": "All"
     },
     "newCompany": {
       "title": "New company",

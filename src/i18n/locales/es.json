@@ -569,7 +569,13 @@
       "importCreated": "creado(s)",
       "importUpdated": "actualizado(s)",
       "noChanges": "Sin cambios",
-      "importErrors": "Errores"
+      "importErrors": "Errores",
+      "filterName": "Nombre",
+      "filterNamePlaceholder": "Buscar por nombre",
+      "filterCompany": "Empresa",
+      "allCompanies": "Todas las empresas",
+      "filterStatus": "Estado",
+      "allStatuses": "Todos"
     },
     "newCompany": {
       "title": "Nueva empresa",
