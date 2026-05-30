@@ -26,25 +26,70 @@ interface Destination {
   city: string;
 }
 
-interface FilterPanelProps {
-  onSearch: (filters: FilterValues) => void;
-  onReset: () => void;
-}
+export type StatusOption = { value: string; labelKey: string };
 
-const STATUS_OPTIONS = [
-  { value: "Completed", labelKey: "status.completed" },
-  { value: "Denied", labelKey: "status.denied" },
-  { value: "In Progress", labelKey: "status.inProgress" },
+// /requests/user — employee ve todos los statuses
+export const STATUS_OPTIONS_ALL: StatusOption[] = [
+  { value: "Pending Review",              labelKey: "status.pendingReview" },
+  { value: "Changes Needed",              labelKey: "status.changesNeeded" },
+  { value: "Pending Reservations",        labelKey: "status.pendingReservations" },
   { value: "Pending Accounting Approval", labelKey: "status.pendingAccountingApproval" },
-  { value: "Pending Reservations", labelKey: "status.pendingReservations" },
+  { value: "Pending Vouchers Approval",   labelKey: "status.pendingVouchersApproval" },
+  { value: "Pending Refund Approval",     labelKey: "status.pendingRefundApproval" },
+  { value: "In Progress",                 labelKey: "status.inProgress" },
+  { value: "Completed",                   labelKey: "status.completed" },
+  { value: "Denied",                      labelKey: "status.denied" },
+  { value: "Cancelled",                   labelKey: "status.cancelled" },
+];
+
+// /requests/to-approve — approver ve solo Pending Review
+export const STATUS_OPTIONS_TO_APPROVE: StatusOption[] = [
   { value: "Pending Review", labelKey: "status.pendingReview" },
 ];
 
+// /requests/approved-history — excluye Pending Review, Denied, Cancelled
+export const STATUS_OPTIONS_APPROVED_HISTORY: StatusOption[] = [
+  { value: "Changes Needed",              labelKey: "status.changesNeeded" },
+  { value: "Pending Reservations",        labelKey: "status.pendingReservations" },
+  { value: "Pending Accounting Approval", labelKey: "status.pendingAccountingApproval" },
+  { value: "Pending Vouchers Approval",   labelKey: "status.pendingVouchersApproval" },
+  { value: "Pending Refund Approval",     labelKey: "status.pendingRefundApproval" },
+  { value: "In Progress",                 labelKey: "status.inProgress" },
+  { value: "Completed",                   labelKey: "status.completed" },
+];
+
+// /requests/to-approve-SOI — SOI (historial view=soi) ve solo Pending Accounting Approval
+export const STATUS_OPTIONS_SOI: StatusOption[] = [
+  { value: "Pending Accounting Approval", labelKey: "status.pendingAccountingApproval" },
+];
+
+// /requests/refund-to-approve-SOI — SOI (CheckRefunds) ve solo Pending Refund Approval
+export const STATUS_OPTIONS_REFUND_SOI: StatusOption[] = [
+  { value: "Pending Refund Approval", labelKey: "status.pendingRefundApproval" },
+];
+
+// /requests/reserved-history — travel agent ve exactamente estos 4
+export const STATUS_OPTIONS_RESERVED: StatusOption[] = [
+  { value: "Pending Vouchers Approval", labelKey: "status.pendingVouchersApproval" },
+  { value: "Pending Refund Approval",   labelKey: "status.pendingRefundApproval" },
+  { value: "In Progress",               labelKey: "status.inProgress" },
+  { value: "Completed",                 labelKey: "status.completed" },
+];
+
+// /requests/ta-history — excluye Pending Review, Denied, Cancelled, Changes Needed, Pending Reservations
+export const STATUS_OPTIONS_TA_HISTORY: StatusOption[] = [
+  { value: "Pending Accounting Approval", labelKey: "status.pendingAccountingApproval" },
+  { value: "Pending Vouchers Approval",   labelKey: "status.pendingVouchersApproval" },
+  { value: "Pending Refund Approval",     labelKey: "status.pendingRefundApproval" },
+  { value: "In Progress",                 labelKey: "status.inProgress" },
+  { value: "Completed",                   labelKey: "status.completed" },
+];
+
 const REQUEST_DATE_OPTIONS = [
-  { value: "today", labelKey: "filters.today" },
+  { value: "today",     labelKey: "filters.today" },
   { value: "yesterday", labelKey: "filters.yesterday" },
-  { value: "last7", labelKey: "filters.last7Days" },
-  { value: "last30", labelKey: "filters.last30Days" },
+  { value: "last7",     labelKey: "filters.last7Days" },
+  { value: "last30",    labelKey: "filters.last30Days" },
 ];
 
 const base = "border border-[var(--color-border)] rounded-md px-3 py-2 text-sm bg-[var(--color-card-bg)] text-[var(--color-page-text)] focus:outline-none focus:ring-2 focus:ring-[#0a2c6d]";
@@ -53,17 +98,29 @@ const selectClassNarrow = `w-40 ${base}`;
 const inputClassNarrow = `w-40 ${base}`;
 const labelClass = "block text-xs font-semibold text-[var(--color-page-text-title)] mb-1";
 
-const FilterPanel: React.FC<FilterPanelProps> = ({ onSearch, onReset }) => {
+interface FilterPanelProps {
+  onSearch: (filters: FilterValues) => void;
+  onReset: () => void;
+  statusOptions?: StatusOption[];
+}
+
+const FilterPanel: React.FC<FilterPanelProps> = ({ onSearch, onReset, statusOptions }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [filters, setFilters] = useState<FilterValues>(EMPTY_FILTERS);
   const [destinations, setDestinations] = useState<Destination[]>([]);
+
+  const activeStatusOptions = statusOptions ?? STATUS_OPTIONS_ALL;
 
   useEffect(() => {
     getRequest("/destinations")
       .then((data: Destination[]) => setDestinations(data))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    onSearch(filters);
+  }, [filters]);
 
   const countries = [...new Set(destinations.map((d) => d.country))].sort();
   const cityOptions = [
@@ -105,15 +162,17 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ onSearch, onReset }) => {
       {open && (
         <div className="mt-2 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-card-bg)] shadow-sm">
           <div className="flex flex-wrap items-end gap-4">
-            <div>
-              <label className={labelClass}>{t("filters.status")}</label>
-              <select className={`w-72 ${base}`} value={filters.status} onChange={(e) => set("status", e.target.value)}>
-                <option value="">{t("filters.allStatuses")}</option>
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{t(opt.labelKey)}</option>
-                ))}
-              </select>
-            </div>
+            {activeStatusOptions.length > 1 && (
+              <div>
+                <label className={labelClass}>{t("filters.status")}</label>
+                <select className={`w-72 ${base}`} value={filters.status} onChange={(e) => set("status", e.target.value)}>
+                  <option value="">{t("filters.allStatuses")}</option>
+                  {activeStatusOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{t(opt.labelKey)}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label className={labelClass}>{t("filters.motive")}</label>
@@ -177,12 +236,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ onSearch, onReset }) => {
                 className="px-4 py-2 text-sm font-medium text-[var(--color-page-text-title)] border border-[var(--color-page-text-title)] rounded-lg hover:bg-[var(--color-button)] hover:text-[var(--color-text-button)] transition-colors"
               >
                 {t("filters.reset")}
-              </button>
-              <button
-                onClick={() => onSearch(filters)}
-                className="px-4 py-2 text-sm font-medium text-white bg-[#0a2c6d] rounded-lg hover:bg-[#0d3a8a] transition-colors"
-              >
-                {t("filters.search")}
               </button>
             </div>
           </div>

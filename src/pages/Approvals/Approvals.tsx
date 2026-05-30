@@ -17,7 +17,7 @@ import { useLocation } from "react-router-dom";
 import { useApp } from "../../hooks/app/appContext";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import FilterPanel, { FilterValues } from "../../components/FilterPanel";
+import FilterPanel, { FilterValues, STATUS_OPTIONS_TO_APPROVE } from "../../components/FilterPanel";
 
 // columns are built inside the component so they react to language changes
 /**
@@ -209,7 +209,7 @@ export const Approvals: React.FC = () => {
           </div>
 
           {/* Filter panel */}
-          <FilterPanel onSearch={handleSearch} onReset={handleReset} />
+          <FilterPanel onSearch={handleSearch} onReset={handleReset} statusOptions={STATUS_OPTIONS_TO_APPROVE} />
 
           <div id="list_requests">
             <Table

@@ -22,7 +22,14 @@ import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import FilterPanel, { FilterValues } from "../../components/FilterPanel";
+import FilterPanel, {
+  FilterValues,
+  STATUS_OPTIONS_ALL,
+  STATUS_OPTIONS_APPROVED_HISTORY,
+  STATUS_OPTIONS_SOI,
+  STATUS_OPTIONS_RESERVED,
+  STATUS_OPTIONS_TA_HISTORY,
+} from "../../components/FilterPanel";
 
 /**
  * renderStatus, converts API status strings to localized display text with appropriate styling.
@@ -218,6 +225,28 @@ export const Historial = () => {
     setDisplayData(allData);
   };
 
+  const view = searchParams.get("view");
+  const statusOptions = (() => {
+    if (view === "approvals" && authState.userPermissions.includes("view_approved_request_history" as Permission))
+      return STATUS_OPTIONS_APPROVED_HISTORY;
+    if (view === "soi" && authState.userPermissions.includes("check_budgets" as Permission))
+      return STATUS_OPTIONS_SOI;
+    if (
+      authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
+      authState.userPermissions.includes("submit_reservations" as Permission)
+    )
+      return STATUS_OPTIONS_RESERVED;
+    if (authState.userPermissions.includes("view_own_requests" as Permission))
+      return STATUS_OPTIONS_ALL;
+    if (authState.userPermissions.includes("view_approved_request_history" as Permission))
+      return STATUS_OPTIONS_APPROVED_HISTORY;
+    if (authState.userPermissions.includes("check_budgets" as Permission))
+      return STATUS_OPTIONS_SOI;
+    if (authState.userPermissions.includes("view_travel_agent_history" as Permission))
+      return STATUS_OPTIONS_TA_HISTORY;
+    return STATUS_OPTIONS_ALL;
+  })();
+
   // Columns schema for travel history table
   const columnsSchema = [
     { key: "status", header: t('historial.status'), render: (value: string) => renderStatus(value, t) },
@@ -248,7 +277,7 @@ export const Historial = () => {
           </div>
 
           {/* Filter panel */}
-          <FilterPanel onSearch={handleSearch} onReset={handleReset} />
+          <FilterPanel onSearch={handleSearch} onReset={handleReset} statusOptions={statusOptions} />
 
           {/* Travel history table component */}
           <div id="list_requests">

@@ -21,7 +21,7 @@ import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import FilterPanel, { FilterValues } from "../../components/FilterPanel";
+import FilterPanel, { FilterValues, STATUS_OPTIONS_REFUND_SOI } from "../../components/FilterPanel";
 
 /**
  * Trip
@@ -214,7 +214,7 @@ export const CheckRefunds = () => {
           </div>
 
           {/* Filter panel */}
-          <FilterPanel onSearch={handleSearch} onReset={handleReset} />
+          <FilterPanel onSearch={handleSearch} onReset={handleReset} statusOptions={STATUS_OPTIONS_REFUND_SOI} />
 
           <div id="list_requests">
             <Table
