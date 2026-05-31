@@ -569,7 +569,13 @@
       "importCreated": "creado(s)",
       "importUpdated": "actualizado(s)",
       "noChanges": "Sin cambios",
-      "importErrors": "Errores"
+      "importErrors": "Errores",
+      "filterName": "Nombre",
+      "filterNamePlaceholder": "Buscar por nombre",
+      "filterCompany": "Empresa",
+      "allCompanies": "Todas las empresas",
+      "filterStatus": "Estado",
+      "allStatuses": "Todos"
     },
     "newCompany": {
       "title": "Nueva empresa",
@@ -808,5 +814,26 @@
       "date": "Fecha",
       "actions": "Acciones"
     }
+  },
+  "filters": {
+    "title": "Filtros",
+    "status": "Estatus",
+    "motive": "Motivo",
+    "motivePlaceholder": "Buscar por motivo",
+    "tripDate": "Fecha de viaje",
+    "requestDate": "Fecha de solicitud",
+    "departurePlace": "Lugar de salida",
+    "departureCountry": "País",
+    "departureCity": "Ciudad",
+    "search": "Buscar",
+    "reset": "Restablecer",
+    "allStatuses": "Todos los estados",
+    "allCountries": "Todos los países",
+    "allCities": "Todas las ciudades",
+    "allDates": "Todas las fechas",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "last7Days": "Últimos 7 días",
+    "last30Days": "Últimos 30 días"
   }
 }

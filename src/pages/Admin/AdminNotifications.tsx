@@ -18,6 +18,7 @@ import {
   getCompanyNotificationSettings,
   updateCompanyNotificationSettings,
 } from "../../api/companyNotificationSettings";
+import { getRequest } from "../../utils/apiService";
 import type {
   CompanyNotificationSettings,
   CompanyNotificationSettingsUpdate,
@@ -53,6 +54,7 @@ export default function AdminNotifications() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<MessageState>(null);
   const [settings, setSettings] = useState<CompanyNotificationSettings>(defaultSettings);
+  const [companyName, setCompanyName] = useState<string | null>(null);
 
   const canLoad = Boolean(companyId);
 
@@ -82,8 +84,12 @@ export default function AdminNotifications() {
       setMessage(null);
 
       try {
-        const data = await getCompanyNotificationSettings(companyId);
+        const [data, info] = await Promise.all([
+          getCompanyNotificationSettings(companyId),
+          getRequest(`/admin/companies/${companyId}/info`),
+        ]);
         setSettings(data);
+        setCompanyName(info.name ?? null);
       } catch {
         setMessage({ text: t('admin.notifications.errorLoading'), error: true });
       } finally {
@@ -148,7 +154,7 @@ export default function AdminNotifications() {
         <div className="flex flex-col gap-2 mb-4">
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">{t('admin.notifications.title')}</h2>
           <p className="text-sm text-gray-600">
-            {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
+            {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
         </div>
 
