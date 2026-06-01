@@ -46,8 +46,11 @@ export default function SearchableSelect({
   const effectivePlaceholder = placeholder ?? t('common.searchOption');
   const [query, setQuery] = useState("");
 
+  const normalize = (text: string) =>
+    text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "");
+
   const normalizedQuery = useMemo(
-    () => query.toLowerCase().replace(/\s+/g, ""),
+    () => normalize(query),
     [query],
   );
 
@@ -58,7 +61,7 @@ export default function SearchableSelect({
 
     const result: Option[] = [];
     for (const option of options) {
-      if (option.name.toLowerCase().replace(/\s+/g, "").includes(normalizedQuery)) {
+      if (normalize(option.name).includes(normalizedQuery)) {
         result.push(option);
       }
       if (result.length >= MAX_VISIBLE_OPTIONS) {
@@ -70,6 +73,7 @@ export default function SearchableSelect({
   }, [options, normalizedQuery]);
 
   const handleChange = (option: Option | null) => {
+    setQuery("");
     onChange(option);
   };
 
@@ -77,11 +81,11 @@ export default function SearchableSelect({
     <Combobox value={value || null} onChange={handleChange} disabled={isDisabled}>
       {({ open }) => (
         <div className="relative">
-          <div className="relative w-full cursor-default rounded-md bg-gray-50 border border-[var(--color-border)] text-left text-gray-900 focus-within:ring-2 focus-within:ring-indigo-600 sm:text-sm sm:leading-6">
+          <div className="relative w-full cursor-default rounded-md bg-[var(--color-card-bg)] border border-[var(--color-border)] text-left text-[var(--color-page-text)] focus-within:ring-2 focus-within:ring-indigo-600 sm:text-sm sm:leading-6">
             <ComboboxInput
               id={id}
               className={`w-full border-none py-2.5 pl-3 pr-10 text-sm leading-5 text-[var(--color-page-text)] focus:ring-0 rounded-md ${
-                isDisabled ? "bg-gray-100 cursor-not-allowed" : "bg-[var(--color-card-bg)]"
+                isDisabled ? "bg-gray-100 dark:bg-neutral-700 cursor-not-allowed opacity-60" : "bg-[var(--color-card-bg)]"
               }`}
               displayValue={(option: Option | null) =>
                 isLoading ? t('common.loading') : option?.name ?? ""
@@ -97,11 +101,11 @@ export default function SearchableSelect({
           {open && (
             <ComboboxOptions className="bg-[var(--color-card-bg)] border border-[var(--color-border)] absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
               {isLoading ? (
-                <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
+                <div className="relative cursor-default select-none py-2 px-4 text-gray-700 dark:text-gray-300">
                   {t('common.loading')}
                 </div>
               ) : filteredOptions.length === 0 && query !== "" ? (
-                <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
+                <div className="relative cursor-default select-none py-2 px-4 text-gray-700 dark:text-gray-300">
                   {t('common.noResults', { query })}
                 </div>
               ) : (
@@ -135,12 +139,12 @@ export default function SearchableSelect({
                     </ComboboxOption>
                   ))}
                   {query === "" && options.length > MAX_VISIBLE_OPTIONS && (
-                    <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500">
+                    <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500 dark:text-gray-400">
                       {t('common.showingFirst', { count: MAX_VISIBLE_OPTIONS })}
                     </div>
                   )}
                   {query !== "" && filteredOptions.length >= MAX_VISIBLE_OPTIONS && (
-                    <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500">
+                    <div className="relative cursor-default select-none py-2 px-4 text-xs text-gray-500 dark:text-gray-400">
                       {t('common.moreResults')}
                     </div>
                   )}
