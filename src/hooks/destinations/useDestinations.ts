@@ -11,8 +11,11 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { getRequest } from "../../utils/apiService";
 import { Destination, DestinationOption } from "../../types/destinations";
+import { translateCountry } from "../../utils/translateCountry";
+import { translateCity } from "../../utils/translateCity";
 
 /**
  * FunctionName: fetchDestinations, fetches all destination data from the API.
@@ -30,6 +33,9 @@ async function fetchDestinations(): Promise<Destination[]> {
  *         and UI options with fallback labels when city/country is missing.
  */
 export function useDestinations() {
+  const { i18n } = useTranslation();
+  const locale = i18n.language;
+
   const {
     data: destinations,
     isLoading,
@@ -67,9 +73,11 @@ export function useDestinations() {
           continue;
         }
 
+        const translatedCity = translateCity(city, locale);
+        const translatedCountry = translateCountry(country, locale);
         groupedByCity.set(groupKey, {
           id: dest.id,
-          name: `${city}, ${country}`,
+          name: `${translatedCity}, ${translatedCountry}`,
           iata_code: dest.iata_code,
           airport_name: dest.airport_name,
           airport_ids: [dest.id],
@@ -91,7 +99,7 @@ export function useDestinations() {
     return Array.from(groupedByCity.values()).sort((a, b) =>
       a.name.localeCompare(b.name, "es", { sensitivity: "base" }),
     );
-  }, [destinations]);
+  }, [destinations, locale]);
 
   return {
     destinations: Array.isArray(destinations) ? destinations : [],
