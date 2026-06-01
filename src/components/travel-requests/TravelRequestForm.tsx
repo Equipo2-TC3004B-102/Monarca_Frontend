@@ -50,7 +50,7 @@ const _destinationSchema = z.object({
   stay_days: z.number().int(),
   is_hotel_required: z.boolean(),
   is_plane_required: z.boolean(),
-  details: z.string().nonempty(),
+  details: z.string().optional(),
 });
 
 const _formSchema = z.object({
@@ -81,7 +81,7 @@ function makeFormSchema(t: TFunction) {
     stay_days: z.number().int(),
     is_hotel_required: z.boolean(),
     is_plane_required: z.boolean(),
-    details: z.string().nonempty({ message: t('validation.addDetails') }),
+    details: z.string().optional(),
   });
 
   return z.object({
@@ -447,7 +447,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
           is_hotel_required: d.is_hotel_required,
           is_plane_required: d.is_plane_required,
           is_last_destination: idx === arr.length - 1,
-          details: d.details,
+          details: d.details || undefined,
         };
       }
     );
