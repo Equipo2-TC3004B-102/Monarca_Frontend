@@ -6,7 +6,7 @@
  *              Company admins only.
  * Authors: DebugStudio Team
  * Last Modification made:
- * 21/05/2026 [Julio Rodriguez] Initial implementation.
+ * 27/05/2026 [Julio Rodriguez] Added new_status badge and id_request link for request_log entries.
  */
 
 import { useEffect, useState } from "react";
@@ -28,8 +28,12 @@ interface AuditLog {
   id: string;
   id_user: string;
   date: string;
-  ip: string;
+  ip: string | null;
   report: string;
+  /** Present on request_log entries: the resulting status after the action. */
+  new_status?: string;
+  /** Present on request_log entries: UUID of the linked request. */
+  id_request?: string;
   user?: AuditLogUser;
 }
 
@@ -263,7 +267,8 @@ export default function AdminAuditLogs() {
                 </tr>
               ) : (
                 paginated.map((log) => {
-                  const { text: reportText, requestId } = parseReport(log.report, t);
+                  const { text: reportText, requestId: parsedRequestId } = parseReport(log.report, t);
+                  const effectiveRequestId = parsedRequestId ?? log.id_request ?? null;
                   const isLong = reportText.length > REPORT_TRUNCATE_LENGTH;
                   const isExpanded = expandedIds.has(log.id);
                   const displayText =
@@ -280,6 +285,11 @@ export default function AdminAuditLogs() {
                       <td className="px-4 py-3 text-xs">{log.user?.email ?? "-"}</td>
                       <td className="px-4 py-3 rounded-r-lg text-center text-xs">
                         <span>{displayText}</span>
+                        {log.new_status && (
+                          <span className="ml-2 inline-block text-xs px-2 py-0.5 rounded-full font-semibold bg-white/20 border border-white/40 whitespace-nowrap">
+                            {log.new_status}
+                          </span>
+                        )}
                         {isLong && (
                           <button
                             onClick={() => toggleExpand(log.id)}
@@ -288,9 +298,9 @@ export default function AdminAuditLogs() {
                             {isExpanded ? t("admin.auditLogs.seeLess") : t("admin.auditLogs.seeMore")}
                           </button>
                         )}
-                        {requestId && (
+                        {effectiveRequestId && (
                           <button
-                            onClick={() => navigate(`/requests/${requestId}`)}
+                            onClick={() => navigate(`/requests/${effectiveRequestId}`)}
                             className="ml-2 px-2 py-0.5 rounded bg-white text-[#0a2c6d] font-semibold hover:bg-[#e8eef8] transition-colors whitespace-nowrap"
                           >
                             {t("admin.auditLogs.viewRequest")}

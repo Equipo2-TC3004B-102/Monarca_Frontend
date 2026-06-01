@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 21/05/2026 [Julio Rodriguez] Added new company admin pages for logs and seeing requests in the company; updated mosaics to conditionally render based on permissions and admin status; added tutorial logic for first-time visitors to the dashboard.
+ * 27/05/2026 [Julio Rodriguez] Moved vouchers-to-approve tile from approve_vouchers (SOI) to approve_request (approver).
  */
 
 import { useEffect } from "react";
@@ -62,8 +62,8 @@ export const Dashboard = ({title}:DashboardProps) => {
         {!isAdmin && authState.userPermissions.includes("view_approved_request_history" as Permission) && (
           <Mosaic title={t('dashboard.approvedHistory')} iconPath="/assets/historial_de_viajes_aprobados.png" link="/history?view=approvals" id="approved_requests"/>
         )}
-        {!isAdmin && authState.userPermissions.includes("approve_vouchers" as Permission) && (
-          <Mosaic title={t('dashboard.vouchersToApprove')} iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" id="approve_vouchers"/>
+        {!isAdmin && authState.userPermissions.includes("approve_request" as Permission) && (
+          <Mosaic title={t('dashboard.vouchersToApprove')} iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" id="approve_request_vouchers"/>
         )}
         {/* {authState.userPermissions.includes("approve_vouchers" as Permission) && (
           <Mosaic title="Reembolsos por aprobar" iconPath="/assets/reembolsos_por_aprobar.png" link=""/>

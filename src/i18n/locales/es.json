@@ -152,7 +152,17 @@
     "selectCurrencyError": "Por favor selecciona una moneda para cada comprobante.",
     "submitError": "Error al enviar. Intenta de nuevo.",
     "colCfdiStatus": "Estado CFDI",
-    "checkingCfdi": "Validando..."
+    "checkingCfdi": "Validando...",
+    "existingVouchers": "Comprobantes existentes",
+    "deadlineLabel": "Plazo de comprobación de gastos",
+    "deadlineDaysLeft": "{{count}} día(s) restante(s)",
+    "deadlineExpired": "El plazo ha vencido — ya no se pueden subir nuevos comprobantes",
+    "uploadButton": "Subir comprobantes",
+    "sendApprovalButton": "Enviar para aprobación",
+    "noVouchersError": "Sube al menos un comprobante antes de enviar para aprobación",
+    "uploadSuccess": "Comprobantes subidos exitosamente",
+    "sendSuccess": "Comprobantes enviados para aprobación exitosamente",
+    "noMatchingRefundLevel": "No hay una regla de aprobación configurada para este monto de anticipo. Pide a tu administrador que configure una regla de reembolso que cubra este rango."
   },
   "form": {
     "title": "Título",
@@ -170,8 +180,11 @@
     "needsFlight": "¿Necesita vuelo?",
     "needsHotel": "¿Necesita hotel?",
     "details": "Detalles",
+    "originCountry": "País de origen",
+    "originCountryPlaceholder": "Selecciona un país",
     "originCity": "Ciudad de origen",
     "originCityPlaceholder": "Busca tu ciudad",
+    "originCityDisabledPlaceholder": "Primero selecciona un país",
     "advanceMoney": "Anticipo",
     "currency": "Moneda",
     "priority": "Prioridad",
@@ -391,7 +404,14 @@
     "exchangeRate": "Tipo de cambio",
     "date": "Fecha",
     "voucherStatus": "Estado",
-    "quantity": "Cantidad"
+    "quantity": "Cantidad",
+    "varianceReport": "Presupuesto vs. Gasto Real",
+    "budgetAmount": "Presupuesto aprobado",
+    "actualAmount": "Gasto real",
+    "variance": "Varianza",
+    "variancePct": "Varianza %",
+    "underBudget": "Dentro del presupuesto",
+    "overBudget": "Fuera del presupuesto"
   },
   "tutorial": {
     "done": "Finalizar",
@@ -552,7 +572,13 @@
       "importCreated": "creado(s)",
       "importUpdated": "actualizado(s)",
       "noChanges": "Sin cambios",
-      "importErrors": "Errores"
+      "importErrors": "Errores",
+      "filterName": "Nombre",
+      "filterNamePlaceholder": "Buscar por nombre",
+      "filterCompany": "Empresa",
+      "allCompanies": "Todas las empresas",
+      "filterStatus": "Estado",
+      "allStatuses": "Todos"
     },
     "newCompany": {
       "title": "Nueva empresa",
@@ -674,7 +700,6 @@
       "reservations": "Reservación creada",
       "reservationsDesc": "Notifica por email cuando se crea una reservación.",
       "submitError": "Error al enviar. Intenta de nuevo.",
-      "existingVouchers": "Comprobantes existentes",
       "adminAlertsDesc": "Notifica por email eventos administrativos relevantes."
     },
     "companyRequests": {
@@ -792,5 +817,26 @@
       "date": "Fecha",
       "actions": "Acciones"
     }
+  },
+  "filters": {
+    "title": "Filtros",
+    "status": "Estatus",
+    "motive": "Motivo",
+    "motivePlaceholder": "Buscar por motivo",
+    "tripDate": "Fecha de viaje",
+    "requestDate": "Fecha de solicitud",
+    "departurePlace": "Lugar de salida",
+    "departureCountry": "País",
+    "departureCity": "Ciudad",
+    "search": "Buscar",
+    "reset": "Restablecer",
+    "allStatuses": "Todos los estados",
+    "allCountries": "Todos los países",
+    "allCities": "Todas las ciudades",
+    "allDates": "Todas las fechas",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "last7Days": "Últimos 7 días",
+    "last30Days": "Últimos 30 días"
   }
 }

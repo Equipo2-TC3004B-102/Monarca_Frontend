@@ -148,7 +148,19 @@
     "submit": "Submit",
     "amountError": "Amount cannot be 0.00",
     "selectCurrencyError": "Please select a currency for each voucher.",
-    "submitError": "Error submitting. Please try again."
+    "submitError": "Error submitting. Please try again.",
+    "colCfdiStatus": "CFDI Status",
+    "checkingCfdi": "Validating...",
+    "existingVouchers": "Existing vouchers",
+    "deadlineLabel": "Voucher submission deadline",
+    "deadlineDaysLeft": "{{count}} day(s) remaining",
+    "deadlineExpired": "Submission deadline has passed — no new vouchers can be uploaded",
+    "uploadButton": "Upload vouchers",
+    "sendApprovalButton": "Send for approval",
+    "noVouchersError": "Upload at least one voucher before sending for approval",
+    "uploadSuccess": "Vouchers uploaded successfully",
+    "sendSuccess": "Vouchers sent for approval successfully",
+    "noMatchingRefundLevel": "No approval rule is configured for this advance amount. Ask your administrator to set up a refund rule that covers this range."
   },
   "form": {
     "title": "Title",
@@ -166,8 +178,11 @@
     "needsFlight": "Needs flight?",
     "needsHotel": "Needs hotel?",
     "details": "Details",
+    "originCountry": "Origin country",
+    "originCountryPlaceholder": "Select a country",
     "originCity": "Origin city",
     "originCityPlaceholder": "Search your city",
+    "originCityDisabledPlaceholder": "First select a country",
     "advanceMoney": "Advance",
     "currency": "Currency",
     "priority": "Priority",
@@ -387,7 +402,14 @@
     "exchangeRate": "Exchange rate",
     "date": "Date",
     "voucherStatus": "Status",
-    "quantity": "Amount"
+    "quantity": "Amount",
+    "varianceReport": "Budget vs. Actual Expenses",
+    "budgetAmount": "Approved Budget",
+    "actualAmount": "Actual Expenses",
+    "variance": "Variance",
+    "variancePct": "Variance %",
+    "underBudget": "Under budget",
+    "overBudget": "Over budget"
   },
   "tutorial": {
     "done": "Done",
@@ -548,7 +570,13 @@
       "importCreated": "created",
       "importUpdated": "updated",
       "noChanges": "No changes",
-      "importErrors": "Errors"
+      "importErrors": "Errors",
+      "filterName": "Name",
+      "filterNamePlaceholder": "Search by name",
+      "filterCompany": "Company",
+      "allCompanies": "All companies",
+      "filterStatus": "Status",
+      "allStatuses": "All"
     },
     "newCompany": {
       "title": "New company",
@@ -726,5 +754,26 @@
       "date": "Date",
       "actions": "Actions"
     }
+  },
+  "filters": {
+    "title": "Filters",
+    "status": "Status",
+    "motive": "Motive",
+    "motivePlaceholder": "Search by motive",
+    "tripDate": "Trip date",
+    "requestDate": "Request date",
+    "departurePlace": "Departure place",
+    "departureCountry": "Country",
+    "departureCity": "City",
+    "search": "Search",
+    "reset": "Reset",
+    "allStatuses": "All statuses",
+    "allCountries": "All countries",
+    "allCities": "All cities",
+    "allDates": "All dates",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last7Days": "Last 7 days",
+    "last30Days": "Last 30 days"
   }
 }

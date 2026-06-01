@@ -4,7 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 21/05/2026 [Julio Rodriguez]: Added audit logs link for company admins.
+ * 27/05/2026 [Julio Rodriguez]: Moved vouchers-and-refunds link from approve_vouchers (SOI) to approve_request (approver).
  */
 
 // ***************** images *****************
@@ -66,7 +66,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {!isAdmin && user.userPermissions.includes("view_approved_request_history" as Permission) && (
               <SidebarOption label={t('sidebar.approvalHistory')} pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history?view=approvals" onClick={onNavigate}/>
             )}
-            {!isAdmin && user.userPermissions.includes("approve_vouchers" as Permission) && (
+            {!isAdmin && user.userPermissions.includes("approve_request" as Permission) && (
               <SidebarOption label={t('sidebar.vouchersAndRefunds')} pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
