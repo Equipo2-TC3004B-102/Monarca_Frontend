@@ -6,7 +6,7 @@ countries.registerLocale(enLocale);
 countries.registerLocale(esLocale);
 
 export function translateCountry(englishName: string, locale: string): string {
-  const lang = locale.split("-")[0];
+  const lang = locale.split("-")[0] ?? "en";
   const code = countries.getAlpha2Code(englishName, "en");
   if (!code) return englishName;
   return countries.getName(code, lang) ?? englishName;
