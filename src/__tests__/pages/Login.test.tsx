@@ -52,8 +52,8 @@ describe('LoginPage', () => {
     expect(screen.getByText('Continuar')).toBeInTheDocument();
     expect(screen.getByText('M')).toBeInTheDocument();
     expect(screen.getByText('ONARCA')).toBeInTheDocument();
-    const forgot = screen.getByText('¿Olvidaste tu contraseña?');
-    expect(forgot).toHaveAttribute('href', '/register');
+    const forgot = screen.getByText('¿Olvidaste?');
+    expect(forgot).toHaveAttribute('href', '/recuperar-contrasena');
   });
 
   /* ---------- INTERACCIÓN INPUT ---------- */

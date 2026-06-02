@@ -70,7 +70,7 @@ export const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/register",
+    path: "/recuperar-contrasena",
     element: <Register />,
   },
   {

@@ -43,7 +43,7 @@ describe("Router Configuration", () => {
     const loginRoute = routes.find((route) => route.path === "/");
     expect(loginRoute).toBeDefined();
 
-    const registerRoute = routes.find((route) => route.path === "/register");
+    const registerRoute = routes.find((route) => route.path === "/recuperar-contrasena");
     expect(registerRoute).toBeDefined();
 
     // Find protected routes container
