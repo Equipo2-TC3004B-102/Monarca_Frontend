@@ -5,6 +5,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 19/05/2026 [Julio Rodriguez] Updated admin guard for notifications page to be company-admin only; added new routes for notifications management and travel agent history; integrated new permissions and flags into route protection logic.
+ * 21/05/2026 [Julio Rodriguez] Added route for AdminAuditLogs page (company admin only).
  */
 
 import { StrictMode } from "react";
@@ -20,6 +21,8 @@ import AdminUsers from "./pages/Admin/AdminUsers.tsx";
 import AdminRules from "./pages/Admin/AdminRules.tsx";
 import AdminNewCompany from "./pages/Admin/AdminNewCompany.tsx";
 import AdminNotifications from "./pages/Admin/AdminNotifications.tsx";
+import AdminAuditLogs from "./pages/Admin/AdminAuditLogs.tsx";
+import AdminCancelledRequests from "./pages/Admin/AdminCancelledRequests.tsx";
 
 import {
   ProtectedRoute,
@@ -162,6 +165,14 @@ export const router = createBrowserRouter([
       {
         path: "/admin/companies/new",
         element: <FlagProtectedRoute requireSystemAdmin><AdminNewCompany /></FlagProtectedRoute>,
+      },
+      {
+        path: "/admin/audit-logs",
+        element: <FlagProtectedRoute requireCompanyAdminOnly><AdminAuditLogs /></FlagProtectedRoute>,
+      },
+      {
+        path: "/admin/company-requests",
+        element: <FlagProtectedRoute requireCompanyAdminOnly><AdminCancelledRequests /></FlagProtectedRoute>,
       },
       /**
        * Permission-protected routes (approvals module).

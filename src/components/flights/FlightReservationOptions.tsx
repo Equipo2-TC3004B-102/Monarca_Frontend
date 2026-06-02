@@ -8,8 +8,9 @@
  * 20/05/2026 [Jin Sik Yoon] Added internationalization and some UI copy improvements.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import FlightCard from './FlightCard';
 import {
   FlightSearchMultiSegmentQuery,
@@ -51,6 +52,15 @@ export default function FlightReservationOptions({
   onSelectFlight,
 }: FlightReservationOptionsProps) {
   const { t } = useTranslation();
+  const [collapsedSegments, setCollapsedSegments] = useState<Set<number>>(new Set());
+
+  const toggleSegment = (index: number) => {
+    setCollapsedSegments(prev => {
+      const next = new Set(prev);
+      next.has(index) ? next.delete(index) : next.add(index);
+      return next;
+    });
+  };
   const sortedDestinations = useMemo(
     () =>
       [...(request.requests_destinations || [])].sort(
@@ -139,48 +149,60 @@ export default function FlightReservationOptions({
       )}
 
       {!searchResult.isLoading && !searchResult.isError && data && (
-        <div className="space-y-8">
+        <div className="space-y-4">
           {data.results_by_segment.map((segment, index) => {
             const destination = sortedDestinations[index];
             const segmentDate = destination?.departure_date_raw || destination?.departure_date || destination?.arrival_date_raw || destination?.arrival_date || '';
+            const isCollapsed = collapsedSegments.has(segment.segment_index);
 
             return (
-              <div key={segment.segment_index} className="space-y-4">
-                <div className="flex flex-col gap-1 border-b border-[var(--color-border)] pb-3">
-                  <h4 className="text-base font-semibold text-[var(--color-page-text-title)]">
-                    {t("flightReservationOptions.segment")} {segment.segment_index + 1}: {segment.route}
-                  </h4>
-                  <p className="text-sm text-[var(--color-page-text)]">
-                    {t("flightReservationOptions.suggestedDate")}:{" "} {segmentDate ? formatDate(segmentDate) : t("flightReservationOptions.noDate")}
-                  </p>
-                </div>
-
-                {segment.results.length > 0 ? (
-                  <div className="grid gap-4">
-                    {segment.results.map((flight) => (
-                      <FlightCard
-                        key={flight.provider_offer_id}
-                        flight={flight}
-                        selectLabel={destination ? t("flightReservationOptions.useForDestination", {
-                          number: destination.destination_order,
-                        }) : t("flightReservationOptions.useOption")}
-                        onSelect={() => {
-                          if (!destination) {
-                            return;
-                          }
-
-                          onSelectFlight({
-                            destinationId: destination.id,
-                            flight,
-                            segmentIndex: segment.segment_index,
-                          });
-                        }}
-                      />
-                    ))}
+              <div key={segment.segment_index} className="rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => toggleSegment(segment.segment_index)}
+                  className="w-full flex items-center justify-between px-5 py-3 bg-[var(--blue)] text-white hover:bg-[var(--dark-blue)] transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold uppercase tracking-widest opacity-70">
+                      {t("flightReservationOptions.segment")} {segment.segment_index + 1}
+                    </span>
+                    <span className="text-base font-bold">{segment.route}</span>
+                    {segmentDate && (
+                      <span className="text-xs opacity-70">
+                        · {formatDate(segmentDate)}
+                      </span>
+                    )}
                   </div>
-                ) : (
-                  <div className="rounded bg-[var(--color-page-bg)] border border-[var(--color-border)] p-4 text-sm text-[var(--color-page-text)]">
-                    {t("flightReservationOptions.noResults")}
+                  {isCollapsed ? <FiChevronDown size={18} /> : <FiChevronUp size={18} />}
+                </button>
+
+                {!isCollapsed && (
+                  <div className="p-5">
+                    {segment.results.length > 0 ? (
+                      <div className="grid gap-4">
+                        {segment.results.map((flight) => (
+                          <FlightCard
+                            key={flight.provider_offer_id}
+                            flight={flight}
+                            selectLabel={destination ? t("flightReservationOptions.useForDestination", {
+                              number: destination.destination_order,
+                            }) : t("flightReservationOptions.useOption")}
+                            onSelect={() => {
+                              if (!destination) return;
+                              onSelectFlight({
+                                destinationId: destination.id,
+                                flight,
+                                segmentIndex: segment.segment_index,
+                              });
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-xl bg-[var(--color-page-bg)] border border-[var(--color-border)] p-4 text-sm text-[var(--color-page-text)]">
+                        {t("flightReservationOptions.noResults")}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

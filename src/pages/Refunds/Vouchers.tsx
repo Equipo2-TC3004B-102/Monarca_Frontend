@@ -3,8 +3,9 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
- * 04/05/2026 [Santiago Coronado Hernández] Added file size validation for uploaded files and enhanced error handling to provide user-friendly messages when file size exceeds limits.
+ * 27/05/2026 [Julio Rodriguez] existingVouchers section now only shows pending_voucher vouchers; fixed i18n key location.
+ *                              Split submit into upload-only and send-for-approval; show folio instead of UUID;
+ *                              display voucher submission deadline with days remaining; block form after deadline.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -21,9 +22,10 @@ import { useParams } from "react-router-dom";
 import formatMoney from "../../utils/formatMoney";
 import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
+import CfdiStatus from "../../components/Refunds/CfdiStatus";
 import { Tutorial } from "../../components/Tutorial";
 import { currencyOptions } from "../../utils/currencies";
-import { isFileSizeValid, getFileSizeErrorMessage } from "../../utils/fileValidation";
+import { isFileSizeValid, getFileSizeErrorMessage, validateFile } from "../../utils/fileValidation";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -38,19 +40,33 @@ interface FormDataRow extends DynamicTableRow {
   date: string;
   XMLFile?: File;
   PDFFile?: File;
+  cfdiStatus?: string;
+  isCheckingCfdi?: boolean;
 }
 
 /**
  * Trip
  * Interface representing basic trip information for the header details.
+ * Includes optional company and destination data to compute the voucher submission deadline.
  */
 interface Trip {
   id: number | string;
+  request_num?: number;
+  createdAt?: string;
   title: string;
   advance_money: number;
+  currency?: string | null;
   destination?: {
     city?: string;
     iata_code?: string;
+  };
+  requests_destinations?: Array<{
+    arrival_date: string;
+    departure_date: string;
+    is_last_destination: boolean;
+  }>;
+  company?: {
+    voucher_deadline_days: number;
   };
 }
 
@@ -65,7 +81,8 @@ export const Vouchers = () => {
   const { id } = useParams();
   const { t } = useTranslation();
   const [formData, setFormData] = useState<FormDataRow[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [trip, setTrip] = useState<Trip>({
     id: 0,
     title: "",
@@ -74,81 +91,134 @@ export const Vouchers = () => {
   const [commentValue, setCommentValue] = useState<string>("");
 
   /**
-   * fetchTrip
-   * Fetches the specific trip data from the API using the ID in the URL.
+   * fetchTrip — Loads the travel request data and refreshes component state.
+   *             Extracted to component scope so it can be called after uploading vouchers.
+   * Input: None (uses id from URL params)
+   * Output: Promise<void>
    */
+  const fetchTrip = async () => {
+    try {
+      const response = await getRequest(`/requests/${id}`);
+      setTrip(response);
+    } catch (err) {
+      console.error(
+        "Error loading trip: ",
+        err instanceof Error ? err.message : err
+      );
+    }
+  };
+
   useEffect(() => {
-    const fetchTrip = async () => {
-      try {
-        const response = await getRequest(`/requests/${id}`);
-        setTrip(response);
-      } catch (err) {
-        console.error(
-          "Error loading trip: ",
-          err instanceof Error ? err.message : err
-        );
-      }
-    };
     fetchTrip();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   /**
-   * handleSubmitRefund
-   * Processes the form data, uploads each voucher as a multipart/form-data request, 
-   * and finalizes the request status.
+   * handleUploadVouchers — Validates and uploads each voucher row to the server without
+   *                        triggering a status transition. Refreshes trip data after upload
+   *                        so the existingVouchers section updates immediately.
    * Input: None
    * Output: Promise<void>
    */
-  const handleSubmitRefund = async () => {
+  const handleUploadVouchers = async () => {
+    if (formData.length === 0) return;
     if (formData.some((row) => !row.currency)) {
       toast.error(t('vouchers.selectCurrencyError'));
       return;
     }
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+    if (isUploading) return;
+    setIsUploading(true);
     try {
-      let formDataToSend = null;
       for (const rowData of formData) {
-        formDataToSend = new FormData();
+        // Require PDF file; XML is optional. If XML is provided, validate it.
+        if (!rowData.PDFFile) {
+          toast.error(t('vouchers.pdfRequired') || 'PDF file is required for each voucher.');
+          setIsUploading(false);
+          return;
+        }
 
-        formDataToSend.append(
-          "id_request",
-          trip.id.toString()
-        );
+        // Validate PDF (size + extension + mime).
+        const pdfValidation = validateFile(rowData.PDFFile as File, ['.pdf'], ['application/pdf']);
+        if (!pdfValidation.isValid) {
+          toast.error(pdfValidation.errorMessage || t('vouchers.invalidPDF'));
+          setIsUploading(false);
+          return;
+        }
+
+        // If an XML file was attached, validate it before sending.
+        if (rowData.XMLFile) {
+          const xmlValidation = validateFile(rowData.XMLFile as File, ['.xml'], ['application/xml', 'text/xml']);
+          if (!xmlValidation.isValid) {
+            toast.error(xmlValidation.errorMessage || t('vouchers.invalidXML'));
+            setIsUploading(false);
+            return;
+          }
+        }
+
+        const formDataToSend = new FormData();
+        formDataToSend.append("id_request", trip.id.toString());
         formDataToSend.append("date", rowData.date ? new Date(rowData.date).toISOString() : new Date().toISOString());
         formDataToSend.append("class", rowData.spentClass);
         formDataToSend.append("amount", rowData.amount.toString());
         formDataToSend.append("tax_type", rowData.taxIndicator);
         formDataToSend.append("status", "pending_voucher");
         formDataToSend.append("currency", rowData.currency || "MXN");
-        if (rowData.XMLFile) {
-          formDataToSend.append("xml", rowData.XMLFile);
-        }
-
-        if (rowData.PDFFile) {
-          formDataToSend.append("pdf", rowData.PDFFile);
-        }
+        if (rowData.XMLFile) formDataToSend.append("xml", rowData.XMLFile);
+        if (rowData.PDFFile) formDataToSend.append("pdf", rowData.PDFFile);
 
         await postRequest("/vouchers/upload", formDataToSend);
-        toast.success("Refund request successfully submitted.");
       }
-      await patchRequest(`/requests/finished-uploading-vouchers/${id}`, {});
       setFormData([]);
-      navigate("/refunds");
+      await fetchTrip();
+      toast.success(t('vouchers.uploadSuccess'));
     } catch (err) {
       console.error(
-        "Error sending refund request: ",
+        "Error uploading vouchers: ",
         err instanceof Error ? err.message : err
       );
       const rawMsg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message;
       const apiMessage = typeof rawMsg === 'string' ? rawMsg
         : Array.isArray(rawMsg) ? (rawMsg as string[]).join(', ')
-        : null;
+          : null;
       toast.error(apiMessage ?? t('vouchers.submitError'));
     } finally {
-      setIsSubmitting(false);
+      setIsUploading(false);
     }
-  }; 
+  };
+
+  /**
+   * handleSendForApproval — Finalizes the voucher submission by transitioning the request
+   *                          to Pending Vouchers Approval. Navigates back to the refunds list.
+   * Input: None
+   * Output: Promise<void>
+   */
+  const handleSendForApproval = async () => {
+    if (isSending) return;
+    setIsSending(true);
+    try {
+      await patchRequest(`/requests/finished-uploading-vouchers/${id}`, {});
+      toast.success(t('vouchers.sendSuccess'));
+      navigate("/refunds");
+    } catch (err) {
+      console.error(
+        "Error sending for approval: ",
+        err instanceof Error ? err.message : err
+      );
+      const errData = (err as { response?: { data?: { code?: string; message?: unknown } } })?.response?.data;
+      const code = errData?.code;
+      const rawMsg = errData?.message;
+      // Map known backend error codes to translated messages; fall back to API text.
+      const apiMessage =
+        code === 'REQUESTS_NO_APPROVAL_LEVEL'
+          ? t('vouchers.noMatchingRefundLevel')
+          : typeof rawMsg === 'string' ? rawMsg
+            : Array.isArray(rawMsg) ? (rawMsg as string[]).join(', ')
+              : null;
+      toast.error(apiMessage ?? t('vouchers.submitError'));
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   /**
    * Schema definition for the DynamicTable.
@@ -324,7 +394,7 @@ export const Vouchers = () => {
               type="file"
               accept=".xml"
               className="hidden"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (file) {
                   // Validate file size
@@ -333,13 +403,53 @@ export const Vouchers = () => {
                     e.target.value = "";
                     return;
                   }
-                  
+
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
                     if (updatedFormData[rowIndex]) {
                       updatedFormData[rowIndex].XMLFile = file;
+                      updatedFormData[rowIndex].isCheckingCfdi = true;
+                      updatedFormData[rowIndex].cfdiStatus = undefined;
                       setFormData(updatedFormData);
+
+                      try {
+                        const fd = new FormData();
+                        fd.append("xml", file);
+                        const result = await postRequest("/vouchers/parse-xml", fd);
+
+                        const latestFormData = [...formData];
+                        if (latestFormData[rowIndex]) {
+                          latestFormData[rowIndex].XMLFile = file;
+                          latestFormData[rowIndex].isCheckingCfdi = false;
+                          latestFormData[rowIndex].cfdiStatus = result.cfdi_status;
+
+                          // Auto-populate values if present
+                          if (result.amount) {
+                            latestFormData[rowIndex].amount = result.amount;
+                          }
+                          if (result.currency) {
+                            latestFormData[rowIndex].currency = result.currency;
+                          }
+                          if (result.date) {
+                            const dateStr = result.date.split("T")[0];
+                            latestFormData[rowIndex].date = dateStr;
+                          }
+                          setFormData(latestFormData);
+                        }
+                      } catch (err) {
+                        console.error("Error parsing XML:", err);
+                        const apiMsg = (err as any)?.response?.data?.message;
+                        toast.error(typeof apiMsg === "string" ? apiMsg : "Error parsing XML file.");
+
+                        const resetFormData = [...formData];
+                        if (resetFormData[rowIndex]) {
+                          resetFormData[rowIndex].XMLFile = undefined;
+                          resetFormData[rowIndex].isCheckingCfdi = false;
+                          resetFormData[rowIndex].cfdiStatus = undefined;
+                          setFormData(resetFormData);
+                        }
+                      }
                     }
                   }
                 }
@@ -396,7 +506,7 @@ export const Vouchers = () => {
                     e.target.value = "";
                     return;
                   }
-                  
+
                   onChangeComponentFunction(file);
                   if (rowIndex !== undefined) {
                     const updatedFormData = [...formData];
@@ -430,6 +540,27 @@ export const Vouchers = () => {
         );
       },
     },
+    {
+      key: "cfdiStatus",
+      header: t('vouchers.colCfdiStatus') || 'CFDI Status',
+      className: "w-24",
+      defaultValue: "",
+      renderCell: (
+        _value: CellValueType,
+        _onChangeComponentFunction: (newValue: CellValueType) => void,
+        rowIndex?: number,
+        _cellIndex?: number
+      ) => {
+        const row = formData[rowIndex || 0];
+        if (row?.isCheckingCfdi) {
+          return <span className="text-xs text-blue-200 animate-pulse font-medium">{t('vouchers.checkingCfdi') || 'Checking...'}</span>;
+        }
+        if (row?.cfdiStatus) {
+          return <CfdiStatus status={row.cfdiStatus} variant="pill" />;
+        }
+        return <span className="text-xs text-gray-300">—</span>;
+      }
+    }
   ];
 
   /**
@@ -443,6 +574,37 @@ export const Vouchers = () => {
   const handleDynamicTableDataChange = (data: DynamicTableRow[]) => {
     handleFormDataChange(data as FormDataRow[]);
   };
+
+  // ── Derived display values ────────────────────────────────────────────────
+
+  /**
+   * folio — Short human-readable request identifier (e.g. "2026-006").
+   *         Falls back to the first 8 characters of the UUID when request_num is unavailable.
+   */
+  const folio = (trip as any).request_num && (trip as any).createdAt
+    ? `${new Date((trip as any).createdAt).getFullYear()}-${String((trip as any).request_num).padStart(3, '0')}`
+    : String(trip.id).substring(0, 8);
+
+  /**
+   * deadline — Voucher submission deadline computed as:
+   *            last destination arrival_date + company.voucher_deadline_days.
+   *            Null when destination data is not yet loaded.
+   */
+  const lastDest = ((trip as any).requests_destinations ?? []).find((d: any) => d.is_last_destination);
+  const deadlineDays = (trip as any).company?.voucher_deadline_days ?? 7;
+  const deadline: Date | null = lastDest
+    ? new Date(new Date(lastDest.arrival_date).getTime() + deadlineDays * 24 * 60 * 60 * 1000)
+    : null;
+  const daysLeft: number | null = deadline
+    ? Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
+  const isExpired = daysLeft !== null && daysLeft <= 0;
+
+  /**
+   * pendingVouchers — Vouchers already uploaded with status pending_voucher.
+   *                   Used to decide whether the send-for-approval button is enabled.
+   */
+  const pendingVouchers = ((trip as any).vouchers ?? []).filter((v: any) => v.status === 'pending_voucher');
 
   return (
     <>
@@ -460,7 +622,7 @@ export const Vouchers = () => {
               {t('vouchers.tripInfo')}
             </h3>
             <p className="text-[var(--color-page-text)]">
-              <strong>{t('vouchers.tripId')}</strong> {trip.id}
+              <strong>{t('vouchers.tripId')}</strong> {folio}
             </p>
             <p className="text-[var(--color-page-text)]">
               <strong>{t('vouchers.tripName')}</strong> {trip.title}
@@ -471,7 +633,43 @@ export const Vouchers = () => {
             <p className="text-[var(--color-page-text)]">
               <strong>{t('vouchers.advance')}</strong> {formatMoney(trip.advance_money)}
             </p>
+            {deadline && (
+              <p className={`text-sm mt-1 font-medium ${
+                isExpired
+                  ? 'text-red-500'
+                  : daysLeft !== null && daysLeft <= 3
+                    ? 'text-yellow-500'
+                    : 'text-green-500'
+              }`}>
+                <strong>{t('vouchers.deadlineLabel')}:</strong>{' '}
+                {deadline.toLocaleDateString()}{' '}
+                {isExpired
+                  ? `— ${t('vouchers.deadlineExpired')}`
+                  : `(${t('vouchers.deadlineDaysLeft', { count: daysLeft })})`
+                }
+              </p>
+            )}
           </div>
+          {/** Existing uploaded vouchers (read-only) — only pending_voucher status */}
+          {pendingVouchers.length > 0 && (
+            <div className="mb-4 bg-[var(--color-page-bg)] p-4 rounded-md border border-[var(--color-border)]">
+              <h3 className="text-lg font-semibold text-[var(--color-page-text)] mb-2">{t('vouchers.existingVouchers')}</h3>
+              <div className="flex flex-col gap-3">
+                {pendingVouchers.map((v: any, idx: number) => (
+                  <div key={v.id || idx} className="flex items-center justify-between p-2 bg-[var(--color-card-bg)] rounded-md">
+                    <div className="text-sm text-[var(--color-page-text)]">
+                      <div><span className="font-semibold">{t('refundAcceptance.voucherClass')}: </span>{v.class}</div>
+                      <div><span className="font-semibold">{t('refundAcceptance.amountMxn')}: </span>{formatMoney(v.amount)}</div>
+                      <div><span className="font-semibold">{t('refundAcceptance.date')}: </span>{v.date ? new Date(v.date).toLocaleDateString() : ''}</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CfdiStatus status={v.cfdi_status} variant="pill" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {/*
         * which contains the schema of the table.
         * The table is created initially with initially empty data,
@@ -480,13 +678,19 @@ export const Vouchers = () => {
         * which is passed as a prop to the DynamicTable component.
         * The handleFormDataChange function updates the formData state with the new data.
         */}
-          <div id="vouchers">
-            <DynamicTable
-              columns={columnsSchemaVauchers}
-              initialData={formData}
-              onDataChange={handleDynamicTableDataChange}
-            />
-          </div>
+          {!isExpired ? (
+            <div id="vouchers">
+              <DynamicTable
+                columns={columnsSchemaVauchers}
+                initialData={formData}
+                onDataChange={handleDynamicTableDataChange}
+              />
+            </div>
+          ) : (
+            <div className="my-4 p-3 bg-red-100 text-red-700 rounded-md border border-red-300 text-sm font-medium">
+              {t('vouchers.deadlineExpired')}
+            </div>
+          )}
           {/*
         * Display a field to add a comment to the refund request.
         * The comment is stored in the commentDescriptionOfSpend state,
@@ -500,23 +704,42 @@ export const Vouchers = () => {
             placeholder={t('vouchers.commentsPlaceholder')}
             onChange={(e) => setCommentValue(e.target.value)}
           />
-          <div className="mt-6 flex justify-between">
+          <div className="mt-6 flex justify-between items-center">
             <Link
               to="/refunds"
               className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
             >
               {t('vouchers.cancel')}
             </Link>
-            <button
-              id="submit-refund"
-              disabled={isSubmitting}
-              className={`px-4 py-2 text-white rounded-md transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#0a2c6d] hover:bg-[#0d3d94] hover:cursor-pointer"}`}
-              onClick={() => {
-                handleSubmitRefund();
-              }}
-            >
-              {isSubmitting ? t('common.loading') : t('vouchers.submit')}
-            </button>
+            <div className="flex gap-3">
+              {!isExpired && (
+                <button
+                  id="upload-vouchers"
+                  disabled={isUploading || formData.length === 0}
+                  className={`px-4 py-2 text-white rounded-md transition-colors ${
+                    isUploading || formData.length === 0
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#1a6d3a] hover:bg-[#1e8046] hover:cursor-pointer"
+                  }`}
+                  onClick={handleUploadVouchers}
+                >
+                  {isUploading ? t('common.loading') : t('vouchers.uploadButton')}
+                </button>
+              )}
+              <button
+                id="send-for-approval"
+                disabled={isSending || pendingVouchers.length === 0}
+                title={pendingVouchers.length === 0 ? t('vouchers.noVouchersError') : undefined}
+                className={`px-4 py-2 text-white rounded-md transition-colors ${
+                  isSending || pendingVouchers.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#0a2c6d] hover:bg-[#0d3d94] hover:cursor-pointer"
+                }`}
+                onClick={handleSendForApproval}
+              >
+                {isSending ? t('common.loading') : `${t('vouchers.sendApprovalButton')} →`}
+              </button>
+            </div>
           </div>
         </div>
       </Tutorial>

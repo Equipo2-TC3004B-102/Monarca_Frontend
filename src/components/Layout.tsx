@@ -80,7 +80,6 @@ function Layout({ children }: LayoutProps) {
         </button>
         <Footer />
       </div>
-      <ToastContainer toastClassName="custom-toast"/>
     </div>
   );
 }

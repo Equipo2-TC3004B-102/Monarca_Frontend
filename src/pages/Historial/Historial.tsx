@@ -6,6 +6,7 @@
  * Last Modification made:
  * 19/05/2026 [Julio Rodriguez] Route travel agents to dedicated /requests/ta-history endpoint;
  *                              replace endpoint-string filters with permission-based filters.
+ * 28/05/2026 [Sergio] Add filter panel for status, motive, trip date, request date and departure place.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -21,6 +22,14 @@ import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import FilterPanel, {
+  FilterValues,
+  STATUS_OPTIONS_ALL,
+  STATUS_OPTIONS_APPROVED_HISTORY,
+  STATUS_OPTIONS_SOI,
+  STATUS_OPTIONS_RESERVED,
+  STATUS_OPTIONS_TA_HISTORY,
+} from "../../components/FilterPanel";
 
 /**
  * renderStatus, converts API status strings to localized display text with appropriate styling.
@@ -82,14 +91,51 @@ const renderStatus = (status: string, t: TFunction) => {
     )
 }
 
+const applyFilters = (data: any[], filters: FilterValues) => {
+  const now = new Date();
+  return data.filter((record) => {
+    if (filters.status && record.status !== filters.status) return false;
+
+    if (filters.motive && !record.motive?.toLowerCase().includes(filters.motive.toLowerCase())) return false;
+
+    if (filters.tripDate && record._rawDepartureDate) {
+      if (!record._rawDepartureDate.startsWith(filters.tripDate)) return false;
+    }
+
+    if (filters.requestDateRange && record._rawCreatedAt) {
+      const date = new Date(record._rawCreatedAt);
+      if (filters.requestDateRange === "today") {
+        if (date.toDateString() !== now.toDateString()) return false;
+      } else if (filters.requestDateRange === "yesterday") {
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        if (date.toDateString() !== yesterday.toDateString()) return false;
+      } else if (filters.requestDateRange === "last7") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 7);
+        if (date < cutoff) return false;
+      } else if (filters.requestDateRange === "last30") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 30);
+        if (date < cutoff) return false;
+      }
+    }
+
+    if (filters.departureCountry && record.destination?.country !== filters.departureCountry) return false;
+    if (filters.departureCity && record.country !== filters.departureCity) return false;
+
+    return true;
+  });
+};
+
 /**
  * Historial, displays a paginated table of travel request history with status indicators, filtering by user permissions, and detailed action buttons.
  * Input: none
  * Output: JSX element - complete travel history page with table and tutorial overlay
  */
 export const Historial = () => {
-  // State to store travel records with formatted data and action buttons
-  const [dataWithActions, setDataWithActions] = useState([]);
+  const [allData, setAllData] = useState<any[]>([]);
+  const [displayData, setDisplayData] = useState<any[]>([]);
   const { authState } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -99,9 +145,8 @@ export const Historial = () => {
   /**
    * Fetches travel records from API with permission-based filtering and formats data for display.
    * Input: none
-   * Output: void (updates dataWithActions state)
+   * Output: void (updates allData and displayData states)
    */
-  // Fetch travel records data from API
   useEffect(() => {
     const fetchTravelRecords = async () => {
       try {
@@ -129,8 +174,7 @@ export const Historial = () => {
           response = response.filter((record: any) => !["Pending Review", "Denied", "Cancelled", "Changes Needed", "Pending Reservations"].includes(record.status));
         }
         // to-approve-SOI is already filtered by the backend (scoped to current SOI, status = Pending Accounting Approval)
-        // Data with actions (edit buttons)
-        setDataWithActions(response?.map((record: any, index: number) => {
+        const mapped = response?.map((record: any, index: number) => {
           const sortedDestinations = [...(record.requests_destinations || [])].sort(
             (a: any, b: any) => a.destination_order - b.destination_order
           );
@@ -139,6 +183,8 @@ export const Historial = () => {
           return {
             ...record,
             status: record.status,
+            _rawCreatedAt: record.createdAt,
+            _rawDepartureDate: firstDestination?.departure_date ?? null,
             createdAt: formatDate(record.createdAt),
             country:
               record.destination?.city ||
@@ -150,16 +196,9 @@ export const Historial = () => {
             index,
             action: record.id,
           };
-        }));
-        //   action: record.status == "Changes Needed" && (
-        //     <Button
-        //       label="Editar"
-        //       onClickFunction={() => {
-        //         navigate(`/requests/${record.id}/edit`);
-        //       }}
-        //     />
-        //   ),
-        // })));
+        });
+        setAllData(mapped);
+        setDisplayData(mapped);
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
@@ -169,18 +208,44 @@ export const Historial = () => {
   }, [searchParams]);
 
   useEffect(() => {
-      // Get the visited pages from localStorage
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
-      // Check if the current page is already in the visited pages
       const isPageVisited = visitedPages.includes(location.pathname);
-  
-      // If the page is not visited, set the tutorial to true
+
       if (!isPageVisited) {
         setTutorial(true);
       }
-      // Add the current page to the visited pages
       return () => handleVisitPage();
     }, []);
+
+  const handleSearch = (filters: FilterValues) => {
+    setDisplayData(applyFilters(allData, filters));
+  };
+
+  const handleReset = () => {
+    setDisplayData(allData);
+  };
+
+  const view = searchParams.get("view");
+  const statusOptions = (() => {
+    if (view === "approvals" && authState.userPermissions.includes("view_approved_request_history" as Permission))
+      return STATUS_OPTIONS_APPROVED_HISTORY;
+    if (view === "soi" && authState.userPermissions.includes("check_budgets" as Permission))
+      return STATUS_OPTIONS_SOI;
+    if (
+      authState.userPermissions.includes("view_assigned_requests_readonly" as Permission) &&
+      authState.userPermissions.includes("submit_reservations" as Permission)
+    )
+      return STATUS_OPTIONS_RESERVED;
+    if (authState.userPermissions.includes("view_own_requests" as Permission))
+      return STATUS_OPTIONS_ALL;
+    if (authState.userPermissions.includes("view_approved_request_history" as Permission))
+      return STATUS_OPTIONS_APPROVED_HISTORY;
+    if (authState.userPermissions.includes("check_budgets" as Permission))
+      return STATUS_OPTIONS_SOI;
+    if (authState.userPermissions.includes("view_travel_agent_history" as Permission))
+      return STATUS_OPTIONS_TA_HISTORY;
+    return STATUS_OPTIONS_ALL;
+  })();
 
   // Columns schema for travel history table
   const columnsSchema = [
@@ -211,9 +276,12 @@ export const Historial = () => {
               <RefreshButton />
           </div>
 
+          {/* Filter panel */}
+          <FilterPanel onSearch={handleSearch} onReset={handleReset} statusOptions={statusOptions} />
+
           {/* Travel history table component */}
           <div id="list_requests">
-            <Table columns={columnsSchema} data={dataWithActions} itemsPerPage={5} />
+            <Table columns={columnsSchema} data={displayData} itemsPerPage={5} />
           </div>
         </div>
       </Tutorial>

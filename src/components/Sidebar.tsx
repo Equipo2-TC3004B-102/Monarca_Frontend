@@ -4,7 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez]: Hide travel history link for admin users; use view_travel_agent_history for TA history link; fix duplicated label for travel agents.
+ * 27/05/2026 [Julio Rodriguez]: Moved vouchers-and-refunds link from approve_vouchers (SOI) to approve_request (approver).
  */
 
 // ***************** images *****************
@@ -66,7 +66,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {!isAdmin && user.userPermissions.includes("view_approved_request_history" as Permission) && (
               <SidebarOption label={t('sidebar.approvalHistory')} pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history?view=approvals" onClick={onNavigate}/>
             )}
-            {!isAdmin && user.userPermissions.includes("approve_vouchers" as Permission) && (
+            {!isAdmin && user.userPermissions.includes("approve_request" as Permission) && (
               <SidebarOption label={t('sidebar.vouchersAndRefunds')} pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
@@ -98,6 +98,12 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             )}
             {user.isCompanyAdmin && (
               <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
+            )}
+            {user.isCompanyAdmin && (
+              <SidebarOption label={t('sidebar.auditLogs')} pathIcon="/assets/historial_de_viajes.png" link="/admin/audit-logs" onClick={onNavigate}/>
+            )}
+            {user.isCompanyAdmin && (
+              <SidebarOption label={t('sidebar.companyRequests')} pathIcon="/assets/historial_de_viajes.png" link="/admin/company-requests" onClick={onNavigate}/>
             )}
         </ul>
         <div className="flex gap-7 items-center p-2 mt-10">

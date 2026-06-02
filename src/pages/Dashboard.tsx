@@ -3,7 +3,7 @@
  * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez]: Hide travel history mosaic for admin users; use view_travel_agent_history for TA history mosaic; add notifications mosaic for company admins only.
+ * 27/05/2026 [Julio Rodriguez] Moved vouchers-to-approve tile from approve_vouchers (SOI) to approve_request (approver).
  */
 
 import { useEffect } from "react";
@@ -135,8 +135,8 @@ export const Dashboard = ({ title }: DashboardProps) => {
           {!isAdmin && authState.userPermissions.includes("view_approved_request_history" as Permission) && (
             <Mosaic title={t('dashboard.approvedHistory')} iconPath="/assets/historial_de_viajes_aprobados.png" link="/history?view=approvals" id="approved_requests"/>
           )}
-          {!isAdmin && authState.userPermissions.includes("approve_vouchers" as Permission) && (
-            <Mosaic title={t('dashboard.vouchersToApprove')} iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" id="approve_vouchers"/>
+          {!isAdmin && authState.userPermissions.includes("approve_request" as Permission) && (
+            <Mosaic title={t('dashboard.vouchersToApprove')} iconPath="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" id="approve_request_vouchers"/>
           )}
           {!isAdmin && authState.userPermissions.includes("check_budgets" as Permission) && (
             <Mosaic title={t('dashboard.tripsToRegister')} iconPath="/assets/historial_de_reembolsos_aprobados.png" link="/history?view=soi" id="check_budgets"/>
@@ -165,8 +165,13 @@ export const Dashboard = ({ title }: DashboardProps) => {
           {authState.isCompanyAdmin && (
             <Mosaic title={t('dashboard.notifications')} iconPath="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" id="notifications"/>
           )}
+          {authState.isCompanyAdmin && (
+            <Mosaic title={t('dashboard.auditLogs')} iconPath="/assets/historial_de_viajes.png" link="/admin/audit-logs" id="audit_logs"/>
+          )}
+          {authState.isCompanyAdmin && (
+            <Mosaic title={t('dashboard.companyRequests')} iconPath="/assets/historial_de_viajes.png" link="/admin/company-requests" id="company_requests"/>
+          )}
         </div>
-      </div>
     </Tutorial>
   );
 };

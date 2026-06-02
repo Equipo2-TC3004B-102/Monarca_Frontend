@@ -10,6 +10,7 @@
 
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
+import { DateInput } from "../ui/DateInput";
 import { TextArea } from "../ui/TextArea";
 import Switch from "../ui/Switch";
 import dayjs from "dayjs";
@@ -22,7 +23,7 @@ import {
   UseFormRegister,
   Resolver,
 } from "react-hook-form";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TFunction } from "i18next";
@@ -35,10 +36,12 @@ import { useUpdateTravelRequest } from "../../hooks/requests/useUpdateRequest";
 import { useDestinations } from "../../hooks/destinations/useDestinations";
 import { CreateRequest } from "../../types/requests";
 import GoBack from "../GoBack";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { makeCurrencyOptions } from "../../utils/currencies";
 import { usePersistedForm } from "../../hooks/app/usePersistedForm";
 import { useAuth } from "../../hooks/auth/authContext";
+import { translateCountry } from "../../utils/translateCountry";
+import { translateCity } from "../../utils/translateCity";
 
 type Option = { id: number | string; name: string };
 
@@ -49,7 +52,7 @@ const _destinationSchema = z.object({
   stay_days: z.number().int(),
   is_hotel_required: z.boolean(),
   is_plane_required: z.boolean(),
-  details: z.string().nonempty(),
+  details: z.string().optional(),
 });
 
 const _formSchema = z.object({
@@ -80,7 +83,7 @@ function makeFormSchema(t: TFunction) {
     stay_days: z.number().int(),
     is_hotel_required: z.boolean(),
     is_plane_required: z.boolean(),
-    details: z.string().nonempty({ message: t('validation.addDetails') }),
+    details: z.string().optional(),
   });
 
   return z.object({
@@ -207,11 +210,10 @@ function DestinationFields({
             control={control}
             name={`requests_destinations.${idx}.departure_date`}
             render={({ field }) => (
-              <Input
+              <DateInput
                 id={`departure-${idx}`}
-                type="date"
                 value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
-                onChange={e => field.onChange(e.target.value)}
+                onChange={field.onChange}
               />
             )}
           />
@@ -286,8 +288,31 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
   const currencyOptions = useMemo(() => makeCurrencyOptions(t), [t]);
 
-  const { destinationOptions, isLoading: isLoadingDestinations } =
+  const { destinations, destinationOptions, isLoading: isLoadingDestinations } =
     useDestinations();
+
+  const [originCountry, setOriginCountry] = useState<string>("");
+
+  const originCountries: Option[] = useMemo(() => {
+    const unique = [...new Set(destinations.map((d) => d.country).filter(Boolean))].sort();
+    return unique.map((c) => ({ id: c, name: translateCountry(c, i18n.language) }));
+  }, [destinations, i18n.language]);
+
+  const originCityOptions: Option[] = useMemo(() => {
+    const filtered = originCountry
+      ? destinations.filter((d) => d.country === originCountry)
+      : destinations;
+    const cityMap = new Map<string, Option>();
+    for (const d of filtered) {
+      if (d.city && !cityMap.has(d.city)) {
+        cityMap.set(d.city, { id: d.id, name: translateCity(d.city, i18n.language) });
+      }
+    }
+    return Array.from(cityMap.values()).sort((a, b) =>
+      String(a.name).localeCompare(String(b.name), "es", { sensitivity: "base" })
+    );
+  }, [destinations, originCountry, i18n.language]);
+
   const destinationOptionsById = useMemo(
     () =>
       new Map(
@@ -344,6 +369,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
+    setValue,
     trigger,
   } = useForm<FormValues, unknown, SubmitValues>({
     resolver,
@@ -373,6 +399,15 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     const hasErrors = Object.keys(errors).length > 0;
     if (hasErrors) trigger();
   }, [i18n.language]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const watchedOriginCity = useWatch({ control, name: "id_origin_city" });
+
+  useEffect(() => {
+    if (watchedOriginCity && !originCountry && destinations.length > 0) {
+      const dest = destinations.find((d) => d.id === watchedOriginCity);
+      if (dest?.country) setOriginCountry(dest.country);
+    }
+  }, [watchedOriginCity, destinations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const persistStorageKey =
     isEditing && requestId
@@ -447,7 +482,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
           is_hotel_required: d.is_hotel_required,
           is_plane_required: d.is_plane_required,
           is_last_destination: idx === arr.length - 1,
-          details: d.details,
+          details: d.details || undefined,
         };
       }
     );
@@ -474,6 +509,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
       clearPersistedForm();
       reset();
+      setOriginCountry("");
       navigate("/dashboard");
     } catch (error) {
       let errorMessage = isEditing
@@ -534,32 +570,63 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                 <FieldError msg={errors.title?.message} />
               </div>
 
-              <div>
-                <label
-                  htmlFor="id_origin_city"
-                  className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
-                >
-                  {t('form.originCity')}
-                </label>
-                <Controller
-                  control={control}
-                  name="id_origin_city"
-                  render={({ field }) => (
-                    <SearchableSelect
-                      id="id_origin_city"
-                      options={destinationOptions}
-                      value={
-                        field.value
-                          ? destinationOptionsById.get(String(field.value))
-                          : null
-                      }
-                      onChange={(opt) => opt && field.onChange(opt ? opt.id : null)}
-                      isLoading={isLoadingDestinations}
-                      placeholder={t('form.originCityPlaceholder')}
-                    />
-                  )}
-                />
-                <FieldError msg={errors.id_origin_city?.message} />
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label
+                    htmlFor="origin_country"
+                    className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
+                  >
+                    {t('form.originCountry')}
+                  </label>
+                  <SearchableSelect
+                    id="origin_country"
+                    options={originCountries}
+                    value={
+                      originCountry
+                        ? originCountries.find((o) => o.id === originCountry) ?? null
+                        : null
+                    }
+                    onChange={(opt) => {
+                      setOriginCountry(opt ? String(opt.id) : "");
+                      setValue("id_origin_city", null);
+                    }}
+                    isLoading={isLoadingDestinations}
+                    placeholder={t('form.originCountryPlaceholder')}
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <label
+                    htmlFor="id_origin_city"
+                    className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
+                  >
+                    {t('form.originCity')}
+                  </label>
+                  <Controller
+                    control={control}
+                    name="id_origin_city"
+                    render={({ field }) => (
+                      <SearchableSelect
+                        id="id_origin_city"
+                        options={originCityOptions}
+                        value={
+                          field.value
+                            ? originCityOptions.find((o) => o.id === field.value) ?? null
+                            : null
+                        }
+                        onChange={(opt) => field.onChange(opt ? opt.id : null)}
+                        isLoading={isLoadingDestinations}
+                        isDisabled={!originCountry}
+                        placeholder={
+                          originCountry
+                            ? t('form.originCityPlaceholder')
+                            : t('form.originCityDisabledPlaceholder')
+                        }
+                      />
+                    )}
+                  />
+                  <FieldError msg={errors.id_origin_city?.message} />
+                </div>
               </div>
 
               <div>
@@ -707,11 +774,10 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                       control={control}
                       name="return_date"
                       render={({ field }) => (
-                        <Input
+                        <DateInput
                           id="return_date"
-                          type="date"
                           value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
-                          onChange={e => field.onChange(e.target.value)}
+                          onChange={field.onChange}
                         />
                       )}
                     />
