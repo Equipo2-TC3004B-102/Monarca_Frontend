@@ -172,6 +172,7 @@ export const Dashboard = ({ title }: DashboardProps) => {
             <Mosaic title={t('dashboard.companyRequests')} iconPath="/assets/historial_de_viajes.png" link="/admin/company-requests" id="company_requests"/>
           )}
         </div>
+      </div>
     </Tutorial>
   );
 };
