@@ -35,15 +35,15 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
   return (
     <aside
       id="logo-sidebar"
-      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--black)]"      aria-label="Sidebar"
+      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--color-page-text)] transition-colors duration-500"      aria-label="Sidebar"
     >
       <div className="h-full px-3 pb-4 overflow-y-auto">
         <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] h-[120px] mx-auto p-4 rounded-lg">
             <img src={logo} className="invert mx-auto" alt="Monarca Logo" />
         </div>
-        <div className="flex flex-col items-center justify-center mb-6 text-center">
+        {/* <div className="flex flex-col items-center justify-center mb-6 text-center">
           <p className="text-[var(--color-page-text-title)] font-bold">{user.userName} {user.userLastName} </p>
-        </div>
+        </div> */}
         <ul className="space-y-2 font-medium">
             <SidebarOption
               label={t('sidebar.home')}
@@ -115,7 +115,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               className="block md:hidden hover:scale-110 transition-transform mt-3"
             >
               <img
-                src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+                src={i18n.language === 'es' ? '/assets/flag_es.svg' : '/assets/flag_gb.svg'}
                 alt={i18n.language === 'es' ? 'Español' : 'English'}
                 className="w-12 h-8 rounded-sm object-cover shadow-sm"
               />

@@ -51,7 +51,8 @@
     "email": "Email",
     "password": "Password",
     "forgotPassword": "Forgot your password?",
-    "continue": "Continue"
+    "continue": "Continue",
+    "emailPlaceholder": "user@domain.com"
   },
   "status": {
     "pendingReview": "Pending Review",
@@ -775,5 +776,13 @@
     "yesterday": "Yesterday",
     "last7Days": "Last 7 days",
     "last30Days": "Last 30 days"
+  },
+  "recover": {
+    "eyebrow": "Recovery",
+    "title": "Forgot your password?",
+    "subtitle": "Enter the email address you use to log in to recover your password.",
+    "sending": "Sending",
+    "send": "Send",
+    "haveAccount": "Already have an account?"
   }
 }
