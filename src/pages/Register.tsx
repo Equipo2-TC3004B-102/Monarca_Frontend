@@ -31,13 +31,20 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="relative min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden bg-[var(--color-page-bg)]"
-      style={{
-        fontFamily: "Montserrat, sans-serif",
-        background:
-          "linear-gradient(135deg, #00296b 0%, #0466cb 28%, #4d9aff 55%, #cfe2ff 78%, #ffffff 100%)",
-      }}
+      className="relative min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden"
+      style={{ fontFamily: "Montserrat, sans-serif" }}
     >
+      {/* Gradient light */}
+      <div
+        className="absolute inset-0 transition-opacity duration-500 dark:opacity-0 pointer-events-none"
+        style={{ background: "linear-gradient(135deg, #00296b 0%, #0466cb 28%, #4d9aff 55%, #cfe2ff 78%, #ddeaff 100%)" }}
+      />
+      {/* Gradient dark */}
+      <div
+        className="absolute inset-0 opacity-0 transition-opacity duration-500 dark:opacity-100 pointer-events-none"
+        style={{ background: "linear-gradient(135deg, #001233 0%, #00204d 28%, #002d6b 55%, #003580 78%, #001a45 100%)" }}
+      />
+
       {/* Wave layers */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
@@ -130,7 +137,7 @@ export default function RegisterPage() {
         style={{ animationDelay: "0.05s" }}
       >
         <span
-          className="text-white text-base tracking-[0.3em]"
+          className="text-white text-2xl tracking-[0.3em]"
           style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 600 }}
         >
           <span style={{ color: "#4d9aff" }}>M</span>ONARCA
@@ -158,7 +165,7 @@ export default function RegisterPage() {
 
       {/* Card */}
       <div
-        className="relative w-full max-w-[440px] anim-fade z-10 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-10 lg:p-12"
+        className="relative w-full max-w-[440px] anim-fade z-10 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-2xl p-10 lg:p-12 transition-colors duration-500"
         style={{
           animationDelay: "0.15s",
           boxShadow: "0 20px 60px -20px rgba(0, 29, 61, 0.25)",
@@ -203,7 +210,7 @@ export default function RegisterPage() {
                 name="email"
                 type="email"
                 required
-                placeholder="tu@empresa.com"
+                placeholder={t("login.emailPlaceholder")}
                 autoComplete="email"
                 className="text-[0.95rem]"
               />

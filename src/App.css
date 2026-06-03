@@ -152,10 +152,10 @@ a {
 }
 
 .dark {
-  --color-page-bg: #161719;
+  --color-page-bg: #0a1628;
   --color-page-text: #f9fafb;
   --color-page-text-title: var(--ultra-light-blue);
-  --color-card-bg: #202225;
+  --color-card-bg: #0d1b2a;
   --color-border: #37393e;
   --color-button: #52525B;
   --color-text-button: #E4E4E7;

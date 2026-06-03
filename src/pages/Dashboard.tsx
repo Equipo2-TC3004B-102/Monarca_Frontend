@@ -46,12 +46,8 @@ export const Dashboard = ({ title }: DashboardProps) => {
   return (
     <Tutorial page="dashboard" run={tutorial}>
       <div
-        className="relative -mx-10 -mt-10 -mb-10 px-10 pt-10 pb-16 min-h-full overflow-hidden"
-        style={{
-          fontFamily: "Montserrat, sans-serif",
-          background:
-            "linear-gradient(135deg, #00296b 0%, #0466cb 28%, #4d9aff 55%, #cfe2ff 78%, #ffffff 100%)",
-        }}
+        className="relative -mx-10 -mt-10 px-10 pt-10 pb-16 flex-grow overflow-hidden"
+        style={{ fontFamily: "Montserrat, sans-serif" }}
       >
         <style>{`
           @keyframes fadeUp {
@@ -60,6 +56,17 @@ export const Dashboard = ({ title }: DashboardProps) => {
           }
           .anim-fade { animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
         `}</style>
+
+        {/* Gradient light */}
+        <div
+          className="absolute inset-0 transition-opacity duration-500 dark:opacity-0 pointer-events-none"
+          style={{ background: "linear-gradient(135deg, #00296b 0%, #0466cb 28%, #4d9aff 55%, #cfe2ff 78%, #ddeaff 100%)" }}
+        />
+        {/* Gradient dark */}
+        <div
+          className="absolute inset-0 opacity-0 transition-opacity duration-500 dark:opacity-100 pointer-events-none"
+          style={{ background: "linear-gradient(135deg, #001233 0%, #00204d 28%, #002d6b 55%, #003580 78%, #001a45 100%)" }}
+        />
 
         {/* Wave layers */}
         <svg
