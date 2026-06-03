@@ -64,22 +64,12 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
         </button>
 
         {/* Brand */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-6 mt-2">
           <span
             className="text-white text-xl tracking-[0.3em]"
             style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 600 }}
           >
             <span style={{ color: "#4d9aff" }}>M</span>ONARCA
-          </span>
-          <span
-            className="hidden lg:inline-block w-[1px] h-5 bg-white/20 mx-2"
-            aria-hidden
-          />
-          <span
-            className="hidden lg:inline-block text-white/55 text-[0.65rem] tracking-[0.3em] uppercase"
-            style={{ fontWeight: 500 }}
-          >
-            Corporate Travel
           </span>
         </div>
 
