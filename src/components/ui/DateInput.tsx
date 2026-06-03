@@ -1,3 +1,11 @@
+/**
+ * FileName: DateInput.tsx
+ * Description: A reusable DateInput component that wraps the native HTML <input type="date"> element, providing consistent styling and controlled behavior.
+ * Authors: Debug Studio
+ * Last Modification made:
+ * 03/06/2026 [Nicolas Quintana] Added file description for mantainability.
+ */
+
 import { useEffect, useRef } from "react";
 import clsx from "clsx";
 

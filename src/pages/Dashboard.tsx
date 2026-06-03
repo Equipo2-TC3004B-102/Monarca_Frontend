@@ -1,9 +1,11 @@
 /**
  * FileName: Dashboard.tsx
- * Description: Renders the main dashboard page with a grid of mosaics linking to different sections of the application based on user permissions, and includes tutorial logic for first-time visitors.
+ * Description: Renders the main dashboard page with a grid of mosaics linking to 
+ * different sections of the application based on user permissions, and includes 
+ * tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 27/05/2026 [Julio Rodriguez] Moved vouchers-to-approve tile from approve_vouchers (SOI) to approve_request (approver).
+ * 02/06/2026 [Nicolas Quintana] Added a description for the dashboard fucntion.
  */
 
 import { useEffect } from "react";
@@ -16,6 +18,17 @@ import { useTranslation } from "react-i18next";
 interface DashboardProps {
   title: string;
 }
+
+/**
+ * Dashboard Component
+ * Purpose: Renders the main dashboard page with a grid of mosaics linking to different sections 
+ * of the application based on user permissions and roles. Includes tutorial logic for first-time visitors.
+ * Inputs:
+ * DashboardProps - Component props
+ * string props.title - The page title to display in the app context
+ * Outputs:
+ * returns {JSX.Element} A grid layout of mosaic tiles showing available dashboard options based on user permissions
+ */
 
 export const Dashboard = ({title}:DashboardProps) => {
   const { setPageTitle } = useApp();

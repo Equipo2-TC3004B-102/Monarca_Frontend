@@ -1,18 +1,37 @@
 /**
  * FileName: Register.tsx
- * Description: Renders the registration page with a form for new users to create an account, including fields for email and password, and links to the login page for existing users.
+ * Description: Renders the registration page with a form for new users to create an 
+ * account, including fields for email and password, and links to the login page for 
+ * existing users.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors and included switch for dark mode
+ * 02/06/2026 [Nicolas Quintana] Added documentation for the LoginPage and handleSubmit components.
  */
 
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import DarkModeButton from "../components/DarkLightButton";
 
+/**
+ * LoginPage Component
+ * Purpose: Renders a password recovery page with a form for users to enter their email address
+ * to recover their forgotten password. Includes dark mode toggle and links back to login.
+ * Inputs: None
+ * Outputs:
+ * {JSX.Element} A password recovery form page with email input field and submit button
+ */
 export default function LoginPage() {
   const navigate = useNavigate();
 
+  /**
+   * handleSubmit Function
+   * Purpose: Handles form submission for password recovery by preventing default form behavior
+   * and navigating to the dashboard page.
+   * Inputs:
+   * React.FormEvent<HTMLFormElement> event - The form submission event
+   * Outputs:
+   * void - Navigates to dashboard route
+   */
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     navigate("/dashboard");

@@ -3,7 +3,7 @@
  * Description: Reservations page component, which displays a list of destinations and allows users to assign reservations to each destination.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 27/05/2026 [Julio Rodríguez] Added fixes for file input validation as a required field.
+ * 03/06/2026 [Nicolas Quintana] Added comments for fucntions that didnt have it.
  */
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -22,11 +22,9 @@ import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 /**
  * FunctionName: Reservations
- * Purpose of the function: to display the reservations page.
- * Input: none
- * Output: none
- * Author: Original Moncarca team
- * Last Modification made: original Moncarca team
+ * Purpose of the function: Displays the reservations page with destinations and allows users to assign hotel and flight reservations to each destination. Includes draft persistence, file validation, and flight search integration.
+ * Input: None - This is a page component with no props
+ * Output: A form with collapsible destination sections for managing reservations
  */
 export const Reservations = () => {
   const navigate = useNavigate();
@@ -47,6 +45,12 @@ export const Reservations = () => {
   const [fieldErrors, setFieldErrors] = useState<Record<string, Record<string, string>>>({});
   const [collapsedDestinations, setCollapsedDestinations] = useState<Set<string>>(new Set());
 
+  /**
+   * FunctionName: toggleDestination
+   * Purpose of the function: Toggles the collapsed/expanded state of a destination section.
+   * Input: id (string) - The destination ID to toggle
+   * Output: Updates the collapsedDestinations state
+   */
   const toggleDestination = (id: string) => {
     setCollapsedDestinations(prev => {
       const next = new Set(prev);
@@ -61,6 +65,12 @@ export const Reservations = () => {
     ? `reservationsFormDraft:${requestId}`
     : "reservationsFormDraft:unknown";
 
+  /**
+   * FunctionName: getPersistableFormData
+   * Purpose of the function: Filters form data to remove file-related fields before persisting to localStorage. Excludes _file, _file_name, and _preview fields as they cannot be serialized.
+   * Input: data (Record<string, any>) - The form data to filter
+   * Output: Cleaned form data without file-related fields
+   */
   const getPersistableFormData = (data: Record<string, any>) => {
     return Object.fromEntries(
       Object.entries(data).map(([destinationId, values]) => {
@@ -241,13 +251,11 @@ export const Reservations = () => {
   }, [activePreview]);
 
   /**
- * FunctionName: handleFileChange
- * Purpose of the function: to handle the file change event.
- * Input: e: React.ChangeEvent<HTMLInputElement>, id: string
- * Output: none
- * Author: Original Moncarca team
- * Last Modification made: original Moncarca team
- */
+   * FunctionName: handleFileChange
+   * Purpose of the function: Handles file input change events, validates file size and type (PDF only), and updates form data with the file and preview URL.
+   * Input: e (React.ChangeEvent<HTMLInputElement>) - The file input change event, id (string) - The destination ID associated with the file
+   * Output: Updates formData and fileErrors state
+   */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
     const { name, files } = e.target;
     const file = files ? files[0] : null;
@@ -311,13 +319,11 @@ export const Reservations = () => {
   };
 
   /**
- * FunctionName: handleChange
- * Purpose of the function: to handle the change event.
- * Input: e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string
- * Output: none
- * Author: Original Moncarca team
- * Last Modification made: original Moncarca team
- */
+   * FunctionName: handleChange
+   * Purpose of the function: Handles input and textarea change events, updates form data for the specified destination, and clears any associated field errors.
+   * Input: e (React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) - The input change event, id (string) - The destination ID associated with the field
+   * Output: Updates formData and fieldErrors state
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: string) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: { ...prev[id], [name]: value } }));
@@ -326,6 +332,12 @@ export const Reservations = () => {
     }
   };
 
+  /**
+   * FunctionName: handlePriceWheel
+   * Purpose of the function: Handles mouse wheel events on price input fields to increment/decrement price values and prevents page scrolling while hovering over price inputs.
+   * Input: e (React.WheelEvent<HTMLInputElement>) - The wheel event, id (string) - The destination ID associated with the price field
+   * Output: Updates formData with adjusted price value
+   */
   const handlePriceWheel = (
     e: React.WheelEvent<HTMLInputElement>,
     id: string
@@ -350,6 +362,12 @@ export const Reservations = () => {
     }));
   };
 
+  /**
+   * FunctionName: applyFlightOption
+   * Purpose of the function: Applies a selected flight option to a destination's reservation data, populating flight title, comments, price, and link. Locks the price to prevent accidental edits.
+   * Input: destinationId (string) - The destination ID to apply the flight to, flight (any) - The flight object containing airline, price, and provider info, segmentIndex (number) - The segment index for the toast notification
+   * Output: Updates formData with flight details and displays success toast
+   */
   const applyFlightOption = ({
     destinationId,
     flight,
@@ -394,18 +412,22 @@ export const Reservations = () => {
     );
   };
 
+  /**
+   * FunctionName: setPageScroll
+   * Purpose of the function: Enables or disables page scrolling by manipulating the document body overflow style. Used to prevent scrolling when interacting with price inputs.
+   * Input: enabled (boolean) - True to enable scrolling, false to disable
+   * Output: Modifies document.body.style.overflow
+   */
   const setPageScroll = (enabled: boolean) => {
     document.body.style.overflow = enabled ? "auto" : "hidden";
   };
 
   /**
- * FunctionName: handleSubmit
- * Purpose of the function: to handle the submit event.
- * Input: e: React.FormEvent
- * Output: none
- * Author: Original Moncarca team
- * Last Modification made: original Moncarca team
- */
+   * FunctionName: handleSubmit
+   * Purpose of the function: Validates all reservation fields, formats the data for API submission, submits reservations, and clears the form on success.
+   * Input: e (React.FormEvent) - The form submission event
+   * Output: Submits reservations to API and navigates to dashboard on success
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData === null || Object.keys(formData).length === 0) {

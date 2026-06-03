@@ -4,7 +4,7 @@
  *              multi-segment itineraries and displays results in a sortable/filterable format.
  * Authors: Debug Studio (Diego de la Vega)
  * Last Modification made:
- * 12/05/2026 [Diego de la Vega] Created FlightSearch page with single and multi-segment search.
+ * 02/06/2026 [Nicolas Quintana] Added documentation for the FlightSearch component.
  */
 
 import { useState } from 'react';
@@ -20,6 +20,16 @@ import {
 } from '../hooks/flights/useFlightSearchMultiSegment';
 
 type SearchMode = 'single' | 'multi';
+
+/**
+ * FlightSearch Component
+ * Purpose: Displays a flight search page with toggle between single and multi-segment flight searches.
+ * Manages search state for both search modes and displays results in a sortable/filterable format.
+ * Inputs:
+ * None 
+ * Outputs:
+ * {JSX.Element} A layout containing search mode tabs, search form, and flight results based on selected mode
+ */
 
 export default function FlightSearch() {
   const [searchMode, setSearchMode] = useState<SearchMode>('single');

@@ -1,3 +1,13 @@
+/**
+ * FileName: translateCity.ts
+ * Description: Provides a utility function for translating city names from English to the user's locale language, 
+ * currently supporting Spanish translations. This function is used throughout the application to display city 
+ * names in a localized manner based on the user's language preference.
+ * Authors: Debug Studio
+ * Last Modification made:
+ * 02/06/2026 [Nicolas Quintana] Added description of the file for better documentation.
+ */
+
 const cityTranslations: Record<string, Record<string, string>> = {
   es: {
     "Mexico City": "Ciudad de México",

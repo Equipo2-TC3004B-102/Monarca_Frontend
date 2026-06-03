@@ -3,11 +3,7 @@
  * Description: Defines a custom hook for fetching destination data, utilizing React Query's useQuery to handle the API call and manage the state of the data fetching process, including loading and error states, and transforming the data into a format suitable for use in UI components.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
- * 20/04/2026 [Diego de la Vega] Added resilient option labels and exposed
- *                             optional iata_code/airport_name metadata.
- * 20/04/2026 [Diego de la Vega] Sorted destination options alphabetically and grouped destinations by city and country to avoid
- *                             repeated city options in selectors.
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";

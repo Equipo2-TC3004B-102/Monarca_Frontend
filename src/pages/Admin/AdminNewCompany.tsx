@@ -4,8 +4,7 @@
  *              company admin user in one operation. Calls POST /admin/companies/setup.
  * Authors: DebugStudio Team
  * Last Modification:
- * 30/04/2026 [Julio Rodriguez] Created view for system admin to generate a company entry in the database.
- * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the new company setup page
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 
 import React, { useEffect, useState } from "react";

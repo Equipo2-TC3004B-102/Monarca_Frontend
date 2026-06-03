@@ -3,7 +3,7 @@
  * Description: Authentication and authorization context for the frontend. Provides auth state (user info + permissions), login session validation via profile endpoint, logout handling, and route protection components (basic auth + permission-based guards).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez] Added new flags and permissions for travel agent role; updated profile fetching logic to map these permissions.
+ * 03/06/2026 [Nicolas Quintana] Added format to function comments.
  */
 
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
@@ -14,7 +14,7 @@ import { getRequest, postRequest } from "../../utils/apiService";
 import { AppProvider } from "../app/appContext";
 
 /**
- * Permission, enumerates all supported permission keys used for role-based access control (RBAC).
+ * FunctionName: Permission, enumerates all supported permission keys used for role-based access control (RBAC).
  * Input: N/A
  * Output: Permission union type - Used to type-check required permissions for protected routes.
  */
@@ -29,7 +29,7 @@ export type Permission =
   | "view_booking_history";
 
 /**
- * ContextType, defines what the AuthContext provides to consumers.
+ * FunctionName: ContextType, defines what the AuthContext provides to consumers.
  * Input: N/A
  * Output: ContextType interface - Describes auth state, state setter, loading flag, and logout handler.
  *
@@ -44,7 +44,7 @@ export interface ContextType {
 }
 
 /**
- * AuthState, represents the authenticated user's session information in the client.
+ * FunctionName: AuthState, represents the authenticated user's session information in the client.
  * Input: N/A
  * Output: AuthState interface - Used in context and components to determine authentication/authorization status.
  */
@@ -62,14 +62,14 @@ export interface AuthState {
 }
 
 /**
- * AuthContext, stores authentication state and helpers across the app.
+ * FunctionName: AuthContext, stores authentication state and helpers across the app.
  * Input: Default value is undefined to force usage inside AuthProvider.
  * Output: React context instance providing ContextType.
  */
 export const AuthContext = createContext<ContextType | undefined>(undefined);
 
 /**
- * useAuth, custom hook that exposes the AuthContext with runtime safety.
+ * FunctionName: useAuth, custom hook that exposes the AuthContext with runtime safety.
  * Input: None.
  * Output: ContextType - Current auth context value.
  * Throws:
@@ -84,7 +84,7 @@ export const useAuth = (): ContextType => {
 };
 
 /**
- * AuthProvider, initializes and provides auth state to the application.
+ * FunctionName: AuthProvider, initializes and provides auth state to the application.
  * Input:
  * - children (ReactNode): Components that need access to AuthContext.
  * Output: JSX.Element - Context provider wrapper.
@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     /**
-     * getAuthState, fetches current session profile data from the backend.
+     * FunctionName: getAuthState, fetches current session profile data from the backend.
      * Input: None (uses cookie session through Axios instance withCredentials=true).
      * Output: Promise<void> - Updates authState and loadingProfile.
      *
@@ -163,7 +163,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   /**
-   * handleLogout, logs out the current user on the backend and clears local auth state.
+   * FunctionName: handleLogout, logs out the current user on the backend and clears local auth state.
    * Input: None.
    * Output: Promise<void> - Clears auth state when logout succeeds.
    */
@@ -200,7 +200,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 /**
- * ProtectedRoute, wraps protected routes that only require authentication.
+ * FunctionName: ProtectedRoute, wraps protected routes that only require authentication.
  * Input: None (reads authentication state through AuthProvider).
  * Output: JSX.Element - Renders nested routes via <Outlet /> inside Layout and AppProvider.
  *
@@ -237,7 +237,7 @@ export const ProtectedRoute: React.FC = () => {
 };
 
 /**
- * PermissionProtectedRouteProps, defines route guard requirements based on permissions.
+ * FunctionName: PermissionProtectedRouteProps, defines route guard requirements based on permissions.
  * Input:
  * - requiredPermissions (Permission[]): Permission keys required to access the route.
  * - requireAll (boolean | undefined): If true, user must have ALL permissions; if false, ANY permission is sufficient.
@@ -249,7 +249,7 @@ interface PermissionProtectedRouteProps {
 }
 
 /**
- * PermissionProtectedRoute, protects routes that require authentication plus specific permissions.
+ * FunctionName: PermissionProtectedRoute, protects routes that require authentication plus specific permissions.
  * Input:
  * - requiredPermissions (Permission[]): Permissions required to access the nested routes.
  * - requireAll (boolean): All vs any permission logic (default true).

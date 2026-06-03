@@ -3,7 +3,7 @@
  * Description: Component that displays a table of trip requests awaiting voucher approval by the assigned approver.
  * Authors: Original Monarca team
  * Last Modification made:
- * 27/05/2026 [Julio Rodriguez] Changed data source from GET /requests/all (SOI) to GET /requests/vouchers-to-approve (approver).
+ * 03/06/2026 [Nicolas Quintana] Added format to comments.
  */
 
 import { useEffect, useState } from "react";
@@ -67,7 +67,7 @@ interface Trip {
 }
 
 /**
- * renderStatus, returns a styled badge based on the request status.
+ * FunctionName: renderStatus, returns a styled badge based on the request status.
  * Input: status (string)
  * Output: JSX.Element
  */
@@ -92,7 +92,7 @@ const renderStatus = (status: string, t: TFunction) => {
 
 
 /**
- * RefundsReview, main component to manage and list requests for final verification.
+ * FunctionName: RefundsReview, main component to manage and list requests for final verification.
  * Input: None
  * Output: JSX.Element
  */
@@ -104,7 +104,7 @@ export const RefundsReview = () => {
   const { t } = useTranslation();
 
   /**
-   * fetchTrips, gets trip requests in Pending Vouchers Approval assigned to the current approver.
+   * FunctionName: fetchTrips, gets trip requests in Pending Vouchers Approval assigned to the current approver.
    * Input: None
    * Output: Promise<void>
    */
@@ -154,7 +154,7 @@ export const RefundsReview = () => {
   }, []);
 
   /**
-   * Effect to handle tutorial logic and page visit tracking.
+   * FunctionName: Effect to handle tutorial logic and page visit tracking.
    */
   useEffect(() => {
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
