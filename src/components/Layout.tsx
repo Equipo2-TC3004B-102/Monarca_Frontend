@@ -48,9 +48,9 @@ function Layout({ children }: LayoutProps) {
   return (
     <div>
       <ToastContainer toastClassName="custom-toast"/>
-      <div className="flex flex-col min-h-screen w-screen">
+      <div className="flex flex-col h-screen w-screen overflow-hidden">
         <Header toggleSidebar={() => setOpenSidebar(prev => !prev)}/>
-        <div className="flex flex-1 relative">
+        <div className="flex flex-1 relative min-h-0">
           {openSidebar && (
             <div
               className="fixed inset-0 bg-black/50 z-30 md:hidden"
@@ -69,7 +69,7 @@ function Layout({ children }: LayoutProps) {
             <Sidebar user={authState}/>
           </div>
 
-          <div className="bg-[var(--color-page-bg)] w-screen px-10 pt-10 flex-1 pb-10">{children}</div>
+          <div className="bg-[var(--color-page-bg)] w-screen px-10 pt-10 flex-1 pb-0 overflow-y-auto min-h-0 flex flex-col transition-colors duration-500">{children}</div>
         </div>
         <button
           className="bg-[var(--blue)] text-white px-4 py-2 rounded hover:bg-[var(--dark-blue)] transition-colors text-sm fixed bottom-15 right-4 z-50 flex items-center"
