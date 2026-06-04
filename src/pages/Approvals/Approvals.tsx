@@ -3,9 +3,9 @@
  * Description: Approvals page component, which displays a list of approvals and allows users to approve or reject them.
  * Authors: Original Monarca team
  * Last Modification made:
- * 03/06/2026 [Nicolas Quintana] Added format to the comments and added comment to the ones that didn't have comments.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
 import { getRequest } from "../../utils/apiService";
 import RefreshButton from "../../components/RefreshButton";
@@ -153,8 +153,7 @@ export const Approvals: React.FC = () => {
    * Input: None 
    * Output: Sets allData and displayData state with formatted travel records
    */
-  useEffect(() => {
-    const fetchTravelRecords = async () => {
+  const fetchTravelRecords = useCallback(async () => {
       try {
         const response = await getRequest("/requests/to-approve");
         const mapped = response.map((trip: any) => {
@@ -182,10 +181,9 @@ export const Approvals: React.FC = () => {
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
-    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    fetchTravelRecords();
-  }, []);
+  useEffect(() => { fetchTravelRecords(); }, [fetchTravelRecords]);
 
   /**
    * FunctionName: Tutorial Management
@@ -232,7 +230,7 @@ export const Approvals: React.FC = () => {
             <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
               {t('approvals.title')}
             </h2>
-            <RefreshButton />
+            <RefreshButton onClick={fetchTravelRecords} />
           </div>
 
           {/* Filter panel */}

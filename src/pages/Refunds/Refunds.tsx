@@ -3,10 +3,10 @@
  * Description: Component displaying a list of active trips where users can submit expense vouchers.
  * Authors: Original Monarca team
  * Last Modification made:
- * 03/06/2026 [Nicolas Quintana] Added fromat to comments.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Table from "../../components/Refunds/Table";
 import { getRequest } from "../../utils/apiService";
 import Button from "../../components/Refunds/Button";
@@ -75,8 +75,7 @@ export const Refunds = () => {
    * Fetches all trips from the API and filters those with "In Progress" status.
    * Formats the data for display in the table component.
    */
-  useEffect(() => {
-    const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
       try {
         setLoading(true);
 
@@ -111,9 +110,9 @@ export const Refunds = () => {
       } finally {
         setLoading(false);
       }
-    };
-    fetchTrips();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { fetchTrips(); }, [fetchTrips]);
 
   /**
    * Check if the user has visited the page before to trigger the tutorial.
@@ -167,7 +166,7 @@ export const Refunds = () => {
               <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
                   {t('refunds.checkExpenses')}
               </h2>
-              <RefreshButton />
+              <RefreshButton onClick={fetchTrips} />
             </div>
 
             <div id="list_requests">

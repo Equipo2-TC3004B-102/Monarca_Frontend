@@ -3,10 +3,10 @@
  * Description: Component that displays a table of trip requests awaiting voucher approval by the assigned approver.
  * Authors: Original Monarca team
  * Last Modification made:
- * 03/06/2026 [Nicolas Quintana] Added format to comments.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Table from "../../components/Refunds/Table";
 import RefreshButton from "../../components/RefreshButton";
 import formatDate from "../../utils/formatDate";
@@ -108,8 +108,7 @@ export const RefundsReview = () => {
    * Input: None
    * Output: Promise<void>
    */
-  useEffect(() => {
-    const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
       try {
         setLoading(true);
 
@@ -149,9 +148,9 @@ export const RefundsReview = () => {
       } finally {
         setLoading(false);
       }
-    };
-    fetchTrips();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { fetchTrips(); }, [fetchTrips]);
 
   /**
    * FunctionName: Effect to handle tutorial logic and page visit tracking.
@@ -210,7 +209,7 @@ export const RefundsReview = () => {
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
             {t('refunds.vouchersAndRefunds')}
           </h2>
-          <RefreshButton />
+          <RefreshButton onClick={fetchTrips} />
         </div>
 
         <div id="list_requests">
