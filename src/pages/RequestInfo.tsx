@@ -3,9 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Update destinations display to show origin-to-destination flow and synthesize return legs. Added dark mode for some buttons.
- * 19/05/2026 [Julio Rodriguez] Disabled submit buttons while request is in-flight (isSubmitting).
- *                              Show folio (YYYY-NNN) in header badge instead of UUID.
+ * 02/06/2026 [Nicolas Quintana] Removed comment redundancies.
  */
 
 import React, { useState, useEffect } from 'react';

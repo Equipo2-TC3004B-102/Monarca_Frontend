@@ -53,7 +53,8 @@
     "email": "Correo electrónico",
     "password": "Contraseña",
     "forgotPassword": "¿Olvidaste tu contraseña?",
-    "continue": "Continuar"
+    "continue": "Continuar",
+    "emailPlaceholder": "usuario@dominio.com"
   },
   "status": {
     "pendingReview": "Pendiente de Revisión",
@@ -843,5 +844,13 @@
     "yesterday": "Ayer",
     "last7Days": "Últimos 7 días",
     "last30Days": "Últimos 30 días"
+  },
+  "recover": {
+    "eyebrow": "Recuperación",
+    "title": "¿Olvidaste tu contraseña?",
+    "subtitle": "Ingresa tu correo electrónico con el cual inicias sesión para recuperar tu contraseña.",
+    "sending": "Enviando",
+    "send": "Enviar",
+    "haveAccount": "¿Ya tienes cuenta?"
   }
 }

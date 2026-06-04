@@ -3,9 +3,7 @@
  * Description: Form for users to upload PDF and XML files as evidence for their refund requests.
  * Authors: Original Monarca team
  * Last Modification made:
- * 27/05/2026 [Julio Rodriguez] existingVouchers section now only shows pending_voucher vouchers; fixed i18n key location.
- *                              Split submit into upload-only and send-for-approval; show folio instead of UUID;
- *                              display voucher submission deadline with days remaining; block form after deadline.
+ * 03/06/2026 [Nicolas Quintana] Added format to the comments.
  */
 
 import { Link, useNavigate } from "react-router-dom";
@@ -71,7 +69,7 @@ interface Trip {
 }
 
 /**
- * Vouchers Component
+ * FunctionName: Vouchers Component
  * Main form for registering refund vouchers associated with a specific trip request.
  * Input: None (uses URL params for ID)
  * Output: JSX.Element - The refund request form view.
@@ -91,7 +89,7 @@ export const Vouchers = () => {
   const [commentValue, setCommentValue] = useState<string>("");
 
   /**
-   * fetchTrip — Loads the travel request data and refreshes component state.
+   * FunctionName: fetchTrip — Loads the travel request data and refreshes component state.
    *             Extracted to component scope so it can be called after uploading vouchers.
    * Input: None (uses id from URL params)
    * Output: Promise<void>
@@ -114,7 +112,7 @@ export const Vouchers = () => {
   }, [id]);
 
   /**
-   * handleUploadVouchers — Validates and uploads each voucher row to the server without
+   * FunctionName: handleUploadVouchers — Validates and uploads each voucher row to the server without
    *                        triggering a status transition. Refreshes trip data after upload
    *                        so the existingVouchers section updates immediately.
    * Input: None
@@ -187,7 +185,7 @@ export const Vouchers = () => {
   };
 
   /**
-   * handleSendForApproval — Finalizes the voucher submission by transitioning the request
+   * FunctionName: handleSendForApproval — Finalizes the voucher submission by transitioning the request
    *                          to Pending Vouchers Approval. Navigates back to the refunds list.
    * Input: None
    * Output: Promise<void>

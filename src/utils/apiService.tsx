@@ -1,9 +1,9 @@
 /**
- * apiService.ts
+ * FileName: apiService.ts
  * Description: Centralized Axios configuration and HTTP utility functions for handling API requests (GET, POST, PUT, PATCH, DELETE) with global error interception.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Added flight search API endpoints and handlers.
+ * 02/06/2026 [Nicolas Quintana] Removed comment redundancies and added a console log error.
  */
 
 import axios, { AxiosRequestConfig } from "axios";
@@ -45,11 +45,11 @@ api.interceptors.response.use(
         : error.response.data?.message;
       if (error.response.status === 413 || 
           (error.response.status === 400 && 
-           typeof message === 'string' && message.toLowerCase().includes("size"))) {
+            typeof message === 'string' && message.toLowerCase().includes("size"))) {
         console.error("File size validation error:", message);
       }
       if (error.response.status === 401) {
-        // Token refresh logic or redirect to login could be implemented here
+        console.error("Unauthorized access - possible token issues.");
       }
 
       // If auth context is missing/invalid, send user back to login immediately.
@@ -187,89 +187,3 @@ export const deleteRequest = async (url: string) => {
 };
 
 export default api;
-
-// // apiService.js
-
-// import axios, { AxiosRequestConfig } from "axios";
-
-// // Configuración de la instancia de Axios
-// const api = axios.create({
-//   baseURL: import.meta.env.VITE_API_URL,
-//   timeout: 5000,
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-//   withCredentials: false,
-// });
-
-// // Interceptor de solicitud para añadir el token de autenticación (si existe)
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem("token");
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
-
-// // Interceptor de respuesta para manejar errores globalmente
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response) {
-//       console.error("Error en la respuesta de la API:", error.response);
-//       if (error.response.status === 401) {
-//         // Lógica de refresco de token o redirección al login
-//       }
-//     } else if (error.request) {
-//       console.error("No se recibió respuesta de la API:", error.request);
-//     } else {
-//       console.error("Error al configurar la petición:", error.message);
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-
-// // Función para peticiones GET
-// export const getRequest = async (url: string, params = {}) => {
-//   const response = await api.get(url, { params });
-//   return response.data;
-// };
-
-// // Función para peticiones POST (JSON o FormData)
-// export const postRequest = async (
-//   url: string,
-//   data: Record<string, unknown> | FormData,
-//   config: AxiosRequestConfig = {}
-// ) => {
-//   const isForm = data instanceof FormData;
-//   const headers = {
-//     ...config.headers,
-//     ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
-//   };
-//   const response = await api.post(url, data, { ...config, headers });
-//   return response.data;
-// };
-
-// // Función para peticiones PUT
-// export const putRequest = async (
-//   url: string,
-//   data: Record<string, unknown> | FormData,
-//   config: AxiosRequestConfig = {}
-// ) => {
-//   const isForm = data instanceof FormData;
-//   const headers = {
-//     ...config.headers,
-//     ...(isForm ? { "Content-Type": "multipart/form-data" } : {}),
-//   };
-//   const response = await api.put(url, data, { ...config, headers });
-//   return response.data;
-// };
-
-// // Función para peticiones DELETE
-// export const deleteRequest = async (url: string) => {
-//   const response = await api.delete(url);
-//   return response.data;
-// };

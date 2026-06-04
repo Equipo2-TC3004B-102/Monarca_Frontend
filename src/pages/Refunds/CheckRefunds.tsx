@@ -1,10 +1,9 @@
 /**
- * CheckRefunds.tsx
+ * FileName: CheckRefunds.tsx
  * Description: Page component that displays trips with pending refunds to be reviewed by authorized personnel.
  * Authors: Original Monarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
- * 28/05/2026 [Sergio] Add filter panel for status, motive, trip date, request date and departure place.
+ * 03/06/2026 [Nicolas Quintana] Removed comment redundancies and added descriptions to functions that didn't have them.
  */
 
 import { useState, useEffect } from "react";
@@ -29,11 +28,11 @@ import FilterPanel, { FilterValues, STATUS_OPTIONS_REFUND_SOI } from "../../comp
  */
 
 /**
- * renderStatus, assigns a styled badge and translated text based on the trip status.
- * Input: status (string)
- * Output: JSX.Element
+ * FunctionName: renderStatus
+ * Purpose of the function: Assigns a styled badge and translated text based on the trip status.
+ * Input: status (string) - The status string to render, t (TFunction) - The translation function
+ * Output: JSX.Element - A styled span element with the translated status text and appropriate styles
  */
-
 const renderStatus = (status: string, t: TFunction) => {
   let statusText = "";
   let styles = "";
@@ -53,6 +52,12 @@ const renderStatus = (status: string, t: TFunction) => {
   return <span className={`text-xs px-2 py-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>{statusText}</span>;
 }
 
+/**
+ * FunctionName: applyFilters
+ * Purpose of the function: Filters an array of trip records based on provided filter criteria including status, motive, dates, and location.
+ * Input: data (any[]) - Array of trip objects to filter, filters (FilterValues) - Object containing filter criteria
+ * Output: any[] - Filtered array of trip objects matching all criteria
+ */
 const applyFilters = (data: any[], filters: FilterValues) => {
   const now = new Date();
   return data.filter((record) => {
@@ -91,9 +96,10 @@ const applyFilters = (data: any[], filters: FilterValues) => {
 };
 
 /**
- * CheckRefunds, main page component for viewing and managing refunds to be checked.
- * Input: None
- * Output: JSX.Element - The rendered page with a table of trips.
+ * FunctionName: CheckRefunds
+ * Purpose of the function: Main page component for viewing and managing refunds to be checked. Displays trips with pending refunds in a filterable table.
+ * Input: None - This is a page component with no props
+ * Output: JSX.Element - The rendered page with a table of trips and filter panel
  */
 export const CheckRefunds = () => {
   const navigate = useNavigate();
@@ -104,8 +110,10 @@ export const CheckRefunds = () => {
   const { t } = useTranslation();
 
   /**
-   * useEffect hook to fetch trip data from the API on component mount.
-   * Maps and formats the response data to match the Trip interface.
+   * FunctionName: fetchTrips
+   * Purpose of the function: Fetches trip data from the API, maps and formats the response data to match the required structure.
+   * Input: None - Uses async function inside useEffect
+   * Output: Sets allTrips and displayTrips state with formatted trip data
    */
   useEffect(() => {
     const fetchTrips = async () => {
@@ -151,7 +159,10 @@ export const CheckRefunds = () => {
   }, []);
 
   /**
-   * useEffect hook to manage the tutorial state based on whether the user has visited the page before.
+   * FunctionName: Tutorial Management
+   * Purpose of the function: Manages the tutorial state by checking if the user has visited the page before. Shows tutorial on first visit.
+   * Input: None - Reads from localStorage
+   * Output: Updates tutorial state and calls handleVisitPage to mark page as visited
    */
   useEffect(() => {
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
@@ -163,10 +174,22 @@ export const CheckRefunds = () => {
       handleVisitPage();
     }, []);
 
+  /**
+   * FunctionName: handleSearch
+   * Purpose of the function: Applies filter criteria to the list of trips and updates the displayed trips.
+   * Input: filters (FilterValues) - Object containing filter criteria
+   * Output: Updates displayTrips state with filtered results
+   */
   const handleSearch = (filters: FilterValues) => {
     setDisplayTrips(applyFilters(allTrips, filters));
   };
 
+  /**
+   * FunctionName: handleReset
+   * Purpose of the function: Resets the displayed trips to show all trips without any filters applied.
+   * Input: None
+   * Output: Updates displayTrips state to display all trips from allTrips
+   */
   const handleReset = () => {
     setDisplayTrips(allTrips);
   };

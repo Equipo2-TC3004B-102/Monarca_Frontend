@@ -1,3 +1,11 @@
+/**
+ * FileName: FilterPanel.tsx
+ * Description: A reusable filter panel component that allows users to filter travel records based on various criteria such as status, motive, trip date, request date range, departure country, and city. Fetches destination data for dynamic country and city options.
+ * Authors: Debug Studio
+ * Last Modification made:
+ * 03/06/2026 [Nicolas Quintana] Added documentation for the FilterPanel component and its functions for better maintainability.
+ */
+
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { getRequest } from "../utils/apiService";

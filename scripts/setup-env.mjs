@@ -3,7 +3,7 @@
  * Description: Bootstraps frontend .env from .env.example and validates required variables.
  * Authors: Original Monarca team
  * Last Modification made:
- * 26/03/2026 [Diego de la Vega] Added portable setup and environment validation flow.
+ * 03/06/2026 [Nicolas Quintana] Added function descriptions to ensureEnvFile and checkRequiredVariables.
  */
 
 import fs from 'node:fs';
@@ -31,7 +31,11 @@ function parseEnvFile(filePath) {
     }, {});
 }
 
-// Creates .env from .env.example when missing to simplify first-time setup.
+/**
+ * FunctionName: ensureEnvFile, Creates .env from .env.example when missing to simplify first-time setup.
+ * Input: none
+ * Output: Creates .env file if it doesn't exist and logs the action.
+ */
 function ensureEnvFile() {
   if (!fs.existsSync(envPath) && fs.existsSync(envExamplePath)) {
     fs.copyFileSync(envExamplePath, envPath);
@@ -39,7 +43,11 @@ function ensureEnvFile() {
   }
 }
 
-// Validates required frontend environment variables before runtime commands.
+/**
+ * FunctionName: checkRequiredVariables, Validates required frontend environment variables before runtime commands.
+ * Input: none
+ * Output: Logs validation results and exits with error code if any required variables are missing.
+ */
 function checkRequiredVariables() {
   const required = ['VITE_API_URL'];
   const envVars = parseEnvFile(envPath);

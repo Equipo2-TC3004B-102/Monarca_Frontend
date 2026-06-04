@@ -4,7 +4,7 @@
  *              company admin user in one operation. Calls POST /admin/companies/setup.
  * Authors: DebugStudio Team
  * Last Modification:
- * 01/06/2026 [Julio Rodriguez] Created page with form to input company and admin data, calls setup endpoint, and displays generated credentials.
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 
 import React, { useEffect, useState } from "react";

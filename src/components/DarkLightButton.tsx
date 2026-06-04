@@ -1,3 +1,11 @@
+/**
+ * FileName: DarkLightButton.tsx
+ * Description: Renders a toggle switch for switching between dark and light themes, with state persistence using localStorage.
+ * Authors: Debug Studio
+ * Last Modification made:
+ * 03/06/2026 [Nicolas Quintana] Added documentation for maintainability and the DarkModeButton component and its functions.
+ */
+
 import Switch from "./ui/Switch";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +15,13 @@ interface Props {
   classNameText?: string;
 }
 
+/**
+ * FunctionName: DarkModeButton, renders a toggle switch for switching between dark and light themes.
+ * Input:
+ * - className (string): Additional CSS classes for the container.
+ * - classNameText (string): Additional CSS classes for the text label.
+ * Output: JSX.Element - The dark mode toggle button component.
+ */
 export default function DarkModeButton({ className = "", classNameText = ""}: Props) {
   const [isDark, setIsDark] = useState(false);
   const { t } = useTranslation();
@@ -27,7 +42,7 @@ export default function DarkModeButton({ className = "", classNameText = ""}: Pr
 
   return (
     <div className={`flex flex-col gap-1 w-[5rem] items-center ${className}`}>
-      <span className={`whitespace-nowrap ${classNameText || "text-[var(--color-page-text)]"}`} style={{fontSize: '13px', fontWeight: 'bold'}}>{isDark ? t('theme.dark') : t('theme.light')}</span>
+      <span className="whitespace-nowrap" style={{fontSize: '13px', fontWeight: 'bold', color: classNameText || '#ffffff'}}>{isDark ? t('theme.dark') : t('theme.light')}</span>
       <Switch
       checked={isDark}
       onChange={handleThemeChange}
