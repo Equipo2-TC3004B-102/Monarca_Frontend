@@ -4,8 +4,7 @@
  *              Fetches current settings on load and provides a form to update preferences with feedback messages on success or error.
  * Authors: Original Monarca team
  * Last Modification made:
- * 05/05/2026 [Santiago Coronado Hernández] Created File and implemented notification settings management for admins.
- * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the notifications settings page
+ * 03/06/2026 [Nicolas Quintana] Remonved "Last Modification made" redundancies.
  */
 
 import { useEffect, useMemo, useState } from "react";

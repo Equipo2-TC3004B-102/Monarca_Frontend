@@ -1,9 +1,9 @@
 /**
- * Refunds.tsx
+ * FileName: Refunds.tsx
  * Description: Component displaying a list of active trips where users can submit expense vouchers.
  * Authors: Original Monarca team
  * Last Modification made:
- * 06/05/2026 [Sergio Jiawei Xuan] Adjusted table column widths; replaced hardcoded strings with i18n t() calls.
+ * 03/06/2026 [Nicolas Quintana] Added fromat to comments.
  */
 
 import { useState, useEffect } from "react";
@@ -36,8 +36,8 @@ interface Trip {
 }
 
 /**
- * renderStatus, assigns a styled badge and translated text based on the trip status.
- * Input: status (string) - The raw status string from the database.
+ * FunctionName: renderStatus, assigns a styled badge and translated text based on the trip status.
+ * Input: status (string) - The raw status string from the database, t (TFunction) - The translation function
  * Output: JSX.Element - A styled span component.
  */
 const renderStatus = (status: string, t: TFunction) => {
@@ -60,7 +60,7 @@ const renderStatus = (status: string, t: TFunction) => {
 }
 
 /**
- * Refunds, main component that fetches and lists trips in progress for voucher submission.
+ * FunctionName: Refunds, Main component that fetches and lists trips in progress for voucher submission.
  * Input: None
  * Output: JSX.Element - The rendered page with the trips table.
  */

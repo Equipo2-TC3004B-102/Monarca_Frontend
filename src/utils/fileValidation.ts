@@ -1,5 +1,5 @@
 /**
- * fileValidation.ts
+ * FileName: fileValidation.ts
  * Description: Utility functions for file validation, including size limit enforcement.
  * Purpose: Centralized file validation logic reusable across all upload components.
  * Authors: Original Monarca team

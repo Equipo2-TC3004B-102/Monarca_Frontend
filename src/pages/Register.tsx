@@ -4,6 +4,7 @@
  * Authors: Original Moncarca team
  * Last Modification made:
  * 04/05/2026 [Rebeca-Davila] Changed colors and included switch for dark mode
+ * 02/06/2026 [Nicolas Quintana] Added documentation for the component and handleSubmit function.
  */
 
 import React, { useState } from "react";
@@ -12,6 +13,14 @@ import { useTranslation } from "react-i18next";
 import { FiArrowRight } from "react-icons/fi";
 import DarkModeButton from "../components/DarkLightButton";
 
+/**
+ * RegisterPage Component
+ * Purpose: Renders a password recovery page with a form for users to enter their email address
+ * to recover their forgotten password. Includes dark mode toggle, language switch and link back to login.
+ * Inputs: None
+ * Outputs:
+ * {JSX.Element} A password recovery form page with email input field and submit button
+ */
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -23,6 +32,15 @@ export default function RegisterPage() {
     localStorage.setItem("language", next);
   };
 
+  /**
+   * handleSubmit Function
+   * Purpose: Handles form submission for password recovery by preventing default form behavior
+   * and navigating to the dashboard page.
+   * Inputs:
+   * React.FormEvent<HTMLFormElement> event - The form submission event
+   * Outputs:
+   * void - Navigates to dashboard route
+   */
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);

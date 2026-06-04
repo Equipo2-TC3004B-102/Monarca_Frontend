@@ -1,13 +1,9 @@
 /**
- * destinations.ts
+ * FileName: destinations.ts
  * Description: Type definitions related to destination entities used across the application (API models and UI select options).
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
- * 20/04/2026 [Diego de la Vega] Added optional IATA and airport name fields for
- *                             destination compatibility and fallback rendering.
- * 20/04/2026 [Diego de la Vega] Added grouped airport id metadata for city-level
- *                             destination options.
+ * 02/06/2026 [Nicolas Quintana] Removed comment redundancies.
  */
 
 /**

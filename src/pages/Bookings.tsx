@@ -1,6 +1,8 @@
 /**
- * Bookings.tsx
- * Description: Bookings page that lists travel requests pending reservation. Fetches data from the API, formats and enriches each row (status badge, destination, departure date), and provides navigation to the reservation flow.
+ * FileName: Bookings.tsx
+ * Description: Bookings page that lists travel requests pending reservation. Fetches data 
+ * from the API, formats and enriches each row (status badge, destination, departure date), 
+ * and provides navigation to the reservation flow.
  * Authors: Original Moncarca team
  * Last Modification made:
  * 20/04/2026 [Diego de la Vega] Added defensive destination/date fallbacks to

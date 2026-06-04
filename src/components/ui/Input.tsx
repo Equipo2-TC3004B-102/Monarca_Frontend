@@ -4,9 +4,7 @@
  * styling and ref forwarding.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 20/04/2026 [Jin Sik Yoon] Improved error handling for better UX.
- * 23/04/2026 [Santiago Coronado Hernández] Added onWheel and onFocus handler for number inputs to allow incrementing/decrementing values with mouse wheel, and ensured proper cleanup of event listeners on blur to prevent memory leaks.
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 import React from "react";
 import clsx from "clsx";

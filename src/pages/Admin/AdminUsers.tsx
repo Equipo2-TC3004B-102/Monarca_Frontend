@@ -5,9 +5,7 @@
  *              because POST /users/import is scoped to the caller's company.
  * Authors: DebugStudio Team
  * Last Modification made:
- * 05/05/2026 [Julio Rodriguez] Added companyId guard and company indicator using authState.companyId pattern.
- * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the list of users
- * 29/05/2026 [Sergio] Added company and active/inactive filters.
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 
 import React, { useEffect, useRef, useState } from "react";

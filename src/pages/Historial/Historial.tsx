@@ -4,9 +4,7 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez] Route travel agents to dedicated /requests/ta-history endpoint;
- *                              replace endpoint-string filters with permission-based filters.
- * 28/05/2026 [Sergio] Add filter panel for status, motive, trip date, request date and departure place.
+ * 03/06/2026 [Nicolas Quitnana] Added format to the comments and some fucntions that didn't have comments.
  */
 
 import Table from "../../components/Refunds/Table";
@@ -32,7 +30,7 @@ import FilterPanel, {
 } from "../../components/FilterPanel";
 
 /**
- * renderStatus, converts API status strings to localized display text with appropriate styling.
+ * FunctionName: renderStatus, converts API status strings to localized display text with appropriate styling.
  * Input: status (string)
  * Output: JSX element - styled status badge
  */
@@ -91,6 +89,11 @@ const renderStatus = (status: string, t: TFunction) => {
     )
 }
 
+/**
+ * FunctionName: applyFilters, filters the travel records based on the provided filter values.
+ * Input: data (any[]), filters (FilterValues)
+ * Output: any[] - filtered travel records
+ */
 const applyFilters = (data: any[], filters: FilterValues) => {
   const now = new Date();
   return data.filter((record) => {
@@ -129,7 +132,7 @@ const applyFilters = (data: any[], filters: FilterValues) => {
 };
 
 /**
- * Historial, displays a paginated table of travel request history with status indicators, filtering by user permissions, and detailed action buttons.
+ * FunctionName: Historial, displays a paginated table of travel request history with status indicators, filtering by user permissions, and detailed action buttons.
  * Input: none
  * Output: JSX element - complete travel history page with table and tutorial overlay
  */
@@ -143,7 +146,7 @@ export const Historial = () => {
   const { t } = useTranslation();
 
   /**
-   * Fetches travel records from API with permission-based filtering and formats data for display.
+   * FunctionName: fetchTravelRecords, fetches travel records from API with permission-based filtering and formats data for display.
    * Input: none
    * Output: void (updates allData and displayData states)
    */

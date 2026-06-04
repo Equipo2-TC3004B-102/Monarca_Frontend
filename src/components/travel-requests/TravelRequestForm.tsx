@@ -3,9 +3,7 @@
  * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
  * Authors: Original Monarca team
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Redesigned date model: each destination now only asks for departure_date;
- *                               a single return_date field captures the trip end. arrival_date and stay_days
- *                               are derived automatically at submit time. Validates sequential date order.
+ * 03/06/2026 [Nicolas Quintana] Added a brief description to TravelRequestForm and added documentation for the component and its props.
  */
 
 import { Button } from "../ui/Button";
@@ -128,7 +126,7 @@ interface DestinationFieldsProps {
 }
 
 /**
- * DestinationFields — renders inputs for a single destination leg.
+ * FunctionName: DestinationFields — renders inputs for a single destination leg.
  * Only asks for departure_date (when you leave for this destination).
  * arrival_date and stay_days are derived automatically at submit time.
  */
@@ -266,6 +264,11 @@ function DestinationFields({
   );
 }
 
+/**
+ * FunctionName: TravelRequestForm, renders the travel request form with dynamic fields and validation.
+ * Inputs: initialData (TravelRequestData | undefined) - Initial data for the form, requestId (string | undefined) - ID of the travel request being edited.
+ * Returns: JSX.Element - Form UI for creating or editing travel requests.
+ */
 function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();

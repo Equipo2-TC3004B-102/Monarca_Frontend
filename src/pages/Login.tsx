@@ -3,8 +3,7 @@
  * Description: Login page component that authenticates a user via the backend API and redirects to the dashboard on success. Displays toast notifications for validation and authentication errors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
- * 04/05/2026 [Rebeca-Davila] Changed colors and included switch for dark mode
+ * 02/06/2026 [Nicolas Quintana] Removed comment redundancies.
  */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
