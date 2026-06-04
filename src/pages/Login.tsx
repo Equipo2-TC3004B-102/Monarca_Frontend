@@ -3,7 +3,7 @@
  * Description: Login page component that authenticates a user via the backend API and redirects to the dashboard on success. Displays toast notifications for validation and authentication errors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 02/06/2026 [Nicolas Quintana] Removed comment redundancies.
+ * 04/06/2026 [Sergio Jiawei Xuan] Rounded input borders, dark mode focus ring, and improved eye button styling.
  */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -145,17 +145,33 @@ export default function LoginPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         .anim-fade { animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
         .field {
-          border-bottom: 1px solid var(--color-border, #e5e7eb);
+          border: 1px solid var(--color-border, #e5e7eb);
+          border-radius: 0.5rem;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
           transition: border-color 0.25s ease;
         }
         .field:focus-within {
-          border-bottom-color: #001d3d;
+          border-color: #001d3d;
+        }
+        .dark .field:focus-within {
+          border-color: #4d9aff;
         }
         .field input {
           background: transparent;
           color: var(--color-page-text, #001d3d);
           outline: none;
+          border: none;
+          box-shadow: none;
           width: 100%;
+          appearance: none;
+          -webkit-appearance: none;
+        }
+        .field input:focus,
+        .field input:focus-visible {
+          outline: none;
+          box-shadow: none;
+          border: none;
         }
         .field input::placeholder { color: #9ca3af; }
         .submit-btn {
@@ -297,7 +313,7 @@ export default function LoginPage() {
                 {t("login.password")}
               </label>
               <a
-                href="/recuperar-contrasena"
+                href="/password-recovery"
                 className="link-underline text-[0.7rem] tracking-[0.1em] text-[#0466cb]"
                 style={{ fontWeight: 500 }}
               >
@@ -312,13 +328,13 @@ export default function LoginPage() {
                 required
                 placeholder="••••••••"
                 autoComplete="current-password"
-                className="text-[0.95rem] pr-8"
+                className="text-[0.95rem] pr-10"
                 value={user.password}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#001d3d] transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-100 transition-colors"
                 tabIndex={-1}
                 aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
