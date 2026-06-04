@@ -5,7 +5,7 @@
  * tutorial logic for first-time visitors.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 02/06/2026 [Nicolas Quintana] Added a description for the dashboard fucntion.
+ * 04/06/2026 [Sergio Jiawei Xuan] Replaced flex-grow with min-h-[calc(100%+40px)] to restore correct full-height rendering.
  */
 
 import { useEffect } from "react";
@@ -59,7 +59,7 @@ export const Dashboard = ({title}:DashboardProps) => {
   return (
     <Tutorial page="dashboard" run={tutorial}>
       <div
-        className="relative -mx-10 -mt-10 px-10 pt-10 pb-16 flex-grow overflow-hidden"
+        className="relative -mx-10 -mt-10 px-10 pt-10 pb-16 min-h-[calc(100%+40px)] overflow-hidden"
         style={{ fontFamily: "Montserrat, sans-serif" }}
       >
         <style>{`

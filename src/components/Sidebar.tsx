@@ -4,7 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 27/05/2026 [Julio Rodriguez]: Moved vouchers-and-refunds link from approve_vouchers (SOI) to approve_request (approver).
+ * 04/06/2026 [Sergio Jiawei Xuan] Removed transition-colors to centralize theme transitions via theme-transitioning class.
  */
 
 // ***************** images *****************
@@ -35,7 +35,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
   return (
     <aside
       id="logo-sidebar"
-      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--color-page-text)] transition-colors duration-500"      aria-label="Sidebar"
+      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--color-page-text)]"      aria-label="Sidebar"
     >
       <div className="h-full px-3 pb-4 overflow-y-auto">
         <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] h-[120px] mx-auto p-4 rounded-lg">
