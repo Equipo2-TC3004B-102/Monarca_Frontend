@@ -4,7 +4,7 @@
  *              company admin user in one operation. Calls POST /admin/companies/setup.
  * Authors: DebugStudio Team
  * Last Modification:
- * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
+ * 03/06/2026 [Julio Rodriguez] Added dropdown for local currency selection with options from currencies utility.
  */
 
 import React, { useEffect, useState } from "react";
