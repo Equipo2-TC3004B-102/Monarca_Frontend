@@ -4,11 +4,11 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 03/06/2026 [Nicolas Quitnana] Added format to the comments and some fucntions that didn't have comments.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
 import Table from "../../components/Refunds/Table";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { Permission, useAuth } from "../../hooks/auth/authContext";
@@ -150,8 +150,7 @@ export const Historial = () => {
    * Input: none
    * Output: void (updates allData and displayData states)
    */
-  useEffect(() => {
-    const fetchTravelRecords = async () => {
+  const fetchTravelRecords = useCallback(async () => {
       try {
         const view = searchParams.get("view");
         const endpoint =
@@ -205,10 +204,9 @@ export const Historial = () => {
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
-    };
+  }, [searchParams, authState, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    fetchTravelRecords();
-  }, [searchParams]);
+  useEffect(() => { fetchTravelRecords(); }, [fetchTravelRecords]);
 
   useEffect(() => {
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
@@ -276,7 +274,7 @@ export const Historial = () => {
               <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
                 {t('historial.title')}
               </h2>
-              <RefreshButton />
+              <RefreshButton onClick={fetchTravelRecords} />
           </div>
 
           {/* Filter panel */}

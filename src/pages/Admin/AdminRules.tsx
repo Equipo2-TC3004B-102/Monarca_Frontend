@@ -6,9 +6,7 @@
  *              company_id is derived server-side from JWT.
  * Authors: Original Monarca team
  * Last Modification made:
- * 01/06/2026 [Julio Rodriguez] Dynamic level_order dropdown from GET /users/tree-depth.
- *                              min/max default to 0/9999999 when empty. ceco_id on level.
- *                              Restored actor management UI.
+ * 04/06/2026 [Sergio Jiawei Xuan] Added 30-day max validation for voucher deadline; connected RefreshButton onClick.
  */
 import React, { useEffect, useState } from "react";
 import { getRequest, postRequest, patchRequest, deleteRequest } from "../../utils/apiService";
@@ -494,7 +492,7 @@ export default function AdminRules() {
     if (!companyId) return;
     const inputEl = (e.currentTarget.elements.namedItem("voucher_deadline_days")) as HTMLInputElement | null;
     const days = parseInt(inputEl?.value ?? deadlineInput, 10);
-    if (isNaN(days) || days < 1) return;
+    if (isNaN(days) || days < 1 || days > 30) return;
     setSavingDeadline(true);
     setMessage(null);
     try {
@@ -544,7 +542,7 @@ export default function AdminRules() {
               >
                 {showForm ? t('common.cancel') : t('admin.rules.createRule')}
               </button>
-              <RefreshButton />
+              <RefreshButton onClick={fetchRules} />
             </div>
           </div>
         </div>
@@ -569,10 +567,11 @@ export default function AdminRules() {
                     name="voucher_deadline_days"
                     type="number"
                     min={1}
+                    max={30}
                     value={deadlineInput}
                     onChange={(e) => setDeadlineInput(e.target.value)}
                     required
-                    className="w-24"
+                    className="!w-24"
                   />
                   <span className="text-sm text-[var(--color-page-text)]">{t('admin.rules.voucherDeadlineDaysLabel')}</span>
                 </div>

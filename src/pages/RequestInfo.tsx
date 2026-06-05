@@ -3,7 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 02/06/2026 [Nicolas Quintana] Removed comment redundancies.
+ * 04/06/2026 [Sergio Jiawei Xuan] Fixed stay_days tag to only render when stay_days > 0.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -652,7 +652,7 @@ const RequestInfo: React.FC = () => {
                     {dest.is_plane_required && (
                       <p id={`plane-${index}`} className='text-sm bg-[var(--blue)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{t('requestInfo.flight')}</p>
                     )}
-                    {dest.stay_days && (
+                    {dest.stay_days > 0 && (
                       <p id={`stay-days-${index}`} className='text-sm bg-[var(--green)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{dest.stay_days} {t('requestInfo.days')}</p>
                     )}
 

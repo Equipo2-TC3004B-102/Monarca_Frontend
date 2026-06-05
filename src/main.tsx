@@ -4,7 +4,7 @@
  * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 02/06/2026 [Nicolas Quintana] Removed comment redundancies.
+ * 04/06/2026 [Sergio Jiawei Xuan] Updated password recovery route to /password-recovery.
  */
 
 import { StrictMode } from "react";
@@ -72,7 +72,7 @@ export const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/recuperar-contrasena",
+    path: "/password-recovery",
     element: <Register />,
   },
   {

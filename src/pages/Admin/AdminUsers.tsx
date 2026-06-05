@@ -5,7 +5,7 @@
  *              because POST /users/import is scoped to the caller's company.
  * Authors: DebugStudio Team
  * Last Modification made:
- * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
+ * 04/06/2026 [Sergio Jiawei Xuan] Connected RefreshButton onClick to fetchUsers.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -164,7 +164,7 @@ export default function AdminUsers() {
                   {importing ? t('admin.users.importing') : t('admin.users.loadUser')}
                 </button>
               )}
-              <RefreshButton />
+              <RefreshButton onClick={fetchUsers} />
             </div>
           </div>
           <p className="text-sm text-gray-600">

@@ -3,10 +3,10 @@
  * Description: Page component that displays trips with pending refunds to be reviewed by authorized personnel.
  * Authors: Original Monarca team
  * Last Modification made:
- * 03/06/2026 [Nicolas Quintana] Removed comment redundancies and added descriptions to functions that didn't have them.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Table from "../../components/Refunds/Table";
 import { getRequest } from "../../utils/apiService";
 import Button from "../../components/Refunds/Button";
@@ -115,8 +115,7 @@ export const CheckRefunds = () => {
    * Input: None - Uses async function inside useEffect
    * Output: Sets allTrips and displayTrips state with formatted trip data
    */
-  useEffect(() => {
-    const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
       try {
         setLoading(true);
         const response = await getRequest("/requests/refund-to-approve-SOI");
@@ -154,9 +153,9 @@ export const CheckRefunds = () => {
       } finally {
         setLoading(false);
       }
-    };
-    fetchTrips();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { fetchTrips(); }, [fetchTrips]);
 
   /**
    * FunctionName: Tutorial Management
@@ -233,7 +232,7 @@ export const CheckRefunds = () => {
             <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
                 {t('refunds.vouchersToRegister')}
             </h2>
-            <RefreshButton />
+            <RefreshButton onClick={fetchTrips} />
           </div>
 
           {/* Filter panel */}

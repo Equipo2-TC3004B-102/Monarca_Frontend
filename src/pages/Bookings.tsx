@@ -5,11 +5,10 @@
  * and provides navigation to the reservation flow.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added defensive destination/date fallbacks to
- *                             prevent crashes when request data is incomplete.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import RefreshButton from "../components/RefreshButton";
 import Table from "../components/Refunds/Table";
 import { getRequest } from "../utils/apiService";
@@ -87,8 +86,7 @@ const Bookings = () => {
    * Input: None.
    * Output: Promise<void> - Updates local state with enriched data.
    */
-  useEffect(() => {
-    const fetchTravelRecords = async () => {
+  const fetchTravelRecords = useCallback(async () => {
       try {
         const response = await getRequest("/requests/to-reserve");
         setDataWithActions(
@@ -122,10 +120,9 @@ const Bookings = () => {
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
-    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    fetchTravelRecords();
-  }, []);
+  useEffect(() => { fetchTravelRecords(); }, [fetchTravelRecords]);
 
   /**
    * Tutorial onboarding logic:
@@ -158,7 +155,7 @@ const Bookings = () => {
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
             {t('bookings.title')}
           </h2>
-          <RefreshButton />
+          <RefreshButton onClick={fetchTravelRecords} />
         </div>
 
         <div id="list_requests">

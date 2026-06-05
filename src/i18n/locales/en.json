@@ -52,6 +52,7 @@
     "password": "Password",
     "forgotPassword": "Forgot your password?",
     "continue": "Continue",
+    "signIn": "Sign in",
     "emailPlaceholder": "user@domain.com"
   },
   "status": {
@@ -184,6 +185,10 @@
     "originCity": "Origin city",
     "originCityPlaceholder": "Search your city",
     "originCityDisabledPlaceholder": "First select a country",
+    "destinationCountry": "Country",
+    "destinationCountryPlaceholder": "Select a country",
+    "destinationCountryFirst": "First select a country",
+    "destinationCity": "City",
     "advanceMoney": "Advance",
     "currency": "Currency",
     "priority": "Priority",
@@ -258,7 +263,7 @@
     "arrivalDate": "Arrival date:",
     "days": "days",
     "place": "Place:",
-    "flight": "Flight:",
+    "flight": "Flight",
     "details": "Details:",
     "advance": "Advance:",
     "balanceInFavor": "Balance in favor:",
