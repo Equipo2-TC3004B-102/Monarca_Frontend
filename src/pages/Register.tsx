@@ -3,8 +3,7 @@
  * Description: Renders the registration page with a form for new users to create an account, including fields for email and password, and links to the login page for existing users.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors and included switch for dark mode
- * 02/06/2026 [Nicolas Quintana] Added documentation for the component and handleSubmit function.
+ * 04/06/2026 [Sergio Jiawei Xuan] Rounded input borders and dark mode focus ring, matching Login.tsx.
  */
 
 import React, { useState } from "react";
@@ -95,17 +94,33 @@ export default function RegisterPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         .anim-fade { animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
         .field {
-          border-bottom: 1px solid var(--color-border, #e5e7eb);
+          border: 1px solid var(--color-border, #e5e7eb);
+          border-radius: 0.5rem;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
           transition: border-color 0.25s ease;
         }
         .field:focus-within {
-          border-bottom-color: #001d3d;
+          border-color: #001d3d;
+        }
+        .dark .field:focus-within {
+          border-color: #4d9aff;
         }
         .field input {
           background: transparent;
           color: var(--color-page-text, #001d3d);
           outline: none;
+          border: none;
+          box-shadow: none;
           width: 100%;
+          appearance: none;
+          -webkit-appearance: none;
+        }
+        .field input:focus,
+        .field input:focus-visible {
+          outline: none;
+          box-shadow: none;
+          border: none;
         }
         .field input::placeholder { color: #9ca3af; }
         .submit-btn {

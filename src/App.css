@@ -75,6 +75,11 @@ a {
   text-decoration: none;
 }
 
+.theme-transitioning,
+.theme-transitioning * {
+  transition: background-color 500ms ease, color 500ms ease, border-color 500ms ease, fill 500ms ease !important;
+}
+
 /* img {
   width: 100%;
   height: auto;

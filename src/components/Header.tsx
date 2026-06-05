@@ -4,13 +4,13 @@
  *              and a dropdown with user info and logout option.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 16/04/2026 [Rebeca-Davila] Added a button with a toggle function to make the sidebar appear
+ * 04/06/2026 [Sergio Jiawei Xuan] Removed role display from user dropdown.
  */
 
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../hooks/auth/authContext";
 import { useTranslation } from "react-i18next";
-import { FiMenu, FiLogOut, FiMail, FiShield } from "react-icons/fi";
+import { FiMenu, FiLogOut, FiMail } from "react-icons/fi";
 import DarkModeButton from "../components/DarkLightButton";
 
 /**
@@ -108,12 +108,6 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
                 >
                   {authState?.userName} {authState?.userLastName}
                 </span>
-                <span
-                  className="text-white/50 text-[0.65rem] tracking-[0.15em] uppercase"
-                  style={{ fontWeight: 500 }}
-                >
-                  {authState?.userRole || "Usuario"}
-                </span>
               </span>
               <span
                 className="flex items-center justify-center w-10 h-10 rounded-full text-white text-[0.85rem] transition-transform duration-200 group-hover:scale-105"
@@ -170,12 +164,6 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
                       >
                         {authState.userName} {authState.userLastName}
                       </p>
-                      <p
-                        className="text-[#4d9aff] text-[0.65rem] tracking-[0.25em] uppercase mt-0.5"
-                        style={{ fontWeight: 600 }}
-                      >
-                        {authState.userRole || "Usuario"}
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -185,10 +173,6 @@ function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
                   <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
                     <FiMail className="text-gray-400 flex-shrink-0" size={14} />
                     <span className="truncate">{authState.userEmail}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-600">
-                    <FiShield className="text-gray-400 flex-shrink-0" size={14} />
-                    <span className="truncate">{authState.userRole}</span>
                   </div>
                 </div>
 
