@@ -700,17 +700,6 @@ export default function AdminRules() {
                       )}
                     </div>
                   )}
-                  {form.actor_type && form.actor_type !== 'USER' && (
-                    <div>
-                      <label className={labelClass}>{t('admin.rules.cecoAppliesTo')} ({t('admin.rules.actorTypeLabel')})</label>
-                      <select name="actor_ceco_id" value={form.actor_ceco_id} onChange={handleChange} className={selectClass}>
-                        <option value="">{t('admin.rules.cecoAll')}</option>
-                        {cecos.map((c) => (
-                          <option key={c.id} value={c.id}>{c.id}{c.name ? ` — ${c.name}` : ''}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
                 </div>
                 <Button type="submit" disabled={saving} className="mt-6">
                   {saving ? t('common.saving') : t('admin.rules.saveRule')}
