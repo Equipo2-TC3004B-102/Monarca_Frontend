@@ -4,7 +4,7 @@
  *              company admin user in one operation. Calls POST /admin/companies/setup.
  * Authors: DebugStudio Team
  * Last Modification:
- * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
+ * 03/06/2026 [Julio Rodriguez] Added dropdown for local currency selection with options from currencies utility.
  */
 
 import React, { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import { Button } from "../../components/ui/Button";
 import { useTranslation } from "react-i18next";
 import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
+import { currencyOptions } from "../../utils/currencies";
 
 interface SetupResult {
   company: { id: string; name: string; local_currency: string };
@@ -40,7 +41,7 @@ export default function AdminNewCompany() {
 
   const { handleVisitPage, tutorial, setTutorial } = useApp();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -119,7 +120,20 @@ export default function AdminNewCompany() {
                 </div>
                 <div>
                   <label className={labelClass}>{t('admin.newCompany.localCurrency')}</label>
-                  <Input name="local_currency" value={form.local_currency} onChange={handleChange} required />
+                  <select
+                    name="local_currency"
+                    value={form.local_currency}
+                    onChange={handleChange}
+                    required
+                    className="bg-[var(--color-card-bg)] border border-[var(--color-border)] text-gray-500 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                  >
+                    <option value="">—</option>
+                    {currencyOptions.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.id} — {c.fullName}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

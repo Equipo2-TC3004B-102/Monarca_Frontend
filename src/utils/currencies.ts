@@ -3,19 +3,19 @@
  * Description: Currency options for the travel request form.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 20/04/2026 [Sebastián Borjas] Added support for advance money currency.
+ * 01/06/2026 [Julio Rodriguez] Created utility for currency options, including Banxico IDs for exchange rate fetching and i18n support.
  */
 
 import { TFunction } from "i18next";
 
 const currencyMeta = [
-  { id: "USD", banxico_id: "SF46405" },
-  { id: "EUR", banxico_id: "SF46410" },
-  { id: "JPY", banxico_id: "SF46406" },
-  { id: "GBP", banxico_id: "SF46407" },
-  { id: "CNY", banxico_id: "SF290383" },
-  { id: "SDR", banxico_id: "SF46411" },
-  { id: "MXN", banxico_id: " " },
+  { id: "MXN", banxico_id: " ",        symbol: "$",   fullName: "Peso mexicano" },
+  { id: "USD", banxico_id: "SF46405",  symbol: "$",   fullName: "Dólar estadounidense" },
+  { id: "EUR", banxico_id: "SF46410",  symbol: "€",   fullName: "Euro" },
+  { id: "GBP", banxico_id: "SF46407",  symbol: "£",   fullName: "Libra esterlina" },
+  { id: "JPY", banxico_id: "SF46406",  symbol: "¥",   fullName: "Yen japonés" },
+  { id: "CNY", banxico_id: "SF290383", symbol: "¥",   fullName: "Yuan chino" },
+  { id: "SDR", banxico_id: "SF46411",  symbol: "SDR", fullName: "Derechos especiales de giro" },
 ];
 
 export const currencyOptions = currencyMeta.map((c) => ({
