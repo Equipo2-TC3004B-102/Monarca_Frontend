@@ -76,7 +76,7 @@ const renderStatus = (status: string, t: TFunction) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs p-1 rounded-sm ${styles}`}>
+      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${styles}`}>
         {statusText}
       </span>
     )
@@ -139,11 +139,13 @@ export const Approvals: React.FC = () => {
   const { t } = useTranslation();
 
   const columns = [
-    { key: "status", header: t('approvals.status'), render: (value: string) => renderStatus(value, t) },
-    { key: "motive", header: t('approvals.trip') },
+    { key: "status", header: t('approvals.status'), width: "w-52", render: (value: string) => renderStatus(value, t) },
+    { key: "motive", header: t('approvals.trip'), mobileHidden: true },
     { key: "title", header: t('approvals.motive') },
+    { key: "origin", header: t('approvals.origin'), mobileHidden: true },
     { key: "departureDate", header: t('approvals.departureDate') },
-    { key: "country", header: t('approvals.departurePlace') },
+    { key: "country", header: t('approvals.departurePlace'), mobileHidden: true },
+    { key: "arrivalDate", header: t('approvals.arrivalDate'), mobileHidden: true },
   ];
 
   // Fetch travel records data from API
@@ -167,12 +169,19 @@ export const Approvals: React.FC = () => {
             status: trip.status,
             _rawCreatedAt: trip.createdAt,
             _rawDepartureDate: firstDestination?.departure_date ?? null,
-            country:
+            origin:
               trip.destination?.city ||
               trip.destination?.iata_code ||
               t('historial.noDestination'),
+            country:
+              firstDestination?.destination?.city ||
+              firstDestination?.destination?.iata_code ||
+              t('historial.noDestination'),
             departureDate: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
+              : t('historial.noDate'),
+            arrivalDate: firstDestination?.arrival_date
+              ? formatDate(firstDestination.arrival_date)
               : t('historial.noDate'),
           };
         });

@@ -157,7 +157,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   return (
     <div className="relative">
       <div className="overflow-x-auto mb-4">
-        <table className="w-full min-w-[1100px] text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full min-w-[1100px] table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {columns.map((column, index) => (

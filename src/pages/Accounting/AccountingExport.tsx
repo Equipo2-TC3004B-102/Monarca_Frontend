@@ -123,15 +123,15 @@ export const AccountingExport = () => {
           <p className="text-[var(--color-page-text)]">{t("accounting.noRequests")}</p>
         ) : (
           <div className="overflow-x-auto mb-4">
-            <table className="w-full min-w-[900px] text-sm text-left border-separate border-spacing-y-2">
+            <table className="w-full min-w-[900px] table-fixed text-sm text-left border-separate border-spacing-y-2">
               <thead>
                 <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
-                  <th className="px-4 py-2 rounded-l-lg">{t("accounting.tableHeaders.folio")}</th>
-                  <th className="px-4 py-2">{t("accounting.tableHeaders.employee")}</th>
-                  <th className="px-4 py-2">{t("accounting.tableHeaders.title")}</th>
-                  <th className="px-4 py-2 text-right">{t("accounting.tableHeaders.advance")}</th>
-                  <th className="px-4 py-2">{t("accounting.tableHeaders.date")}</th>
-                  <th className="px-4 py-2 text-center rounded-r-lg">{t("accounting.tableHeaders.actions")}</th>
+                  <th className="px-4 py-2 text-center rounded-l-lg w-[10%]">{t("accounting.tableHeaders.folio")}</th>
+                  <th className="px-4 py-2 text-center w-[18%]">{t("accounting.tableHeaders.employee")}</th>
+                  <th className="px-4 py-2 text-center w-[22%]">{t("accounting.tableHeaders.title")}</th>
+                  <th className="px-4 py-2 text-center w-[18%]">{t("accounting.tableHeaders.advance")}</th>
+                  <th className="px-4 py-2 text-center w-[14%]">{t("accounting.tableHeaders.date")}</th>
+                  <th className="px-4 py-2 text-center rounded-r-lg w-[18%]">{t("accounting.tableHeaders.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -143,17 +143,17 @@ export const AccountingExport = () => {
                   const isGenerating = generatingId === req.id;
                   return (
                     <tr key={req.id} className="bg-[#4C6997] text-white text-center">
-                      <td className="px-4 py-3 rounded-l-lg font-mono font-semibold text-left">
+                      <td className="px-4 py-3 rounded-l-lg font-mono font-semibold">
                         {folio}
                       </td>
-                      <td className="px-4 py-3 text-left">{employeeName}</td>
-                      <td className="px-4 py-3 max-w-xs truncate text-left">{req.title}</td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3">{employeeName}</td>
+                      <td className="px-4 py-3 truncate">{req.title}</td>
+                      <td className="px-4 py-3">
                         {Number(req.advance_money) > 0
                           ? formatMoney(req.advance_money)
                           : "—"}
                       </td>
-                      <td className="px-4 py-3 text-left">{formatDate(req.createdAt)}</td>
+                      <td className="px-4 py-3">{formatDate(req.createdAt)}</td>
                       <td className="px-4 py-3 rounded-r-lg text-center">
                         <button
                           onClick={() => handleGenerate(req)}

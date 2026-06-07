@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 interface Column {
   key: string;
   header: string;
+  width?: string;
   mobileHidden?: boolean;
   render?: (value: any) => ReactNode;
 }
@@ -102,7 +103,7 @@ const Table: React.FC<TableProps> = ({
                   key={index}
                   className={`px-4 py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
-                  } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
+                  } ${column.mobileHidden ? "hidden lg:table-cell" : ""} ${column.width ?? ""}`}
                 >
                   {column.header}
                 </th>
@@ -112,7 +113,7 @@ const Table: React.FC<TableProps> = ({
                 {t('approvals.details')}
               </th>
 
-              <th className="px-4 py-2 text-center rounded-r-lg">{t('approvals.data')}</th>
+              <th className="px-4 py-2 text-center rounded-r-lg w-24">{t('approvals.data')}</th>
             </tr>
           </thead>
 

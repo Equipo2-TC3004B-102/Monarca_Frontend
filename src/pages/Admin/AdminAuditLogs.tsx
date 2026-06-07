@@ -223,7 +223,7 @@ export default function AdminAuditLogs() {
     });
   };
 
-  const formatDate = (iso: string) => new Date(iso).toLocaleString();
+  const formatDate = (iso: string) => new Date(iso).toLocaleString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
     <>

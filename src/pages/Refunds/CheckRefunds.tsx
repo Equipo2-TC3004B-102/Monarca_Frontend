@@ -49,7 +49,7 @@ const renderStatus = (status: string, t: TFunction) => {
     case "Completed":           statusText = t('status.completed');           styles = "text-[#24390d] font-bold bg-[#c7e6ab]"; break;
     default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
-  return <span className={`text-xs px-2 py-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>{statusText}</span>;
+  return <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${styles}`}>{statusText}</span>;
 }
 
 /**
@@ -138,6 +138,13 @@ export const CheckRefunds = () => {
               trip.destination?.city ||
               trip.destination?.iata_code ||
               t('historial.noDestination'),
+            destination:
+              firstDestination?.destination?.city ||
+              firstDestination?.destination?.iata_code ||
+              t('historial.noDestination'),
+            arrivalDate: firstDestination?.arrival_date
+              ? formatDate(firstDestination.arrival_date)
+              : "N/A",
             createdAt: formatDate(trip.createdAt),
           };
         });
@@ -194,13 +201,14 @@ export const CheckRefunds = () => {
   };
 
   const columnsSchemaTrips = [
-    { key: "status",        header: t('refunds.status'),         width: "w-[22%]", render: (value: string) => renderStatus(value, t) },
+    { key: "status",        header: t('refunds.status'),         width: "w-[16%]", render: (value: string) => renderStatus(value, t) },
     { key: "title",         header: t('refunds.trip'),           width: "w-[16%]" },
-    { key: "date",          header: t('refunds.tripDate'),       width: "w-[12%]" },
-    { key: "origin",        header: t('refunds.departurePlace'), width: "w-[13%]" },
-    { key: "advance_money", header: t('refunds.advance'),        width: "w-[5%]" },
-    { key: "createdAt",     header: t('refunds.requestDate'),    width: "w-[21%]" },
-    { key: "action",        header: "",                          width: "w-[11%]" },
+    { key: "origin",        header: t('refunds.origin'),         width: "w-[10%]" },
+    { key: "date",          header: t('refunds.tripDate'),       width: "w-[11%]" },
+    { key: "destination",   header: t('refunds.departurePlace'), width: "w-[10%]" },
+    { key: "arrivalDate",   header: t('refunds.requestDate'),    width: "w-[11%]" },
+    { key: "advance_money", header: t('refunds.advance'),        width: "w-[17%]" },
+    { key: "action",        header: t('historial.details'),      width: "w-[9%]"  },
   ];
 
   if (loading) {
@@ -244,7 +252,7 @@ export const CheckRefunds = () => {
               data={dataWithActions}
               itemsPerPage={7}
             />
-        </div>
+          </div>
           </div>
       </Tutorial>
       </>
