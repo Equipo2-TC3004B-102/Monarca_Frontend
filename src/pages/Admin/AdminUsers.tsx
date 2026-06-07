@@ -264,7 +264,7 @@ export default function AdminUsers() {
                   <td className="px-4 py-3">{u.user_name}</td>
                   <td className="px-4 py-3">{u.employee_num ?? "-"}</td>
                   <td className="px-4 py-3 rounded-r-lg">
-                    <span className={`text-xs p-1 rounded-sm font-bold ${u.status === "active" ? "bg-[#c7e6ab] text-[#24390d]" : "bg-[#eca6a6] text-[#680909]"}`}>
+                    <span className={`text-xs px-2 py-1 rounded-full font-bold ${u.status === "active" ? "bg-[#c7e6ab] text-[#24390d]" : "bg-[#eca6a6] text-[#680909]"}`}>
                       {u.status === "active" ? t('admin.users.active') : t('admin.users.inactive')}
                     </span>
                   </td>

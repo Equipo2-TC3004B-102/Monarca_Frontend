@@ -20,7 +20,7 @@ const CfdiStatus = ({ status, variant = 'pill' }: CfdiStatusProps) => {
 
   const text = t(`cfdi.${status}`) || status;
 
-  const base = 'text-xs px-2 py-1 rounded-sm inline-block font-bold';
+  const base = 'text-xs px-2 py-1 rounded-full inline-block font-bold';
   const inlineBase = 'text-[var(--color-page-text)]';
 
   const styles = (() => {

@@ -83,7 +83,7 @@ const renderStatus = (status: string, t: TFunction) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs p-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>
+      <span className={`text-xs px-2 py-1 rounded-full box-decoration-clone leading-snug ${styles}`}>
         {statusText}
       </span>
     )
@@ -188,12 +188,19 @@ export const Historial = () => {
             _rawCreatedAt: record.createdAt,
             _rawDepartureDate: firstDestination?.departure_date ?? null,
             createdAt: formatDate(record.createdAt),
-            country:
+            origin:
               record.destination?.city ||
               record.destination?.iata_code ||
               t('historial.noDestination'),
+            country:
+              firstDestination?.destination?.city ||
+              firstDestination?.destination?.iata_code ||
+              t('historial.noDestination'),
             departureDate: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
+              : t('historial.noDate'),
+            arrivalDate: firstDestination?.arrival_date
+              ? formatDate(firstDestination.arrival_date)
               : t('historial.noDate'),
             index,
             action: record.id,
@@ -253,9 +260,10 @@ export const Historial = () => {
     { key: "status", header: t('historial.status'), render: (value: string) => renderStatus(value, t) },
     { key: "title", header: t('historial.trip') },
     { key: "motive", header: t('historial.motive') },
+    { key: "origin", header: t('historial.origin') },
     { key: "departureDate", header: t('historial.departureDate') },
     { key: "country", header: t('historial.departurePlace') },
-    { key: "createdAt", header: t('historial.requestDate') },
+    { key: "arrivalDate", header: t('historial.requestDate') },
     { key: "action", header: t('historial.details'), render: (id: string) => (
       <Button
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"

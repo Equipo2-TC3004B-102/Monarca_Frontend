@@ -50,7 +50,7 @@ const renderStatus = (status: string, t: TFunction) => {
     default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
   return (
-    <span className={`text-xs p-1 rounded-sm ${styles}`}>{statusText}</span>
+    <span className={`text-xs px-2 py-1 rounded-full ${styles}`}>{statusText}</span>
   );
 };
 
@@ -76,8 +76,10 @@ const Bookings = () => {
   const columns = [
     { key: "status", header: t('bookings.status'), render: (value: string) => renderStatus(value, t) },
     { key: "title", header: t('bookings.trip') },
-    { key: "country", header: t('bookings.departurePlace') },
+    { key: "origin", header: t('bookings.origin') },
     { key: "departureDate", header: t('bookings.departureDate') },
+    { key: "country", header: t('bookings.departurePlace') },
+    { key: "arrivalDate", header: t('bookings.arrivalDate') },
     { key: "action", header: "" },
   ];
 
@@ -99,12 +101,19 @@ const Bookings = () => {
             return {
               ...trip,
               status: trip.status,
-              country:
+              origin:
                 trip.destination?.city ||
                 trip.destination?.iata_code ||
                 t('historial.noDestination'),
+              country:
+                firstDestination?.destination?.city ||
+                firstDestination?.destination?.iata_code ||
+                t('historial.noDestination'),
               departureDate: firstDestination?.departure_date
                 ? formatDate(firstDestination.departure_date)
+                : t('historial.noDate'),
+              arrivalDate: firstDestination?.arrival_date
+                ? formatDate(firstDestination.arrival_date)
                 : t('historial.noDate'),
               action: (
                 <Link
