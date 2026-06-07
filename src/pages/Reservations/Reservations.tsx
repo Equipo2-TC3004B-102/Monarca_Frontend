@@ -332,35 +332,6 @@ export const Reservations = () => {
     }
   };
 
-  /**
-   * FunctionName: handlePriceWheel
-   * Purpose of the function: Handles mouse wheel events on price input fields to increment/decrement price values and prevents page scrolling while hovering over price inputs.
-   * Input: e (React.WheelEvent<HTMLInputElement>) - The wheel event, id (string) - The destination ID associated with the price field
-   * Output: Updates formData with adjusted price value
-   */
-  const handlePriceWheel = (
-    e: React.WheelEvent<HTMLInputElement>,
-    id: string
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.nativeEvent.preventDefault();
-    e.nativeEvent.stopImmediatePropagation();
-
-    const { name, value } = e.currentTarget;
-    const current = Number(value || 0);
-
-    const next =
-      e.deltaY < 0 ? current + 1 : Math.max(0, current - 1);
-
-    setFormData((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        [name]: next.toFixed(2),
-      },
-    }));
-  };
 
   /**
    * FunctionName: applyFlightOption
@@ -410,16 +381,6 @@ export const Reservations = () => {
         segment: segmentIndex + 1,
       })
     );
-  };
-
-  /**
-   * FunctionName: setPageScroll
-   * Purpose of the function: Enables or disables page scrolling by manipulating the document body overflow style. Used to prevent scrolling when interacting with price inputs.
-   * Input: enabled (boolean) - True to enable scrolling, false to disable
-   * Output: Modifies document.body.style.overflow
-   */
-  const setPageScroll = (enabled: boolean) => {
-    document.body.style.overflow = enabled ? "auto" : "hidden";
   };
 
   /**
@@ -667,25 +628,33 @@ export const Reservations = () => {
                               className="w-full rounded-lg bg-[var(--color-card-bg)] text-[var(--color-page-text)] border border-[var(--color-border)] px-3 py-2"
                               placeholder={t('reservations.hotelPricePlaceholder')}
                               value={formData[destination.id]?.hotel_price ?? "0.00"}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
-                                  handleChange(e, destination.id);
-                                }
+                              onChange={(e) => handleChange(e, destination.id)}
+                              onFocus={(e) => {
+                                const el = e.currentTarget as HTMLInputElement & { _wheelHandler?: (ev: WheelEvent) => void };
+                                const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+                                const handleWheel = (ev: WheelEvent) => {
+                                  ev.preventDefault();
+                                  const current = parseFloat(el.value || "0");
+                                  const next = ev.deltaY < 0 ? current + 1 : Math.max(0, current - 1);
+                                  nativeSetter?.call(el, next.toFixed(2));
+                                  el.dispatchEvent(new Event("input", { bubbles: true }));
+                                };
+                                el._wheelHandler = handleWheel;
+                                el.addEventListener("wheel", handleWheel, { passive: false });
                               }}
-                              onWheel={(e) => handlePriceWheel(e, destination.id)}
-                              onMouseEnter={() => setPageScroll(false)}
-                              onMouseLeave={() => setPageScroll(true)}
-                              onFocus={() => setPageScroll(false)}
                               onBlur={(e) => {
+                                const el = e.currentTarget as HTMLInputElement & { _wheelHandler?: (ev: WheelEvent) => void };
+                                if (el._wheelHandler) { el.removeEventListener("wheel", el._wheelHandler); delete el._wheelHandler; }
                                 const value = e.target.value.trim();
                                 e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
                                 handleChange(e, destination.id);
-                                setPageScroll(true);
+                              }}
+                              onKeyDown={(e) => {
+                                if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
                               }}
                               name="hotel_price"
-                              type="text"
-                              inputMode="decimal"
+                              type="number"
+                              min={0}
                               id={`hotel_price_${destination.id}`}
                             />
                             <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>
@@ -792,33 +761,37 @@ export const Reservations = () => {
                               readOnly={!!formData[destination.id]?.plane_price_locked}
                               onChange={(e) => {
                                 if (formData[destination.id]?.plane_price_locked) return;
-                                const value = e.target.value;
-                                if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
-                                  handleChange(e, destination.id);
-                                }
+                                handleChange(e, destination.id);
                               }}
-                              onWheel={(e) => {
-                                if (!formData[destination.id]?.plane_price_locked) handlePriceWheel(e, destination.id);
+                              onFocus={(e) => {
+                                if (formData[destination.id]?.plane_price_locked) return;
+                                const el = e.currentTarget as HTMLInputElement & { _wheelHandler?: (ev: WheelEvent) => void };
+                                const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+                                const handleWheel = (ev: WheelEvent) => {
+                                  ev.preventDefault();
+                                  const current = parseFloat(el.value || "0");
+                                  const next = ev.deltaY < 0 ? current + 1 : Math.max(0, current - 1);
+                                  nativeSetter?.call(el, next.toFixed(2));
+                                  el.dispatchEvent(new Event("input", { bubbles: true }));
+                                };
+                                el._wheelHandler = handleWheel;
+                                el.addEventListener("wheel", handleWheel, { passive: false });
                               }}
-                              onMouseEnter={() => setPageScroll(false)}
-                              onMouseLeave={() => setPageScroll(true)}
-                              onFocus={() => setPageScroll(false)}
                               onBlur={(e) => {
+                                const el = e.currentTarget as HTMLInputElement & { _wheelHandler?: (ev: WheelEvent) => void };
+                                if (el._wheelHandler) { el.removeEventListener("wheel", el._wheelHandler); delete el._wheelHandler; }
                                 if (!formData[destination.id]?.plane_price_locked) {
                                   const value = e.target.value.trim();
                                   e.target.value = value === "" ? "0.00" : Number(value).toFixed(2);
                                   handleChange(e, destination.id);
                                 }
-                                setPageScroll(true);
                               }}
                               onKeyDown={(e) => {
-                                if (["e", "E", "+", "-"].includes(e.key)) {
-                                  e.preventDefault();
-                                }
+                                if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
                               }}
                               name="plane_price"
-                              type="text"
-                              inputMode="decimal"
+                              type="number"
+                              min={0}
                               id={`plane_price_${destination.id}`}
                             />
                             <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">MXN</span>

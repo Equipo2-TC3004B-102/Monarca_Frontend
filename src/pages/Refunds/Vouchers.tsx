@@ -702,19 +702,19 @@ export const Vouchers = () => {
             placeholder={t('vouchers.commentsPlaceholder')}
             onChange={(e) => setCommentValue(e.target.value)}
           />
-          <div className="mt-6 flex justify-between items-center">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <Link
               to="/refunds"
-              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer"
+              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors hover:cursor-pointer text-center whitespace-nowrap"
             >
               {t('vouchers.cancel')}
             </Link>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               {!isExpired && (
                 <button
                   id="upload-vouchers"
                   disabled={isUploading || formData.length === 0}
-                  className={`px-4 py-2 text-white rounded-md transition-colors ${
+                  className={`px-4 py-2 text-white rounded-md transition-colors whitespace-nowrap ${
                     isUploading || formData.length === 0
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-[#1a6d3a] hover:bg-[#1e8046] hover:cursor-pointer"
@@ -728,7 +728,7 @@ export const Vouchers = () => {
                 id="send-for-approval"
                 disabled={isSending || pendingVouchers.length === 0}
                 title={pendingVouchers.length === 0 ? t('vouchers.noVouchersError') : undefined}
-                className={`px-4 py-2 text-white rounded-md transition-colors ${
+                className={`px-4 py-2 text-white rounded-md transition-colors whitespace-nowrap ${
                   isSending || pendingVouchers.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#0a2c6d] hover:bg-[#0d3d94] hover:cursor-pointer"

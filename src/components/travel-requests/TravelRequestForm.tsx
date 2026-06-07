@@ -476,6 +476,11 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
       return;
     }
 
+    if (data.requests_destinations.some((d) => !d.id_destination)) {
+      toast.error(t('toast.selectDestination'));
+      return;
+    }
+
     // Validate sequential departure dates
     for (let i = 1; i < data.requests_destinations.length; i++) {
       const prevDest = data.requests_destinations[i - 1];
