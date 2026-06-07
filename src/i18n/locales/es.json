@@ -173,7 +173,10 @@
     "noMatchingRefundLevel": "No hay una regla de aprobación configurada para este monto de anticipo. Pide a tu administrador que configure una regla de reembolso que cubra este rango.",
     "pdfRequired": "Se requiere un archivo PDF para cada comprobante.",
     "invalidPDF": "El archivo PDF no es válido.",
-    "invalidXML": "El archivo XML no es válido."
+    "invalidXML": "El archivo XML no es válido.",
+    "dateBeforeTripStart": "La fecha del comprobante no puede ser anterior al inicio del viaje.",
+    "dateAfterTripEnd": "La fecha del comprobante no puede ser posterior al fin del viaje.",
+    "beforeTripStarted": "No se pueden subir comprobantes antes de que el viaje haya comenzado."
   },
   "form": {
     "title": "Título",

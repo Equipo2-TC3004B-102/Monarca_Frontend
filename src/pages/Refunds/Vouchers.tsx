@@ -175,9 +175,13 @@ export const Vouchers = () => {
         err instanceof Error ? err.message : err
       );
       const rawMsg = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message;
-      const apiMessage = typeof rawMsg === 'string' ? rawMsg
+      const rawStr = typeof rawMsg === 'string' ? rawMsg
         : Array.isArray(rawMsg) ? (rawMsg as string[]).join(', ')
           : null;
+      const apiMessage = rawStr === 'Voucher date cannot be before the trip start date' ? t('vouchers.dateBeforeTripStart')
+        : rawStr === 'Voucher date cannot be after the trip end date' ? t('vouchers.dateAfterTripEnd')
+        : rawStr === 'Vouchers cannot be submitted before the trip has started' ? t('vouchers.beforeTripStarted')
+        : rawStr;
       toast.error(apiMessage ?? t('vouchers.submitError'));
     } finally {
       setIsUploading(false);
