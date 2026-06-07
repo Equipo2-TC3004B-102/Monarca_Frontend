@@ -170,7 +170,10 @@
     "noVouchersError": "Sube al menos un comprobante antes de enviar para aprobación",
     "uploadSuccess": "Comprobantes subidos exitosamente",
     "sendSuccess": "Comprobantes enviados para aprobación exitosamente",
-    "noMatchingRefundLevel": "No hay una regla de aprobación configurada para este monto de anticipo. Pide a tu administrador que configure una regla de reembolso que cubra este rango."
+    "noMatchingRefundLevel": "No hay una regla de aprobación configurada para este monto de anticipo. Pide a tu administrador que configure una regla de reembolso que cubra este rango.",
+    "pdfRequired": "Se requiere un archivo PDF para cada comprobante.",
+    "invalidPDF": "El archivo PDF no es válido.",
+    "invalidXML": "El archivo XML no es válido."
   },
   "form": {
     "title": "Título",
@@ -246,6 +249,7 @@
     "errorCreating": "Error al crear la solicitud",
     "errorUpdating": "Error al actualizar la solicitud",
     "selectOrigin": "Selecciona una ciudad de origen",
+    "selectDestination": "Selecciona una ciudad destino para cada destino",
     "departureDateOrder": "La fecha de salida del destino #{{num}} debe ser posterior a la del destino anterior",
     "returnDateAfterLast": "La fecha de regreso debe ser posterior a la última fecha de salida"
   },
@@ -423,7 +427,19 @@
     "variance": "Varianza",
     "variancePct": "Varianza %",
     "underBudget": "Dentro del presupuesto",
-    "overBudget": "Fuera del presupuesto"
+    "overBudget": "Fuera del presupuesto",
+    "cfdiStatus": "Estado CFDI"
+  },
+  "cfdi": {
+    "VALID": "Válido",
+    "CANCELED": "Cancelado",
+    "NOT_FOUND": "No encontrado",
+    "PENDING": "Pendiente"
+  },
+  "voucherStatus": {
+    "pending_voucher": "Pendiente",
+    "Voucher Approved": "Comprobante aprobado",
+    "Voucher Denied": "Comprobante rechazado"
   },
   "tutorial": {
     "done": "Finalizar",

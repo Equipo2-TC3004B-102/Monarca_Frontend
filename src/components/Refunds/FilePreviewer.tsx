@@ -78,7 +78,7 @@ const FilePreviewer = ({ file, fileIndex, showDownload = true }: FilePreviewerPr
                     </>
                   )}
                   <p id={`date-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.date')}: </span>{formatDate(file.date)}</p>
-                  <p id={`status-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.voucherStatus')}: </span>{file.status}</p>
+                  <p id={`status-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.voucherStatus')}: </span>{t(`voucherStatus.${file.status}`, { defaultValue: file.status })}</p>
                   {file.cfdi_status && (
                     <div>
                       <CfdiStatus status={file.cfdi_status} variant="inline" />

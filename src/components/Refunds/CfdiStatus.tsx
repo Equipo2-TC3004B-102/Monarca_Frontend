@@ -40,10 +40,10 @@ const CfdiStatus = ({ status, variant = 'pill' }: CfdiStatusProps) => {
 
   if (variant === 'inline') {
     return (
-      <span className={`ml-2 ${inlineBase}`} aria-label={`cfdi-${status}`}>
+      <p className={inlineBase} aria-label={`cfdi-${status}`}>
         <span className="font-semibold text-[var(--color-page-text-title)] mr-1">{t('refundAcceptance.cfdiStatus')}:</span>
         <span className={`${base} ${styles}`}>{text}</span>
-      </span>
+      </p>
     );
   }
 

@@ -168,7 +168,10 @@
     "noVouchersError": "Upload at least one voucher before sending for approval",
     "uploadSuccess": "Vouchers uploaded successfully",
     "sendSuccess": "Vouchers sent for approval successfully",
-    "noMatchingRefundLevel": "No approval rule is configured for this advance amount. Ask your administrator to set up a refund rule that covers this range."
+    "noMatchingRefundLevel": "No approval rule is configured for this advance amount. Ask your administrator to set up a refund rule that covers this range.",
+    "pdfRequired": "A PDF file is required for each voucher.",
+    "invalidPDF": "The PDF file is not valid.",
+    "invalidXML": "The XML file is not valid."
   },
   "form": {
     "title": "Title",
@@ -244,6 +247,7 @@
     "errorCreating": "Error creating request",
     "errorUpdating": "Error updating request",
     "selectOrigin": "Select an origin city",
+    "selectDestination": "Select a destination city for each destination",
     "departureDateOrder": "Departure date for destination #{{num}} must be after the previous destination's",
     "returnDateAfterLast": "Return date must be after the last departure date"
   },
@@ -421,7 +425,19 @@
     "variance": "Variance",
     "variancePct": "Variance %",
     "underBudget": "Under budget",
-    "overBudget": "Over budget"
+    "overBudget": "Over budget",
+    "cfdiStatus": "CFDI Status"
+  },
+  "cfdi": {
+    "VALID": "Valid",
+    "CANCELED": "Canceled",
+    "NOT_FOUND": "Not found",
+    "PENDING": "Pending"
+  },
+  "voucherStatus": {
+    "pending_voucher": "Pending",
+    "Voucher Approved": "Voucher approved",
+    "Voucher Denied": "Voucher denied"
   },
   "tutorial": {
     "done": "Done",
