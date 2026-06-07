@@ -588,7 +588,7 @@ const RequestInfo: React.FC = () => {
                 {t('requestInfo.destinationDetails')}
               </p>
               {data?.requests_destinations?.map((dest: any, index: number) => (
-                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-8" key={dest.id}>
+                <div className="grid grid-cols-1 sm:grid-cols-6 gap-3 mb-8" key={dest.id}>
                   <div>
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1"
@@ -614,6 +614,20 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={dest.departure_date ? formatDate(dest.departure_date) : t('historial.noDate')}
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className="block text-xs font-semibold text-gray-500 mb-1"
+                    >
+                      {t('requestInfo.arrivalDate')}
+                    </label>
+                    <input
+                      id={`arrival-${index}`}
+                      type="text"
+                      readOnly
+                      value={dest.arrival_date ? formatDate(dest.arrival_date) : t('historial.noDate')}
                       className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
