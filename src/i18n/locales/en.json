@@ -34,7 +34,9 @@
     "newCompany": "New company",
     "userList": "User list",
     "rules": "Rules",
-    "notifications": "Notifications"
+    "auditLogs": "Audit log",
+    "notifications": "Notifications",
+    "companyRequests": "Requests"
   },
   "header": {
     "logout": "Log out"
