@@ -736,6 +736,17 @@
       "reservationsDesc": "Notifies by email when a reservation is created.",
       "adminAlerts": "Administrative alerts",
       "adminAlertsDesc": "Notifies by email about relevant administrative events."
+    },
+    "companyRequests": {
+      "title": "Company requests",
+      "folio": "Folio",
+      "title_col": "Title",
+      "requester": "Requester",
+      "status": "Status",
+      "createdAt": "Date",
+      "actions": "Actions",
+      "view": "View request",
+      "errorLoading": "Error loading requests."
     }
   },
   "theme": {
