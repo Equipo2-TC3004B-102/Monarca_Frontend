@@ -18,6 +18,7 @@ import { spendOptions, taxIndicatorOptions } from "./local/dummyData";
 import { getRequest, patchRequest, postRequest } from "../../utils/apiService";
 import { useParams } from "react-router-dom";
 import formatMoney from "../../utils/formatMoney";
+import formatDate from "../../utils/formatDate";
 import { toast } from "react-toastify";
 import GoBack from "../../components/GoBack";
 import CfdiStatus from "../../components/Refunds/CfdiStatus";
@@ -644,7 +645,7 @@ export const Vouchers = () => {
                     : 'text-green-500'
               }`}>
                 <strong>{t('vouchers.deadlineLabel')}:</strong>{' '}
-                {deadline.toLocaleDateString()}{' '}
+                {formatDate(deadline.toISOString())}{' '}
                 {isExpired
                   ? `— ${t('vouchers.deadlineExpired')}`
                   : `(${t('vouchers.deadlineDaysLeft', { count: daysLeft })})`
@@ -662,7 +663,7 @@ export const Vouchers = () => {
                     <div className="text-sm text-[var(--color-page-text)]">
                       <div><span className="font-semibold">{t('refundAcceptance.voucherClass')}: </span>{v.class}</div>
                       <div><span className="font-semibold">{t('refundAcceptance.amountMxn')}: </span>{formatMoney(v.amount)}</div>
-                      <div><span className="font-semibold">{t('refundAcceptance.date')}: </span>{v.date ? new Date(v.date).toLocaleDateString() : ''}</div>
+                      <div><span className="font-semibold">{t('refundAcceptance.date')}: </span>{v.date ? formatDate(v.date) : ''}</div>
                     </div>
                     <div className="flex items-center gap-3">
                       <CfdiStatus status={v.cfdi_status} variant="pill" />

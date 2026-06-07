@@ -10,6 +10,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRequest } from "../../utils/apiService";
+import formatDate from "../../utils/formatDate";
 import { useAuth } from "../../hooks/auth/authContext";
 import GoBack from "../../components/GoBack";
 import RefreshButton from "../../components/RefreshButton";
@@ -164,7 +165,7 @@ export default function AdminCompanyRequests() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs">
-                      {new Date(r.createdAt).toLocaleDateString()}
+                      {formatDate(r.createdAt)}
                     </td>
                     <td className="px-4 py-3 rounded-r-lg">
                       <button
