@@ -33,7 +33,7 @@ interface Company {
   name: string;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const base = "border border-[var(--color-border)] rounded-md px-3 py-2 text-sm bg-[var(--color-card-bg)] text-[var(--color-page-text)] focus:outline-none focus:ring-2 focus:ring-[#0a2c6d]";
 
@@ -236,7 +236,7 @@ export default function AdminUsers() {
         )}
 
         <div className="overflow-x-auto mb-4">
-          <table id="users_list" className="w-full min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
+          <table id="users_list" className="w-full min-w-[1200px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
                 <th className="px-4 py-2 text-center rounded-l-lg">{t('admin.users.name')}</th>
