@@ -50,7 +50,7 @@ const renderStatus = (status: string, t: TFunction) => {
     default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
   return (
-    <span className={`text-xs px-2 py-1 rounded-full ${styles}`}>{statusText}</span>
+    <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${styles}`}>{statusText}</span>
   );
 };
 
@@ -80,7 +80,7 @@ const Bookings = () => {
     { key: "departureDate", header: t('bookings.departureDate') },
     { key: "country", header: t('bookings.departurePlace') },
     { key: "arrivalDate", header: t('bookings.arrivalDate') },
-    { key: "action", header: "" },
+    { key: "action", header: t('historial.details') },
   ];
 
   /**

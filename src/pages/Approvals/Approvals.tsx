@@ -76,7 +76,7 @@ const renderStatus = (status: string, t: TFunction) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs px-2 py-1 rounded-full ${styles}`}>
+      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${styles}`}>
         {statusText}
       </span>
     )
@@ -140,12 +140,12 @@ export const Approvals: React.FC = () => {
 
   const columns = [
     { key: "status", header: t('approvals.status'), width: "w-52", render: (value: string) => renderStatus(value, t) },
-    { key: "motive", header: t('approvals.trip') },
+    { key: "motive", header: t('approvals.trip'), mobileHidden: true },
     { key: "title", header: t('approvals.motive') },
-    { key: "origin", header: t('approvals.origin') },
+    { key: "origin", header: t('approvals.origin'), mobileHidden: true },
     { key: "departureDate", header: t('approvals.departureDate') },
-    { key: "country", header: t('approvals.departurePlace') },
-    { key: "arrivalDate", header: t('approvals.arrivalDate') },
+    { key: "country", header: t('approvals.departurePlace'), mobileHidden: true },
+    { key: "arrivalDate", header: t('approvals.arrivalDate'), mobileHidden: true },
   ];
 
   // Fetch travel records data from API

@@ -83,7 +83,7 @@ const renderStatus = (status: string, t: TFunction) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs px-2 py-1 rounded-full box-decoration-clone leading-snug ${styles}`}>
+      <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${styles}`}>
         {statusText}
       </span>
     )
@@ -290,7 +290,7 @@ export const Historial = () => {
 
           {/* Travel history table component */}
           <div id="list_requests">
-            <Table columns={columnsSchema} data={displayData} itemsPerPage={5} />
+            <Table columns={columnsSchema} data={displayData} itemsPerPage={5} minWidth="1200px" />
           </div>
         </div>
       </Tutorial>

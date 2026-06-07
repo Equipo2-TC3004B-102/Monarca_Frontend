@@ -22,6 +22,7 @@ interface Column {
   width?: string;
   mobileHidden?: boolean;
   render?: (value: any) => ReactNode;
+  textAlign?: 'left' | 'center' | 'right';
 }
 
 /*
@@ -39,6 +40,7 @@ interface TableProps {
     [key: string]: string | number | boolean | null | undefined | ReactNode;
   }>;
   itemsPerPage?: number;
+  minWidth?: string;
 }
 
 /*
@@ -55,7 +57,7 @@ interface TableProps {
  * Input: columns (Column[]), data (array of objects), itemsPerPage (number)
  * Output: JSX element - a complete table component with pagination controls
  */
-const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
+const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, minWidth = "1100px" }) => {
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -99,7 +101,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
     <div className="relative">
       {/* Table component */}
       <div className="overflow-x-auto mb-4">
-        <table className="w-full min-w-[900px] table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2" style={{ minWidth }}>
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {/*
@@ -109,7 +111,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className={`py-2 text-center ${
+                  className={`py-2 ${column.textAlign ? `text-${column.textAlign}` : 'text-center'} ${
                     index === 0 ? "rounded-l-lg" : ""
                   } ${index === columns.length - 1 ? "rounded-r-lg" : ""
                   } ${column.key === "status" ? "px-1" : "px-4"
@@ -158,6 +160,7 @@ const Table: React.FC<TableProps> = ({ columns, data, itemsPerPage = 5, }) => {
                     } ${
                       column.key === "status" ? "px-1" : "px-4"
                     } ${column.width ?? ""
+                    } ${column.textAlign ? `text-${column.textAlign}` : ''
                     } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
                   >
                     {/*
