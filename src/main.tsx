@@ -4,8 +4,7 @@
  * configures React Router routes (public and protected), and sets up TanStack Query provider for server state management.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez] Updated admin guard for notifications page to be company-admin only; added new routes for notifications management and travel agent history; integrated new permissions and flags into route protection logic.
- * 21/05/2026 [Julio Rodriguez] Added route for AdminAuditLogs page (company admin only).
+ * 04/06/2026 [Sergio Jiawei Xuan] Updated password recovery route to /password-recovery.
  */
 
 import { StrictMode } from "react";
@@ -55,7 +54,7 @@ import FlightSearch from "./pages/FlightSearch.tsx";
 import { AccountingExport } from "./pages/Accounting/AccountingExport.tsx";
 
 /**
- * router, defines the application's route tree.
+ * router: defines the application's route tree.
  * Input:
  * - Route definitions using React Router v6 createBrowserRouter.
  * Output:
@@ -73,7 +72,7 @@ export const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/register",
+    path: "/password-recovery",
     element: <Register />,
   },
   {

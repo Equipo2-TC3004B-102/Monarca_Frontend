@@ -3,10 +3,9 @@
  * Description: Approvals page component, which displays a list of approvals and allows users to approve or reject them.
  * Authors: Original Monarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors dark mode
- * 28/05/2026 [Sergio] Add filter panel for status, motive, trip date, request date and departure place.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
 import { getRequest } from "../../utils/apiService";
 import RefreshButton from "../../components/RefreshButton";
@@ -77,12 +76,18 @@ const renderStatus = (status: string, t: TFunction) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs p-1 rounded-sm ${styles}`}>
+      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${styles}`}>
         {statusText}
       </span>
     )
 }
 
+/**
+ * FunctionName: applyFilters
+ * Purpose of the function: Filters an array of approval records based on provided filter criteria including status, motive, dates, and location.
+ * Input: data (any[]) - Array of approval objects to filter, filters (FilterValues) - Object containing filter criteria
+ * Output: any[] - Filtered array of approval objects matching all criteria
+ */
 const applyFilters = (data: any[], filters: FilterValues) => {
   const now = new Date();
   return data.filter((record) => {
@@ -122,11 +127,9 @@ const applyFilters = (data: any[], filters: FilterValues) => {
 
 /**
  * FunctionName: Approvals
- * Purpose of the function: to display the approvals page.
- * Input: none
- * Output: none
- * Author: Original Moncarca team
- * Last Modification made: original Moncarca team
+ * Purpose of the function: Main page component for displaying and managing travel request approvals. Displays approval records in a filterable table.
+ * Input: None - This is a page component with no props
+ * Output: JSX.Element - The rendered page with a table of approvals and filter panel
  */
 export const Approvals: React.FC = () => {
   const [allData, setAllData] = useState<any[]>([]);
@@ -136,16 +139,23 @@ export const Approvals: React.FC = () => {
   const { t } = useTranslation();
 
   const columns = [
-    { key: "status", header: t('approvals.status'), render: (value: string) => renderStatus(value, t) },
+    { key: "status", header: t('approvals.status'), width: "w-52", render: (value: string) => renderStatus(value, t) },
     { key: "motive", header: t('approvals.trip') },
     { key: "title", header: t('approvals.motive') },
+    { key: "origin", header: t('approvals.origin') },
     { key: "departureDate", header: t('approvals.departureDate') },
     { key: "country", header: t('approvals.departurePlace') },
+    { key: "arrivalDate", header: t('approvals.arrivalDate') },
   ];
 
   // Fetch travel records data from API
-  useEffect(() => {
-    const fetchTravelRecords = async () => {
+  /**
+   * FunctionName: fetchTravelRecords
+   * Purpose of the function: Fetches travel record approval data from the API, maps and formats the response data to match the required structure.
+   * Input: None 
+   * Output: Sets allData and displayData state with formatted travel records
+   */
+  const fetchTravelRecords = useCallback(async () => {
       try {
         const response = await getRequest("/requests/to-approve");
         const mapped = response.map((trip: any) => {
@@ -159,12 +169,19 @@ export const Approvals: React.FC = () => {
             status: trip.status,
             _rawCreatedAt: trip.createdAt,
             _rawDepartureDate: firstDestination?.departure_date ?? null,
-            country:
+            origin:
               trip.destination?.city ||
               trip.destination?.iata_code ||
               t('historial.noDestination'),
+            country:
+              firstDestination?.destination?.city ||
+              firstDestination?.destination?.iata_code ||
+              t('historial.noDestination'),
             departureDate: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
+              : t('historial.noDate'),
+            arrivalDate: firstDestination?.arrival_date
+              ? formatDate(firstDestination.arrival_date)
               : t('historial.noDate'),
           };
         });
@@ -173,11 +190,16 @@ export const Approvals: React.FC = () => {
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
-    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    fetchTravelRecords();
-  }, []);
+  useEffect(() => { fetchTravelRecords(); }, [fetchTravelRecords]);
 
+  /**
+   * FunctionName: Tutorial Management
+   * Purpose of the function: Manages the tutorial state by checking if the user has visited the page before. Shows tutorial on first visit.
+   * Input: None
+   * Output: Updates tutorial state and calls handleVisitPage to mark page as visited
+   */
   useEffect(() => {
     const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
     const isPageVisited = visitedPages.includes(location.pathname);
@@ -188,10 +210,22 @@ export const Approvals: React.FC = () => {
     return () => handleVisitPage();
   }, []);
 
+  /**
+   * FunctionName: handleSearch
+   * Purpose of the function: Applies filter criteria to the list of approvals and updates the displayed approvals.
+   * Input: filters (FilterValues) - Object containing filter criteria
+   * Output: Updates displayData state with filtered results
+   */
   const handleSearch = (filters: FilterValues) => {
     setDisplayData(applyFilters(allData, filters));
   };
 
+  /**
+   * FunctionName: handleReset
+   * Purpose of the function: Resets the displayed approvals to show all records without any filters applied.
+   * Input: None
+   * Output: Updates displayData state to display all records from allData
+   */
   const handleReset = () => {
     setDisplayData(allData);
   };
@@ -205,7 +239,7 @@ export const Approvals: React.FC = () => {
             <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
               {t('approvals.title')}
             </h2>
-            <RefreshButton />
+            <RefreshButton onClick={fetchTravelRecords} />
           </div>
 
           {/* Filter panel */}

@@ -34,7 +34,9 @@
     "newCompany": "New company",
     "userList": "User list",
     "rules": "Rules",
-    "notifications": "Notifications"
+    "auditLogs": "Audit log",
+    "notifications": "Notifications",
+    "companyRequests": "Requests"
   },
   "header": {
     "logout": "Log out"
@@ -51,7 +53,9 @@
     "email": "Email",
     "password": "Password",
     "forgotPassword": "Forgot your password?",
-    "continue": "Continue"
+    "continue": "Continue",
+    "signIn": "Sign in",
+    "emailPlaceholder": "user@domain.com"
   },
   "status": {
     "pendingReview": "Pending Review",
@@ -75,8 +79,10 @@
     "title": "Approvals",
     "trip": "Request",
     "motive": "Motive",
+    "origin": "Origin",
     "departureDate": "Departure date",
     "departurePlace": "Destination",
+    "arrivalDate": "Arrival date",
     "status": "Status",
     "approver": "Approver",
     "costCenter": "Cost center",
@@ -91,6 +97,7 @@
     "trip": "Request",
     "title": "Request",
     "motive": "Motive",
+    "origin": "Origin",
     "departureDate": "Departure date",
     "departurePlace": "Destination",
     "status": "Status",
@@ -103,16 +110,19 @@
   "bookings": {
     "title": "Trips to book",
     "trip": "Request",
+    "origin": "Origin",
     "departureDate": "Departure date",
     "departurePlace": "Destination",
+    "arrivalDate": "Arrival date",
     "status": "Status",
     "reserve": "Book"
   },
   "refunds": {
     "trip": "Request",
+    "origin": "Origin",
     "tripDate": "Departure date",
-    "requestDate": "Arrival date",
     "departurePlace": "Destination",
+    "requestDate": "Arrival date",
     "advance": "Advance",
     "status": "Status",
     "errorLoading": "Error loading data",
@@ -160,7 +170,13 @@
     "noVouchersError": "Upload at least one voucher before sending for approval",
     "uploadSuccess": "Vouchers uploaded successfully",
     "sendSuccess": "Vouchers sent for approval successfully",
-    "noMatchingRefundLevel": "No approval rule is configured for this advance amount. Ask your administrator to set up a refund rule that covers this range."
+    "noMatchingRefundLevel": "No approval rule is configured for this advance amount. Ask your administrator to set up a refund rule that covers this range.",
+    "pdfRequired": "A PDF file is required for each voucher.",
+    "invalidPDF": "The PDF file is not valid.",
+    "invalidXML": "The XML file is not valid.",
+    "dateBeforeTripStart": "Voucher date cannot be before the trip start date.",
+    "dateAfterTripEnd": "Voucher date cannot be after the trip end date.",
+    "beforeTripStarted": "Vouchers cannot be submitted before the trip has started."
   },
   "form": {
     "title": "Title",
@@ -183,6 +199,10 @@
     "originCity": "Origin city",
     "originCityPlaceholder": "Search your city",
     "originCityDisabledPlaceholder": "First select a country",
+    "destinationCountry": "Country",
+    "destinationCountryPlaceholder": "Select a country",
+    "destinationCountryFirst": "First select a country",
+    "destinationCity": "City",
     "advanceMoney": "Advance",
     "currency": "Currency",
     "priority": "Priority",
@@ -232,6 +252,7 @@
     "errorCreating": "Error creating request",
     "errorUpdating": "Error updating request",
     "selectOrigin": "Select an origin city",
+    "selectDestination": "Select a destination city for each destination",
     "departureDateOrder": "Departure date for destination #{{num}} must be after the previous destination's",
     "returnDateAfterLast": "Return date must be after the last departure date"
   },
@@ -257,7 +278,7 @@
     "arrivalDate": "Arrival date:",
     "days": "days",
     "place": "Place:",
-    "flight": "Flight:",
+    "flight": "Flight",
     "details": "Details:",
     "advance": "Advance:",
     "balanceInFavor": "Balance in favor:",
@@ -409,7 +430,19 @@
     "variance": "Variance",
     "variancePct": "Variance %",
     "underBudget": "Under budget",
-    "overBudget": "Over budget"
+    "overBudget": "Over budget",
+    "cfdiStatus": "CFDI Status"
+  },
+  "cfdi": {
+    "VALID": "Valid",
+    "CANCELED": "Canceled",
+    "NOT_FOUND": "Not found",
+    "PENDING": "Pending"
+  },
+  "voucherStatus": {
+    "pending_voucher": "Pending",
+    "Voucher Approved": "Voucher approved",
+    "Voucher Denied": "Voucher denied"
   },
   "tutorial": {
     "done": "Done",
@@ -615,6 +648,9 @@
       "refund": "Refunds",
       "all": "All",
       "levelOrder": "Level order",
+      "levelOrderHelp": "How many hierarchy levels to climb to find the approver. Level 1 assigns the requester's direct manager.",
+      "chainLevel1": "Level 1 — Requester's direct manager",
+      "chainLevelN": "Level {{n}} — Goes {{n}} levels up the hierarchy",
       "minAmount": "Minimum request amount",
       "noMinimum": "No minimum",
       "maxAmount": "Maximum request amount",
@@ -661,6 +697,8 @@
       "actorTypeNone": "No approver defined",
       "actorTypeManager": "Direct manager",
       "actorTypeUser": "Specific user",
+      "approverPickerLabel": "Specific approver",
+      "addApprover": "Add",
       "selectionModeAny": "Any",
       "selectionModeAll": "All",
       "cecoAppliesTo": "Applicable CECO",
@@ -698,6 +736,17 @@
       "reservationsDesc": "Notifies by email when a reservation is created.",
       "adminAlerts": "Administrative alerts",
       "adminAlertsDesc": "Notifies by email about relevant administrative events."
+    },
+    "companyRequests": {
+      "title": "Company requests",
+      "folio": "Folio",
+      "title_col": "Title",
+      "requester": "Requester",
+      "status": "Status",
+      "createdAt": "Date",
+      "actions": "Actions",
+      "view": "View request",
+      "errorLoading": "Error loading requests."
     }
   },
   "theme": {
@@ -775,5 +824,13 @@
     "yesterday": "Yesterday",
     "last7Days": "Last 7 days",
     "last30Days": "Last 30 days"
+  },
+  "recover": {
+    "eyebrow": "Recovery",
+    "title": "Forgot your password?",
+    "subtitle": "Enter the email address you use to log in to recover your password.",
+    "sending": "Sending",
+    "send": "Send",
+    "haveAccount": "Already have an account?"
   }
 }

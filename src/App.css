@@ -75,6 +75,11 @@ a {
   text-decoration: none;
 }
 
+.theme-transitioning,
+.theme-transitioning * {
+  transition: background-color 500ms ease, color 500ms ease, border-color 500ms ease, fill 500ms ease !important;
+}
+
 /* img {
   width: 100%;
   height: auto;
@@ -152,11 +157,11 @@ a {
 }
 
 .dark {
-  --color-page-bg: #121212;
+  --color-page-bg: #0a1628;
   --color-page-text: #f9fafb;
   --color-page-text-title: var(--ultra-light-blue);
-  --color-card-bg: #1d1d1d;
-  --color-border: #3b3b3b;
+  --color-card-bg: #0d1b2a;
+  --color-border: #37393e;
   --color-button: #52525B;
   --color-text-button: #E4E4E7;
 

@@ -4,9 +4,7 @@
  *              Includes a variance report section comparing approved budget vs. actual expenses.
  * Authors: Original Monarca team
  * Last Modification made:
- * 27/05/2026 [Julio Rodriguez] Added variance report section: fetches GET /requests/:id/variance-report and
- *                              displays budget vs. actual comparison with color-coded variance indicator.
- *                              Variance values are derived live from voucher state — no separate API call needed.
+ * 03/06/2026 [Nicolas Quintana] Added format to comments.
 */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -82,7 +80,7 @@ interface Dest {
 }
 
 /**
- * renderStatus, transforms the technical status string into a readable format.
+ * FunctionName: renderStatus, transforms the technical status string into a readable format.
  * Input: status (string) - Raw status from backend.
  * Output: string - Formatted status text.
  */
@@ -103,7 +101,7 @@ export const renderStatus = (status: string, t: TFunction) => {
 }
 
 /**
- * RefundsAcceptance, main component for individual voucher validation.
+ * FunctionName: RefundsAcceptance, main component for individual voucher validation.
  * Input: None (React Functional Component)
  * Output: JSX.Element - The rendered component.
  */
@@ -122,7 +120,7 @@ const RefundsAcceptance: React.FC = () => {
   const { handleVisitPage, tutorial } = useApp();
 
   /**
-   * fetchData, retrieves the complete trip request data including associated vouchers.
+   * FunctionName: fetchData, retrieves the complete trip request data including associated vouchers.
    * Input: None (Uses ID from URL params)
    * Output: Promise<void>
    */
@@ -187,7 +185,7 @@ const RefundsAcceptance: React.FC = () => {
   ];
 
   /**
-   * approveVoucher, updates a single voucher status to approved via API.
+   * FunctionName: approveVoucher, updates a single voucher status to approved via API.
    * Input: voucherId (string)
    * Output: Promise<void>
    */
@@ -208,7 +206,7 @@ const RefundsAcceptance: React.FC = () => {
   }
 
   /**
-   * denyVoucher, updates a single voucher status to denied via API.
+   * FunctionName: denyVoucher, updates a single voucher status to denied via API.
    * Input: voucherId (string)
    * Output: Promise<void>
    */
@@ -228,7 +226,7 @@ const RefundsAcceptance: React.FC = () => {
   }
 
   /**
-   * completeRequest, finalizes the verification process for the entire request.
+   * FunctionName: completeRequest, finalizes the verification process for the entire request.
    * Input: None
    * Output: Promise<void>
    */

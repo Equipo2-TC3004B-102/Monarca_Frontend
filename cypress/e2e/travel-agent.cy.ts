@@ -3,8 +3,7 @@
  * Description: End-to-end tests for the travel agent role in the Monarca application, covering the full booking flow for various scenarios such as booking only a flight, booking a multi-destination trip with both flight and hotel, booking only a hotel, and booking a single destination with both flight and hotel.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
- * 26/03/2026 [Diego de la Vega] Added reusable reservation opening step and dynamic first-action selection.
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 
 /**

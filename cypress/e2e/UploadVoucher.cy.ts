@@ -3,8 +3,7 @@
  * Description: End-to-end tests for the voucher upload functionality for requesters in the Monarca application, covering the flow of logging in as a requester, navigating to the expense verification page, adding a new expense item, filling in the required details, uploading the necessary files, and submitting the refund request.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
- * 26/03/2026 [Diego de la Vega] Replaced fixed row selector with dynamic expense action selector.
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 
 /**

@@ -3,9 +3,7 @@
  * Description: Renders the travel request form for create/edit flows, validates inputs, and submits payloads to the API.
  * Authors: Original Monarca team
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Redesigned date model: each destination now only asks for departure_date;
- *                               a single return_date field captures the trip end. arrival_date and stay_days
- *                               are derived automatically at submit time. Validates sequential date order.
+ * 04/06/2026 [Sergio Jiawei Xuan] Separated destination into cascading country/city dropdowns, matching origin field behavior.
  */
 
 import { Button } from "../ui/Button";
@@ -21,8 +19,10 @@ import {
   Control,
   FieldErrors,
   UseFormRegister,
+  UseFormSetValue,
   Resolver,
 } from "react-hook-form";
+import { Destination } from "../../types/destinations";
 import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -120,30 +120,59 @@ interface DestinationFieldsProps {
   idx: number;
   control: Control<FormValues, unknown, SubmitValues>;
   register: UseFormRegister<FormValues>;
-  destinationOptions: { id: string | number; name: string }[];
-  destinationOptionsById: Map<string, { id: string | number; name: string }>;
+  destinations: Destination[];
+  setValue: UseFormSetValue<FormValues>;
   errors: FieldErrors<FormValues>["requests_destinations"];
   remove: (index: number) => void;
   isLoadingDestinations: boolean;
 }
 
 /**
- * DestinationFields — renders inputs for a single destination leg.
- * Only asks for departure_date (when you leave for this destination).
+ * FunctionName: DestinationFields — renders inputs for a single destination leg.
+ * Country + city are separated like the origin field.
  * arrival_date and stay_days are derived automatically at submit time.
  */
 function DestinationFields({
   idx,
   control,
   register,
-  destinationOptions,
-  destinationOptionsById,
+  destinations,
+  setValue,
   errors,
   remove,
   isLoadingDestinations,
 }: DestinationFieldsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const destinationErrors = errors?.[idx];
+  const [destCountry, setDestCountry] = useState<string>("");
+
+  const destCountryOptions = useMemo(() => {
+    const unique = [...new Set(destinations.map((d) => d.country).filter(Boolean))].sort();
+    return unique.map((c) => ({ id: c, name: translateCountry(c, i18n.language) }));
+  }, [destinations, i18n.language]);
+
+  const destCityOptions = useMemo(() => {
+    const filtered = destCountry
+      ? destinations.filter((d) => d.country === destCountry)
+      : destinations;
+    const cityMap = new Map<string, Option>();
+    for (const d of filtered) {
+      if (d.city && !cityMap.has(d.city)) {
+        cityMap.set(d.city, { id: d.id, name: translateCity(d.city, i18n.language) });
+      }
+    }
+    return Array.from(cityMap.values()).sort((a, b) =>
+      String(a.name).localeCompare(String(b.name), "es", { sensitivity: "base" })
+    );
+  }, [destinations, destCountry, i18n.language]);
+
+  const watchedDest = useWatch({ control, name: `requests_destinations.${idx}.id_destination` });
+  useEffect(() => {
+    if (watchedDest && !destCountry && destinations.length > 0) {
+      const dest = destinations.find((d) => d.id === watchedDest);
+      if (dest?.country) setDestCountry(dest.country);
+    }
+  }, [watchedDest, destinations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="rounded-md p-4 mb-6 space-y-4 bg-[var(--color-page-bg)] shadow-sm">
@@ -159,10 +188,30 @@ function DestinationFields({
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label
+            htmlFor={`dest-country-${idx}`}
+            className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
+          >
+            {t('form.destinationCountry')}
+          </label>
+          <SearchableSelect
+            id={`dest-country-${idx}`}
+            options={destCountryOptions}
+            value={destCountry ? destCountryOptions.find((o) => o.id === destCountry) ?? null : null}
+            onChange={(opt) => {
+              setDestCountry(opt ? String(opt.id) : "");
+              setValue(`requests_destinations.${idx}.id_destination`, null);
+            }}
+            isLoading={isLoadingDestinations}
+            placeholder={t('form.destinationCountryPlaceholder')}
+          />
+        </div>
+
+        <div>
+          <label
             htmlFor={`destination-${idx}`}
             className="block mb-2 text-sm font-medium text-[var(--color-page-text)]"
           >
-            {t('form.destination')}
+            {t('form.destinationCity')}
           </label>
           <Controller
             control={control}
@@ -170,15 +219,11 @@ function DestinationFields({
             render={({ field }) => (
               <SearchableSelect
                 id={`destination-${idx}`}
-                options={destinationOptions}
-                value={
-                  field.value
-                    ? destinationOptionsById.get(String(field.value))
-                    : null
-                }
+                options={destCityOptions}
+                value={field.value ? destCityOptions.find((o) => o.id === field.value) ?? null : null}
                 onChange={(opt) => field.onChange(opt ? opt.id : null)}
                 isLoading={isLoadingDestinations}
-                placeholder={t('form.destinationPlaceholder')}
+                placeholder={destCountry ? t('form.destinationPlaceholder') : t('form.destinationCountryFirst')}
               />
             )}
           />
@@ -266,6 +311,11 @@ function DestinationFields({
   );
 }
 
+/**
+ * FunctionName: TravelRequestForm, renders the travel request form with dynamic fields and validation.
+ * Inputs: initialData (TravelRequestData | undefined) - Initial data for the form, requestId (string | undefined) - ID of the travel request being edited.
+ * Returns: JSX.Element - Form UI for creating or editing travel requests.
+ */
 function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -288,7 +338,7 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
 
   const currencyOptions = useMemo(() => makeCurrencyOptions(t), [t]);
 
-  const { destinations, destinationOptions, isLoading: isLoadingDestinations } =
+  const { destinations, isLoading: isLoadingDestinations } =
     useDestinations();
 
   const [originCountry, setOriginCountry] = useState<string>("");
@@ -313,13 +363,6 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
     );
   }, [destinations, originCountry, i18n.language]);
 
-  const destinationOptionsById = useMemo(
-    () =>
-      new Map(
-        destinationOptions.map((option) => [String(option.id), option]),
-      ),
-    [destinationOptions],
-  );
   const { createTravelRequestMutation, isPending: isCreating } =
     useCreateTravelRequest();
   const { updateTravelRequestMutation, isPending: isUpdating } =
@@ -430,6 +473,11 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
   const onSubmit = async (data: SubmitValues) => {
     if (!data.id_origin_city) {
       toast.error(t('toast.selectOrigin'));
+      return;
+    }
+
+    if (data.requests_destinations.some((d) => !d.id_destination)) {
+      toast.error(t('toast.selectDestination'));
       return;
     }
 
@@ -752,8 +800,8 @@ function TravelRequestForm({ initialData, requestId }: TravelRequestFormProps) {
                   idx={idx}
                   control={control}
                   register={register}
-                  destinationOptions={destinationOptions}
-                  destinationOptionsById={destinationOptionsById}
+                  destinations={destinations}
+                  setValue={setValue}
                   errors={errors.requests_destinations}
                   remove={remove}
                   isLoadingDestinations={isLoadingDestinations}

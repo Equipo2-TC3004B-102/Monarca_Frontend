@@ -5,9 +5,7 @@
  *              because POST /users/import is scoped to the caller's company.
  * Authors: DebugStudio Team
  * Last Modification made:
- * 05/05/2026 [Julio Rodriguez] Added companyId guard and company indicator using authState.companyId pattern.
- * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the list of users
- * 29/05/2026 [Sergio] Added company and active/inactive filters.
+ * 04/06/2026 [Sergio Jiawei Xuan] Connected RefreshButton onClick to fetchUsers.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -35,7 +33,7 @@ interface Company {
   name: string;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const base = "border border-[var(--color-border)] rounded-md px-3 py-2 text-sm bg-[var(--color-card-bg)] text-[var(--color-page-text)] focus:outline-none focus:ring-2 focus:ring-[#0a2c6d]";
 
@@ -166,7 +164,7 @@ export default function AdminUsers() {
                   {importing ? t('admin.users.importing') : t('admin.users.loadUser')}
                 </button>
               )}
-              <RefreshButton />
+              <RefreshButton onClick={fetchUsers} />
             </div>
           </div>
           <p className="text-sm text-gray-600">
@@ -238,7 +236,7 @@ export default function AdminUsers() {
         )}
 
         <div className="overflow-x-auto mb-4">
-          <table id="users_list" className="w-full min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
+          <table id="users_list" className="w-full min-w-[1200px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
                 <th className="px-4 py-2 text-center rounded-l-lg">{t('admin.users.name')}</th>
@@ -266,7 +264,7 @@ export default function AdminUsers() {
                   <td className="px-4 py-3">{u.user_name}</td>
                   <td className="px-4 py-3">{u.employee_num ?? "-"}</td>
                   <td className="px-4 py-3 rounded-r-lg">
-                    <span className={`text-xs p-1 rounded-sm font-bold ${u.status === "active" ? "bg-[#c7e6ab] text-[#24390d]" : "bg-[#eca6a6] text-[#680909]"}`}>
+                    <span className={`text-xs px-2 py-1 rounded-full font-bold ${u.status === "active" ? "bg-[#c7e6ab] text-[#24390d]" : "bg-[#eca6a6] text-[#680909]"}`}>
                       {u.status === "active" ? t('admin.users.active') : t('admin.users.inactive')}
                     </span>
                   </td>

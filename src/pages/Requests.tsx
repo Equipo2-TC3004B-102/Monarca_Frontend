@@ -9,7 +9,7 @@ import RequestRow from "../components/RequestRow";
 
 /**
  * FunctionName: Requests, renders the main page for displaying travel requests with a structured layout.
- * Input: none
+ * Input: None
  * Output: JSX component containing the list of travel requests.
  */
 function Requests() {

@@ -53,7 +53,9 @@
     "email": "Correo electrónico",
     "password": "Contraseña",
     "forgotPassword": "¿Olvidaste tu contraseña?",
-    "continue": "Continuar"
+    "continue": "Continuar",
+    "signIn": "Inicia sesión",
+    "emailPlaceholder": "usuario@dominio.com"
   },
   "status": {
     "pendingReview": "Pendiente de Revisión",
@@ -77,8 +79,10 @@
     "title": "Aprobaciones",
     "trip": "Solicitud",
     "motive": "Motivo",
+    "origin": "Origen",
     "departureDate": "Fecha de salida",
     "departurePlace": "Destino",
+    "arrivalDate": "Fecha de llegada",
     "status": "Estado",
     "approver": "Aprobador",
     "costCenter": "Centro de costo",
@@ -93,6 +97,7 @@
     "trip": "Solicitud",
     "title": "Solicitud",
     "motive": "Motivo",
+    "origin": "Origen",
     "departureDate": "Fecha de salida",
     "departurePlace": "Destino",
     "status": "Estado",
@@ -105,16 +110,19 @@
   "bookings": {
     "title": "Viajes por reservar",
     "trip": "Solicitud",
+    "origin": "Origen",
     "departureDate": "Fecha de salida",
     "departurePlace": "Destino",
+    "arrivalDate": "Fecha de llegada",
     "status": "Estado",
     "reserve": "Reservar"
   },
   "refunds": {
     "trip": "Solicitud",
+    "origin": "Origen",
     "tripDate": "Fecha de salida",
-    "requestDate": "Fecha de llegada",
     "departurePlace": "Destino",
+    "requestDate": "Fecha de llegada",
     "advance": "Anticipo",
     "status": "Estado",
     "errorLoading": "Error al cargar los datos",
@@ -162,7 +170,13 @@
     "noVouchersError": "Sube al menos un comprobante antes de enviar para aprobación",
     "uploadSuccess": "Comprobantes subidos exitosamente",
     "sendSuccess": "Comprobantes enviados para aprobación exitosamente",
-    "noMatchingRefundLevel": "No hay una regla de aprobación configurada para este monto de anticipo. Pide a tu administrador que configure una regla de reembolso que cubra este rango."
+    "noMatchingRefundLevel": "No hay una regla de aprobación configurada para este monto de anticipo. Pide a tu administrador que configure una regla de reembolso que cubra este rango.",
+    "pdfRequired": "Se requiere un archivo PDF para cada comprobante.",
+    "invalidPDF": "El archivo PDF no es válido.",
+    "invalidXML": "El archivo XML no es válido.",
+    "dateBeforeTripStart": "La fecha del comprobante no puede ser anterior al inicio del viaje.",
+    "dateAfterTripEnd": "La fecha del comprobante no puede ser posterior al fin del viaje.",
+    "beforeTripStarted": "No se pueden subir comprobantes antes de que el viaje haya comenzado."
   },
   "form": {
     "title": "Título",
@@ -185,6 +199,10 @@
     "originCity": "Ciudad de origen",
     "originCityPlaceholder": "Busca tu ciudad",
     "originCityDisabledPlaceholder": "Primero selecciona un país",
+    "destinationCountry": "País",
+    "destinationCountryPlaceholder": "Selecciona un país",
+    "destinationCountryFirst": "Primero selecciona un país",
+    "destinationCity": "Ciudad",
     "advanceMoney": "Anticipo",
     "currency": "Moneda",
     "priority": "Prioridad",
@@ -234,6 +252,7 @@
     "errorCreating": "Error al crear la solicitud",
     "errorUpdating": "Error al actualizar la solicitud",
     "selectOrigin": "Selecciona una ciudad de origen",
+    "selectDestination": "Selecciona una ciudad destino para cada destino",
     "departureDateOrder": "La fecha de salida del destino #{{num}} debe ser posterior a la del destino anterior",
     "returnDateAfterLast": "La fecha de regreso debe ser posterior a la última fecha de salida"
   },
@@ -259,7 +278,7 @@
     "arrivalDate": "Fecha de llegada:",
     "days": "días",
     "place": "Lugar:",
-    "flight": "Vuelo:",
+    "flight": "Vuelo",
     "details": "Detalles:",
     "advance": "Anticipo:",
     "balanceInFavor": "Saldo a favor:",
@@ -411,7 +430,19 @@
     "variance": "Varianza",
     "variancePct": "Varianza %",
     "underBudget": "Dentro del presupuesto",
-    "overBudget": "Fuera del presupuesto"
+    "overBudget": "Fuera del presupuesto",
+    "cfdiStatus": "Estado CFDI"
+  },
+  "cfdi": {
+    "VALID": "Válido",
+    "CANCELED": "Cancelado",
+    "NOT_FOUND": "No encontrado",
+    "PENDING": "Pendiente"
+  },
+  "voucherStatus": {
+    "pending_voucher": "Pendiente",
+    "Voucher Approved": "Comprobante aprobado",
+    "Voucher Denied": "Comprobante rechazado"
   },
   "tutorial": {
     "done": "Finalizar",
@@ -618,6 +649,9 @@
       "refund": "Reembolsos",
       "all": "Todos",
       "levelOrder": "Orden del nivel",
+      "levelOrderHelp":"Cuántos niveles jerárquicos subir para encontrar al aprobador. Nivel 1 asigna al gerente directo del solicitante.",
+      "chainLevel1": "Nivel 1 — Gerente directo del solicitante",
+      "chainLevelN": "Nivel {{n}} — Sube {{n}} niveles en la jerarquía",
       "minAmount": "Cantidad mínima de solicitud",
       "noMinimum": "Sin mínimo",
       "maxAmount": "Cantidad máxima de solicitud",
@@ -664,6 +698,8 @@
       "actorTypeNone": "Sin aprobador definido",
       "actorTypeManager": "Gerente directo",
       "actorTypeUser": "Usuario específico",
+      "approverPickerLabel": "Aprobador específico",
+      "addApprover": "Agregar",
       "selectionModeAny": "Cualquiera",
       "selectionModeAll": "Todos",
       "cecoAppliesTo": "CECO al que aplica",
@@ -838,5 +874,13 @@
     "yesterday": "Ayer",
     "last7Days": "Últimos 7 días",
     "last30Days": "Últimos 30 días"
+  },
+  "recover": {
+    "eyebrow": "Recuperación",
+    "title": "¿Olvidaste tu contraseña?",
+    "subtitle": "Ingresa tu correo electrónico con el cual inicias sesión para recuperar tu contraseña.",
+    "sending": "Enviando",
+    "send": "Enviar",
+    "haveAccount": "¿Ya tienes cuenta?"
   }
 }

@@ -20,7 +20,7 @@ const CfdiStatus = ({ status, variant = 'pill' }: CfdiStatusProps) => {
 
   const text = t(`cfdi.${status}`) || status;
 
-  const base = 'text-xs px-2 py-1 rounded-sm inline-block font-bold';
+  const base = 'text-xs px-2 py-1 rounded-full inline-block font-bold';
   const inlineBase = 'text-[var(--color-page-text)]';
 
   const styles = (() => {
@@ -40,10 +40,10 @@ const CfdiStatus = ({ status, variant = 'pill' }: CfdiStatusProps) => {
 
   if (variant === 'inline') {
     return (
-      <span className={`ml-2 ${inlineBase}`} aria-label={`cfdi-${status}`}>
+      <p className={inlineBase} aria-label={`cfdi-${status}`}>
         <span className="font-semibold text-[var(--color-page-text-title)] mr-1">{t('refundAcceptance.cfdiStatus')}:</span>
         <span className={`${base} ${styles}`}>{text}</span>
-      </span>
+      </p>
     );
   }
 

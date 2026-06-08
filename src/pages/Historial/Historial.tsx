@@ -4,13 +4,11 @@
  * It provides a customizable history page with travel records and related actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez] Route travel agents to dedicated /requests/ta-history endpoint;
- *                              replace endpoint-string filters with permission-based filters.
- * 28/05/2026 [Sergio] Add filter panel for status, motive, trip date, request date and departure place.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
 import Table from "../../components/Refunds/Table";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getRequest } from "../../utils/apiService";
 import formatDate from "../../utils/formatDate";
 import { Permission, useAuth } from "../../hooks/auth/authContext";
@@ -32,7 +30,7 @@ import FilterPanel, {
 } from "../../components/FilterPanel";
 
 /**
- * renderStatus, converts API status strings to localized display text with appropriate styling.
+ * FunctionName: renderStatus, converts API status strings to localized display text with appropriate styling.
  * Input: status (string)
  * Output: JSX element - styled status badge
  */
@@ -85,12 +83,17 @@ const renderStatus = (status: string, t: TFunction) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs p-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>
+      <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${styles}`}>
         {statusText}
       </span>
     )
 }
 
+/**
+ * FunctionName: applyFilters, filters the travel records based on the provided filter values.
+ * Input: data (any[]), filters (FilterValues)
+ * Output: any[] - filtered travel records
+ */
 const applyFilters = (data: any[], filters: FilterValues) => {
   const now = new Date();
   return data.filter((record) => {
@@ -129,7 +132,7 @@ const applyFilters = (data: any[], filters: FilterValues) => {
 };
 
 /**
- * Historial, displays a paginated table of travel request history with status indicators, filtering by user permissions, and detailed action buttons.
+ * FunctionName: Historial, displays a paginated table of travel request history with status indicators, filtering by user permissions, and detailed action buttons.
  * Input: none
  * Output: JSX element - complete travel history page with table and tutorial overlay
  */
@@ -143,12 +146,11 @@ export const Historial = () => {
   const { t } = useTranslation();
 
   /**
-   * Fetches travel records from API with permission-based filtering and formats data for display.
+   * FunctionName: fetchTravelRecords, fetches travel records from API with permission-based filtering and formats data for display.
    * Input: none
    * Output: void (updates allData and displayData states)
    */
-  useEffect(() => {
-    const fetchTravelRecords = async () => {
+  const fetchTravelRecords = useCallback(async () => {
       try {
         const view = searchParams.get("view");
         const endpoint =
@@ -186,12 +188,19 @@ export const Historial = () => {
             _rawCreatedAt: record.createdAt,
             _rawDepartureDate: firstDestination?.departure_date ?? null,
             createdAt: formatDate(record.createdAt),
-            country:
+            origin:
               record.destination?.city ||
               record.destination?.iata_code ||
               t('historial.noDestination'),
+            country:
+              firstDestination?.destination?.city ||
+              firstDestination?.destination?.iata_code ||
+              t('historial.noDestination'),
             departureDate: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
+              : t('historial.noDate'),
+            arrivalDate: firstDestination?.arrival_date
+              ? formatDate(firstDestination.arrival_date)
               : t('historial.noDate'),
             index,
             action: record.id,
@@ -202,10 +211,9 @@ export const Historial = () => {
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
-    };
+  }, [searchParams, authState, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    fetchTravelRecords();
-  }, [searchParams]);
+  useEffect(() => { fetchTravelRecords(); }, [fetchTravelRecords]);
 
   useEffect(() => {
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
@@ -252,9 +260,10 @@ export const Historial = () => {
     { key: "status", header: t('historial.status'), render: (value: string) => renderStatus(value, t) },
     { key: "title", header: t('historial.trip') },
     { key: "motive", header: t('historial.motive') },
+    { key: "origin", header: t('historial.origin') },
     { key: "departureDate", header: t('historial.departureDate') },
     { key: "country", header: t('historial.departurePlace') },
-    { key: "createdAt", header: t('historial.requestDate') },
+    { key: "arrivalDate", header: t('historial.requestDate') },
     { key: "action", header: t('historial.details'), render: (id: string) => (
       <Button
         className="bg-[var(--white)] text-[var(--blue)] p-1 rounded-sm cursor-pointer"
@@ -273,7 +282,7 @@ export const Historial = () => {
               <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
                 {t('historial.title')}
               </h2>
-              <RefreshButton />
+              <RefreshButton onClick={fetchTravelRecords} />
           </div>
 
           {/* Filter panel */}
@@ -281,7 +290,7 @@ export const Historial = () => {
 
           {/* Travel history table component */}
           <div id="list_requests">
-            <Table columns={columnsSchema} data={displayData} itemsPerPage={5} />
+            <Table columns={columnsSchema} data={displayData} itemsPerPage={5} minWidth="1200px" />
           </div>
         </div>
       </Tutorial>

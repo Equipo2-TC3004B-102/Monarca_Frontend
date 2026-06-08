@@ -3,10 +3,10 @@
  * Description: Component that displays a table of trip requests awaiting voucher approval by the assigned approver.
  * Authors: Original Monarca team
  * Last Modification made:
- * 27/05/2026 [Julio Rodriguez] Changed data source from GET /requests/all (SOI) to GET /requests/vouchers-to-approve (approver).
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Table from "../../components/Refunds/Table";
 import RefreshButton from "../../components/RefreshButton";
 import formatDate from "../../utils/formatDate";
@@ -67,7 +67,7 @@ interface Trip {
 }
 
 /**
- * renderStatus, returns a styled badge based on the request status.
+ * FunctionName: renderStatus, returns a styled badge based on the request status.
  * Input: status (string)
  * Output: JSX.Element
  */
@@ -87,12 +87,12 @@ const renderStatus = (status: string, t: TFunction) => {
     case "Completed":           statusText = t('status.completed');           styles = "text-[#24390d] font-bold bg-[#c7e6ab]"; break;
     default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
-  return <span className={`text-xs px-2 py-1 rounded-sm inline-block leading-snug ${styles}`}>{statusText}</span>;
+  return <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${styles}`}>{statusText}</span>;
 }
 
 
 /**
- * RefundsReview, main component to manage and list requests for final verification.
+ * FunctionName: RefundsReview, main component to manage and list requests for final verification.
  * Input: None
  * Output: JSX.Element
  */
@@ -104,12 +104,11 @@ export const RefundsReview = () => {
   const { t } = useTranslation();
 
   /**
-   * fetchTrips, gets trip requests in Pending Vouchers Approval assigned to the current approver.
+   * FunctionName: fetchTrips, gets trip requests in Pending Vouchers Approval assigned to the current approver.
    * Input: None
    * Output: Promise<void>
    */
-  useEffect(() => {
-    const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
       try {
         setLoading(true);
 
@@ -134,6 +133,13 @@ export const RefundsReview = () => {
               trip.destination?.city ||
               trip.destination?.iata_code ||
               t('historial.noDestination'),
+            destination:
+              firstDestination?.destination?.city ||
+              firstDestination?.destination?.iata_code ||
+              t('historial.noDestination'),
+            arrivalDate: firstDestination?.arrival_date
+              ? formatDate(firstDestination.arrival_date)
+              : "N/A",
             formattedCreatedAt: formatDate(trip.createdAt),
           };
         });
@@ -149,12 +155,12 @@ export const RefundsReview = () => {
       } finally {
         setLoading(false);
       }
-    };
-    fetchTrips();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { fetchTrips(); }, [fetchTrips]);
 
   /**
-   * Effect to handle tutorial logic and page visit tracking.
+   * FunctionName: Effect to handle tutorial logic and page visit tracking.
    */
   useEffect(() => {
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
@@ -167,13 +173,14 @@ export const RefundsReview = () => {
     }, []);
 
   const columnsSchemaTrips = [
-    { key: "status",            header: t('refunds.status'),         width: "w-[22%]", render: (value: string) => renderStatus(value, t) },
-    { key: "title",             header: t('refunds.trip'),           width: "w-[16%]" },
-    { key: "date",              header: t('refunds.tripDate'),       width: "w-[12%]" },
-    { key: "origin",            header: t('refunds.departurePlace'), width: "w-[13%]" },
-    { key: "formattedAdvance",  header: t('refunds.advance'),        width: "w-[5%]" },
-    { key: "formattedCreatedAt",header: t('refunds.requestDate'),    width: "w-[21%]" },
-    { key: "action",            header: "",                          width: "w-[11%]" },
+    { key: "status",            header: t('refunds.status'),         width: "w-[16%]", render: (value: string) => renderStatus(value, t) },
+    { key: "title",             header: t('refunds.trip'),           width: "w-[14%]" },
+    { key: "origin",            header: t('refunds.origin'),         width: "w-[10%]" },
+    { key: "date",              header: t('refunds.tripDate'),       width: "w-[11%]" },
+    { key: "destination",       header: t('refunds.departurePlace'), width: "w-[10%]" },
+    { key: "arrivalDate",       header: t('refunds.requestDate'),    width: "w-[11%]" },
+    { key: "formattedAdvance",  header: t('refunds.advance'),        width: "w-[10%]" },
+    { key: "action",            header: t('historial.details'),      width: "w-[18%]" },
   ];
 
   if (loading) {
@@ -210,7 +217,7 @@ export const RefundsReview = () => {
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
             {t('refunds.vouchersAndRefunds')}
           </h2>
-          <RefreshButton />
+          <RefreshButton onClick={fetchTrips} />
         </div>
 
         <div id="list_requests">

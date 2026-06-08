@@ -4,7 +4,7 @@
  * It provides a customizable request row with editable fields and dropdowns.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * 25/02/2026 [Nicolas Quintana] Added detailed comments and documentation for 
  * clarity and maintainability.
  */
 

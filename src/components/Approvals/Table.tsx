@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 interface Column {
   key: string;
   header: string;
+  width?: string;
   mobileHidden?: boolean;
   render?: (value: any) => ReactNode;
 }
@@ -94,7 +95,7 @@ const Table: React.FC<TableProps> = ({
   return (
     <div className="relative">
       <div className="overflow-x-auto mb-4">
-        <table className="w-full min-w-[900px] table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
+        <table className="w-full min-w-[1100px] table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-2">
           <thead>
             <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
               {columns.map((column, index) => (
@@ -102,7 +103,7 @@ const Table: React.FC<TableProps> = ({
                   key={index}
                   className={`px-4 py-2 text-center ${
                     index === 0 ? "rounded-l-lg" : ""
-                  } ${column.mobileHidden ? "hidden lg:table-cell" : ""}`}
+                  } ${column.mobileHidden ? "hidden lg:table-cell" : ""} ${column.width ?? ""}`}
                 >
                   {column.header}
                 </th>
@@ -112,7 +113,7 @@ const Table: React.FC<TableProps> = ({
                 {t('approvals.details')}
               </th>
 
-              <th className="px-4 py-2 text-center rounded-r-lg">{t('approvals.data')}</th>
+              <th className="px-4 py-2 text-center rounded-r-lg w-24">{t('approvals.data')}</th>
             </tr>
           </thead>
 

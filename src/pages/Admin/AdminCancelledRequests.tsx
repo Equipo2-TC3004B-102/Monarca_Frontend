@@ -10,6 +10,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRequest } from "../../utils/apiService";
+import formatDate from "../../utils/formatDate";
 import { useAuth } from "../../hooks/auth/authContext";
 import GoBack from "../../components/GoBack";
 import RefreshButton from "../../components/RefreshButton";
@@ -82,6 +83,19 @@ export default function AdminCompanyRequests() {
     fetchRequests();
   }, [companyId]);
 
+  const STATUS_LABELS: Record<string, string> = {
+    "Pending Review":              t("status.pendingReview"),
+    "Changes Needed":              t("status.changesNeeded"),
+    "Pending Accounting Approval": t("status.pendingAccountingApproval"),
+    "Pending Refund Approval":     t("status.pendingRefundApproval"),
+    "Pending Reservations":        t("status.pendingReservations"),
+    "In Progress":                 t("status.inProgress"),
+    "Pending Vouchers Approval":   t("status.pendingVouchersApproval"),
+    "Completed":                   t("status.completed"),
+    "Denied":                      t("status.denied"),
+    "Cancelled":                   t("status.cancelled"),
+  };
+
   const totalPages = Math.ceil(requests.length / ITEMS_PER_PAGE);
   const paginated = requests.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -115,9 +129,9 @@ export default function AdminCompanyRequests() {
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
                 <th className="px-4 py-2 text-center rounded-l-lg w-28">{t("admin.companyRequests.folio")}</th>
-                <th className="px-4 py-2 text-center">{t("admin.companyRequests.title_col")}</th>
+                <th className="px-4 py-2 text-center max-w-[120px]">{t("admin.companyRequests.title_col")}</th>
                 <th className="px-4 py-2 text-center w-44">{t("admin.companyRequests.requester")}</th>
-                <th className="px-4 py-2 text-center w-40">{t("admin.companyRequests.status")}</th>
+                <th className="px-4 py-2 text-center w-52">{t("admin.companyRequests.status")}</th>
                 <th className="px-4 py-2 text-center w-36">{t("admin.companyRequests.createdAt")}</th>
                 <th className="px-4 py-2 text-center rounded-r-lg w-24">{t("admin.companyRequests.actions")}</th>
               </tr>
@@ -141,17 +155,17 @@ export default function AdminCompanyRequests() {
                     <td className="px-4 py-3 rounded-l-lg font-mono text-xs">
                       {buildFolio(r.createdAt, r.request_num)}
                     </td>
-                    <td className="px-4 py-3 text-sm">{r.title}</td>
+                    <td className="px-4 py-3 text-sm max-w-[120px] truncate">{r.title}</td>
                     <td className="px-4 py-3 text-sm">
                       {r.user ? `${r.user.name} ${r.user.last_name}` : "-"}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${STATUS_STYLES[r.status] ?? "bg-gray-100 text-gray-700"}`}>
-                        {t(`status.${r.status}`, { defaultValue: r.status })}
+                        {STATUS_LABELS[r.status] ?? r.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs">
-                      {new Date(r.createdAt).toLocaleDateString()}
+                      {formatDate(r.createdAt)}
                     </td>
                     <td className="px-4 py-3 rounded-r-lg">
                       <button

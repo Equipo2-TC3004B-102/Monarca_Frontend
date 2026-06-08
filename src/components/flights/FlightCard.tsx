@@ -82,7 +82,7 @@ export default function FlightCard({ flight, onSelect, selectLabel }: FlightCard
       </div>
 
       {/* Footer */}
-      <div className="px-3 lg:px-6 py-4 bg-[var(--color-page-bg)] border-t border-[var(--color-border)] flex gap-3">
+      <div className="px-3 lg:px-6 py-4 bg-[var(--color-page-bg)] border-t border-[var(--color-border)] flex flex-col sm:flex-row gap-3">
         <button
           onClick={() => setExpanded(!expanded)}
           className="flex-1 px-4 py-2 text-[var(--color-page-text-title)] bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded hover:opacity-80 font-semibold transition"

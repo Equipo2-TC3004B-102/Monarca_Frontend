@@ -4,7 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 27/05/2026 [Julio Rodriguez]: Moved vouchers-and-refunds link from approve_vouchers (SOI) to approve_request (approver).
+ * 04/06/2026 [Sergio Jiawei Xuan] Removed transition-colors to centralize theme transitions via theme-transitioning class.
  */
 
 // ***************** images *****************
@@ -35,15 +35,15 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
   return (
     <aside
       id="logo-sidebar"
-      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--black)]"      aria-label="Sidebar"
+      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--color-page-text)]"      aria-label="Sidebar"
     >
-      <div className="h-full px-3 pb-4 overflow-y-auto">
+      <div className="h-full px-3 pb-4 overflow-y-auto flex flex-col">
         <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] h-[120px] mx-auto p-4 rounded-lg">
             <img src={logo} className="invert mx-auto" alt="Monarca Logo" />
         </div>
-        <div className="flex flex-col items-center justify-center mb-6 text-center">
+        {/* <div className="flex flex-col items-center justify-center mb-6 text-center">
           <p className="text-[var(--color-page-text-title)] font-bold">{user.userName} {user.userLastName} </p>
-        </div>
+        </div> */}
         <ul className="space-y-2 font-medium">
             <SidebarOption
               label={t('sidebar.home')}
@@ -106,16 +106,16 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
               <SidebarOption label={t('sidebar.companyRequests')} pathIcon="/assets/historial_de_viajes.png" link="/admin/company-requests" onClick={onNavigate}/>
             )}
         </ul>
-        <div className="flex gap-7 items-center p-2 mt-10">
-            <DarkModeButton className="block md:hidden"></DarkModeButton>
+        <div className="flex gap-7 items-center justify-center p-2 mt-auto">
+            <DarkModeButton className="block md:hidden border border-gray-300 dark:border-gray-600"></DarkModeButton>
             <button
               type="button"
               title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
               onClick={toggleLanguage}
-              className="block md:hidden hover:scale-110 transition-transform mt-3"
+              className="block md:hidden hover:scale-110 transition-transform"
             >
               <img
-                src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+                src={i18n.language === 'es' ? '/assets/flag_es.svg' : '/assets/flag_gb.svg'}
                 alt={i18n.language === 'es' ? 'Español' : 'English'}
                 className="w-12 h-8 rounded-sm object-cover shadow-sm"
               />
