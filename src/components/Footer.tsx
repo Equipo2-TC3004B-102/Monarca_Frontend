@@ -3,10 +3,13 @@
  * Description: Renders the application footer with copyright, terms, and privacy policy information.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 08/06/2026 [Santiago-Coronado] Added missing translations
  */
 
+import { useTranslation } from "react-i18next";
+
 function Footer() {
+  const { t } = useTranslation();
   return (
     <footer
       className="relative w-full"
@@ -37,7 +40,7 @@ function Footer() {
             className="text-white/50 text-[0.65rem] tracking-[0.3em] uppercase"
             style={{ fontWeight: 500 }}
           >
-            © {new Date().getFullYear()} · 02 Solutions
+            © {new Date().getFullYear()} · DebugStudio Team
           </span>
         </div>
 
@@ -49,7 +52,7 @@ function Footer() {
               className="text-white/55 hover:text-[#4d9aff] tracking-[0.1em] uppercase transition-colors"
               style={{ fontWeight: 500 }}
             >
-              Términos
+              {t("footer.terms")}
             </a>
           </li>
           <li>
@@ -61,7 +64,7 @@ function Footer() {
               className="text-white/55 hover:text-[#4d9aff] tracking-[0.1em] uppercase transition-colors"
               style={{ fontWeight: 500 }}
             >
-              Privacidad
+              {t("footer.privacy")}
             </a>
           </li>
           <li>
@@ -72,7 +75,7 @@ function Footer() {
               className="text-white/35 tracking-[0.1em] uppercase"
               style={{ fontWeight: 500 }}
             >
-              All rights reserved
+              {t("footer.copyright")}
             </span>
           </li>
         </ul>
