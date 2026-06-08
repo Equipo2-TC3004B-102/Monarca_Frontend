@@ -140,12 +140,12 @@ export const Approvals: React.FC = () => {
 
   const columns = [
     { key: "status", header: t('approvals.status'), width: "w-52", render: (value: string) => renderStatus(value, t) },
-    { key: "motive", header: t('approvals.trip'), mobileHidden: true },
+    { key: "motive", header: t('approvals.trip') },
     { key: "title", header: t('approvals.motive') },
-    { key: "origin", header: t('approvals.origin'), mobileHidden: true },
+    { key: "origin", header: t('approvals.origin') },
     { key: "departureDate", header: t('approvals.departureDate') },
-    { key: "country", header: t('approvals.departurePlace'), mobileHidden: true },
-    { key: "arrivalDate", header: t('approvals.arrivalDate'), mobileHidden: true },
+    { key: "country", header: t('approvals.departurePlace') },
+    { key: "arrivalDate", header: t('approvals.arrivalDate') },
   ];
 
   // Fetch travel records data from API
