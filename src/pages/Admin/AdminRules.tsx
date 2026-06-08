@@ -523,7 +523,7 @@ export default function AdminRules() {
           <p className="text-sm text-gray-600">
             {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
-          <div className="flex items-center justify-between w-full lg:w-auto gap-3">
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             <select
               value={filterActive}
               onChange={(e) => { setFilterActive(e.target.value as 'all' | 'active' | 'inactive'); setCurrentPage(1); }}
@@ -533,7 +533,7 @@ export default function AdminRules() {
               <option value="active">{t('admin.rules.active')}</option>
               <option value="inactive">{t('admin.rules.inactive')}</option>
             </select>
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 ml-auto">
               <button
                 id="btn_newRule"
                 onClick={() => { setShowForm(!showForm); setMessage(null); setStagedMainApprovers([]); setApproverMainPickValue(""); }}
@@ -559,7 +559,7 @@ export default function AdminRules() {
             <h3 className="text-base font-semibold text-[var(--color-page-text-title)] mb-3">
               {t('admin.rules.voucherDeadlineTitle')}
             </h3>
-            <form onSubmit={handleSaveDeadline} className="flex items-end gap-4">
+            <form onSubmit={handleSaveDeadline} className="flex flex-col sm:flex-row sm:items-end gap-3">
               <div>
                 <label className={labelClass}>{t('admin.rules.voucherDeadlineDays')}</label>
                 <div className="flex items-center gap-2">
@@ -576,7 +576,7 @@ export default function AdminRules() {
                   <span className="text-sm text-[var(--color-page-text)]">{t('admin.rules.voucherDeadlineDaysLabel')}</span>
                 </div>
               </div>
-              <Button type="submit" disabled={savingDeadline}>
+              <Button type="submit" disabled={savingDeadline} className="self-start sm:self-auto">
                 {savingDeadline ? t('common.saving') : t('admin.rules.voucherDeadlineSave')}
               </Button>
             </form>
