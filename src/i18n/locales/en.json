@@ -20,6 +20,9 @@
     "companyRequests": "Requests"
   },
   "dashboard": {
+    "panelTitle": "Main Dashboard",
+    "welcome": "Welcome",
+    "subtitle": "Select a section to continue with your travel management.",
     "createRequest": "Create travel request",
     "travelHistory": "Travel history",
     "checkExpenses": "Check expenses",
@@ -49,7 +52,9 @@
     "goToLogin": "Go to Login Page"
   },
   "login": {
+    "welcome": "Welcome",
     "title": "Sign in",
+    "subtitle": "Enter your credentials to access your account.",
     "email": "Email",
     "password": "Password",
     "forgotPassword": "Forgot your password?",
@@ -832,5 +837,10 @@
     "sending": "Sending",
     "send": "Send",
     "haveAccount": "Already have an account?"
+  },
+  "footer": {
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "All rights reserved"
   }
 }

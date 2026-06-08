@@ -3,7 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 04/06/2026 [Sergio Jiawei Xuan] Fixed stay_days tag to only render when stay_days > 0.
+ * 08/06/2026 [Santiago Coronado Hernández] Added translations for priority component
  */
 
 import React, { useState, useEffect } from 'react';
@@ -64,6 +64,34 @@ const renderProviderSupportStatus = (status: string | undefined, t: TFunction) =
     case 'unsupported':    return t('providerStatus.unsupported');
     case 'pending_provider':
     default:               return t('providerStatus.pending');
+  }
+};
+
+/**
+ * renderPriority, converts backend priority values into localized labels for
+ * the request details page.
+ * Inputs: priority (string | undefined) - The priority value from the API.
+ * Returns: string - Localized priority label.
+ */
+const renderPriority = (priority: string | undefined, t: TFunction) => {
+  switch (priority) {
+    case 'high':
+    case 'High':
+    case 'alta':
+    case 'Alta':
+      return t('priority.high');
+    case 'medium':
+    case 'Medium':
+    case 'media':
+    case 'Media':
+      return t('priority.medium');
+    case 'low':
+    case 'Low':
+    case 'baja':
+    case 'Baja':
+      return t('priority.low');
+    default:
+      return priority ?? '';
   }
 };
 
@@ -574,7 +602,13 @@ const RequestInfo: React.FC = () => {
                     id={key as string}
                     type="text"
                     readOnly
-                    value={key === 'status' ? renderStatus(String(data[key]), t) : String(data[key])}
+                    value={
+                      key === 'status'
+                        ? renderStatus(String(data[key]), t)
+                        : key === 'priority'
+                          ? renderPriority(String(data[key]), t)
+                          : String(data[key])
+                    }
                     className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                   />
                 </div>
