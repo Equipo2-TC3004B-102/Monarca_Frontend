@@ -3,9 +3,7 @@
  * Description: Displays travel request details, destination/reservation data, and role-based request actions.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 14/05/2026 [Diego de la Vega] Update destinations display to show origin-to-destination flow and synthesize return legs. Added dark mode for some buttons.
- * 19/05/2026 [Julio Rodriguez] Disabled submit buttons while request is in-flight (isSubmitting).
- *                              Show folio (YYYY-NNN) in header badge instead of UUID.
+ * 08/06/2026 [Santiago Coronado Hernández] Added translations for priority component
  */
 
 import React, { useState, useEffect } from 'react';
@@ -66,6 +64,34 @@ const renderProviderSupportStatus = (status: string | undefined, t: TFunction) =
     case 'unsupported':    return t('providerStatus.unsupported');
     case 'pending_provider':
     default:               return t('providerStatus.pending');
+  }
+};
+
+/**
+ * renderPriority, converts backend priority values into localized labels for
+ * the request details page.
+ * Inputs: priority (string | undefined) - The priority value from the API.
+ * Returns: string - Localized priority label.
+ */
+const renderPriority = (priority: string | undefined, t: TFunction) => {
+  switch (priority) {
+    case 'high':
+    case 'High':
+    case 'alta':
+    case 'Alta':
+      return t('priority.high');
+    case 'medium':
+    case 'Medium':
+    case 'media':
+    case 'Media':
+      return t('priority.medium');
+    case 'low':
+    case 'Low':
+    case 'baja':
+    case 'Baja':
+      return t('priority.low');
+    default:
+      return priority ?? '';
   }
 };
 
@@ -576,7 +602,13 @@ const RequestInfo: React.FC = () => {
                     id={key as string}
                     type="text"
                     readOnly
-                    value={key === 'status' ? renderStatus(String(data[key]), t) : String(data[key])}
+                    value={
+                      key === 'status'
+                        ? renderStatus(String(data[key]), t)
+                        : key === 'priority'
+                          ? renderPriority(String(data[key]), t)
+                          : String(data[key])
+                    }
                     className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                   />
                 </div>
@@ -590,7 +622,7 @@ const RequestInfo: React.FC = () => {
                 {t('requestInfo.destinationDetails')}
               </p>
               {data?.requests_destinations?.map((dest: any, index: number) => (
-                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-8" key={dest.id}>
+                <div className="grid grid-cols-1 sm:grid-cols-6 gap-3 mb-8" key={dest.id}>
                   <div>
                     <label
                       className="block text-xs font-semibold text-gray-500 mb-1"
@@ -616,6 +648,20 @@ const RequestInfo: React.FC = () => {
                       type="text"
                       readOnly
                       value={dest.departure_date ? formatDate(dest.departure_date) : t('historial.noDate')}
+                      className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className="block text-xs font-semibold text-gray-500 mb-1"
+                    >
+                      {t('requestInfo.arrivalDate')}
+                    </label>
+                    <input
+                      id={`arrival-${index}`}
+                      type="text"
+                      readOnly
+                      value={dest.arrival_date ? formatDate(dest.arrival_date) : t('historial.noDate')}
                       className="w-full bg-[var(--color-card-bg)] text-[var(--color-page-text)] rounded-lg px-3 py-2 border border-[var(--color-border)]"
                     />
                   </div>
@@ -654,7 +700,7 @@ const RequestInfo: React.FC = () => {
                     {dest.is_plane_required && (
                       <p id={`plane-${index}`} className='text-sm bg-[var(--blue)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{t('requestInfo.flight')}</p>
                     )}
-                    {dest.stay_days && (
+                    {dest.stay_days > 0 && (
                       <p id={`stay-days-${index}`} className='text-sm bg-[var(--green)] text-[var(--white)] rounded-full px-2 py-1 w-fit'>{dest.stay_days} {t('requestInfo.days')}</p>
                     )}
 

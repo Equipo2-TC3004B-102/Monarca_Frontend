@@ -3,7 +3,7 @@
  * Description: Renders the page for creating a new travel request, including the travel request form and tutorial logic for first-time visitors to guide them through the process.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
+ * 02/06/2026 [Nicolas Quintana] Added extra comments for better understanding.
  */
 
 import { useEffect } from "react";
@@ -21,16 +21,16 @@ function CreateTravelRequest() {
 
 
   useEffect(() => {
-      // Get the visited pages from localStorage
+      // Gets visited pages from localStorage
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
       // Check if the current page is already in the visited pages
       const isPageVisited = visitedPages.includes(location.pathname);
   
-      // If the page is not visited, set the tutorial to true
+      // If the page is not visited, sets the tutorial to true
       if (!isPageVisited) {
         setTutorial(true);
       }
-      // Add the current page to the visited pages
+      // Subsecuently, add the current page to the visited pages
       handleVisitPage();
     }, []);
 

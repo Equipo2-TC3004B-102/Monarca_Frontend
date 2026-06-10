@@ -1,9 +1,10 @@
 /**
  * RefundsAcceptance.tsx
  * Description: Detailed view for reviewing, approving, or denying individual expense vouchers associated with a trip request.
+ *              Includes a variance report section comparing approved budget vs. actual expenses.
  * Authors: Original Monarca team
  * Last Modification made:
- * 20/05/2026 [Diego de la Vega] Fixed an error where the amount of advance money paid was not shown converted to the local currency, as well as fixed the addition of advance money+payment to advance payment-payment.
+ * 03/06/2026 [Nicolas Quintana] Added format to comments.
 */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -79,7 +80,7 @@ interface Dest {
 }
 
 /**
- * renderStatus, transforms the technical status string into a readable format.
+ * FunctionName: renderStatus, transforms the technical status string into a readable format.
  * Input: status (string) - Raw status from backend.
  * Output: string - Formatted status text.
  */
@@ -100,7 +101,7 @@ export const renderStatus = (status: string, t: TFunction) => {
 }
 
 /**
- * RefundsAcceptance, main component for individual voucher validation.
+ * FunctionName: RefundsAcceptance, main component for individual voucher validation.
  * Input: None (React Functional Component)
  * Output: JSX.Element - The rendered component.
  */
@@ -119,7 +120,7 @@ const RefundsAcceptance: React.FC = () => {
   const { handleVisitPage, tutorial } = useApp();
 
   /**
-   * fetchData, retrieves the complete trip request data including associated vouchers.
+   * FunctionName: fetchData, retrieves the complete trip request data including associated vouchers.
    * Input: None (Uses ID from URL params)
    * Output: Promise<void>
    */
@@ -184,7 +185,7 @@ const RefundsAcceptance: React.FC = () => {
   ];
 
   /**
-   * approveVoucher, updates a single voucher status to approved via API.
+   * FunctionName: approveVoucher, updates a single voucher status to approved via API.
    * Input: voucherId (string)
    * Output: Promise<void>
    */
@@ -205,7 +206,7 @@ const RefundsAcceptance: React.FC = () => {
   }
 
   /**
-   * denyVoucher, updates a single voucher status to denied via API.
+   * FunctionName: denyVoucher, updates a single voucher status to denied via API.
    * Input: voucherId (string)
    * Output: Promise<void>
    */
@@ -225,7 +226,7 @@ const RefundsAcceptance: React.FC = () => {
   }
 
   /**
-   * completeRequest, finalizes the verification process for the entire request.
+   * FunctionName: completeRequest, finalizes the verification process for the entire request.
    * Input: None
    * Output: Promise<void>
    */
@@ -471,9 +472,71 @@ const RefundsAcceptance: React.FC = () => {
 
               </section>
 
+              {data?.vouchers && data.vouchers.length > 0 && (() => {
+                const actualAmount = data.vouchers!.reduce(
+                  (acc, v) => v.status === "Voucher Approved" ? acc + Number(v.amount) : acc, 0
+                );
+                const budgetAmount = Number(data.advance_money ?? 0);
+                const variance = actualAmount - budgetAmount;
+                const variancePct = budgetAmount > 0
+                  ? Math.round((variance / budgetAmount) * 10000) / 100
+                  : null;
+                return (
+                  <section
+                    className="my-5 p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-page-bg)]"
+                    id="variance-report"
+                  >
+                    <h2 className="text-lg font-semibold text-[var(--color-page-text-title)] mb-4">
+                      {t('refundAcceptance.varianceReport')}
+                    </h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 mb-1">
+                          {t('refundAcceptance.budgetAmount')}
+                        </p>
+                        <p className="font-medium text-[var(--color-page-text)]">
+                          {formatMoney(budgetAmount)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 mb-1">
+                          {t('refundAcceptance.actualAmount')}
+                        </p>
+                        <p className="font-medium text-[var(--color-page-text)]">
+                          {formatMoney(actualAmount)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 mb-1">
+                          {t('refundAcceptance.variance')}
+                        </p>
+                        <p className={`font-semibold ${variance > 0 ? 'text-red-500' : 'text-green-600'}`}>
+                          {variance > 0 ? '+' : ''}{formatMoney(variance)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 mb-1">
+                          {t('refundAcceptance.variancePct')}
+                        </p>
+                        <p className={`font-semibold ${(variancePct ?? 0) > 0 ? 'text-red-500' : 'text-green-600'}`}>
+                          {variancePct !== null
+                            ? `${variancePct > 0 ? '+' : ''}${variancePct.toFixed(2)}%`
+                            : 'N/A'}
+                          <span className="ml-2 text-xs font-normal">
+                            {(variancePct ?? 0) > 0
+                              ? t('refundAcceptance.overBudget')
+                              : t('refundAcceptance.underBudget')}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                );
+              })()}
+
               <div className="flex space-x-4 justify-end mt-6">
                 <button
-                  className={`px-4 py-2 text-white rounded-md hover:cursor-pointer 
+                  className={`px-4 py-2 text-white rounded-md hover:cursor-pointer
                       ${data?.vouchers?.some((file) => file.status === "pending_voucher")
                       ? "bg-[var(--color-button)] text-[var(--color-text-button)] cursor-not-allowed"
                       : "bg-[var(--blue)] hover:bg-[var(--dark-blue)]"

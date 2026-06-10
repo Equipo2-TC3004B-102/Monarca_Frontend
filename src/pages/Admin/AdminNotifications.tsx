@@ -4,8 +4,7 @@
  *              Fetches current settings on load and provides a form to update preferences with feedback messages on success or error.
  * Authors: Original Monarca team
  * Last Modification made:
- * 05/05/2026 [Santiago Coronado Hernández] Created File and implemented notification settings management for admins.
- * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the notifications settings page
+ * 03/06/2026 [Nicolas Quintana] Remonved "Last Modification made" redundancies.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -18,6 +17,7 @@ import {
   getCompanyNotificationSettings,
   updateCompanyNotificationSettings,
 } from "../../api/companyNotificationSettings";
+import { getRequest } from "../../utils/apiService";
 import type {
   CompanyNotificationSettings,
   CompanyNotificationSettingsUpdate,
@@ -53,6 +53,7 @@ export default function AdminNotifications() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<MessageState>(null);
   const [settings, setSettings] = useState<CompanyNotificationSettings>(defaultSettings);
+  const [companyName, setCompanyName] = useState<string | null>(null);
 
   const canLoad = Boolean(companyId);
 
@@ -82,8 +83,12 @@ export default function AdminNotifications() {
       setMessage(null);
 
       try {
-        const data = await getCompanyNotificationSettings(companyId);
+        const [data, info] = await Promise.all([
+          getCompanyNotificationSettings(companyId),
+          getRequest(`/admin/companies/${companyId}/info`),
+        ]);
         setSettings(data);
+        setCompanyName(info.name ?? null);
       } catch {
         setMessage({ text: t('admin.notifications.errorLoading'), error: true });
       } finally {
@@ -148,7 +153,7 @@ export default function AdminNotifications() {
         <div className="flex flex-col gap-2 mb-4">
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">{t('admin.notifications.title')}</h2>
           <p className="text-sm text-gray-600">
-            {companyId ? `${t('admin.notifications.activeCompany')} ${companyId}` : t('admin.notifications.companyUnavailable')}
+            {companyId ? `${t('admin.notifications.activeCompany')} ${companyName ?? companyId}` : t('admin.notifications.companyUnavailable')}
           </p>
         </div>
 

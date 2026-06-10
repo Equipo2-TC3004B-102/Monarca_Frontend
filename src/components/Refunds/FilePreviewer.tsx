@@ -4,13 +4,12 @@
  * It provides a preview of a file with its metadata and download options.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for
- * clarity and maintainability.
- * 22/04/2026 [Sebastián Borjas] Added display of original amount, currency, and exchange rate for foreign-currency vouchers.
+ * 25/05/2026 [Santiago Coronado Hernández] Added CfdiStatus component.
  */
 import formatDate from "../../utils/formatDate";
 import formatMoney from "../../utils/formatMoney";
 import { useTranslation } from "react-i18next";
+import CfdiStatus from './CfdiStatus';
 
 
 interface FilePreviewerProps {
@@ -24,6 +23,7 @@ interface FilePreviewerProps {
         exchange_rate?: number | null;
         date: string;
         status: string;
+        cfdi_status?: string | null;
     };
     fileIndex: number;
     showDownload?: boolean;
@@ -78,7 +78,12 @@ const FilePreviewer = ({ file, fileIndex, showDownload = true }: FilePreviewerPr
                     </>
                   )}
                   <p id={`date-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.date')}: </span>{formatDate(file.date)}</p>
-                  <p id={`status-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.voucherStatus')}: </span>{file.status}</p>
+                  <p id={`status-file-${fileIndex}`} className="text-[var(--color-page-text)]"><span className="font-semibold text-[var(--color-page-text-title)]">{t('refundAcceptance.voucherStatus')}: </span>{t(`voucherStatus.${file.status}`, { defaultValue: file.status })}</p>
+                  {file.cfdi_status && (
+                    <div>
+                      <CfdiStatus status={file.cfdi_status} variant="inline" />
+                    </div>
+                  )}
                 </div>
               </div>
 

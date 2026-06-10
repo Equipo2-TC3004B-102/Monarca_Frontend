@@ -3,8 +3,7 @@
  * Description: Tutorial component for the application.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 06/05/2026 [Sergio Jiawei Xuan] Converted tutorial step arrays to use i18n t() calls; translated driver.js navigation button labels.
- * 20/05/2026 [Rebeca Davila] Added new functions to generate tutorial steps for all admin pages
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 
 import { driver } from "driver.js";

@@ -1,10 +1,10 @@
 /**
- * Button.tsx
+ * FileName: Button.tsx
  * Description: Reusable UI Button component that wraps the native HTML <button> element,
  * providing consistent base styling and allowing optional style extension via className.
  * Authors: Original Monarca team
  * Last Modification made:
- * 25/02/2026 [Jin Sik Yoon] Added detailed comments and documentation for clarity and maintainability.
+ * 03/06/2026 [Nicolas Quintana] Changed file name format.
  */
 import React from "react";
 import clsx from "clsx";

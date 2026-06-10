@@ -3,8 +3,7 @@
  * Description: End-to-end tests for the refund registration functionality for SOI (Supervisor of Internal Operations) in the Monarca application, covering the flow of logging in as an SOI, navigating to the refund registration page, viewing refund details, and marking a refund request as completed.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
- * 26/03/2026 [Diego de la Vega] Replaced fixed refund detail selector with dynamic selector.
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 
 

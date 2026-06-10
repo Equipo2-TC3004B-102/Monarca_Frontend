@@ -1,13 +1,14 @@
 /**
- * Bookings.tsx
- * Description: Bookings page that lists travel requests pending reservation. Fetches data from the API, formats and enriches each row (status badge, destination, departure date), and provides navigation to the reservation flow.
+ * FileName: Bookings.tsx
+ * Description: Bookings page that lists travel requests pending reservation. Fetches data 
+ * from the API, formats and enriches each row (status badge, destination, departure date), 
+ * and provides navigation to the reservation flow.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 20/04/2026 [Diego de la Vega] Added defensive destination/date fallbacks to
- *                             prevent crashes when request data is incomplete.
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import RefreshButton from "../components/RefreshButton";
 import Table from "../components/Refunds/Table";
 import { getRequest } from "../utils/apiService";
@@ -49,7 +50,7 @@ const renderStatus = (status: string, t: TFunction) => {
     default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
   return (
-    <span className={`text-xs p-1 rounded-sm ${styles}`}>{statusText}</span>
+    <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${styles}`}>{statusText}</span>
   );
 };
 
@@ -75,9 +76,11 @@ const Bookings = () => {
   const columns = [
     { key: "status", header: t('bookings.status'), render: (value: string) => renderStatus(value, t) },
     { key: "title", header: t('bookings.trip') },
-    { key: "country", header: t('bookings.departurePlace') },
+    { key: "origin", header: t('bookings.origin') },
     { key: "departureDate", header: t('bookings.departureDate') },
-    { key: "action", header: "" },
+    { key: "country", header: t('bookings.departurePlace') },
+    { key: "arrivalDate", header: t('bookings.arrivalDate') },
+    { key: "action", header: t('historial.details') },
   ];
 
   /**
@@ -85,8 +88,7 @@ const Bookings = () => {
    * Input: None.
    * Output: Promise<void> - Updates local state with enriched data.
    */
-  useEffect(() => {
-    const fetchTravelRecords = async () => {
+  const fetchTravelRecords = useCallback(async () => {
       try {
         const response = await getRequest("/requests/to-reserve");
         setDataWithActions(
@@ -99,12 +101,19 @@ const Bookings = () => {
             return {
               ...trip,
               status: trip.status,
-              country:
+              origin:
                 trip.destination?.city ||
                 trip.destination?.iata_code ||
                 t('historial.noDestination'),
+              country:
+                firstDestination?.destination?.city ||
+                firstDestination?.destination?.iata_code ||
+                t('historial.noDestination'),
               departureDate: firstDestination?.departure_date
                 ? formatDate(firstDestination.departure_date)
+                : t('historial.noDate'),
+              arrivalDate: firstDestination?.arrival_date
+                ? formatDate(firstDestination.arrival_date)
                 : t('historial.noDate'),
               action: (
                 <Link
@@ -120,10 +129,9 @@ const Bookings = () => {
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
-    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    fetchTravelRecords();
-  }, []);
+  useEffect(() => { fetchTravelRecords(); }, [fetchTravelRecords]);
 
   /**
    * Tutorial onboarding logic:
@@ -156,7 +164,7 @@ const Bookings = () => {
           <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
             {t('bookings.title')}
           </h2>
-          <RefreshButton />
+          <RefreshButton onClick={fetchTravelRecords} />
         </div>
 
         <div id="list_requests">

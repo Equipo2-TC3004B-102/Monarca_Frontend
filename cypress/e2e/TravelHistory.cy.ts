@@ -3,8 +3,7 @@
  * Description: End-to-end tests for the travel history functionality in the Monarca application, covering the flow of logging in as a requester, navigating to the travel history page, viewing travel details, and verifying that all relevant information is displayed correctly.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 25/02/2026 [Santiago-Coronado] Added detailed comments and documentation for clarity and maintainability.
- * 26/03/2026 [Diego de la Vega] Replaced fixed detail selectors and static UUID assertion with dynamic selectors.
+ * 03/06/2026 [Nicolas Quintana] Removed "Last Modification made" redundancies.
  */
 
 /**

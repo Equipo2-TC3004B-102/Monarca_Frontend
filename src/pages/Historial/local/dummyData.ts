@@ -3,11 +3,11 @@
  * Description: This file contains dummy data for the Historial page, including travel request history with various statuses and metadata.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 26/02/2026 Nicolas Quintana Added detailed comments and documentation for clarity and maintainability.
+ * 03/06/2026 [Nicolas Quintana] Added format to the comments.
  */
 
 /**
- * historialData, array of sample travel request records with id, title, travel date, destination, and request date information.
+ * FunctionName: historialData, array of sample travel request records with id, title, travel date, destination, and request date information.
  * Input: none
  * Output: Array of travel request objects
  */

@@ -3,7 +3,7 @@
  * Description: Travel request creation form component with destination management and Zod validation.
  * Authors: Monarca Original Team
  * Last Modification made:
- * 20/04/2026 [Jin Sik Yoon] Implemented form validation with Zod, dynamic destination fields, and API integration for creating travel requests.
+ * 03/06/2026 [Nicolas Quintana] Added FunctionName: to CreateTravelRequestForm
  */
 
 import { Button } from "../ui/Button";
@@ -75,7 +75,7 @@ type RawFormValues = z.input<typeof formSchema>;
 type FormValues = z.output<typeof formSchema>;
 
 /**
- * CreateTravelRequestForm, renders the travel request creation form with destination fields, validation schemas, and submission logic.
+ * FunctionName: CreateTravelRequestForm, renders the travel request creation form with destination fields, validation schemas, and submission logic.
  * Inputs: None, uses hooks for destinations, navigation, and request creation.
  * Returns: JSX.Element - Form UI for creating travel requests with dynamic destination fields.
  */

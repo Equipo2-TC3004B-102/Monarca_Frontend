@@ -1,5 +1,5 @@
 /**
- * requestDestination.ts
+ * FileName: requestDestinations.ts
  * Description: Type definition for a destination associated with a travel request. 
  * Represents the structure sent to or received from the backend when managing multi-destination trips.
  * Authors: Original Moncarca team

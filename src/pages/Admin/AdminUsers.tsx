@@ -5,8 +5,7 @@
  *              because POST /users/import is scoped to the caller's company.
  * Authors: DebugStudio Team
  * Last Modification made:
- * 05/05/2026 [Julio Rodriguez] Added companyId guard and company indicator using authState.companyId pattern.
- * 20/05/2026 [Rebeca Davila] Added a tutorial for first-time visitors to the list of users
+ * 04/06/2026 [Sergio Jiawei Xuan] Connected RefreshButton onClick to fetchUsers.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -26,31 +25,57 @@ interface User {
   user_name: string;
   status: string;
   employee_num: string;
+  id_company?: string | null;
 }
 
-const ITEMS_PER_PAGE = 5;
+interface Company {
+  id: string;
+  name: string;
+}
+
+const ITEMS_PER_PAGE = 10;
+
+const base = "border border-[var(--color-border)] rounded-md px-3 py-2 text-sm bg-[var(--color-card-bg)] text-[var(--color-page-text)] focus:outline-none focus:ring-2 focus:ring-[#0a2c6d]";
 
 export default function AdminUsers() {
   const { authState } = useAuth();
   const { t } = useTranslation();
   const companyId = authState.companyId;
   const canLoad = Boolean(companyId);
-  
+
   const { handleVisitPage, tutorial, setTutorial } = useApp();
 
-  const [users, setUsers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [filterCompany, setFilterCompany] = useState<string>("");
+  const [filterName, setFilterName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const filteredUsers = allUsers.filter((u) => {
+    if (filterStatus && u.status !== filterStatus) return false;
+    if (filterCompany && u.id_company !== filterCompany) return false;
+    if (filterName) {
+      const q = filterName.toLowerCase();
+      const fullName = `${u.name} ${u.last_name}`.toLowerCase();
+      if (!fullName.includes(q) && !u.name.toLowerCase().includes(q) && !u.last_name.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+  const paginated = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const data = await getRequest("/admin/users");
-      setUsers(data);
+      setAllUsers(data);
       setCurrentPage(1);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.errorLoading');
@@ -67,10 +92,16 @@ export default function AdminUsers() {
         .then((data) => setCompanyName(data.name ?? null))
         .catch(() => {});
     }
+    if (authState.isSystemAdmin) {
+      getRequest("/admin/companies")
+        .then((data: Company[]) => setCompanies(data))
+        .catch(() => {});
+    }
   }, []);
 
-  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
-  const paginated = users.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus, filterCompany, filterName]);
 
   const changePage = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -106,18 +137,13 @@ export default function AdminUsers() {
   };
 
   useEffect(() => {
-      // Get the visited pages from localStorage
-      const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
-      // Check if the current page is already in the visited pages
-      const isPageVisited = visitedPages.includes(location.pathname);
-  
-      // If the page is not visited, set the tutorial to true
-      if (!isPageVisited) {
-        setTutorial(true);
-      }
-      // Add the current page to the visited pages
-      handleVisitPage();
-    }, []);
+    const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
+    const isPageVisited = visitedPages.includes(location.pathname);
+    if (!isPageVisited) {
+      setTutorial(true);
+    }
+    handleVisitPage();
+  }, []);
 
   return (
     <>
@@ -138,7 +164,7 @@ export default function AdminUsers() {
                   {importing ? t('admin.users.importing') : t('admin.users.loadUser')}
                 </button>
               )}
-              <RefreshButton />
+              <RefreshButton onClick={fetchUsers} />
             </div>
           </div>
           <p className="text-sm text-gray-600">
@@ -147,15 +173,70 @@ export default function AdminUsers() {
           <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
         </div>
 
+        {/* Filters */}
+        <div className="flex flex-wrap items-end gap-4 mb-4">
+          <div>
+            <label className="block text-xs font-semibold text-[var(--color-page-text-title)] mb-1">
+              {t('admin.users.filterName')}
+            </label>
+            <input
+              type="text"
+              className={`w-56 ${base}`}
+              placeholder={t('admin.users.filterNamePlaceholder')}
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+            />
+          </div>
+          {authState.isSystemAdmin && (
+            <div>
+              <label className="block text-xs font-semibold text-[var(--color-page-text-title)] mb-1">
+                {t('admin.users.filterCompany')}
+              </label>
+              <select
+                className={`w-56 ${base}`}
+                value={filterCompany}
+                onChange={(e) => setFilterCompany(e.target.value)}
+              >
+                <option value="">{t('admin.users.allCompanies')}</option>
+                {companies.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <label className="block text-xs font-semibold text-[var(--color-page-text-title)] mb-1">
+              {t('admin.users.filterStatus')}
+            </label>
+            <select
+              className={`w-40 ${base}`}
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="">{t('admin.users.allStatuses')}</option>
+              <option value="active">{t('admin.users.active')}</option>
+              <option value="inactive">{t('admin.users.inactive')}</option>
+            </select>
+          </div>
+          {(filterName || filterStatus || filterCompany) && (
+            <button
+              onClick={() => { setFilterName(""); setFilterStatus(""); setFilterCompany(""); }}
+              className="px-4 py-2 text-sm font-medium text-[var(--color-page-text-title)] border border-[var(--color-page-text-title)] rounded-lg hover:bg-[var(--color-button)] hover:text-[var(--color-text-button)] transition-colors"
+            >
+              {t('filters.reset')}
+            </button>
+          )}
+        </div>
+
         {message && (
-          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-[var(--color-incorrect-bg)] text-[var(--color-incorrect-text)] border border-[var(--color-incorrect-border)]" : 
+          <div className={`mb-4 p-3 rounded-md text-sm ${message.error ? "bg-[var(--color-incorrect-bg)] text-[var(--color-incorrect-text)] border border-[var(--color-incorrect-border)]" :
           "bg-[var(--color-correct-bg)] text-[var(--color-correct-text)] "}`}>
             {message.text}
           </div>
         )}
 
         <div className="overflow-x-auto mb-4">
-          <table id="users_list" className="w-full min-w-[900px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
+          <table id="users_list" className="w-full min-w-[1200px] table-fixed text-sm text-left text-gray-500 border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white uppercase bg-[#0a2c6d]">
                 <th className="px-4 py-2 text-center rounded-l-lg">{t('admin.users.name')}</th>
@@ -183,7 +264,7 @@ export default function AdminUsers() {
                   <td className="px-4 py-3">{u.user_name}</td>
                   <td className="px-4 py-3">{u.employee_num ?? "-"}</td>
                   <td className="px-4 py-3 rounded-r-lg">
-                    <span className={`text-xs p-1 rounded-sm font-bold ${u.status === "active" ? "bg-[#c7e6ab] text-[#24390d]" : "bg-[#eca6a6] text-[#680909]"}`}>
+                    <span className={`text-xs px-2 py-1 rounded-full font-bold ${u.status === "active" ? "bg-[#c7e6ab] text-[#24390d]" : "bg-[#eca6a6] text-[#680909]"}`}>
                       {u.status === "active" ? t('admin.users.active') : t('admin.users.inactive')}
                     </span>
                   </td>

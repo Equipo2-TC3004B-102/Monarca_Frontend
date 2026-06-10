@@ -15,7 +15,9 @@
     "rules": "Reglas",
     "notifications": "Notificaciones",
     "reservedHistory": "Historial de viajes reservados",
-    "accountingExport": "Exportar pólizas contables"
+    "accountingExport": "Exportar pólizas contables",
+    "auditLogs": "Bitácora de auditoría",
+    "companyRequests": "Solicitudes"
   },
   "dashboard": {
     "createRequest": "Crear solicitud de viaje",
@@ -23,16 +25,18 @@
     "checkExpenses": "Comprobar Gastos",
     "tripsToApprove": "Viajes por aprobar",
     "approvedHistory": "Historial de viajes aprobados",
-    "vouchersToApprove": "Comprobantes de gastos por aprobar",
+    "vouchersToApprove": "Comprobantes y Reembolsos",
     "tripsToRegister": "Viajes por registrar",
-    "refundsToRegister": "Reembolsos por registrar",
+    "refundsToRegister": "Comprobantes y Reembolsos por registrar",
     "accountingExport": "Exportar pólizas contables",
     "tripsToBook": "Viajes por reservar",
     "reservedHistory": "Historial de viajes reservados",
     "newCompany": "Crear empresa",
     "userList": "Lista de usuarios",
     "rules": "Reglas",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "auditLogs": "Bitácora de auditoría",
+    "companyRequests": "Solicitudes"
   },
   "header": {
     "logout": "Cerrar sesión"
@@ -45,11 +49,15 @@
     "goToLogin": "Ir a la Página de Iniciar Sesión"
   },
   "login": {
+    "welcome": "Bienvenido",
     "title": "Iniciar sesión",
+    "subtitle": "Ingresa tus credenciales para acceder a tu cuenta.",
     "email": "Correo electrónico",
     "password": "Contraseña",
     "forgotPassword": "¿Olvidaste tu contraseña?",
-    "continue": "Continuar"
+    "continue": "Continuar",
+    "signIn": "Inicia sesión",
+    "emailPlaceholder": "usuario@dominio.com"
   },
   "status": {
     "pendingReview": "Pendiente de Revisión",
@@ -73,8 +81,10 @@
     "title": "Aprobaciones",
     "trip": "Solicitud",
     "motive": "Motivo",
+    "origin": "Origen",
     "departureDate": "Fecha de salida",
     "departurePlace": "Destino",
+    "arrivalDate": "Fecha de llegada",
     "status": "Estado",
     "approver": "Aprobador",
     "costCenter": "Centro de costo",
@@ -89,6 +99,7 @@
     "trip": "Solicitud",
     "title": "Solicitud",
     "motive": "Motivo",
+    "origin": "Origen",
     "departureDate": "Fecha de salida",
     "departurePlace": "Destino",
     "status": "Estado",
@@ -101,16 +112,19 @@
   "bookings": {
     "title": "Viajes por reservar",
     "trip": "Solicitud",
+    "origin": "Origen",
     "departureDate": "Fecha de salida",
     "departurePlace": "Destino",
+    "arrivalDate": "Fecha de llegada",
     "status": "Estado",
     "reserve": "Reservar"
   },
   "refunds": {
     "trip": "Solicitud",
+    "origin": "Origen",
     "tripDate": "Fecha de salida",
-    "requestDate": "Fecha de llegada",
     "departurePlace": "Destino",
+    "requestDate": "Fecha de llegada",
     "advance": "Anticipo",
     "status": "Estado",
     "errorLoading": "Error al cargar los datos",
@@ -146,7 +160,25 @@
     "submit": "Enviar",
     "amountError": "El importe no puede ser 0.00",
     "selectCurrencyError": "Por favor selecciona una moneda para cada comprobante.",
-    "submitError": "Error al enviar. Intenta de nuevo."
+    "submitError": "Error al enviar. Intenta de nuevo.",
+    "colCfdiStatus": "Estado CFDI",
+    "checkingCfdi": "Validando...",
+    "existingVouchers": "Comprobantes existentes",
+    "deadlineLabel": "Plazo de comprobación de gastos",
+    "deadlineDaysLeft": "{{count}} día(s) restante(s)",
+    "deadlineExpired": "El plazo ha vencido — ya no se pueden subir nuevos comprobantes",
+    "uploadButton": "Subir comprobantes",
+    "sendApprovalButton": "Enviar para aprobación",
+    "noVouchersError": "Sube al menos un comprobante antes de enviar para aprobación",
+    "uploadSuccess": "Comprobantes subidos exitosamente",
+    "sendSuccess": "Comprobantes enviados para aprobación exitosamente",
+    "noMatchingRefundLevel": "No hay una regla de aprobación configurada para este monto de anticipo. Pide a tu administrador que configure una regla de reembolso que cubra este rango.",
+    "pdfRequired": "Se requiere un archivo PDF para cada comprobante.",
+    "invalidPDF": "El archivo PDF no es válido.",
+    "invalidXML": "El archivo XML no es válido.",
+    "dateBeforeTripStart": "La fecha del comprobante no puede ser anterior al inicio del viaje.",
+    "dateAfterTripEnd": "La fecha del comprobante no puede ser posterior al fin del viaje.",
+    "beforeTripStarted": "No se pueden subir comprobantes antes de que el viaje haya comenzado."
   },
   "form": {
     "title": "Título",
@@ -164,8 +196,15 @@
     "needsFlight": "¿Necesita vuelo?",
     "needsHotel": "¿Necesita hotel?",
     "details": "Detalles",
+    "originCountry": "País de origen",
+    "originCountryPlaceholder": "Selecciona un país",
     "originCity": "Ciudad de origen",
     "originCityPlaceholder": "Busca tu ciudad",
+    "originCityDisabledPlaceholder": "Primero selecciona un país",
+    "destinationCountry": "País",
+    "destinationCountryPlaceholder": "Selecciona un país",
+    "destinationCountryFirst": "Primero selecciona un país",
+    "destinationCity": "Ciudad",
     "advanceMoney": "Anticipo",
     "currency": "Moneda",
     "priority": "Prioridad",
@@ -215,6 +254,7 @@
     "errorCreating": "Error al crear la solicitud",
     "errorUpdating": "Error al actualizar la solicitud",
     "selectOrigin": "Selecciona una ciudad de origen",
+    "selectDestination": "Selecciona una ciudad destino para cada destino",
     "departureDateOrder": "La fecha de salida del destino #{{num}} debe ser posterior a la del destino anterior",
     "returnDateAfterLast": "La fecha de regreso debe ser posterior a la última fecha de salida"
   },
@@ -240,7 +280,7 @@
     "arrivalDate": "Fecha de llegada:",
     "days": "días",
     "place": "Lugar:",
-    "flight": "Vuelo:",
+    "flight": "Vuelo",
     "details": "Detalles:",
     "advance": "Anticipo:",
     "balanceInFavor": "Saldo a favor:",
@@ -325,6 +365,7 @@
     "success": "Reservaciones enviadas correctamente.",
     "sendError": "Error al enviar las reservaciones.",
     "fillRequired": "Por favor completa todos los campos requeridos.",
+    "commentsRequired": "Los comentarios son obligatorios para cada reservación.",
     "invalidFormat": "Este formato no es válido. Solo se permiten PDF y XML.",
     "unavailable": "Destino no disponible"
   },
@@ -384,7 +425,26 @@
     "exchangeRate": "Tipo de cambio",
     "date": "Fecha",
     "voucherStatus": "Estado",
-    "quantity": "Cantidad"
+    "quantity": "Cantidad",
+    "varianceReport": "Presupuesto vs. Gasto Real",
+    "budgetAmount": "Presupuesto aprobado",
+    "actualAmount": "Gasto real",
+    "variance": "Varianza",
+    "variancePct": "Varianza %",
+    "underBudget": "Dentro del presupuesto",
+    "overBudget": "Fuera del presupuesto",
+    "cfdiStatus": "Estado CFDI"
+  },
+  "cfdi": {
+    "VALID": "Válido",
+    "CANCELED": "Cancelado",
+    "NOT_FOUND": "No encontrado",
+    "PENDING": "Pendiente"
+  },
+  "voucherStatus": {
+    "pending_voucher": "Pendiente",
+    "Voucher Approved": "Comprobante aprobado",
+    "Voucher Denied": "Comprobante rechazado"
   },
   "tutorial": {
     "done": "Finalizar",
@@ -545,7 +605,13 @@
       "importCreated": "creado(s)",
       "importUpdated": "actualizado(s)",
       "noChanges": "Sin cambios",
-      "importErrors": "Errores"
+      "importErrors": "Errores",
+      "filterName": "Nombre",
+      "filterNamePlaceholder": "Buscar por nombre",
+      "filterCompany": "Empresa",
+      "allCompanies": "Todas las empresas",
+      "filterStatus": "Estado",
+      "allStatuses": "Todos"
     },
     "newCompany": {
       "title": "Nueva empresa",
@@ -554,7 +620,8 @@
       "credentialsLabel": "Credenciales generadas — comparte con el administrador de empresa:",
       "companyLabel": "Empresa:",
       "currencyLabel": "Moneda:",
-      "adminEmailLabel": "Admin email:",
+      "status": "Estado",
+      "cfdiStatus": "Estado CFDI",
       "tempPasswordLabel": "Contraseña temporal:",
       "companyData": "Datos de la empresa",
       "companyName": "Nombre de la empresa",
@@ -584,6 +651,9 @@
       "refund": "Reembolsos",
       "all": "Todos",
       "levelOrder": "Orden del nivel",
+      "levelOrderHelp":"Cuántos niveles jerárquicos subir para encontrar al aprobador. Nivel 1 asigna al gerente directo del solicitante.",
+      "chainLevel1": "Nivel 1 — Gerente directo del solicitante",
+      "chainLevelN": "Nivel {{n}} — Sube {{n}} niveles en la jerarquía",
       "minAmount": "Cantidad mínima de solicitud",
       "noMinimum": "Sin mínimo",
       "maxAmount": "Cantidad máxima de solicitud",
@@ -630,6 +700,8 @@
       "actorTypeNone": "Sin aprobador definido",
       "actorTypeManager": "Gerente directo",
       "actorTypeUser": "Usuario específico",
+      "approverPickerLabel": "Aprobador específico",
+      "addApprover": "Agregar",
       "selectionModeAny": "Cualquiera",
       "selectionModeAll": "Todos",
       "cecoAppliesTo": "CECO al que aplica",
@@ -665,8 +737,68 @@
       "revisionsDesc": "Notifica por email cuando se genera una revisión.",
       "reservations": "Reservación creada",
       "reservationsDesc": "Notifica por email cuando se crea una reservación.",
-      "adminAlerts": "Alertas administrativas",
+      "submitError": "Error al enviar. Intenta de nuevo.",
       "adminAlertsDesc": "Notifica por email eventos administrativos relevantes."
+    },
+    "companyRequests": {
+      "title": "Solicitudes de la empresa",
+      "folio": "Folio",
+      "title_col": "Título",
+      "requester": "Solicitante",
+      "status": "Estado",
+      "createdAt": "Fecha",
+      "actions": "Acciones",
+      "view": "Ver solicitud",
+      "errorLoading": "Error al cargar las solicitudes."
+    },
+    "auditLogs": {
+      "title": "Bitácora de auditoría",
+      "date": "Fecha",
+      "user": "Usuario afectado",
+      "email": "Correo",
+      "action": "Acción",
+      "seeMore": "ver más",
+      "seeLess": "ver menos",
+      "viewRequest": "Ver solicitud",
+      "errorLoading": "Error al cargar la bitácora de auditoría.",
+      "actions": {
+        "USER_CREATED": "Usuario creado: {{email}} (roles: {{flags}})",
+        "USER_PROFILE_UPDATED": "Perfil actualizado de {{email}} — campos: {{fields}}",
+        "USER_FLAGS_UPDATED": "Roles actualizados de {{email}}: {{flags}}",
+        "USER_DELETED": "Usuario eliminado: {{email}}",
+        "SETTINGS_UPDATED": "Configuración de empresa actualizada: {{fields}}",
+        "REQUEST_CREATED": "Solicitud creada — Folio {{folio}}: \"{{title}}\"",
+        "REQUEST_CANCELLED": "Solicitud cancelada — Folio {{folio}}: \"{{title}}\"",
+        "RULE_CREATED": "Regla de aprobación creada: \"{{name}}\" (orden {{order}})",
+        "RULE_UPDATED": "Regla de aprobación modificada: \"{{name}}\" — campos: {{fields}}",
+        "FIRST_LOGIN": "Primer inicio de sesión: {{email}}",
+        "USERS_IMPORTED": "Importación de usuarios: {{created}} creado(s), {{updated}} actualizado(s), {{unchanged}} sin cambios, {{errors}} error(es)"
+      },
+      "fieldNames": {
+        "is_requester": "Solicitante",
+        "is_approver": "Aprobador",
+        "is_soi": "SOI",
+        "is_travelAgent": "Agente de viajes",
+        "is_company_admin": "Admin de empresa",
+        "voucher_deadline_days": "Días límite de comprobación",
+        "name": "Nombre",
+        "last_name": "Apellido",
+        "email": "Correo",
+        "employee_num": "Núm. empleado",
+        "status": "Estado",
+        "password": "Contraseña",
+        "user_name": "Usuario",
+        "level_order": "Orden",
+        "is_active": "Activo",
+        "description": "Descripción",
+        "code": "Código",
+        "applies_to": "Aplica a",
+        "min_amount": "Monto mínimo",
+        "max_amount": "Monto máximo",
+        "required_approvals": "Aprobaciones requeridas"
+      },
+      "boolTrue": "Sí",
+      "boolFalse": "No"
     }
   },
   "theme": {
@@ -723,5 +855,39 @@
       "date": "Fecha",
       "actions": "Acciones"
     }
+  },
+  "filters": {
+    "title": "Filtros",
+    "status": "Estatus",
+    "motive": "Motivo",
+    "motivePlaceholder": "Buscar por motivo",
+    "tripDate": "Fecha de viaje",
+    "requestDate": "Fecha de solicitud",
+    "departurePlace": "Lugar de salida",
+    "departureCountry": "País",
+    "departureCity": "Ciudad",
+    "search": "Buscar",
+    "reset": "Restablecer",
+    "allStatuses": "Todos los estados",
+    "allCountries": "Todos los países",
+    "allCities": "Todas las ciudades",
+    "allDates": "Todas las fechas",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "last7Days": "Últimos 7 días",
+    "last30Days": "Últimos 30 días"
+  },
+  "recover": {
+    "eyebrow": "Recuperación",
+    "title": "¿Olvidaste tu contraseña?",
+    "subtitle": "Ingresa tu correo electrónico con el cual inicias sesión para recuperar tu contraseña.",
+    "sending": "Enviando",
+    "send": "Enviar",
+    "haveAccount": "¿Ya tienes cuenta?"
+  },
+  "footer": {
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "copyright": "Todos los derechos reservados"
   }
 }

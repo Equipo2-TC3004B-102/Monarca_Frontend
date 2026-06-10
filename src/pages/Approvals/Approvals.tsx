@@ -3,9 +3,9 @@
  * Description: Approvals page component, which displays a list of approvals and allows users to approve or reject them.
  * Authors: Original Monarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors dark mode
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Table from "../../components/Approvals/Table";
 import { getRequest } from "../../utils/apiService";
 import RefreshButton from "../../components/RefreshButton";
@@ -16,6 +16,7 @@ import { useLocation } from "react-router-dom";
 import { useApp } from "../../hooks/app/appContext";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import FilterPanel, { FilterValues, STATUS_OPTIONS_TO_APPROVE } from "../../components/FilterPanel";
 
 // columns are built inside the component so they react to language changes
 /**
@@ -75,81 +76,159 @@ const renderStatus = (status: string, t: TFunction) => {
       styles = "text-white bg-[#6c757d]";
     }
     return (
-      <span className={`text-xs p-1 rounded-sm ${styles}`}>
+      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${styles}`}>
         {statusText}
       </span>
     )
 }
 
 /**
+ * FunctionName: applyFilters
+ * Purpose of the function: Filters an array of approval records based on provided filter criteria including status, motive, dates, and location.
+ * Input: data (any[]) - Array of approval objects to filter, filters (FilterValues) - Object containing filter criteria
+ * Output: any[] - Filtered array of approval objects matching all criteria
+ */
+const applyFilters = (data: any[], filters: FilterValues) => {
+  const now = new Date();
+  return data.filter((record) => {
+    if (filters.status && record.status !== filters.status) return false;
+
+    if (filters.motive && !record.motive?.toLowerCase().includes(filters.motive.toLowerCase())) return false;
+
+    if (filters.tripDate && record._rawDepartureDate) {
+      if (!record._rawDepartureDate.startsWith(filters.tripDate)) return false;
+    }
+
+    if (filters.requestDateRange && record._rawCreatedAt) {
+      const date = new Date(record._rawCreatedAt);
+      if (filters.requestDateRange === "today") {
+        if (date.toDateString() !== now.toDateString()) return false;
+      } else if (filters.requestDateRange === "yesterday") {
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        if (date.toDateString() !== yesterday.toDateString()) return false;
+      } else if (filters.requestDateRange === "last7") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 7);
+        if (date < cutoff) return false;
+      } else if (filters.requestDateRange === "last30") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 30);
+        if (date < cutoff) return false;
+      }
+    }
+
+    if (filters.departureCountry && record.destination?.country !== filters.departureCountry) return false;
+    if (filters.departureCity && record.country !== filters.departureCity) return false;
+
+    return true;
+  });
+};
+
+/**
  * FunctionName: Approvals
- * Purpose of the function: to display the approvals page.
- * Input: none
- * Output: none
- * Author: Original Moncarca team
- * Last Modification made: original Moncarca team
+ * Purpose of the function: Main page component for displaying and managing travel request approvals. Displays approval records in a filterable table.
+ * Input: None - This is a page component with no props
+ * Output: JSX.Element - The rendered page with a table of approvals and filter panel
  */
 export const Approvals: React.FC = () => {
-  const [dataWithActions, setDataWithActions] = useState([]);
+  const [allData, setAllData] = useState<any[]>([]);
+  const [displayData, setDisplayData] = useState<any[]>([]);
   const location = useLocation();
   const { handleVisitPage, tutorial, setTutorial } = useApp();
   const { t } = useTranslation();
 
   const columns = [
-    { key: "status", header: t('approvals.status'), render: (value: string) => renderStatus(value, t) },
+    { key: "status", header: t('approvals.status'), width: "w-52", render: (value: string) => renderStatus(value, t) },
     { key: "motive", header: t('approvals.trip') },
     { key: "title", header: t('approvals.motive') },
+    { key: "origin", header: t('approvals.origin') },
     { key: "departureDate", header: t('approvals.departureDate') },
     { key: "country", header: t('approvals.departurePlace') },
+    { key: "arrivalDate", header: t('approvals.arrivalDate') },
   ];
 
   // Fetch travel records data from API
-  useEffect(() => {
-    const fetchTravelRecords = async () => {
+  /**
+   * FunctionName: fetchTravelRecords
+   * Purpose of the function: Fetches travel record approval data from the API, maps and formats the response data to match the required structure.
+   * Input: None 
+   * Output: Sets allData and displayData state with formatted travel records
+   */
+  const fetchTravelRecords = useCallback(async () => {
       try {
         const response = await getRequest("/requests/to-approve");
-        setDataWithActions(
-          response.map((trip: any) => {
-            const sortedDestinations = [...(trip.requests_destinations || [])].sort(
-              (a: any, b: any) => a.destination_order - b.destination_order
-            );
-            const firstDestination = sortedDestinations[0];
+        const mapped = response.map((trip: any) => {
+          const sortedDestinations = [...(trip.requests_destinations || [])].sort(
+            (a: any, b: any) => a.destination_order - b.destination_order
+          );
+          const firstDestination = sortedDestinations[0];
 
-            return {
-              ...trip,
-              status: trip.status,
-              country:
-                trip.destination?.city ||
-                trip.destination?.iata_code ||
-                t('historial.noDestination'),
-              departureDate: firstDestination?.departure_date
-                ? formatDate(firstDestination.departure_date)
-                : t('historial.noDate'),
-            };
-          })
-        );
+          return {
+            ...trip,
+            status: trip.status,
+            _rawCreatedAt: trip.createdAt,
+            _rawDepartureDate: firstDestination?.departure_date ?? null,
+            origin:
+              trip.destination?.city ||
+              trip.destination?.iata_code ||
+              t('historial.noDestination'),
+            country:
+              firstDestination?.destination?.city ||
+              firstDestination?.destination?.iata_code ||
+              t('historial.noDestination'),
+            departureDate: firstDestination?.departure_date
+              ? formatDate(firstDestination.departure_date)
+              : t('historial.noDate'),
+            arrivalDate: firstDestination?.arrival_date
+              ? formatDate(firstDestination.arrival_date)
+              : t('historial.noDate'),
+          };
+        });
+        setAllData(mapped);
+        setDisplayData(mapped);
       } catch (error) {
         console.error("Error fetching travel records:", error);
       }
-    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    fetchTravelRecords();
-  }, []);
+  useEffect(() => { fetchTravelRecords(); }, [fetchTravelRecords]);
 
+  /**
+   * FunctionName: Tutorial Management
+   * Purpose of the function: Manages the tutorial state by checking if the user has visited the page before. Shows tutorial on first visit.
+   * Input: None
+   * Output: Updates tutorial state and calls handleVisitPage to mark page as visited
+   */
   useEffect(() => {
-    // Get the visited pages from localStorage
     const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
-    // Check if the current page is already in the visited pages
     const isPageVisited = visitedPages.includes(location.pathname);
 
-    // If the page is not visited, set the tutorial to true
     if (!isPageVisited) {
       setTutorial(true);
     }
-    // Add the current page to the visited pages
     return () => handleVisitPage();
   }, []);
-    
+
+  /**
+   * FunctionName: handleSearch
+   * Purpose of the function: Applies filter criteria to the list of approvals and updates the displayed approvals.
+   * Input: filters (FilterValues) - Object containing filter criteria
+   * Output: Updates displayData state with filtered results
+   */
+  const handleSearch = (filters: FilterValues) => {
+    setDisplayData(applyFilters(allData, filters));
+  };
+
+  /**
+   * FunctionName: handleReset
+   * Purpose of the function: Resets the displayed approvals to show all records without any filters applied.
+   * Input: None
+   * Output: Updates displayData state to display all records from allData
+   */
+  const handleReset = () => {
+    setDisplayData(allData);
+  };
 
   return (
     <>
@@ -160,13 +239,16 @@ export const Approvals: React.FC = () => {
             <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
               {t('approvals.title')}
             </h2>
-            <RefreshButton />
+            <RefreshButton onClick={fetchTravelRecords} />
           </div>
+
+          {/* Filter panel */}
+          <FilterPanel onSearch={handleSearch} onReset={handleReset} statusOptions={STATUS_OPTIONS_TO_APPROVE} />
 
           <div id="list_requests">
             <Table
               columns={columns}
-              data={dataWithActions}
+              data={displayData}
               itemsPerPage={5}
               link={"/requests"}
             />

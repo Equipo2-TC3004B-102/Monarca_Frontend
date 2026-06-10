@@ -1,12 +1,12 @@
 /**
- * CheckRefunds.tsx
+ * FileName: CheckRefunds.tsx
  * Description: Page component that displays trips with pending refunds to be reviewed by authorized personnel.
  * Authors: Original Monarca team
  * Last Modification made:
- * 04/05/2026 [Rebeca-Davila] Changed colors for dark mode
+ * 04/06/2026 [Sergio Jiawei Xuan] Refactored fetch to useCallback; connected RefreshButton onClick.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Table from "../../components/Refunds/Table";
 import { getRequest } from "../../utils/apiService";
 import Button from "../../components/Refunds/Button";
@@ -20,27 +20,19 @@ import { Tutorial } from "../../components/Tutorial";
 import { useApp } from "../../hooks/app/appContext";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import FilterPanel, { FilterValues, STATUS_OPTIONS_REFUND_SOI } from "../../components/FilterPanel";
 
 /**
  * Trip
  * Interface to define the structure of a trip object used within the component.
  */
-interface Trip {
-  id: number | string;
-  tripName: string;
-  amount: number;
-  date: string;
-  destination: string;
-  requestDate: string;
-  status: string;
-}
 
 /**
- * renderStatus, assigns a styled badge and translated text based on the trip status.
- * Input: status (string)
- * Output: JSX.Element
+ * FunctionName: renderStatus
+ * Purpose of the function: Assigns a styled badge and translated text based on the trip status.
+ * Input: status (string) - The status string to render, t (TFunction) - The translation function
+ * Output: JSX.Element - A styled span element with the translated status text and appropriate styles
  */
-
 const renderStatus = (status: string, t: TFunction) => {
   let statusText = "";
   let styles = "";
@@ -57,31 +49,77 @@ const renderStatus = (status: string, t: TFunction) => {
     case "Completed":           statusText = t('status.completed');           styles = "text-[#24390d] font-bold bg-[#c7e6ab]"; break;
     default:                    statusText = status;                          styles = "text-white bg-[#6c757d]";
   }
-  return <span className={`text-xs px-2 py-1 rounded-sm box-decoration-clone leading-snug ${styles}`}>{statusText}</span>;
+  return <span className={`text-xs px-2 py-1 rounded-full font-semibold box-decoration-clone leading-snug ${styles}`}>{statusText}</span>;
 }
 
 /**
- * CheckRefunds, main page component for viewing and managing refunds to be checked.
- * Input: None
- * Output: JSX.Element - The rendered page with a table of trips.
+ * FunctionName: applyFilters
+ * Purpose of the function: Filters an array of trip records based on provided filter criteria including status, motive, dates, and location.
+ * Input: data (any[]) - Array of trip objects to filter, filters (FilterValues) - Object containing filter criteria
+ * Output: any[] - Filtered array of trip objects matching all criteria
+ */
+const applyFilters = (data: any[], filters: FilterValues) => {
+  const now = new Date();
+  return data.filter((record) => {
+    if (filters.status && record.status !== filters.status) return false;
+
+    if (filters.motive && !record.motive?.toLowerCase().includes(filters.motive.toLowerCase())) return false;
+
+    if (filters.tripDate && record._rawDepartureDate) {
+      if (!record._rawDepartureDate.startsWith(filters.tripDate)) return false;
+    }
+
+    if (filters.requestDateRange && record._rawCreatedAt) {
+      const date = new Date(record._rawCreatedAt);
+      if (filters.requestDateRange === "today") {
+        if (date.toDateString() !== now.toDateString()) return false;
+      } else if (filters.requestDateRange === "yesterday") {
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        if (date.toDateString() !== yesterday.toDateString()) return false;
+      } else if (filters.requestDateRange === "last7") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 7);
+        if (date < cutoff) return false;
+      } else if (filters.requestDateRange === "last30") {
+        const cutoff = new Date(now);
+        cutoff.setDate(now.getDate() - 30);
+        if (date < cutoff) return false;
+      }
+    }
+
+    if (filters.departureCountry && record.destination?.country !== filters.departureCountry) return false;
+    if (filters.departureCity && record.origin !== filters.departureCity) return false;
+
+    return true;
+  });
+};
+
+/**
+ * FunctionName: CheckRefunds
+ * Purpose of the function: Main page component for viewing and managing refunds to be checked. Displays trips with pending refunds in a filterable table.
+ * Input: None - This is a page component with no props
+ * Output: JSX.Element - The rendered page with a table of trips and filter panel
  */
 export const CheckRefunds = () => {
   const navigate = useNavigate();
-  const [trips, setTrips] = useState<Trip[]>([]);
+  const [allTrips, setAllTrips] = useState<any[]>([]);
+  const [displayTrips, setDisplayTrips] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { handleVisitPage, tutorial, setTutorial } = useApp();
   const { t } = useTranslation();
 
   /**
-   * useEffect hook to fetch trip data from the API on component mount.
-   * Maps and formats the response data to match the Trip interface.
+   * FunctionName: fetchTrips
+   * Purpose of the function: Fetches trip data from the API, maps and formats the response data to match the required structure.
+   * Input: None - Uses async function inside useEffect
+   * Output: Sets allTrips and displayTrips state with formatted trip data
    */
-  useEffect(() => {
-    const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
       try {
         setLoading(true);
         const response = await getRequest("/requests/refund-to-approve-SOI");
-        setTrips(response.map((trip: any) => {
+        const mapped = response.map((trip: any) => {
           const sortedDestinations = [...(trip.requests_destinations || [])].sort(
             (a: any, b: any) => a.destination_order - b.destination_order
           );
@@ -90,6 +128,8 @@ export const CheckRefunds = () => {
           return {
             ...trip,
             status: trip.status,
+            _rawCreatedAt: trip.createdAt,
+            _rawDepartureDate: firstDestination?.departure_date ?? null,
             date: firstDestination?.departure_date
               ? formatDate(firstDestination.departure_date)
               : "N/A",
@@ -98,12 +138,21 @@ export const CheckRefunds = () => {
               trip.destination?.city ||
               trip.destination?.iata_code ||
               t('historial.noDestination'),
+            destination:
+              firstDestination?.destination?.city ||
+              firstDestination?.destination?.iata_code ||
+              t('historial.noDestination'),
+            arrivalDate: firstDestination?.arrival_date
+              ? formatDate(firstDestination.arrival_date)
+              : "N/A",
             createdAt: formatDate(trip.createdAt),
           };
-        }));
+        });
+        setAllTrips(mapped);
+        setDisplayTrips(mapped);
       } catch (err) {
         toast.error(t('refunds.errorLoading'));
-    
+
         console.error(
           "Error loading trips: ",
           err instanceof Error ? err.message : err
@@ -111,33 +160,57 @@ export const CheckRefunds = () => {
       } finally {
         setLoading(false);
       }
-    };
-    fetchTrips();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { fetchTrips(); }, [fetchTrips]);
 
   /**
-   * useEffect hook to manage the tutorial state based on whether the user has visited the page before.
+   * FunctionName: Tutorial Management
+   * Purpose of the function: Manages the tutorial state by checking if the user has visited the page before. Shows tutorial on first visit.
+   * Input: None - Reads from localStorage
+   * Output: Updates tutorial state and calls handleVisitPage to mark page as visited
    */
   useEffect(() => {
       const visitedPages = JSON.parse(localStorage.getItem("visitedPages") || "[]");
       const isPageVisited = visitedPages.includes(location.pathname);
-  
+
       if (!isPageVisited) {
         setTutorial(true);
       }
       handleVisitPage();
     }, []);
 
+  /**
+   * FunctionName: handleSearch
+   * Purpose of the function: Applies filter criteria to the list of trips and updates the displayed trips.
+   * Input: filters (FilterValues) - Object containing filter criteria
+   * Output: Updates displayTrips state with filtered results
+   */
+  const handleSearch = (filters: FilterValues) => {
+    setDisplayTrips(applyFilters(allTrips, filters));
+  };
+
+  /**
+   * FunctionName: handleReset
+   * Purpose of the function: Resets the displayed trips to show all trips without any filters applied.
+   * Input: None
+   * Output: Updates displayTrips state to display all trips from allTrips
+   */
+  const handleReset = () => {
+    setDisplayTrips(allTrips);
+  };
+
   const columnsSchemaTrips = [
-    { key: "status",        header: t('refunds.status'),         width: "w-[22%]", render: (value: string) => renderStatus(value, t) },
+    { key: "status",        header: t('refunds.status'),         width: "w-[16%]", render: (value: string) => renderStatus(value, t) },
     { key: "title",         header: t('refunds.trip'),           width: "w-[16%]" },
-    { key: "date",          header: t('refunds.tripDate'),       width: "w-[12%]" },
-    { key: "origin",        header: t('refunds.departurePlace'), width: "w-[13%]" },
-    { key: "advance_money", header: t('refunds.advance'),        width: "w-[5%]" },
-    { key: "createdAt",     header: t('refunds.requestDate'),    width: "w-[21%]" },
-    { key: "action",        header: "",                          width: "w-[11%]" },
+    { key: "origin",        header: t('refunds.origin'),         width: "w-[10%]" },
+    { key: "date",          header: t('refunds.tripDate'),       width: "w-[11%]" },
+    { key: "destination",   header: t('refunds.departurePlace'), width: "w-[10%]" },
+    { key: "arrivalDate",   header: t('refunds.requestDate'),    width: "w-[11%]" },
+    { key: "advance_money", header: t('refunds.advance'),        width: "w-[17%]" },
+    { key: "action",        header: t('historial.details'),      width: "w-[9%]"  },
   ];
-  
+
   if (loading) {
     return (
       <div className="max-w-full p-6 bg-[var(--color-card-bg)] rounded-lg shadow-xl">
@@ -146,7 +219,7 @@ export const CheckRefunds = () => {
     );
   }
 
-  const dataWithActions = trips.map((trip, index: number) => ({
+  const dataWithActions = displayTrips.map((trip, index: number) => ({
     ...trip,
     action: (
       <Button
@@ -167,8 +240,11 @@ export const CheckRefunds = () => {
             <h2 className="text-2xl font-bold text-[var(--color-page-text-title)]">
                 {t('refunds.vouchersToRegister')}
             </h2>
-            <RefreshButton />
+            <RefreshButton onClick={fetchTrips} />
           </div>
+
+          {/* Filter panel */}
+          <FilterPanel onSearch={handleSearch} onReset={handleReset} statusOptions={STATUS_OPTIONS_REFUND_SOI} />
 
           <div id="list_requests">
             <Table
@@ -176,7 +252,7 @@ export const CheckRefunds = () => {
               data={dataWithActions}
               itemsPerPage={7}
             />
-        </div>
+          </div>
           </div>
       </Tutorial>
       </>

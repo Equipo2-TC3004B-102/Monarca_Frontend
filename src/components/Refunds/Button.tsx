@@ -4,7 +4,7 @@
  * It provides a customizable button with properties for id, label, className, disabled state, and click handler.
  * Authors: Original Moncarca team
  * Last Modification made: 
- * 25/02/2026 Nicolas Quintana Added detailed comments and documentation for 
+ * 25/02/2026 [Nicolas Quintana] Added detailed comments and documentation for 
  * clarity and maintainability.
  */
 import React from "react";

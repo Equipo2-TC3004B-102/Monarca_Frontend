@@ -4,7 +4,7 @@
  *              and permission-based navigation links using SidebarOption items.
  * Authors: Original Moncarca team
  * Last Modification made:
- * 19/05/2026 [Julio Rodriguez]: Hide travel history link for admin users; use view_travel_agent_history for TA history link; fix duplicated label for travel agents.
+ * 04/06/2026 [Sergio Jiawei Xuan] Removed transition-colors to centralize theme transitions via theme-transitioning class.
  */
 
 // ***************** images *****************
@@ -35,15 +35,15 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
   return (
     <aside
       id="logo-sidebar"
-      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--black)]"      aria-label="Sidebar"
+      className="w-[200px] md:w-[250px] h-full pt-10 bg-[var(--color-card-bg)] text-[var(--color-page-text)]"      aria-label="Sidebar"
     >
-      <div className="h-full px-3 pb-4 overflow-y-auto">
+      <div className="h-full px-3 pb-4 overflow-y-auto flex flex-col">
         <div className="flex items-center bg-[var(--dark-blue)] mb-6 w-[120px] h-[120px] mx-auto p-4 rounded-lg">
             <img src={logo} className="invert mx-auto" alt="Monarca Logo" />
         </div>
-        <div className="flex flex-col items-center justify-center mb-6 text-center">
+        {/* <div className="flex flex-col items-center justify-center mb-6 text-center">
           <p className="text-[var(--color-page-text-title)] font-bold">{user.userName} {user.userLastName} </p>
-        </div>
+        </div> */}
         <ul className="space-y-2 font-medium">
             <SidebarOption
               label={t('sidebar.home')}
@@ -66,7 +66,7 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {!isAdmin && user.userPermissions.includes("view_approved_request_history" as Permission) && (
               <SidebarOption label={t('sidebar.approvalHistory')} pathIcon="/assets/historial_de_viajes_aprobados.png" link="/history?view=approvals" onClick={onNavigate}/>
             )}
-            {!isAdmin && user.userPermissions.includes("approve_vouchers" as Permission) && (
+            {!isAdmin && user.userPermissions.includes("approve_request" as Permission) && (
               <SidebarOption label={t('sidebar.vouchersAndRefunds')} pathIcon="/assets/comprobantes_de_gastos_por_aprobar.png" link="/refunds-review" onClick={onNavigate}/>
             )}
             {!isAdmin && user.userPermissions.includes("check_budgets" as Permission) && (
@@ -99,17 +99,23 @@ function Sidebar({ user, onNavigate }: { user: AuthState, onNavigate?: () => voi
             {user.isCompanyAdmin && (
               <SidebarOption label={t('sidebar.notifications')} pathIcon="/assets/crear_solicitud_de_viaje.png" link="/admin/notifications" onClick={onNavigate}/>
             )}
+            {user.isCompanyAdmin && (
+              <SidebarOption label={t('sidebar.auditLogs')} pathIcon="/assets/historial_de_viajes.png" link="/admin/audit-logs" onClick={onNavigate}/>
+            )}
+            {user.isCompanyAdmin && (
+              <SidebarOption label={t('sidebar.companyRequests')} pathIcon="/assets/historial_de_viajes.png" link="/admin/company-requests" onClick={onNavigate}/>
+            )}
         </ul>
-        <div className="flex gap-7 items-center p-2 mt-10">
-            <DarkModeButton className="block md:hidden"></DarkModeButton>
+        <div className="flex gap-7 items-center justify-center p-2 mt-auto">
+            <DarkModeButton className="block md:hidden border border-gray-300 dark:border-gray-600"></DarkModeButton>
             <button
               type="button"
               title={i18n.language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
               onClick={toggleLanguage}
-              className="block md:hidden hover:scale-110 transition-transform mt-3"
+              className="block md:hidden hover:scale-110 transition-transform"
             >
               <img
-                src={i18n.language === 'es' ? '/assets/flag_mx.svg' : '/assets/flag_us.svg'}
+                src={i18n.language === 'es' ? '/assets/flag_es.svg' : '/assets/flag_gb.svg'}
                 alt={i18n.language === 'es' ? 'Español' : 'English'}
                 className="w-12 h-8 rounded-sm object-cover shadow-sm"
               />
